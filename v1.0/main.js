@@ -108,6 +108,8 @@ let currentSlotIndex = null;
 let currentGlobalSave = null;
 let creationFlow = null;
 let runtimeEventUnsubscribers = [];
+let lastLifecycleSaveAt = 0;
+let lifecycleSaveInFlight = null;
 
 // 暴露全局接口供 gm.js 使用
 window.Game = { get currentPlayer() { return game?.player ?? null; } };
@@ -132,6 +134,53 @@ function clearRuntimeEventHandlers() {
   }
 }
 
+function saveCurrentPlayerNow(reason = 'manual', { force = false } = {}) {
+  if (!game?.player || !currentSlotIndex) return Promise.resolve(false);
+
+  const now = Date.now();
+  if (!force && now - lastLifecycleSaveAt < 2000) {
+    return lifecycleSaveInFlight || Promise.resolve(false);
+  }
+
+  lastLifecycleSaveAt = now;
+  const playerToSave = game.player;
+  const slotToSave = currentSlotIndex;
+  const promise = SaveManager.savePlayerState(playerToSave, slotToSave)
+    .then(() => true)
+    .catch((err) => {
+      console.warn(`[存档] ${reason} 触发保存失败:`, err);
+      return false;
+    })
+    .finally(() => {
+      if (lifecycleSaveInFlight === promise) {
+        lifecycleSaveInFlight = null;
+      }
+    });
+
+  lifecycleSaveInFlight = promise;
+  return promise;
+}
+
+function setupPageLifecycleAutoSave() {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      saveCurrentPlayerNow('visibility_hidden', { force: true });
+    }
+  });
+
+  window.addEventListener('blur', () => {
+    saveCurrentPlayerNow('window_blur');
+  });
+
+  window.addEventListener('pagehide', () => {
+    saveCurrentPlayerNow('pagehide', { force: true });
+  });
+
+  window.addEventListener('beforeunload', () => {
+    saveCurrentPlayerNow('beforeunload', { force: true });
+  });
+}
+
 async function cleanupCurrentRuntime({ save = true } = {}) {
   const playerToSave = game?.player || null;
   const slotToSave = currentSlotIndex;
@@ -154,6 +203,8 @@ async function cleanupCurrentRuntime({ save = true } = {}) {
   currentSlotIndex = null;
   window._attrSys = attrSys;
 }
+
+setupPageLifecycleAutoSave();
 
 // ========================
 // 启动序列
@@ -424,7 +475,7 @@ async function initGameForPlayer(player, slotIndex) {
     _saveTimer += delta;
     if (_saveTimer >= 60000) {
       _saveTimer = 0;
-      SaveManager.savePlayerState(player, currentSlotIndex);
+      saveCurrentPlayerNow('auto_interval', { force: true });
     }
   });
 
@@ -437,14 +488,14 @@ async function initGameForPlayer(player, slotIndex) {
   // 事件监听
   onRuntimeEvent('player.level_up', (data) => {
     console.log(`[事件] player.level_up: Lv${data.from_level}→Lv${data.to_level} 气功点+${data.gained_points}`);
-    SaveManager.savePlayerState(player, currentSlotIndex);
+    saveCurrentPlayerNow('player_level_up', { force: true });
   });
   onRuntimeEvent('player.death', () => {
     console.log('[系统] 玩家死亡惩罚已结算，等待复活...');
     player.auto_play = player.auto_play || {};
     player.auto_play.is_auto_play = false;
     AutoPlaySystem.stop(player, 'death');
-    SaveManager.savePlayerState(player, currentSlotIndex);
+    saveCurrentPlayerNow('player_death', { force: true });
   });
   onRuntimeEvent('monster.death', (data) => {
     console.log(`[事件] monster.death: ${data.monsterKey} exp+${data.exp}`);
@@ -714,8 +765,9 @@ window.game = {
 
   saveNow() {
     if (game?.player && currentSlotIndex) {
-      SaveManager.savePlayerState(game.player, currentSlotIndex);
-      console.log('[存档] 已保存');
+      saveCurrentPlayerNow('manual_save', { force: true }).then((success) => {
+        console.log(success ? '[存档] 已保存' : '[存档] 保存失败');
+      });
     }
   },
 
