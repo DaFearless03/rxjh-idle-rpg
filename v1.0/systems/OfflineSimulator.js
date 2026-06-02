@@ -4,11 +4,10 @@
  * @ref 13_save.simulation_flow
  */
 import { SaveManager } from '../core/SaveManager.js';
-import { InventorySystem } from './InventorySystem.js';
-import { DropSystem } from './DropSystem.js';
 import { AttributeSystem } from './AttributeSystem.js';
+import { BattleSystem } from './BattleSystem.js';
 import { eventBus } from '../core/EventBus.js';
-import { applyDeathExpLoss } from '../utils/formulas.js';
+import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js';
 
 export const OfflineSimulator = {
   is_in_offline_simulation: false,
@@ -40,7 +39,7 @@ export const OfflineSimulator = {
     try {
       const summary = await this._runSimulation(save, sim_seconds, onProgress);
       // 保存离线后的玩家状态
-      await SaveManager.savePlayerState(summary.player, save._slotIndex || 1);
+      await SaveManager.savePlayerState(summary._player, save._slotIndex || 1);
       onSummary(summary);
       return summary;
     } finally {
@@ -54,8 +53,7 @@ export const OfflineSimulator = {
     const total_ticks = Math.floor(sim_seconds * 1000 / TICK_MS);
 
     const player = this._restorePlayerFromSave(save);
-    const level = player.level;
-    const expToNext = save._expToNextLevel?.[level] || 999999;
+    const startGold = player.resources?.gold || 0;
 
     const summary = {
       elapsed_s: sim_seconds,
@@ -76,28 +74,37 @@ export const OfflineSimulator = {
       _player: player,
     };
 
-    const battle = save._battleSystem;
-    const attrSys = save._attrSys;
-    const dropSys = save._dropSys;
     const subZonesData = save._subZonesData;
     const currentSubZone = subZonesData?.find(sz => sz.key === save.location.current_sub_zone_key) || null;
-
-    const originalOnLevelUp = eventBus._events?.['player.level_up'];
-    eventBus.on('player.level_up', (data) => {
-      summary.level_ups.push(data);
+    const battle = new BattleSystem({
+      config: save._config,
+      player,
+      monstersData: save._monstersData || [],
+      attrSystemRef: save._attrSys,
+      dropSystemRef: save._dropSys,
+      subZonesData,
+      subZoneDropsData: save._subZoneDropsData || [],
+      currentSubZone,
+      buffSystemRef: save._buffSys || null,
     });
+    battle._quiet = true;
+
+    const onLevelUp = (data) => {
+      summary.level_ups.push(data);
+    };
+    const onMonsterDeath = (data) => {
+      summary.kills += 1;
+      summary.exp_gained += data.exp || 0;
+    };
+    eventBus.on('player.level_up', onLevelUp);
+    eventBus.on('monster.death', onMonsterDeath);
 
     try {
       for (let tick = 0; tick < total_ticks; tick++) {
-        if (battle) {
-          battle._quiet = true;
-          battle.tick(TICK_MS);
-          battle._quiet = false;
-        }
+        battle.tick(TICK_MS);
 
         // 更新统计
-        summary.gold_gained = player.resources?.gold || 0;
-        summary.kills = player.statistics?.total_kills || 0;
+        summary.gold_gained = Math.max(0, (player.resources?.gold || 0) - startGold);
 
         // 死亡检测
         if (player.hp <= 0) {
@@ -132,8 +139,8 @@ export const OfflineSimulator = {
         }
       }
     } finally {
-      eventBus.off('player.level_up');
-      if (originalOnLevelUp) eventBus.on('player.level_up', originalOnLevelUp);
+      eventBus.off('player.level_up', onLevelUp);
+      eventBus.off('monster.death', onMonsterDeath);
     }
 
     onProgress(100);
@@ -146,47 +153,12 @@ export const OfflineSimulator = {
   },
 
   _restorePlayerFromSave(save) {
-    const data = save.player;
-    const player = {
-      id: data.id,
-      name: data.name,
-      level: data.level,
-      exp: data.exp,
-      career: data.career,
-      career_history: data.career_history || [],
-      faction: data.faction || 'neutral',
-      hp: data.hp,
-      mp: data.mp,
-      resources: save.resources || { gold: 0, training: 0, merit: 0 },
-      qigong: save.qigong || { available_points: 1, invested: {}, attribute_reset_count: 0 },
-      learned_martial_arts: save.learned_martial_arts || [],
-      equipped: save.equipped || {},
-      inventory: save.inventory || { capacity: 50, slots: [], equipment_instances: {} },
-      warehouse: save.warehouse || { capacity: 50, slots: [], equipment_instances: {} },
-      quests: save.quests || { accepted: [], completed: [] },
-      location: save.location || { current_map_key: 'town_xuanbo', current_sub_zone_key: null, last_wilderness_sub_zone: null },
-      auto_play: save.auto_play || { is_auto_play: false, auto_consume: {}, auto_heal_skill: {}, auto_resupply: {} },
-      offline: save.offline || { last_save_timestamp: Date.now() },
-      statistics: save.statistics || { total_kills: 0, total_playtime_ms: 0, total_gold_earned: 0, total_deaths: 0 },
-    };
-
-    // AttributeSystem.recompute
-    const attrSys = new AttributeSystem({ attributeConstants: save._attributeConstants });
-    attrSys.recompute(player);
-
-    // clamp hp/mp
-    player.hp = Math.max(0, Math.min(player.hp, player.maxHp));
-    player.mp = Math.max(0, Math.min(player.mp, player.maxMp));
-
-    // 重置运行时瞬态
-    player.cooldowns = {};
-    player.buffs = [];
-    player.last_hp_potion_time = 0;
-    player.last_mp_potion_time = 0;
-    player.last_heal_cast_time = 0;
-    player._hooks = {};
-
-    return player;
+    const attrSystem = save._attrSys || new AttributeSystem({ attributeConstants: save._attributeConstants });
+    return restoreRuntimePlayerFromSave(save, {
+      careersData: save._careersData || [],
+      equipmentsData: save._equipmentsData || [],
+      attrSystem,
+    });
   },
 
   _applyPlayerDeath(player, expToNextLevel) {

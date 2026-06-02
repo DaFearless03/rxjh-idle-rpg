@@ -29,6 +29,7 @@ import { AutoPlaySystem } from './systems/AutoPlaySystem.js';
 import { TeleportSystem } from './systems/TeleportSystem.js';
 import { OfflineSimulator } from './systems/OfflineSimulator.js';
 import { storage } from './utils/storage.js';
+import { restoreRuntimePlayerFromSave } from './utils/player_restore.js';
 import { UIManager } from './ui/UIManager.js';
 import { buildMainScreenUI } from './ui/MainScreenUI.js';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js';
@@ -259,26 +260,15 @@ async function runCreateCharacterFlow(targetSlotIndex) {
 // 进入角色（加载存档 + 初始化游戏）
 // ========================
 async function enterCharacter(slotIndex) {
-  const raw = storage.get(`player-${slotIndex}`);
-  if (!raw) {
-    console.log(`[错误] 槽位 ${slotIndex} 无存档`);
+  const save = await SaveManager.restorePlayerFromSave(slotIndex);
+  if (!save) {
+    console.log(`[错误] 槽位 ${slotIndex} 无有效存档`);
     return;
   }
 
-  let parsed;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    console.log('[错误] 存档损坏');
-    return;
-  }
-
-  const save = parsed.data || parsed;
   currentSlotIndex = slotIndex;
-
-  // offline.last_save_timestamp 更新
   save.offline = save.offline || {};
-  save.offline.last_save_timestamp = Date.now();
+  const lastSaveTimestamp = save.offline.last_save_timestamp || Date.now();
 
   // AttributeSystem
   attrSys = new AttributeSystem({ attributeConstants: config.attribute_constants });
@@ -298,12 +288,10 @@ async function enterCharacter(slotIndex) {
   const player = restorePlayerFromSave(save);
 
   // 检查离线收益
-  const elapsed = Date.now() - (save.offline?.last_save_timestamp || Date.now());
+  const elapsed = Date.now() - lastSaveTimestamp;
   const simSeconds = elapsed / 1000;
   const wasAutoPlaying = save.auto_play?.is_auto_play && save.location?.current_sub_zone_key;
   const offlineHours = simSeconds / 3600;
-
-  await initGameForPlayer(player, slotIndex);
 
   // 离线模拟（若上次在挂机且离线超过1分钟）
   if (wasAutoPlaying && offlineHours > (1 / 60)) {
@@ -313,8 +301,13 @@ async function enterCharacter(slotIndex) {
       _slotIndex: slotIndex,
       _attrSys: attrSys,
       _dropSys: dropSys,
-      _battleSystem: game.battle,
+      _config: config,
+      _monstersData: monstersData,
       _subZonesData: subZonesData,
+      _subZoneDropsData: subZoneDropsData,
+      _buffSys: BuffSystem,
+      _careersData: careersData,
+      _equipmentsData: equipmentsData,
       _expToNextLevel: config.exp_to_next_level,
       _attributeConstants: config.attribute_constants,
     }, {
@@ -329,54 +322,19 @@ async function enterCharacter(slotIndex) {
       Object.assign(player, summary._player || {});
     }
   }
+
+  await initGameForPlayer(player, slotIndex);
 }
 
 /**
  * restore_player_from_save 契约（5步，不可调换）
  */
 function restorePlayerFromSave(save) {
-  // 1. 反序列化基础字段（transfer_count/career_family 由 career 推导）
-  const player = {
-    id: save.player?.id,
-    name: save.player?.name,
-    level: save.player?.level || 1,
-    exp: save.player?.exp || 0,
-    career: save.player?.career || 'warrior_blade',
-    career_history: save.player?.career_history || [],
-    faction: save.player?.faction || 'neutral',
-    hp: save.player?.hp || 100,
-    mp: save.player?.mp || 100,
-    resources: save.resources || { gold: 0, training: 0, merit: 0 },
-    qigong: save.qigong || { available_points: 1, invested: {}, attribute_reset_count: 0 },
-    learned_martial_arts: save.learned_martial_arts || [],
-    equipped: save.equipped || {},
-    inventory: save.inventory || { capacity: 50, slots: [], equipment_instances: {} },
-    warehouse: save.warehouse || { capacity: 50, slots: [], equipment_instances: {} },
-    quests: save.quests || { accepted: [], completed: [] },
-    location: save.location || { current_map_key: 'town_xuanbo', current_sub_zone_key: null, last_wilderness_sub_zone: null },
-    auto_play: save.auto_play || { is_auto_play: false, auto_consume: {}, auto_heal_skill: {}, auto_resupply: {} },
-    offline: save.offline || { last_save_timestamp: Date.now() },
-    statistics: save.statistics || { total_kills: 0, total_playtime_ms: 0, total_gold_earned: 0, total_deaths: 0 },
-    _equipTemplates: equipmentsData,
-  };
-
-  // 2. AttributeSystem.recompute 算派生属性
-  attrSys.recompute(player);
-
-  // 3. clamp hp/mp
-  player.hp = Math.max(0, Math.min(player.hp, player.maxHp));
-  player.mp = Math.max(0, Math.min(player.mp, player.maxMp));
-
-  // 4. 重置运行时瞬态
-  player.cooldowns = {};
-  player.buffs = [];
-  player.last_hp_potion_time = 0;
-  player.last_mp_potion_time = 0;
-  player.last_heal_cast_time = 0;
-  player._hooks = {};
-  player._baseLevel = player.level;
-
-  return player;
+  return restoreRuntimePlayerFromSave(save, {
+    careersData,
+    equipmentsData,
+    attrSystem: attrSys,
+  });
 }
 
 /**

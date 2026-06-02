@@ -27,8 +27,11 @@ export const SaveManager = {
   async savePlayerState(player, slotIndex) {
     if (this._guard()) return;
 
-    const save = this._buildPlayerSave(player);
     const now = Date.now();
+    if (!player.offline) player.offline = {};
+    player.offline.last_save_timestamp = now;
+
+    const save = this._buildPlayerSave(player, now);
     const checksum = await computeChecksum(save, SAVE_VERSION, now);
     const payload = { data: save, version: SAVE_VERSION, saved_at: now, checksum };
 
@@ -103,7 +106,7 @@ export const SaveManager = {
    * 构造玩家存档体（不含外层包装）
    * @param {Object} player
    */
-  _buildPlayerSave(player) {
+  _buildPlayerSave(player, savedAt = Date.now()) {
     return {
       player: {
         id: player.id,
@@ -169,7 +172,7 @@ export const SaveManager = {
         },
       },
       offline: {
-        last_save_timestamp: player.offline?.last_save_timestamp ?? Date.now(),
+        last_save_timestamp: savedAt,
       },
       statistics: {
         total_kills: player.statistics?.total_kills ?? 0,
