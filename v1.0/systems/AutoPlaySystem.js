@@ -9,6 +9,17 @@ import { eventBus } from '../core/EventBus.js';
 export const AutoPlaySystem = {
   is_auto_play: false,
   _cooldowns: { hp_potion: 0, mp_potion: 0, heal_skill: 0 },
+  _potionShopItems: [],
+
+  setPotionShopItems(items = []) {
+    this._potionShopItems = Array.isArray(items) ? items : [];
+  },
+
+  syncFromPlayer(player) {
+    this.is_auto_play = !!player?.auto_play?.is_auto_play;
+    this._cooldowns = { hp_potion: 0, mp_potion: 0, heal_skill: 0 };
+    this._resupplyCheckTimer = 0;
+  },
 
   /**
    * 进入挂机状态
@@ -38,8 +49,8 @@ export const AutoPlaySystem = {
    * @param {Function} teleportFn teleport(source, subZone) 传送函数引用
    */
   tick(player, deltaMs, teleportFn) {
-    if (!this.is_auto_play) return;
     if (!player.auto_play?.is_auto_play) return;
+    this.is_auto_play = true;
 
     // 更新 cd
     this._cooldowns.hp_potion = Math.max(0, this._cooldowns.hp_potion - deltaMs);
@@ -47,8 +58,12 @@ export const AutoPlaySystem = {
     this._cooldowns.heal_skill = Math.max(0, this._cooldowns.heal_skill - deltaMs);
 
     // auto_consume
-    this._autoConsumeHP(player, deltaMs);
-    this._autoConsumeMP(player, deltaMs);
+    const consumedHp = this._autoConsumeHP(player, deltaMs);
+    const consumedMp = this._autoConsumeMP(player, deltaMs);
+    if (consumedHp || consumedMp) {
+      this._autoResupplyCheck(player, teleportFn);
+      if (!player.auto_play?.is_auto_play) return;
+    }
 
     // auto_heal_skill
     this._autoHealSkill(player, deltaMs);
@@ -63,14 +78,14 @@ export const AutoPlaySystem = {
 
   _autoConsumeHP(player, deltaMs) {
     const cfg = player.auto_play?.auto_consume?.hp_potion;
-    if (!cfg?.enabled || !cfg?.selected_item_key) return;
-    if (this._cooldowns.hp_potion > 0) return;
-    if (player.hp / player.maxHp > cfg.threshold) return;
-    if (InventorySystem.count(player, cfg.selected_item_key) <= 0) return;
+    if (!cfg?.enabled || !cfg?.selected_item_key) return false;
+    if (this._cooldowns.hp_potion > 0) return false;
+    if (player.hp / player.maxHp > cfg.threshold) return false;
+    if (InventorySystem.count(player, cfg.selected_item_key) <= 0) return false;
 
     // 消耗药剂
     const consumed = InventorySystem.remove(player, cfg.selected_item_key, 1);
-    if (!consumed) return;
+    if (!consumed) return false;
 
     // 恢复量
     const baseRecovery = this._getPotionRecovery(cfg.selected_item_key);
@@ -80,17 +95,18 @@ export const AutoPlaySystem = {
 
     this._cooldowns.hp_potion = 5000;
     eventBus.emit('autoplay.consume_hp', { item: cfg.selected_item_key, recovered });
+    return true;
   },
 
   _autoConsumeMP(player, deltaMs) {
     const cfg = player.auto_play?.auto_consume?.mp_potion;
-    if (!cfg?.enabled || !cfg?.selected_item_key) return;
-    if (this._cooldowns.mp_potion > 0) return;
-    if (player.mp / player.maxMp > cfg.threshold) return;
-    if (InventorySystem.count(player, cfg.selected_item_key) <= 0) return;
+    if (!cfg?.enabled || !cfg?.selected_item_key) return false;
+    if (this._cooldowns.mp_potion > 0) return false;
+    if (player.mp / player.maxMp > cfg.threshold) return false;
+    if (InventorySystem.count(player, cfg.selected_item_key) <= 0) return false;
 
     const consumed = InventorySystem.remove(player, cfg.selected_item_key, 1);
-    if (!consumed) return;
+    if (!consumed) return false;
 
     const baseRecovery = this._getPotionRecovery(cfg.selected_item_key);
     const mpRecoveryBonus = player.mpRecoveryBonus || 0;
@@ -99,6 +115,7 @@ export const AutoPlaySystem = {
 
     this._cooldowns.mp_potion = 5000;
     eventBus.emit('autoplay.consume_mp', { item: cfg.selected_item_key, recovered });
+    return true;
   },
 
   _autoHealSkill(player, deltaMs) {
@@ -123,28 +140,92 @@ export const AutoPlaySystem = {
   },
 
   _autoResupplyCheck(player, teleportFn) {
+    if (!this._willTriggerResupply(player)) return false;
+
+    const previousSubZone = player.location?.current_sub_zone_key || player.location?.last_wilderness_sub_zone || null;
+    if (previousSubZone) {
+      player.location = player.location || {};
+      player.location.last_wilderness_sub_zone = previousSubZone;
+    }
+
+    if (teleportFn) {
+      teleportFn('auto_resupply', null);
+    } else {
+      player.location = player.location || {};
+      player.location.current_sub_zone_key = null;
+      player.location.current_map_key = 'town_xuanbo';
+    }
+
+    // Town full restore.
+    player.hp = player.maxHp;
+    player.mp = player.maxMp;
+
+    const purchaseSummary = this._autoBuyPotions(player);
+    if (this._willTriggerResupply(player)) {
+      player._stopped_reason = 'auto_resupply_gold_insufficient';
+      this.stop(player, 'auto_resupply_gold_insufficient');
+      return true;
+    }
+
+    const target = player.location?.last_wilderness_sub_zone;
+    if (target && teleportFn) {
+      teleportFn('auto_resupply', target);
+    } else if (target) {
+      player.location.current_sub_zone_key = target;
+      player.location.current_map_key = 'wilderness_xuanbo_suburb';
+    }
+
+    eventBus.emit('autoplay.resupply', purchaseSummary);
+    return true;
+  },
+
+  _willTriggerResupply(player) {
     const rules = player.auto_play?.auto_resupply?.trigger_rules;
-    if (!rules) return;
+    if (!rules) return false;
 
-    let triggered = false;
-    if (rules.hp?.enabled && rules.hp?.selected_potion) {
-      if (InventorySystem.count(player, rules.hp.selected_potion) < rules.hp.trigger_threshold) {
-        triggered = true;
-      }
-    }
-    if (rules.mp?.enabled && rules.mp?.selected_potion) {
-      if (InventorySystem.count(player, rules.mp.selected_potion) < rules.mp.trigger_threshold) {
-        triggered = true;
-      }
+    return this._isResupplyRuleTriggered(player, rules.hp)
+      || this._isResupplyRuleTriggered(player, rules.mp);
+  },
+
+  _isResupplyRuleTriggered(player, rule) {
+    if (!rule?.enabled || !rule?.selected_potion) return false;
+    return InventorySystem.count(player, rule.selected_potion) < (rule.trigger_threshold ?? 0);
+  },
+
+  _autoBuyPotions(player) {
+    const purchaseRules = player.auto_play?.auto_resupply?.purchase_rules;
+    const summary = { bought: {}, gold_spent: 0 };
+    if (!purchaseRules) return summary;
+
+    for (const rule of [purchaseRules.hp, purchaseRules.mp]) {
+      if (!rule?.enabled || !rule?.selected_potion) continue;
+
+      const current = InventorySystem.count(player, rule.selected_potion);
+      const need = (rule.target_quantity ?? 0) - current;
+      if (need <= 0) continue;
+
+      const unitPrice = this._getPotionBuyPrice(rule.selected_potion);
+      if (unitPrice <= 0) continue;
+
+      const affordable = Math.min(need, Math.floor((player.resources?.gold || 0) / unitPrice));
+      if (affordable <= 0) continue;
+
+      const result = InventorySystem.add(player, rule.selected_potion, affordable);
+      const bought = result.added ?? (result.success ? affordable : 0);
+      if (bought <= 0) continue;
+
+      const spent = bought * unitPrice;
+      player.resources.gold -= spent;
+      summary.bought[rule.selected_potion] = (summary.bought[rule.selected_potion] || 0) + bought;
+      summary.gold_spent += spent;
     }
 
-    if (triggered && teleportFn) {
-      // 保存当前位置
-      if (player.location?.current_sub_zone_key) {
-        player.location.last_wilderness_sub_zone = player.location.current_sub_zone_key;
-      }
-      teleportFn('auto_resupply', 'town_xuanbo');
-    }
+    return summary;
+  },
+
+  _getPotionBuyPrice(itemKey) {
+    const item = this._potionShopItems.find(entry => entry.item_key === itemKey);
+    return item?.buy_price || 0;
   },
 
   _getPotionRecovery(itemKey) {

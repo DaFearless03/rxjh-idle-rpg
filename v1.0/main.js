@@ -92,6 +92,9 @@ InventorySystem.setItemClassMap({
   boxKeys,
   questItemKeys: Object.keys(questsData.quest_items || {}),
 });
+AutoPlaySystem.setPotionShopItems(
+  npcsData.find(npc => npc.shop_type === 'potion')?.items || []
+);
 
 // 暴露全局配置供 UI/GMM 使用
 window.expToNext = config.exp_to_next_level;
@@ -464,6 +467,7 @@ async function initGameForPlayer(player, slotIndex) {
 
   loop = new GameLoop({ tickIntervalMs: 100 });
   game.loop = loop;
+  AutoPlaySystem.syncFromPlayer(player);
 
   // 自动存档：每秒检查一次
   let _saveTimer = 0;
@@ -708,26 +712,12 @@ window.game = {
   teleport(subZoneKey) {
     if (!game?.player) return;
     TeleportSystem.teleport(subZoneKey, 'player_click', game.player, game);
-    // 切换 zone 自动停止挂机
-    if (game.player.auto_play?.is_auto_play) {
-      AutoPlaySystem.stop(game.player, 'zone_change');
-      console.log('[挂机] 切换区域自动停止挂机');
-    }
-    // 更新 BattleSystem currentSubZone
-    const sz = subZonesData.find(s => s.key === subZoneKey) || null;
-    game.battle._currentSubZone = sz;
-    game.battle._initialSpawned = false;
     console.log(`[传送] 到达 ${subZoneKey}`);
   },
 
   town() {
     if (!game?.player) return;
-    TeleportSystem.teleportToTown(game.player, game);
-    if (game.player.auto_play?.is_auto_play) {
-      AutoPlaySystem.stop(game.player, 'zone_change');
-    }
-    const sz = subZonesData.find(s => s.key === null) || null;
-    game.battle._currentSubZone = null;
+    TeleportSystem.teleport(null, 'player_click', game.player, game);
     console.log('[传送] 回城');
   },
 

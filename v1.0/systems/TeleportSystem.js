@@ -5,6 +5,7 @@
  */
 import { eventBus } from '../core/EventBus.js';
 import { forceCloseDialog } from './NPCSystem.js';
+import { AutoPlaySystem } from './AutoPlaySystem.js';
 
 export const TeleportSystem = {
   /**
@@ -17,18 +18,24 @@ export const TeleportSystem = {
   teleport(subZoneKey, source, player, game) {
     const prev = player.location?.current_sub_zone_key || null;
 
+    if (source === 'player_click' && player.auto_play?.is_auto_play) {
+      AutoPlaySystem.stop(player, 'zone_change');
+    }
+
     // 更新位置
     player.location = player.location || {};
-    player.location.last_wilderness_sub_zone = prev;
+    if (prev) {
+      player.location.last_wilderness_sub_zone = prev;
+    }
     player.location.current_sub_zone_key = subZoneKey;
     player.location.current_map_key = subZoneKey ? 'wilderness_xuanbo_suburb' : 'town_xuanbo';
 
-    // source="player_click" → 重置战斗现场
-    if (source === 'player_click') {
-      if (game?.battle) {
-        game.battle.monsters = [];
-        game.battle._mainTargetKey = null;
-      }
+    // 位置改变后重建战斗现场，避免旧地图怪物残留。
+    if (game?.battle) {
+      game.battle.monsters = [];
+      game.battle._mainTargetKey = null;
+      game.battle._currentSubZone = game.subZonesData?.find(s => s.key === subZoneKey) || null;
+      game.battle._initialSpawned = false;
     }
 
     // 关闭 NPC 对话

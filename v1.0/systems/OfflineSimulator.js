@@ -6,6 +6,7 @@
 import { SaveManager } from '../core/SaveManager.js';
 import { AttributeSystem } from './AttributeSystem.js';
 import { BattleSystem } from './BattleSystem.js';
+import { AutoPlaySystem } from './AutoPlaySystem.js';
 import { eventBus } from '../core/EventBus.js';
 import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js';
 
@@ -96,15 +97,35 @@ export const OfflineSimulator = {
       summary.kills += 1;
       summary.exp_gained += data.exp || 0;
     };
+    const onConsumeHp = (data) => {
+      summary.potions_consumed[data.item] = (summary.potions_consumed[data.item] || 0) + 1;
+    };
+    const onConsumeMp = (data) => {
+      summary.potions_consumed[data.item] = (summary.potions_consumed[data.item] || 0) + 1;
+    };
     eventBus.on('player.level_up', onLevelUp);
     eventBus.on('monster.death', onMonsterDeath);
+    eventBus.on('autoplay.consume_hp', onConsumeHp);
+    eventBus.on('autoplay.consume_mp', onConsumeMp);
+    AutoPlaySystem.syncFromPlayer(player);
 
     try {
       for (let tick = 0; tick < total_ticks; tick++) {
         battle.tick(TICK_MS);
+        const goldBeforeAutoPlay = player.resources?.gold || 0;
+        AutoPlaySystem.tick(player, TICK_MS, (source, zone) => {
+          this._teleportOffline(player, battle, subZonesData, zone);
+          if (source === 'auto_resupply' && zone === null) {
+            summary.resupply_trips += 1;
+          }
+        });
+        const goldAfterAutoPlay = player.resources?.gold || 0;
+        if (goldAfterAutoPlay < goldBeforeAutoPlay) {
+          summary.gold_spent_on_potions += goldBeforeAutoPlay - goldAfterAutoPlay;
+        }
 
         // 更新统计
-        summary.gold_gained = Math.max(0, (player.resources?.gold || 0) - startGold);
+        summary.gold_gained = Math.max(0, (player.resources?.gold || 0) + summary.gold_spent_on_potions - startGold);
 
         // 死亡检测
         if (player.hp <= 0) {
@@ -141,6 +162,8 @@ export const OfflineSimulator = {
     } finally {
       eventBus.off('player.level_up', onLevelUp);
       eventBus.off('monster.death', onMonsterDeath);
+      eventBus.off('autoplay.consume_hp', onConsumeHp);
+      eventBus.off('autoplay.consume_mp', onConsumeMp);
     }
 
     onProgress(100);
@@ -150,6 +173,20 @@ export const OfflineSimulator = {
     player.mp = Math.max(0, Math.min(player.mp, player.maxMp));
 
     return summary;
+  },
+
+  _teleportOffline(player, battle, subZonesData, subZoneKey) {
+    const prev = player.location?.current_sub_zone_key || null;
+    player.location = player.location || {};
+    if (prev) {
+      player.location.last_wilderness_sub_zone = prev;
+    }
+    player.location.current_sub_zone_key = subZoneKey;
+    player.location.current_map_key = subZoneKey ? 'wilderness_xuanbo_suburb' : 'town_xuanbo';
+    battle.monsters = [];
+    battle._mainTargetKey = null;
+    battle._currentSubZone = subZonesData?.find(s => s.key === subZoneKey) || null;
+    battle._initialSpawned = false;
   },
 
   _restorePlayerFromSave(save) {
