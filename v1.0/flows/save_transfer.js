@@ -4,10 +4,11 @@
  * @ref 13_save.save_transfer
  */
 import { storage } from '../utils/storage.js';
-import { base64Encode, base64Decode } from '../utils/crypto.js';
+import { base64Encode, base64Decode, computeChecksum } from '../utils/crypto.js';
 import { SaveManager } from '../core/SaveManager.js';
 
 const SAVE_VERSION = '1.0';
+const PLAYER_KEY_RE = /^player-\d+$/;
 
 /**
  * 导出存档
@@ -27,17 +28,15 @@ export function exportSave(opts = {}) {
     // 导出全部角色 + global
     const globalSave = SaveManager.restoreGlobalState();
     const players = {};
-    for (const key of storage.keys()) {
-      if (key.startsWith('player-') && !key.endsWith('-bak')) {
+    for (const key of storage.keys().filter(k => PLAYER_KEY_RE.test(k)).sort(sortPlayerKeys)) {
+      if (PLAYER_KEY_RE.test(key)) {
         const raw = storage.get(key);
         if (raw) {
-          const parsed = JSON.parse(raw);
-          // 去掉外层包装，只取 data
-          players[key] = parsed.data || parsed;
+          players[key] = JSON.parse(raw);
         }
       }
     }
-    const pack = { game: globalSave, players, export_meta: exportMeta };
+    const pack = { include_all_characters: true, game: globalSave, players, export_meta: exportMeta };
     return base64Encode(pack);
   } else {
     // 仅当前角色
@@ -47,8 +46,7 @@ export function exportSave(opts = {}) {
     const raw = storage.get(`player-${slot}`);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    const playerData = parsed.data || parsed;
-    const pack = { player: { slot_index: slot, data: playerData }, export_meta: exportMeta };
+    const pack = { include_all_characters: false, player: { slot_index: slot, data: parsed }, export_meta: exportMeta };
     return base64Encode(pack);
   }
 }
@@ -68,13 +66,17 @@ export async function importSave(base64Str) {
   }
 
   // 校验 schema_version
-  const version = pack.export_meta?.schema_version;
+  if (!pack.export_meta) {
+    return { success: false, message: '存档包损坏（缺少导出信息）' };
+  }
+
+  const version = pack.export_meta.schema_version;
   if (version !== SAVE_VERSION) {
     // v1.0 不做迁移，直接拒绝
     return { success: false, message: `存档版本不匹配（导出:${version} / 当前:${SAVE_VERSION}）` };
   }
 
-  const includeAll = pack.players != null; // 通过有无 players 字段判断是否全量包
+  const includeAll = pack.include_all_characters === true || (pack.include_all_characters == null && pack.players != null);
 
   if (includeAll) {
     return fullReplaceActions(pack);
@@ -90,6 +92,22 @@ async function fullReplaceActions(pack) {
   // 1. 校验版本
   if (pack.export_meta?.schema_version !== SAVE_VERSION) {
     return { success: false, message: '版本不匹配' };
+  }
+  if (!pack.game || typeof pack.game !== 'object') {
+    return { success: false, message: '全量存档包缺少全局存档' };
+  }
+  if (!pack.players || typeof pack.players !== 'object') {
+    return { success: false, message: '全量存档包缺少角色存档' };
+  }
+
+  const normalizedPlayers = {};
+  for (const [key, data] of Object.entries(pack.players)) {
+    if (!PLAYER_KEY_RE.test(key)) continue;
+    const normalized = await normalizePlayerPayload(data);
+    if (!normalized.success) {
+      return { success: false, message: `${key} ${normalized.message}` };
+    }
+    normalizedPlayers[key] = normalized.payload;
   }
 
   // 1.5 写入事务标记
@@ -107,10 +125,10 @@ async function fullReplaceActions(pack) {
     if (pack.game) {
       storage.set('game', JSON.stringify(pack.game));
     }
-    if (pack.players) {
-      for (const [key, data] of Object.entries(pack.players)) {
-        storage.set(key, JSON.stringify(data));
-      }
+    for (const [key, payload] of Object.entries(normalizedPlayers)) {
+      const json = JSON.stringify(payload);
+      storage.set(key, json);
+      storage.set(`${key}-bak`, json);
     }
 
     // 4. last_used_slot 沿用导入包（若指向不存在角色则置 null）
@@ -132,7 +150,7 @@ async function fullReplaceActions(pack) {
 /**
  * 单角色导入（无事务标记）
  */
-function partialReplaceActions(pack) {
+async function partialReplaceActions(pack) {
   // 1. 校验版本
   if (pack.export_meta?.schema_version !== SAVE_VERSION) {
     return { success: false, message: '版本不匹配' };
@@ -149,7 +167,58 @@ function partialReplaceActions(pack) {
   // 3. 仅替换对应槽位
   const playerData = pack.player?.data;
   if (!playerData) return { success: false, message: '角色数据无效' };
-  storage.set(`player-${targetSlot}`, JSON.stringify(playerData));
+  const normalized = await normalizePlayerPayload(playerData);
+  if (!normalized.success) return { success: false, message: normalized.message };
+  const json = JSON.stringify(normalized.payload);
+  storage.set(`player-${targetSlot}`, json);
+  storage.set(`player-${targetSlot}-bak`, json);
 
   return { success: true, message: '角色导入成功' };
+}
+
+function sortPlayerKeys(a, b) {
+  return Number(a.split('-')[1]) - Number(b.split('-')[1]);
+}
+
+function isWrappedPlayerPayload(payload) {
+  return payload
+    && typeof payload === 'object'
+    && payload.data
+    && payload.version
+    && payload.saved_at
+    && payload.checksum;
+}
+
+async function normalizePlayerPayload(payload) {
+  if (!payload || typeof payload !== 'object') {
+    return { success: false, message: '角色数据无效' };
+  }
+
+  if (isWrappedPlayerPayload(payload)) {
+    if (payload.version !== SAVE_VERSION) {
+      return { success: false, message: `角色存档版本不匹配（导出:${payload.version} / 当前:${SAVE_VERSION}）` };
+    }
+    const expected = await computeChecksum(payload.data, payload.version, payload.saved_at);
+    if (expected !== payload.checksum) {
+      return { success: false, message: '角色存档校验失败' };
+    }
+    return { success: true, payload };
+  }
+
+  // 兼容旧导出包：旧实现只导出了 data，导入前补回 SaveManager 外层包装。
+  if (!payload.player || !payload.resources || !payload.location) {
+    return { success: false, message: '角色数据结构无效' };
+  }
+
+  const savedAt = payload.offline?.last_save_timestamp || Date.now();
+  const checksum = await computeChecksum(payload, SAVE_VERSION, savedAt);
+  return {
+    success: true,
+    payload: {
+      data: payload,
+      version: SAVE_VERSION,
+      saved_at: savedAt,
+      checksum,
+    },
+  };
 }
