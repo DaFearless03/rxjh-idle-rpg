@@ -4,7 +4,7 @@
  * @ref 13_save.multi_save
  */
 import { storage } from '../utils/storage.js';
-import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from '../flows/character_deletion_flow.js';
+import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js';
 import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js';
 import { UIManager } from './UIManager.js';
 
@@ -89,20 +89,8 @@ export function showMultiSaveUI(globalSave, characters, careersData) {
     document.getElementById('delete-confirm-msg').textContent = info.confirmBody;
     const modal = document.getElementById('modal-delete-confirm');
     document.getElementById('confirm-delete-btn').onclick = async () => {
-      const gs = window._currentGlobalSave || {};
-      await executeDeletion(slotIndex, gs);
-      window._currentGlobalSave = gs;
-      // 刷新列表
-      const chars = [];
-      for (let i = 1; i <= (gs.character_slots?.unlocked_count || 3); i++) {
-        const r = storage.get(`player-${i}`);
-        if (r) { try { chars.push({ slotIndex: i, ...(JSON.parse(r).data || JSON.parse(r)) }); } catch {} }
-      }
-      UIManager.popModal();
-      showMultiSaveUI(gs, chars, window._careersData);
-      if (!hasAnyCharacter()) {
-        showCharacterCreationUI(window._currentGlobalSave);
-      }
+      UIManager.closeAllModals();
+      await window.game?.confirmDeleteCharacter(slotIndex, { refreshList: true });
     };
     UIManager.pushModal(modal);
   };

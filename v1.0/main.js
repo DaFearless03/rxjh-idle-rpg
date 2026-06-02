@@ -21,7 +21,7 @@ import { BuffSystem } from './systems/BuffSystem.js';
 import { Player } from './entities/Player.js';
 import { createEquipmentInstance } from './entities/EquipmentInstance.js';
 import { SaveManager } from './core/SaveManager.js';
-import { runStartupSequence } from './core/StartupSequence.js';
+import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js';
 import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js';
 import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js';
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js';
@@ -107,6 +107,7 @@ let loop = null;
 let currentSlotIndex = null;
 let currentGlobalSave = null;
 let creationFlow = null;
+let runtimeEventUnsubscribers = [];
 
 // 暴露全局接口供 gm.js 使用
 window.Game = { get currentPlayer() { return game?.player ?? null; } };
@@ -115,6 +116,44 @@ window._careersData = careersData;
 window._attrSys = attrSys;
 window._qigongSys = QigongSystem;
 window.SaveManager = SaveManager;
+
+function onRuntimeEvent(event, handler) {
+  eventBus.on(event, handler);
+  runtimeEventUnsubscribers.push(() => eventBus.off(event, handler));
+}
+
+function clearRuntimeEventHandlers() {
+  for (const unsubscribe of runtimeEventUnsubscribers.splice(0)) {
+    try {
+      unsubscribe();
+    } catch (err) {
+      console.warn('[运行时] 清理事件监听失败:', err);
+    }
+  }
+}
+
+async function cleanupCurrentRuntime({ save = true } = {}) {
+  const playerToSave = game?.player || null;
+  const slotToSave = currentSlotIndex;
+
+  if (loop) {
+    loop.stop();
+    loop = null;
+  }
+  clearRuntimeEventHandlers();
+  NPCSystem.closeDialog();
+  window._currentNpc = null;
+
+  if (save && playerToSave && slotToSave) {
+    await SaveManager.savePlayerState(playerToSave, slotToSave);
+  }
+
+  game = null;
+  attrSys = null;
+  dropSys = null;
+  currentSlotIndex = null;
+  window._attrSys = attrSys;
+}
 
 // ========================
 // 启动序列
@@ -260,6 +299,10 @@ async function runCreateCharacterFlow(targetSlotIndex) {
 // 进入角色（加载存档 + 初始化游戏）
 // ========================
 async function enterCharacter(slotIndex) {
+  if (game || loop || runtimeEventUnsubscribers.length > 0) {
+    await cleanupCurrentRuntime({ save: true });
+  }
+
   const save = await SaveManager.restorePlayerFromSave(slotIndex);
   if (!save) {
     console.log(`[错误] 槽位 ${slotIndex} 无有效存档`);
@@ -274,6 +317,7 @@ async function enterCharacter(slotIndex) {
   attrSys = new AttributeSystem({ attributeConstants: config.attribute_constants });
   attrSys._buffSys = BuffSystem;
   attrSys._qigongSys = QigongSystem;
+  window._attrSys = attrSys;
 
   // DropSystem
   dropSys = new DropSystem({
@@ -391,34 +435,34 @@ async function initGameForPlayer(player, slotIndex) {
   }
 
   // 事件监听
-  eventBus.on('player.level_up', (data) => {
+  onRuntimeEvent('player.level_up', (data) => {
     console.log(`[事件] player.level_up: Lv${data.from_level}→Lv${data.to_level} 气功点+${data.gained_points}`);
     SaveManager.savePlayerState(player, currentSlotIndex);
   });
-  eventBus.on('player.death', () => {
+  onRuntimeEvent('player.death', () => {
     console.log('[系统] 玩家死亡惩罚已结算，等待复活...');
     player.auto_play = player.auto_play || {};
     player.auto_play.is_auto_play = false;
     AutoPlaySystem.stop(player, 'death');
     SaveManager.savePlayerState(player, currentSlotIndex);
   });
-  eventBus.on('monster.death', (data) => {
+  onRuntimeEvent('monster.death', (data) => {
     console.log(`[事件] monster.death: ${data.monsterKey} exp+${data.exp}`);
   });
-  eventBus.on('quest.accepted', (data) => console.log(`[事件] quest.accepted: ${data.name}`));
-  eventBus.on('quest.completed', (data) => console.log(`[事件] quest.completed: ${data.questKey}`));
-  eventBus.on('quest.stage_advance', (data) => console.log(`[事件] quest.stage_advance: ${data.questKey} 进入第 ${data.stage} 阶段`));
-  eventBus.on('player.career_transfer', (data) => console.log(`[事件] player.career_transfer: ${data.from_career}→${data.to_career}`));
-  eventBus.on('buff.applied', (data) => {
+  onRuntimeEvent('quest.accepted', (data) => console.log(`[事件] quest.accepted: ${data.name}`));
+  onRuntimeEvent('quest.completed', (data) => console.log(`[事件] quest.completed: ${data.questKey}`));
+  onRuntimeEvent('quest.stage_advance', (data) => console.log(`[事件] quest.stage_advance: ${data.questKey} 进入第 ${data.stage} 阶段`));
+  onRuntimeEvent('player.career_transfer', (data) => console.log(`[事件] player.career_transfer: ${data.from_career}→${data.to_career}`));
+  onRuntimeEvent('buff.applied', (data) => {
     attrSys.recompute(player);
     console.log(`[事件] buff.applied: ${data.name}`);
   });
-  eventBus.on('buff.expired', (data) => {
+  onRuntimeEvent('buff.expired', (data) => {
     attrSys.recompute(player);
     console.log(`[事件] buff.expired: ${data.buffKey}`);
   });
-  eventBus.on('autoplay.start', () => console.log('[系统] 开始挂机'));
-  eventBus.on('autoplay.stop', (d) => console.log(`[系统] 停止挂机: ${d.reason}`));
+  onRuntimeEvent('autoplay.start', () => console.log('[系统] 开始挂机'));
+  onRuntimeEvent('autoplay.stop', (d) => console.log(`[系统] 停止挂机: ${d.reason}`));
 
   loop.start();
   console.log(`=== 进入游戏: ${player.name} (${player.career}) Lv${player.level} ===`);
@@ -457,6 +501,10 @@ function showGameCommands() {
 // console 命令接口
 // ========================
 window.game = {
+  get player() {
+    return game?.player ?? null;
+  },
+
   // ---------- 角色管理 ----------
   listCharacters() {
     const characters = [];
@@ -479,28 +527,23 @@ window.game = {
     return characters;
   },
 
-  createCharacter(careerKey, name, targetSlotIndex) {
-    if (!game?.player) {
-      // 还未进入游戏，走创建流程
-      const flow = runCharacterCreationFlow({ careersData, globalSave: currentGlobalSave });
-      const r1 = flow.step1_selectCareer(careerKey);
-      if (!r1.success) return console.log('[错误]', r1.message);
-      const r2 = flow.step2_inputName(name);
-      if (!r2.success) return console.log('[错误]', r2.message);
-      const r3 = flow.step3_initializeSave(careerKey, name, targetSlotIndex);
-      if (!r3.success) return console.log('[错误]', r3.message);
-      flow.step4_persist(r3.save, r3.slotIndex, currentGlobalSave).then(r => {
-        if (r.success) console.log(`[创建] 角色「${name}」创建成功，槽位 ${r.slotIndex}`);
-      });
-      return;
-    }
-    // 游戏中创建新角色（先退出当前）
-    console.log('[错误] 请先刷新页面再创建新角色');
+  async createCharacter(careerKey, name, targetSlotIndex) {
+    const flow = runCharacterCreationFlow({ careersData, globalSave: currentGlobalSave });
+    const r1 = flow.step1_selectCareer(careerKey);
+    if (!r1.success) return console.log('[错误]', r1.message);
+    const r2 = flow.step2_inputName(name);
+    if (!r2.success) return console.log('[错误]', r2.message);
+    const r3 = flow.step3_initializeSave(careerKey, name, targetSlotIndex);
+    if (!r3.success) return console.log('[错误]', r3.message);
+    const r4 = await flow.step4_persist(r3.save, r3.slotIndex, currentGlobalSave);
+    if (!r4.success) return console.log('[错误]', r4.message);
+    window._currentGlobalSave = currentGlobalSave;
+    console.log(`[创建] 角色「${name}」创建成功，槽位 ${r4.slotIndex}`);
+    await enterCharacter(r4.slotIndex);
   },
 
-  switchCharacter(slotIndex) {
-    if (loop) loop.stop();
-    enterCharacter(slotIndex);
+  async switchCharacter(slotIndex) {
+    await enterCharacter(slotIndex);
   },
 
   deleteCharacter(slotIndex) {
@@ -515,19 +558,41 @@ window.game = {
     window._pendingDeleteData = parsed.data || parsed;
   },
 
-  confirmDeleteCharacter(slotIndex) {
-    executeDeletion(slotIndex, currentGlobalSave).then(r => {
-      if (r.success) {
-        currentGlobalSave = r.globalSave;
-        console.log(`[删除] 槽位 ${slotIndex} 已删除`);
-        if (!hasAnyCharacter()) {
-          console.log('[删除] 所有角色已删除，请创建新角色');
-          runCreateCharacterFlow(null);
-        } else {
-          this.listCharacters();
-        }
+  async confirmDeleteCharacter(slotIndex, opts = {}) {
+    const deletingCurrentCharacter = slotIndex === currentSlotIndex;
+    if (deletingCurrentCharacter) {
+      await cleanupCurrentRuntime({ save: false });
+    }
+
+    const r = await executeDeletion(slotIndex, currentGlobalSave);
+    if (!r.success) return;
+
+    currentGlobalSave = r.globalSave;
+    window._currentGlobalSave = currentGlobalSave;
+    console.log(`[删除] 槽位 ${slotIndex} 已删除`);
+
+    if (!hasAnyCharacter()) {
+      console.log('[删除] 所有角色已删除，请创建新角色');
+      UIManager.closeAllModals?.();
+      showCharacterCreationUI(currentGlobalSave, null);
+      return;
+    }
+
+    const characters = loadAllCharacters();
+    if (deletingCurrentCharacter) {
+      const nextSlot = characters[0]?.slotIndex;
+      if (nextSlot) {
+        console.log(`[删除] 已自动切换到槽位 ${nextSlot}`);
+        UIManager.closeAllModals?.();
+        await enterCharacter(nextSlot);
       }
-    });
+      return;
+    }
+
+    this.listCharacters();
+    if (opts.refreshList) {
+      showMultiSaveUI(currentGlobalSave, characters, careersData);
+    }
   },
 
   unlockSlot(slotIndex) {

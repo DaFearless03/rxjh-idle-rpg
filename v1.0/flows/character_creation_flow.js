@@ -39,7 +39,12 @@ export function runCharacterCreationFlow(opts) {
       const career = careersData.find(c => c.key === careerKey);
       if (!career) return { success: false, message: '职业不存在' };
 
-      const slotIndex = resolveSlotIndex(targetSlotIndex, globalSave);
+      let slotIndex;
+      try {
+        slotIndex = resolveSlotIndex(targetSlotIndex, globalSave);
+      } catch (err) {
+        return { success: false, message: err.message || '无法选择角色槽位' };
+      }
       const now = Date.now();
 
       const newSave = {
@@ -111,6 +116,9 @@ function resolveSlotIndex(targetSlotIndex, globalSave) {
   if (targetSlotIndex != null) {
     if (targetSlotIndex < 1 || targetSlotIndex > unlocked) {
       throw new Error(`槽位 ${targetSlotIndex} 未解锁`);
+    }
+    if (storage.get(`player-${targetSlotIndex}`)) {
+      throw new Error(`槽位 ${targetSlotIndex} 已有角色`);
     }
     return targetSlotIndex;
   }
