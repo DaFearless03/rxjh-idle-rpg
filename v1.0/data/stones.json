@@ -1,0 +1,65 @@
+{
+  "cold_jade_stones": [
+    {
+      "key": "cold_jade_01",
+      "name": "寒玉石",
+      "description": "蕴含寒冰之力的玉石，可合成在防具上",
+      "category": "cold_jade",
+      "attribute": {
+        "pool": [
+          { "key": "defAdd", "name": "防御力", "weight": 40, "value_range": [1, 7] },
+          { "key": "missingAdd", "name": "闪避率", "weight": 25, "value_range": [1, 10] },
+          { "key": "maxHpAdd", "name": "生命值", "weight": 35, "value_range": [5, 50] }
+        ],
+        "value_distribution": "normal"
+      },
+      "drop": { "drop_rate": 0.15, "min_level": 1, "level_scale": true }
+    }
+  ],
+  "vajra_stones": [
+    {
+      "key": "vajra_01",
+      "name": "金刚石",
+      "description": "坚硬如金刚的宝石，可合成在武器上",
+      "category": "vajra",
+      "attribute": {
+        "pool": [
+          { "key": "atkSelfAdd", "name": "攻击力", "weight": 30, "value_range": [1, 15] },
+          { "key": "weaponSkillBonusAdd", "name": "武功攻击力", "weight": 25, "value_range": [2, 12] },
+          { "key": "maxHpAdd", "name": "生命值", "weight": 20, "value_range": [5, 50] },
+          { "key": "weaponExtraDamageAdd", "name": "追加伤害", "weight": 20, "value_range": [2, 15] },
+          { "key": "hitAdd", "name": "命中率", "weight": 5, "value_range": [1, 8] }
+        ],
+        "value_distribution": "normal"
+      },
+      "drop": { "drop_rate": 0.10, "min_level": 1, "level_scale": true }
+    }
+  ],
+  "enhance_stones": [
+    {
+      "key": "enhance_stone_01",
+      "name": "强化石",
+      "description": "用于强化武器或防具的基础属性",
+      "category": "enhance",
+      "attribute": null,
+      "drop": { "drop_rate": 0.20, "min_level": 1, "level_scale": false }
+    }
+  ],
+  "hot_blood_stones": [
+    {
+      "key": "hot_blood_01",
+      "name": "热血石",
+      "description": "蕴含热血之力的奇石，可合成在披风上",
+      "category": "hot_blood",
+      "attribute": {
+        "pool": [
+          { "key": "skill_level_up", "name": "<技能>等级+1", "weight": 50, "value_range": [1, 1] },
+          { "key": "enhanceSuccessRateAdd", "name": "合成强化成功率", "weight": 30, "value_range": [0.01, 0.01] },
+          { "key": "goldDropBonusAdd", "name": "金币爆率", "weight": 20, "value_range": [0.05, 0.05] }
+        ],
+        "value_distribution": "uniform"
+      },
+      "drop": { "drop_rate": 0.08, "min_level": 10, "level_scale": false }
+    }
+  ]
+}

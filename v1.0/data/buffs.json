@@ -1,0 +1,96 @@
+{
+  "buffs": [
+    {
+      "key": "rage_buff",
+      "name": "狂风万破",
+      "description": "攻击力和防御力同时提升30%",
+      "duration": 15000,
+      "stackable": false,
+      "is_debuff": false,
+      "dispellable": true,
+      "effect_type": "attribute",
+      "attribute_mods": {
+        "atkSelfPct": 0.30,
+        "defPct": 0.30
+      }
+    },
+    {
+      "key": "atk_up_20",
+      "name": "攻击提升",
+      "description": "最小和最大攻击力各提升20%",
+      "duration": 60000,
+      "stackable": false,
+      "is_debuff": false,
+      "dispellable": true,
+      "effect_type": "attribute",
+      "attribute_mods": {
+        "atkSelfPct": 0.20
+      }
+    },
+    {
+      "key": "def_up_5",
+      "name": "防御提升",
+      "description": "防御力提升5%",
+      "duration": -1,
+      "stackable": false,
+      "is_debuff": false,
+      "dispellable": true,
+      "effect_type": "attribute",
+      "attribute_mods": {
+        "defPct": 0.05
+      }
+    },
+    {
+      "key": "def_up_10",
+      "name": "防御提升",
+      "description": "防御力提升10%",
+      "duration": -1,
+      "stackable": false,
+      "is_debuff": false,
+      "dispellable": true,
+      "effect_type": "attribute",
+      "attribute_mods": {
+        "defPct": 0.10
+      }
+    },
+    {
+      "key": "hit_up_10",
+      "name": "命中提升",
+      "description": "命中率提升10%",
+      "duration": -1,
+      "stackable": false,
+      "is_debuff": false,
+      "dispellable": true,
+      "effect_type": "attribute",
+      "attribute_mods": {
+        "hitPct": 0.10
+      }
+    },
+    {
+      "key": "dodge_up_10",
+      "name": "回避提升",
+      "description": "回避率提升10%",
+      "duration": -1,
+      "stackable": false,
+      "is_debuff": false,
+      "dispellable": true,
+      "effect_type": "attribute",
+      "attribute_mods": {
+        "missingPct": 0.10
+      }
+    },
+    {
+      "key": "maxhp_up_10",
+      "name": "生命提升",
+      "description": "最大生命值提升10%",
+      "duration": -1,
+      "stackable": false,
+      "is_debuff": false,
+      "dispellable": true,
+      "effect_type": "attribute",
+      "attribute_mods": {
+        "maxHpPct": 0.10
+      }
+    }
+  ]
+}

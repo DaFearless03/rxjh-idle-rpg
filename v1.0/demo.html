@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>挂机RPG · 手机端 UI Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+- { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+:root {
+  --bg-base:     #f0e8d8;
+  --bg-window:   #ffffff;
+  --bg-window-2: #f8f8f0;
+  --border-outer: #303048;
+  --border-inner: #6878a8;
+  --border-shadow: #383850;
+  --text-main:   #303030;
+  --text-dim:    #686868;
+  --text-link:   #2848a0;
+  --hp-green:    #58c850;
+  --hp-yellow:   #f0c038;
+  --hp-red:      #e04040;
+  --exp-blue:    #4878d0;
+  --mp-magenta:  #b048a8;
+  --highlight:   #fff8a8;
+  --menu-accent: #d8483a;
+  --menu-blue:   #4068b8;
+  --menu-green:  #4ca050;
+  --menu-yellow: #e8b830;
+}
+html { font-size: 10px; }
+body {
+  font-family: 'Press Start 2P', 'PingFang SC', 'Courier New', monospace;
+  background: #b8d0f0;
+  color: var(--text-main);
+  font-size: 1rem;
+  line-height: 1.7;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.15) 0, rgba(255,255,255,0.15) 0.1rem, transparent 0.1rem, transparent 0.8rem);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* === 手机外壳模拟（含灵动岛）=== */
+.phone-frame {
+  width: 393px;          / iPhone 15 Pro 实际宽度 /
+  height: 852px;         / iPhone 15 Pro 实际高度 /
+  max-height: 100vh;
+  background: var(--bg-base);
+  border: 8px solid #1a1a2a;
+  border-radius: 48px;
+  box-shadow:
+    inset 0 0 0 2px #404060,
+    0 8px 32px rgba(0,0,0,0.4);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  / 关键：在手机壳内部留出灵动岛区域 /
+  padding-top: 59px;     / 灵动岛区域高度（11px 顶部 + 37px 岛 + 11px 底部）*/
+}
+/* 灵动岛黑色胶囊（模拟视觉）*/
+.phone-frame::before {
+  content: '';
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 126px;
+  height: 37px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 10;
+  pointer-events: none;
+}
+@media (max-width: 480px) {
+  html { font-size: clamp(8px, 2.5445vw, 12px); }
+  .phone-frame {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    /* 真机：用 env() 自动适配灵动岛 / 刘海高度 /
+    padding-top: env(safe-area-inset-top, 47px);
+  }
+  / 真机不需要画黑色岛（系统自带）*/
+  .phone-frame::before { display: none; }
+  body { background: var(--bg-base); }
+}
+
+/* === 顶部状态栏（避开灵动岛）=== */
+.top-bar {
+  background: var(--bg-window);
+  border-bottom: 0.3rem solid var(--border-outer);
+  padding: 0.6rem 1rem 0.8rem;
+  flex-shrink: 0;
+}
+/* 第一行：角色信息条（名称 · 等级 · 阵营 · 职业）*/
+.top-row-1 {
+  margin-bottom: 0.6rem;
+}
+.player-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  padding: 0.2rem 0.4rem;
+}
+.player-bar .name {
+  color: var(--text-main);
+  font-weight: bold;
+  max-width: 11rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.player-bar .sep { color: var(--text-dim); opacity: 0.6; }
+.player-bar .level { color: var(--menu-blue); font-weight: bold; }
+.player-bar .faction { font-weight: bold; padding: 0.1rem 0.6rem; border-radius: 0.6rem; }
+.player-bar .faction.positive {
+  color: #fff;
+  background: var(--menu-green);
+}
+.player-bar .faction.negative {
+  color: #fff;
+  background: var(--menu-accent);
+}
+.player-bar .career { color: var(--text-link); font-weight: bold; }
+
+/* === HP/MP/EXP 三条紧凑显示 === */
+.stat-bars-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.stat-row {
+  display: grid;
+  grid-template-columns: 3.6rem 1fr 7rem;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+.stat-label {
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+.stat-label.hp { color: var(--hp-green); }
+.stat-label.mp { color: var(--menu-blue); }
+.stat-label.exp { color: var(--menu-yellow); }
+.gba-bar {
+  height: 1.1rem;
+  background: #d8d8c8;
+  border: 0.1rem solid var(--border-outer);
+  border-radius: 0.4rem;
+  overflow: hidden;
+  position: relative;
+}
+.gba-bar-fill {
+  height: 100%;
+  border-radius: 0.2rem;
+  position: relative;
+}
+.gba-bar-fill::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 0.2rem;
+  background: rgba(255,255,255,0.5);
+}
+.gba-bar-pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow:
+    0 0 0.2rem rgba(0,0,0,0.85),
+    0 0.1rem 0 rgba(0,0,0,0.6),
+    0 -0.1rem 0 rgba(0,0,0,0.6);
+  line-height: 1;
+  z-index: 2;
+  letter-spacing: 0.05rem;
+  pointer-events: none;
+}
+.fill-hp { background: linear-gradient(to bottom, #80d878, var(--hp-green)); }
+.fill-hp.warn { background: linear-gradient(to bottom, #f8d858, var(--hp-yellow)); }
+.fill-hp.danger { background: linear-gradient(to bottom, #f86058, var(--hp-red)); }
+.fill-mp { background: linear-gradient(to bottom, #6898e8, var(--menu-blue)); }
+.fill-exp { background: linear-gradient(to bottom, #f8d858, var(--menu-yellow)); }
+.stat-num {
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--text-main);
+}
+
+/* === Zone 选择条（横向 tab）=== */
+.zone-selector {
+  background: var(--bg-window-2);
+  border-bottom: 0.2rem solid var(--border-outer);
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+.zone-current {
+  flex: 1;
+  background: var(--bg-window);
+  border: 0.2rem solid var(--menu-accent);
+  border-radius: 0.4rem;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.zone-current .label { color: var(--menu-accent); font-weight: bold; }
+.zone-current .name { color: var(--text-link); font-weight: bold; }
+.zone-current .dropdown { color: var(--text-dim); font-size: 1.1rem; }
+.idle-indicator {
+  background: var(--menu-green);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.idle-indicator::before {
+  content: '●';
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse { 50% { opacity: 0.3; } }
+
+/* === 主滚动区（锁单页，内部自适应）=== */
+.main-scroll {
+  flex: 1;
+  overflow: hidden;       /* 关键：外层不滚动 /
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  background: var(--bg-base);
+  min-height: 0;          / 关键：让 flex 子项可以收缩 */
+}
+
+/* === 段 2：怪物列表（紧凑版，比之前压缩 30%）=== */
+.monster-panel {
+  background: var(--bg-window);
+  border: 0.3rem solid var(--border-outer);
+  border-radius: 0.6rem;
+  box-shadow:
+    inset 0 0 0 0.2rem var(--bg-window),
+    inset 0 0 0 0.4rem var(--border-inner),
+    inset 0 0 0 0.6rem var(--bg-window);
+  padding: 0.6rem 0.8rem;
+  flex-shrink: 0;
+}
+.monster-panel .panel-title {
+  font-size: 0.8rem;
+  padding-bottom: 0.3rem;
+  margin-bottom: 0.4rem;
+}
+.monster-panel .panel-title .count {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+}
+.panel-title {
+  font-size: 0.9rem;
+  color: var(--text-link);
+  border-bottom: 0.2rem solid var(--border-inner);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.6rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.panel-title .count {
+  background: var(--menu-blue);
+  color: white;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.3rem;
+  font-size: 0.8rem;
+}
+.monster-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3rem;
+}
+.monster-cell {
+  background: var(--bg-window-2);
+  border: 0.1rem solid #c8c8b8;
+  border-radius: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.8rem;
+}
+.monster-cell .icon-big {
+  font-size: 1.8rem;
+  width: 2rem;
+  text-align: center;
+  line-height: 1;
+}
+.monster-cell .body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.monster-cell .name-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.monster-cell .name {
+  font-size: 0.75rem;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.1;
+}
+.monster-cell .num {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  line-height: 1;
+}
+.monster-cell .gba-bar { height: 0.4rem; border-radius: 0.2rem; }
+.monster-cell.elite {
+  background: linear-gradient(to bottom, #fff8e0, #fef0c8);
+  border-color: var(--menu-yellow);
+}
+.monster-cell.elite .name { color: var(--menu-yellow); font-weight: bold; }
+.monster-cell.preheating { opacity: 0.55; }
+.monster-cell.preheating .name { color: var(--text-dim); }
+.monster-cell.preheating .preheat-tag {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-left: 0.2rem;
+}
+
+/* === 段 3 / 4：日志面板 === */
+.log-panel {
+  background: var(--bg-window);
+  border: 0.3rem solid var(--border-outer);
+  border-radius: 0.6rem;
+  box-shadow:
+    inset 0 0 0 0.2rem var(--bg-window),
+    inset 0 0 0 0.4rem var(--border-inner),
+    inset 0 0 0 0.6rem var(--bg-window);
+  padding: 0.8rem 1rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;        /* 关键：title 固定 / 内层滚动 */
+}
+/* 战斗日志 + 掉落日志：等分剩余空间 */
+.combat-log,
+.reward-log {
+  flex: 1;
+  min-height: 0;
+}
+/* 日志面板内的标题固定在顶部 */
+.log-panel .panel-title {
+  flex-shrink: 0;
+  background: var(--bg-window);
+  margin: 0 0 0.6rem;
+  z-index: 2;
+}
+/* 内层可滚动容器 */
+.log-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.log-line {
+  font-size: 0.85rem;
+  color: var(--text-main);
+  padding: 0.1rem 0;
+  line-height: 1.7;
+}
+.log-line .target { color: var(--text-link); }
+.log-line .damage { color: var(--text-main); font-weight: bold; }
+.log-line.crit .damage { color: var(--menu-accent); }
+.log-line.heal .heal-num { color: var(--hp-green); font-weight: bold; }
+.log-line.miss { color: var(--text-dim); }
+.log-line.player-hit { color: var(--hp-red); }
+.log-line.buff-on { color: var(--menu-yellow); background: rgba(232,184,48,0.15); padding: 0.2rem 0.4rem; border-radius: 0.3rem; }
+.log-line.died { color: var(--menu-accent); font-weight: bold; }
+.log-line.skill-name { color: var(--menu-blue); font-weight: bold; }
+.log-line.sub-target { color: var(--text-dim); padding-left: 1rem; }
+.reward-line {
+  font-size: 0.85rem;
+  color: var(--text-main);
+  padding: 0.1rem 0;
+  line-height: 1.7;
+}
+.reward-line .gold-amt { color: var(--menu-accent); font-weight: bold; }
+.reward-line .exp-amt { color: var(--exp-blue); font-weight: bold; }
+.reward-line.equip { color: var(--menu-blue); }
+.reward-line.equip::before { content: '⚔ '; }
+.reward-line.stone { color: var(--mp-magenta); }
+.reward-line.stone::before { content: '◆ '; }
+.reward-line.level-up {
+  color: var(--menu-accent);
+  font-weight: bold;
+  background: linear-gradient(to right, rgba(232,184,48,0.3), rgba(232,184,48,0.1));
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.3rem;
+  margin: 0.3rem 0;
+  border-left: 0.3rem solid var(--menu-yellow);
+}
+.reward-line.level-up::before { content: '★ '; }
+.reward-line.box { color: var(--menu-green); }
+.reward-line.box::before { content: '📦 '; }
+
+/* === 底部固定动作菜单（拇指可达）=== */
+.bottom-menu {
+  background: var(--bg-window);
+  border-top: 0.3rem solid var(--border-outer);
+  padding: 0.7rem;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.1rem;
+  flex-shrink: 0;
+}
+.menu-btn {
+  background: var(--bg-window);
+  border: 0.2rem solid var(--border-outer);
+  border-radius: 0.6rem;
+  box-shadow:
+    inset 0 0 0 0.1rem var(--bg-window),
+    inset 0 0 0 0.2rem var(--border-inner),
+    inset 0 0 0 0.3rem var(--bg-window);
+  padding: 0.5rem 0.2rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: var(--text-main);
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 4.1rem;
+  width: 100%;
+  max-width: 5.8rem;
+  justify-self: center;
+  justify-content: center;
+}
+.menu-btn:active {
+  background: var(--highlight);
+  transform: scale(0.95);
+}
+.menu-btn .icon { font-size: 1.8rem; }
+.menu-btn.has-notice {
+  position: relative;
+}
+.menu-btn.has-notice::after {
+  content: '';
+  position: absolute;
+  top: 0.4rem; right: 0.4rem;
+  width: 0.6rem; height: 0.6rem;
+  background: var(--menu-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0.4rem var(--menu-accent);
+}
+.menu-btn.stop {
+  background: linear-gradient(to bottom, #ffd0d0, #f8a8a8);
+  color: var(--menu-accent);
+  font-weight: bold;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 0.4rem; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-inner); border-radius: 0.2rem; }
+
+/* 桌面预览时显示 demo 标签 */
+@media (min-width: 481px) {
+  body::before {
+    content: '📱 手机端 UI Demo · 375×812 模拟 iPhone';
+    position: fixed;
+    top: 1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.9);
+    border: 0.2rem solid var(--border-outer);
+    border-radius: 0.6rem;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-family: 'Press Start 2P', monospace;
+    z-index: 100;
+  }
+}
+
+/* === 底部弹出地图选择 sheet === */
+.zone-current { cursor: pointer; }
+.sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  display: none;
+  align-items: flex-end;
+  animation: fadeIn 0.2s ease-out;
+}
+.sheet-backdrop.open { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.bottom-sheet {
+  width: 100%;
+  background: var(--bg-base);
+  border-top: 0.3rem solid var(--border-outer);
+  border-radius: 1.6rem 1.6rem 0 0;
+  max-height: 78%;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.25s ease-out;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.sheet-handle {
+  width: 4rem; height: 0.4rem;
+  background: var(--border-inner);
+  border-radius: 0.2rem;
+  margin: 0.8rem auto 0.4rem;
+  flex-shrink: 0;
+}
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1.4rem 1rem;
+  border-bottom: 0.2rem solid var(--border-inner);
+  flex-shrink: 0;
+}
+.sheet-title {
+  font-size: 1.1rem;
+  color: var(--text-link);
+  font-weight: bold;
+}
+.sheet-close {
+  background: none;
+  border: none;
+  font-size: 2.2rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0 0.6rem;
+  font-family: inherit;
+  line-height: 1;
+}
+.sheet-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.8rem 1rem 1.2rem;
+}
+
+/* 按 parent_map 分组 */
+.map-group {
+  margin-bottom: 1rem;
+}
+.map-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.9rem;
+  background: var(--border-inner);
+  color: white;
+  border-radius: 0.5rem 0.5rem 0 0;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: 0.2rem solid var(--border-inner);
+  border-bottom: none;
+}
+.map-group-header .group-icon { font-size: 1.4rem; line-height: 1; }
+.map-group-header .group-meta {
+  margin-left: auto;
+  font-size: 0.8rem;
+  opacity: 0.85;
+  font-weight: normal;
+}
+.map-sub-list {
+  background: var(--bg-window);
+  border: 0.2rem solid var(--border-inner);
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  overflow: hidden;
+}
+.map-sub-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  border-bottom: 0.1rem dotted #c8c8b8;
+  cursor: pointer;
+  transition: transform 0.08s;
+}
+.map-sub-item:last-child { border-bottom: none; }
+.map-sub-item:active { transform: scale(0.99); background: var(--highlight); }
+.map-sub-item .sub-name {
+  color: var(--text-main);
+  font-weight: bold;
+}
+.map-sub-item .sub-level {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+.map-sub-item .sub-badge {
+  font-size: 0.8rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.4rem;
+  background: var(--text-dim);
+  color: white;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.map-sub-item.current {
+  background: linear-gradient(to right, #fff8e0, #ffe8c8);
+}
+.map-sub-item.current .sub-name { color: var(--menu-accent); }
+.map-sub-item.current .sub-badge { background: var(--menu-accent); }
+.map-sub-item.town .sub-name { color: var(--menu-blue); }
+.map-sub-item.town .sub-badge { background: var(--menu-blue); }
+.map-sub-item.empty .sub-name { color: var(--text-dim); }
+.map-sub-item.empty .sub-badge { background: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <!-- 顶部状态栏（左右分布，避开中央灵动岛）-->
+  <div class="top-bar">
+    <div class="top-row-1">
+      <div class="player-bar">
+        <span class="name">测试角色</span>
+        <span class="sep">·</span>
+        <span class="level">Lv.30</span>
+        <span class="sep">·</span>
+        <span class="faction positive">正派</span>
+        <span class="sep">·</span>
+        <span class="career">刀客</span>
+      </div>
+    </div>
+    <div class="stat-bars-compact">
+      <div class="stat-row">
+        <span class="stat-label hp">生命值</span>
+        <div class="gba-bar"><div class="gba-bar-fill fill-hp" style="width: 80%"></div><span class="gba-bar-pct">80%</span></div>
+        <span class="stat-num">280/350</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label mp">内功值</span>
+        <div class="gba-bar"><div class="gba-bar-fill fill-mp" style="width: 85%"></div><span class="gba-bar-pct">85%</span></div>
+        <span class="stat-num">204/240</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label exp">经验值</span>
+        <div class="gba-bar"><div class="gba-bar-fill fill-exp" style="width: 42%"></div><span class="gba-bar-pct">42%</span></div>
+        <span class="stat-num">214K/508K</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone 选择条 -->
+  <div class="zone-selector">
+    <div class="zone-current">
+      <span class="label">⌂ 地图</span>
+      <span class="name">伐木场 L18-22</span>
+      <span class="dropdown">▼</span>
+    </div>
+    <div class="idle-indicator">挂机中</div>
+  </div>
+
+  <!-- 主滚动区 -->
+  <div class="main-scroll">
+
+    <!-- 怪物列表（2 列 × 4 行，满怪 8 只）-->
+    <div class="monster-panel">
+      <div class="panel-title">
+        <span>👹 战场敌人</span>
+        <span class="count">8/8</span>
+      </div>
+      <div class="monster-grid">
+
+        <div class="monster-cell elite">
+          <span class="icon-big">⚔</span>
+          <div class="body">
+            <div class="name-row">
+              <span class="name">★ 血狼王</span>
+              <span class="num">468/780</span>
+            </div>
+            <div class="gba-bar"><div class="gba-bar-fill fill-hp" style="width: 60%"></div></div>
+          </div>
+        </div>
+
+        <div class="monster-cell">
+          <span class="icon-big">🐺</span>
+          <div class="body">
+            <div class="name-row">
+              <span class="name">大块头山贼</span>
+              <span class="num">140/400</span>
+            </div>
+            <div class="gba-bar"><div class="gba-bar-fill fill-hp warn" style="width: 35%"></div></div>
+          </div>
+        </div>
+
+        <div class="monster-cell">
+          <span class="icon-big">🐗</span>
+          <div class="body">
+            <div class="name-row">
+              <span class="name">巨斧山贼</span>
+              <span class="num">380/400</span>
+            </div>
+            <div class="gba-bar"><div class="gba-bar-fill fill-hp" style="width: 95%"></div></div>
+          </div>
+        </div>
+
+        <div class="monster-cell">
+          <span class="icon-big">🐺</span>
+          <div class="body">
+            <div class="name-row">
+              <span class="name">血狼</span>
+              <span class="num">230/550</span>
+            </div>
+            <div class="gba-bar"><div class="gba-bar-fill fill-hp warn" style="width: 42%"></div></div>
+          </div>
+        </div>
+
+        <div class="monster-cell">
+          <span class="icon-big">🐗</span>
+          <div class="body">
+            <div class="name-row">
+              <span class="name">大块头山贼</span>
+              <span class="num">72/400</span>
+            </div>
+            <div class="gba-bar"><div class="gba-bar-fill fill-hp danger" style="width: 18%"></div></div>
+          </div>
+        </div>
+
+        <div class="monster-cell">
+          <span class="icon-big">🐺</span>
+          <div class="body">
+            <div class="name-row">
+              <span class="name">血狼</span>
+              <span class="num">484/550</span>
+            </div>
+            <div class="gba-bar"><div class="gba-bar-fill fill-hp" style="width: 88%"></div></div>
+          </div>
+        </div>
+
+        <div class="monster-cell">
+          <span class="icon-big">🐗</span>
+          <div class="body">
+            <div class="name-row">
+              <span class="name">巨斧山贼</span>
+              <span class="num">272/400</span>
+            </div>
+            <div class="gba-bar"><div class="gba-bar-fill fill-hp" style="width: 68%"></div></div>
+          </div>
+        </div>
+
+        <div class="monster-cell preheating">
+          <span class="icon-big">🐺</span>
+          <div class="body">
+            <div class="name-row">
+              <span class="name">血狼<span class="preheat-tag">(预热1.3s)</span></span>
+              <span class="num">550/550</span>
+            </div>
+            <div class="gba-bar"><div class="gba-bar-fill fill-hp" style="width: 100%; opacity: 0.4"></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 战斗日志 -->
+    <div class="log-panel combat-log">
+      <div class="panel-title">⚔ 战斗细节</div>
+      <div class="log-scroll">
+      <div class="log-line">你 → <span class="target">大块头山贼</span>: <span class="damage">156</span></div>
+      <div class="log-line crit">你 → <span class="target">大块头山贼</span>: <span class="damage">312 (暴击!)</span></div>
+      <div class="log-line player-hit">血狼王 → 你: 78</div>
+      <div class="log-line">你 释放 <span class="skill-name">疾风烈火</span> → <span class="target">血狼王</span>: <span class="damage">485</span></div>
+      <div class="log-line sub-target">↳ → <span class="target">大块头山贼</span>: <span class="damage">421</span></div>
+      <div class="log-line sub-target">↳ → <span class="target">巨斧山贼</span>: <span class="damage">398</span></div>
+      <div class="log-line heal">你 → <span class="target">血狼王</span>: <span class="damage">156</span> (汲取 <span class="heal-num">+31 HP</span>)</div>
+      <div class="log-line miss">巨斧山贼 → 你: 未命中</div>
+      <div class="log-line buff-on">★ Buff: 狂风万破 (15s)</div>
+      <div class="log-line crit">你 → <span class="target">血狼王</span>: <span class="damage">680 (真武绝击!)</span></div>
+      <div class="log-line player-hit">大块头山贼 → 你: 23 (护身! 原47)</div>
+      <div class="log-line">⚗ 自动喝药: 金创药(中) <span class="heal-num">+176 HP</span></div>
+      <div class="log-line">你 → <span class="target">大块头山贼</span>: <span class="damage">142/142/142 (连击!)</span></div>
+      <div class="log-line died">✗ 大块头山贼 已倒下</div>
+      <div class="log-line">你 → <span class="target">巨斧山贼</span>: <span class="damage">189 (破甲!)</span></div>
+      </div>
+    </div>
+
+    <!-- 掉落日志 -->
+    <div class="log-panel reward-log">
+      <div class="panel-title">✦ 掉落细节</div>
+      <div class="log-scroll">
+      <div class="reward-line">击杀 大块头山贼 → <span class="exp-amt">+89 EXP</span> / <span class="gold-amt">+34 金币</span></div>
+      <div class="reward-line equip">获得装备: 龙虎战袍</div>
+      <div class="reward-line stone">获得石头: 寒玉石</div>
+      <div class="reward-line">击杀 巨斧山贼 → <span class="exp-amt">+92 EXP</span> / <span class="gold-amt">+45 金币</span></div>
+      <div class="reward-line box">获得盒子: 白银盒子</div>
+      <div class="reward-line level-up">升级！Lv.30 → Lv.31</div>
+      <div class="reward-line stone">获得石头: 金刚石</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 底部动作菜单 -->
+  <div class="bottom-menu">
+    <button class="menu-btn"><span class="icon">🎒</span>背包</button>
+    <button class="menu-btn"><span class="icon">👤</span>角色</button>
+    <button class="menu-btn"><span class="icon">🏠</span>主页</button>
+    <button class="menu-btn has-notice"><span class="icon">📋</span>任务</button>
+    <button class="menu-btn"><span class="icon">⚙</span>设置</button>
+  </div>
+
+  <!-- 地图选择 bottom sheet -->
+  <div class="sheet-backdrop" id="mapSheet">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <span class="sheet-title">⌂ 地图选择</span>
+        <button class="sheet-close" id="mapSheetClose">×</button>
+      </div>
+      <div class="sheet-list">
+
+        <!-- 城镇 -->
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">🏠</span>
+            <span>泫渤派城镇</span>
+            <span class="group-meta">补给点</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item town" data-key="town_xuanbo">
+              <span class="sub-name">泫渤派</span>
+              <span class="sub-level">城镇</span>
+              <span class="sub-badge">进入</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 泫渤派郊外 -->
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">🌾</span>
+            <span>泫渤派郊外</span>
+            <span class="group-meta">L3-35 · 6 区</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item" data-key="xuanbo_village" data-label="村庄周围 L3-5">
+              <span class="sub-name">村庄周围</span>
+              <span class="sub-level">L3-5</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="xuanbo_field" data-label="村庄野田 L8-12">
+              <span class="sub-name">村庄野田</span>
+              <span class="sub-level">L8-12</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="xuanbo_den" data-label="狼熊聚居地 L12-15">
+              <span class="sub-name">狼熊聚居地</span>
+              <span class="sub-level">L12-15</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item current" data-key="xuanbo_lumber" data-label="伐木场 L18-22">
+              <span class="sub-name">伐木场</span>
+              <span class="sub-level">L18-22</span>
+              <span class="sub-badge">当前</span>
+            </div>
+            <div class="map-sub-item" data-key="xuanbo_cemetery" data-label="墓地 L22-30">
+              <span class="sub-name">墓地</span>
+              <span class="sub-level">L22-30</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="xuanbo_robber" data-label="山寨 L30-35">
+              <span class="sub-name">山寨</span>
+              <span class="sub-level">L30-35</span>
+              <span class="sub-badge">前往</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 柳正关 -->
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">⛩</span>
+            <span>柳正关</span>
+            <span class="group-meta">L35-59 · 7 区</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item" data-key="liuzheng_forest" data-label="关外山林 L35-37">
+              <span class="sub-name">关外山林</span>
+              <span class="sub-level">L35-37</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="liuzheng_fishing_village" data-label="渔村 L38-42">
+              <span class="sub-name">渔村</span>
+              <span class="sub-level">L38-42</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="liuzheng_monster_camp" data-label="怪兽营地 L43-45">
+              <span class="sub-name">怪兽营地</span>
+              <span class="sub-level">L43-45</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="liuzheng_fire_thief_den" data-label="火贼山寨 L47-50">
+              <span class="sub-name">火贼山寨</span>
+              <span class="sub-level">L47-50</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="liuzheng_wanshou_pavilion" data-label="万寿阁下层 L51-54">
+              <span class="sub-name">万寿阁下层</span>
+              <span class="sub-level">L51-54</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="liuzheng_wanshou_pavilion_upper" data-label="万寿阁上层 L54-57">
+              <span class="sub-name">万寿阁上层</span>
+              <span class="sub-level">L54-57</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="liuzheng_deep_bamboo" data-label="渊竹林 L57-59">
+              <span class="sub-name">渊竹林</span>
+              <span class="sub-level">L57-59</span>
+              <span class="sub-badge">前往</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 神武门 -->
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">🏯</span>
+            <span>神武门</span>
+            <span class="group-meta">L60-67 · 3 区</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item" data-key="shenwu_tiger_valley" data-label="虎峡谷 L60-61">
+              <span class="sub-name">虎峡谷</span>
+              <span class="sub-level">L60-61</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="shenwu_miser_cave" data-label="吝啬鬼洞穴 L61-63">
+              <span class="sub-name">吝啬鬼洞穴</span>
+              <span class="sub-level">L61-63</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="shenwu_degenerate_land" data-label="变质的荒地 L64-67">
+              <span class="sub-name">变质的荒地</span>
+              <span class="sub-level">L64-67</span>
+              <span class="sub-badge">前往</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 三邪关 -->
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">🗡</span>
+            <span>三邪关</span>
+            <span class="group-meta">L35-59 · 7 区</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item" data-key="sanxie_forest" data-label="关外山林 L35-37">
+              <span class="sub-name">关外山林</span>
+              <span class="sub-level">L35-37</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="sanxie_deserter_camp" data-label="逃兵营地 L38-42">
+              <span class="sub-name">逃兵营地</span>
+              <span class="sub-level">L38-42</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="sanxie_hunter_camp" data-label="猎人寨 L43-45">
+              <span class="sub-name">猎人寨</span>
+              <span class="sub-level">L43-45</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="sanxie_green_forest_camp" data-label="绿林寨 L47-50">
+              <span class="sub-name">绿林寨</span>
+              <span class="sub-level">L47-50</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="sanxie_wutian_lower" data-label="无天阁下层 L51-54">
+              <span class="sub-name">无天阁下层</span>
+              <span class="sub-level">L51-54</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="sanxie_wutian_upper" data-label="无天阁上层 L54-57">
+              <span class="sub-name">无天阁上层</span>
+              <span class="sub-level">L54-57</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="sanxie_bamboo_fire_forest" data-label="竹火林 L57-59">
+              <span class="sub-name">竹火林</span>
+              <span class="sub-level">L57-59</span>
+              <span class="sub-badge">前往</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 柳善提督府 -->
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">🏛</span>
+            <span>柳善提督府</span>
+            <span class="group-meta">L60-67 · 3 区</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item" data-key="liushan_snake_valley" data-label="蛇谷 L60-61">
+              <span class="sub-name">蛇谷</span>
+              <span class="sub-level">L60-61</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="liushan_black_pine_base" data-label="黑松贼根据地 L61-63">
+              <span class="sub-name">黑松贼根据地</span>
+              <span class="sub-level">L61-63</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item" data-key="liushan_thief_nest" data-label="盗贼巢穴 L64-67">
+              <span class="sub-name">盗贼巢穴</span>
+              <span class="sub-level">L64-67</span>
+              <span class="sub-badge">前往</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 南明湖 -->
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">🌊</span>
+            <span>南明湖</span>
+            <span class="group-meta">L68+ · 2 区（高危）</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item" data-key="nanminghu_lake" data-label="南明湖 L68-71">
+              <span class="sub-name">南明湖</span>
+              <span class="sub-level">L68-71</span>
+              <span class="sub-badge">前往</span>
+            </div>
+            <div class="map-sub-item empty" data-key="nanminghu_cave" data-label="南明洞 L71-75">
+              <span class="sub-name">南明洞</span>
+              <span class="sub-level">L71-75</span>
+              <span class="sub-badge">空区域</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  (function() {
+    const sheet = document.getElementById('mapSheet');
+    const trigger = document.querySelector('.zone-current');
+    const closeBtn = document.getElementById('mapSheetClose');
+    const zoneName = document.querySelector('.zone-current .name');
+
+    trigger.addEventListener('click', () => sheet.classList.add('open'));
+    closeBtn.addEventListener('click', () => sheet.classList.remove('open'));
+    sheet.addEventListener('click', (e) => {
+      if (e.target === sheet) sheet.classList.remove('open');
+    });
+
+    document.querySelectorAll('.map-sub-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.map-sub-item').forEach(i => {
+          i.classList.remove('current');
+          const b = i.querySelector('.sub-badge');
+          if (i.classList.contains('town')) b.textContent = '进入';
+          else if (i.classList.contains('empty')) b.textContent = '空区域';
+          else b.textContent = '前往';
+        });
+        item.classList.add('current');
+        item.querySelector('.sub-badge').textContent = '当前';
+        zoneName.textContent = item.dataset.label || item.querySelector('.sub-name').textContent;
+        sheet.classList.remove('open');
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
+

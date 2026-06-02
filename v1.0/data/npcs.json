@@ -1,0 +1,85 @@
+{
+  "npcs": [
+    {
+      "key": "shop_weapon_and_enhance",
+      "name": "刀剑笑",
+      "type": "shop_and_enhance",
+      "shop_type": "weapon",
+      "items": [
+        { "item_key": "blade_base_001", "name": "直刀", "buy_price": 100 },
+        { "item_key": "blade_base_002", "name": "铁刀", "buy_price": 200 },
+        { "item_key": "sword_base_001", "name": "木剑", "buy_price": 100 },
+        { "item_key": "sword_base_002", "name": "重剑", "buy_price": 200 },
+        { "item_key": "staff_base_001", "name": "木杖", "buy_price": 100 },
+        { "item_key": "staff_base_002", "name": "桃木杖", "buy_price": 200 },
+        { "item_key": "spear_base_001", "name": "木枪", "buy_price": 100 },
+        { "item_key": "spear_base_002", "name": "长枪", "buy_price": 200 }
+      ],
+      "price_multiplier": 1.0
+    },
+    {
+      "key": "shop_armor",
+      "name": "银娇龙",
+      "type": "shop",
+      "shop_type": "chest",
+      "items": [
+        { "item_key": "blade_chest_base_001", "name": "无名战袍", "buy_price": 100 },
+        { "item_key": "blade_chest_base_002", "name": "金丝战袍", "buy_price": 150 },
+        { "item_key": "blade_chest_base_003", "name": "乌蚕战袍", "buy_price": 200 },
+        { "item_key": "sword_chest_base_001", "name": "无名侠衣", "buy_price": 100 },
+        { "item_key": "sword_chest_base_002", "name": "金丝侠衣", "buy_price": 150 },
+        { "item_key": "sword_chest_base_003", "name": "乌蚕侠衣", "buy_price": 200 },
+        { "item_key": "staff_chest_base_001", "name": "无名法袍", "buy_price": 100 },
+        { "item_key": "staff_chest_base_002", "name": "金丝法袍", "buy_price": 150 },
+        { "item_key": "staff_chest_base_003", "name": "乌蚕法袍", "buy_price": 200 },
+        { "item_key": "spear_chest_base_001", "name": "无名枪衣", "buy_price": 100 },
+        { "item_key": "spear_chest_base_002", "name": "金丝枪衣", "buy_price": 150 },
+        { "item_key": "spear_chest_base_003", "name": "乌蚕枪衣", "buy_price": 200 },
+        { "item_key": "gloves_base_001", "name": "皮护手", "buy_price": 50 },
+        { "item_key": "gloves_base_002", "name": "青铜护手", "buy_price": 75 },
+        { "item_key": "gloves_base_003", "name": "精炼护手", "buy_price": 100 },
+        { "item_key": "gloves_base_004", "name": "罗汉护手", "buy_price": 150 },
+        { "item_key": "boots_base_001", "name": "无名短靴", "buy_price": 50 },
+        { "item_key": "boots_base_002", "name": "青衣短靴", "buy_price": 60 },
+        { "item_key": "boots_base_003", "name": "皮短靴", "buy_price": 75 },
+        { "item_key": "boots_base_004", "name": "无名长靴", "buy_price": 100 },
+        { "item_key": "boots_base_005", "name": "皮长靴", "buy_price": 150 }
+      ],
+      "price_multiplier": 1.0
+    },
+    {
+      "key": "shop_potion",
+      "name": "平十指",
+      "type": "shop",
+      "shop_type": "potion",
+      "items": [
+        { "item_key": "hp_potion_grade1", "name": "金创药（小）", "buy_price": 50 },
+        { "item_key": "mp_potion_grade1", "name": "人参", "buy_price": 50 },
+        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "buy_price": 100 },
+        { "item_key": "mp_potion_grade2", "name": "野山参", "buy_price": 100 },
+        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "buy_price": 200 },
+        { "item_key": "mp_potion_grade3", "name": "雪原参", "buy_price": 200 }
+      ],
+      "price_multiplier": 1.0
+    },
+    {
+      "key": "quest_npc",
+      "name": "泫渤派门主",
+      "type": "quest",
+      "quests": [
+        { "key": "quest_transfer_1", "name": "初入江湖" },
+        { "key": "quest_transfer_2_positive", "name": "江湖正道历练" },
+        { "key": "quest_transfer_2_negative", "name": "江湖邪道历练" },
+        { "key": "quest_transfer_3_positive", "name": "武林正道" },
+        { "key": "quest_transfer_3_negative", "name": "武林邪道" }
+      ]
+    },
+    {
+      "key": "warehouse_npc",
+      "name": "韦大宝",
+      "type": "warehouse",
+      "description": "提供物品存储服务",
+      "capacity": 50
+    }
+  ]
+}

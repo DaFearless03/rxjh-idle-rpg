@@ -1,0 +1,403 @@
+{
+  "monsters": [
+    {
+      "key": "stray_cat", "name": "野猫", "level": 3, "exp": 3,
+      "hp": 50, "atk": 13, "def": 10,
+      "hit": 9, "missing": 0.9,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.25, "critB": 1.5, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "toad", "name": "蛤蟆", "level": 5, "exp": 5,
+      "hp": 70, "atk": 17, "def": 15,
+      "hit": 15, "missing": 1.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.25, "critB": 1.5, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "fox", "name": "狐狸", "level": 8, "exp": 9,
+      "hp": 100, "atk": 24, "def": 18,
+      "hit": 24, "missing": 2.4,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.25, "critB": 1.5, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "wild_bull", "name": "狂牛", "level": 10, "exp": 11,
+      "hp": 120, "atk": 46, "def": 30,
+      "hit": 30, "missing": 3,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.25, "critB": 1.5, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "wild_boar", "name": "野猪", "level": 12, "exp": 14,
+      "hp": 160, "atk": 56, "def": 35,
+      "hit": 36, "missing": 3.6,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "boar_leg"}],
+      "critR": 0.25, "critB": 1.5, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "gray_wolf", "name": "灰狼", "level": 14, "exp": 18,
+      "hp": 220, "atk": 72, "def": 45,
+      "hit": 42, "missing": 4.2,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "wolf_bone"}],
+      "critR": 0.28, "critB": 1.6, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "red_bear", "name": "赤血熊", "level": 18, "exp": 25,
+      "hp": 380, "atk": 95, "def": 65,
+      "hit": 55, "missing": 5.5,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "red_bear_skin"}],
+      "critR": 0.30, "critB": 1.6, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "forest_tiger", "name": "山林黄虎", "level": 22, "exp": 32,
+      "hp": 480, "atk": 125, "def": 80,
+      "hit": 68, "missing": 6.8,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "forest_tiger_skin"}],
+      "critR": 0.30, "critB": 1.7, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "white_tiger", "name": "白纹虎", "level": 28, "exp": 45,
+      "hp": 650, "atk": 165, "def": 105,
+      "hit": 85, "missing": 8.5,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "white_tiger_skin"}],
+      "critR": 0.32, "critB": 1.75, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "bloodthirsty_wolf", "name": "嗜血狂狼", "level": 32, "exp": 58,
+      "hp": 780, "atk": 195, "def": 120,
+      "hit": 100, "missing": 10,
+      "monster_type": "elite", "skills": [], "drop_items": [{"item_key": "blood_wolf_skin"}],
+      "critR": 0.35, "critB": 1.8, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "bandit_swordsman", "name": "山贼剑客", "level": 35, "exp": 65,
+      "hp": 900, "atk": 220, "def": 140,
+      "hit": 115, "missing": 11.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.32, "critB": 1.7, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "bandit_archer", "name": "山贼弓手", "level": 36, "exp": 68,
+      "hp": 850, "atk": 240, "def": 125,
+      "hit": 125, "missing": 12.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.30, "critB": 1.65, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "bandit_boss", "name": "山贼头目", "level": 38, "exp": 78,
+      "hp": 1200, "atk": 265, "def": 160,
+      "hit": 135, "missing": 13.5,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.35, "critB": 1.8, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "forest_thief", "name": "林贼", "level": 40, "exp": 85,
+      "hp": 1000, "atk": 280, "def": 150,
+      "hit": 140, "missing": 14,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.33, "critB": 1.75, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "pirate_raider", "name": "海盗侵袭者", "level": 42, "exp": 95,
+      "hp": 1150, "atk": 310, "def": 175,
+      "hit": 155, "missing": 15.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.34, "critB": 1.8, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "fisherman_spirit", "name": "渔夫怨灵", "level": 44, "exp": 105,
+      "hp": 1300, "atk": 340, "def": 190,
+      "hit": 170, "missing": 17,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.34, "critB": 1.8, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "desert_bandit", "name": "沙漠盗贼", "level": 46, "exp": 115,
+      "hp": 1450, "atk": 370, "def": 210,
+      "hit": 185, "missing": 18.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.35, "critB": 1.82, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "cave_spirit", "name": "洞穴幽魂", "level": 48, "exp": 125,
+      "hp": 1600, "atk": 400, "def": 230,
+      "hit": 200, "missing": 20,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.36, "critB": 1.85, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "fire_thief_leader", "name": "火贼头领", "level": 50, "exp": 140,
+      "hp": 2000, "atk": 440, "def": 260,
+      "hit": 220, "missing": 22,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.38, "critB": 1.9, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "fire_thief_raider", "name": "火贼掠夺者", "level": 51, "exp": 148,
+      "hp": 1850, "atk": 460, "def": 245,
+      "hit": 230, "missing": 23,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.36, "critB": 1.85, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "wanshou_guard", "name": "万寿阁守卫", "level": 54, "exp": 165,
+      "hp": 2400, "atk": 510, "def": 300,
+      "hit": 255, "missing": 25.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.38, "critB": 1.9, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "wanshou_disciple", "name": "万寿阁弟子", "level": 55, "exp": 175,
+      "hp": 2200, "atk": 530, "def": 280,
+      "hit": 265, "missing": 26.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.38, "critB": 1.9, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "wanshou_elder", "name": "万寿阁长老", "level": 58, "exp": 200,
+      "hp": 3200, "atk": 590, "def": 350,
+      "hit": 295, "missing": 29.5,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.40, "critB": 1.95, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "wanshou_master", "name": "万寿阁掌门", "level": 60, "exp": 230,
+      "hp": 4500, "atk": 660, "def": 400,
+      "hit": 330, "missing": 33,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.42, "critB": 2.0, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "bamboo_spirit", "name": "竹灵", "level": 58, "exp": 210,
+      "hp": 3000, "atk": 610, "def": 360,
+      "hit": 305, "missing": 30.5,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "bamboo_leaf"}],
+      "critR": 0.40, "critB": 1.95, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "deep_forest_tiger", "name": "深渊森林虎", "level": 62, "exp": 260,
+      "hp": 5000, "atk": 720, "def": 430,
+      "hit": 360, "missing": 36,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.42, "critB": 2.0, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "bamboo_guard", "name": "竹卫", "level": 61, "exp": 245,
+      "hp": 4200, "atk": 680, "def": 410,
+      "hit": 340, "missing": 34,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.40, "critB": 1.95, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "saber_toothed_tiger", "name": "剑齿虎", "level": 65, "exp": 310,
+      "hp": 6000, "atk": 810, "def": 490,
+      "hit": 405, "missing": 40.5,
+      "monster_type": "elite", "skills": [], "drop_items": [{"item_key": "saber_tiger_skin"}],
+      "critR": 0.44, "critB": 2.05, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "cave_beast", "name": "洞穴野兽", "level": 63, "exp": 285,
+      "hp": 5500, "atk": 760, "def": 460,
+      "hit": 380, "missing": 38,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.42, "critB": 2.0, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "valley_stalker", "name": "峡谷潜伏者", "level": 64, "exp": 298,
+      "hp": 5800, "atk": 790, "def": 475,
+      "hit": 395, "missing": 39.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.42, "critB": 2.0, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "miser_spirit", "name": "吝啬鬼魂", "level": 66, "exp": 340,
+      "hp": 6800, "atk": 870, "def": 530,
+      "hit": 435, "missing": 43.5,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "magnet_stone"}],
+      "critR": 0.44, "critB": 2.05, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "treasure_guardian", "name": "宝藏守护者", "level": 67, "exp": 365,
+      "hp": 7500, "atk": 920, "def": 560,
+      "hit": 460, "missing": 46,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.45, "critB": 2.1, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "degenerate_spirit", "name": "堕落幽魂", "level": 68, "exp": 390,
+      "hp": 8000, "atk": 970, "def": 590,
+      "hit": 485, "missing": 48.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.45, "critB": 2.1, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "corrupted_guardian", "name": "腐化守护者", "level": 70, "exp": 430,
+      "hp": 9000, "atk": 1050, "def": 640,
+      "hit": 525, "missing": 52.5,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.46, "critB": 2.15, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "deserter", "name": "逃兵", "level": 40, "exp": 88,
+      "hp": 1100, "atk": 295, "def": 165,
+      "hit": 148, "missing": 14.8,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.34, "critB": 1.78, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "deserter_officer", "name": "逃兵军官", "level": 43, "exp": 100,
+      "hp": 1350, "atk": 325, "def": 195,
+      "hit": 163, "missing": 16.3,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.35, "critB": 1.8, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "hunter_chief", "name": "猎人寨主", "level": 46, "exp": 118,
+      "hp": 1600, "atk": 385, "def": 225,
+      "hit": 193, "missing": 19.3,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.36, "critB": 1.85, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "hunter_raider", "name": "猎人掠夺者", "level": 47, "exp": 126,
+      "hp": 1700, "atk": 410, "def": 235,
+      "hit": 205, "missing": 20.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.36, "critB": 1.85, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "green_forest_chief", "name": "绿林寨主", "level": 50, "exp": 145,
+      "hp": 2100, "atk": 455, "def": 270,
+      "hit": 228, "missing": 22.8,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.38, "critB": 1.9, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "green_forest_raider", "name": "绿林掠夺者", "level": 51, "exp": 153,
+      "hp": 1900, "atk": 475, "def": 255,
+      "hit": 238, "missing": 23.8,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.37, "critB": 1.88, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "wutian_disciple", "name": "无天阁弟子", "level": 54, "exp": 170,
+      "hp": 2500, "atk": 520, "def": 310,
+      "hit": 260, "missing": 26,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.38, "critB": 1.9, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "wutian_guard", "name": "无天阁护卫", "level": 55, "exp": 180,
+      "hp": 2700, "atk": 550, "def": 325,
+      "hit": 275, "missing": 27.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.39, "critB": 1.92, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "wutian_elite", "name": "无天阁精英", "level": 58, "exp": 210,
+      "hp": 3400, "atk": 610, "def": 365,
+      "hit": 305, "missing": 30.5,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.40, "critB": 1.95, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "wutian_leader", "name": "无天阁领袖", "level": 60, "exp": 240,
+      "hp": 4800, "atk": 680, "def": 410,
+      "hit": 340, "missing": 34,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.42, "critB": 2.0, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "flame_bamboo_spirit", "name": "焰竹灵", "level": 58, "exp": 215,
+      "hp": 3100, "atk": 630, "def": 370,
+      "hit": 315, "missing": 31.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.40, "critB": 1.95, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "fire_forest_tiger", "name": "焰林虎", "level": 61, "exp": 250,
+      "hp": 5200, "atk": 740, "def": 445,
+      "hit": 370, "missing": 37,
+      "monster_type": "elite", "skills": [], "drop_items": [{"item_key": "red_cloud_tiger_skin"}],
+      "critR": 0.43, "critB": 2.02, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "burning_spirit", "name": "燃烧幽魂", "level": 62, "exp": 268,
+      "hp": 5600, "atk": 780, "def": 465,
+      "hit": 390, "missing": 39,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.42, "critB": 2.0, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "snake_spirit", "name": "蛇灵", "level": 64, "exp": 295,
+      "hp": 6200, "atk": 830, "def": 500,
+      "hit": 415, "missing": 41.5,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "gold_bell_snake_scale"}],
+      "critR": 0.43, "critB": 2.02, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "viper_chief", "name": "毒蛇头领", "level": 66, "exp": 330,
+      "hp": 7200, "atk": 900, "def": 545,
+      "hit": 450, "missing": 45,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.45, "critB": 2.08, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "black_pine_thief", "name": "黑松贼", "level": 66, "exp": 345,
+      "hp": 7000, "atk": 880, "def": 525,
+      "hit": 440, "missing": 44,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.44, "critB": 2.05, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "black_pine_boss", "name": "黑松贼头目", "level": 68, "exp": 380,
+      "hp": 8500, "atk": 960, "def": 575,
+      "hit": 480, "missing": 48,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.45, "critB": 2.1, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "thief_master", "name": "盗贼首领", "level": 70, "exp": 420,
+      "hp": 9800, "atk": 1040, "def": 630,
+      "hit": 520, "missing": 52,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.46, "critB": 2.15, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "shadow_assassin", "name": "暗影刺客", "level": 71, "exp": 455,
+      "hp": 10500, "atk": 1100, "def": 660,
+      "hit": 550, "missing": 55,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.48, "critB": 2.2, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "lake_dragon_spirit", "name": "湖龙之魂", "level": 73, "exp": 510,
+      "hp": 12000, "atk": 1200, "def": 720,
+      "hit": 600, "missing": 60,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.50, "critB": 2.3, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "ancient_spirit", "name": "远古幽魂", "level": 75, "exp": 580,
+      "hp": 14000, "atk": 1350, "def": 800,
+      "hit": 675, "missing": 67.5,
+      "monster_type": "normal", "skills": [], "drop_items": [],
+      "critR": 0.50, "critB": 2.3, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "cave_legend", "name": "洞穴传说", "level": 77, "exp": 680,
+      "hp": 18000, "atk": 1550, "def": 900,
+      "hit": 775, "missing": 77.5,
+      "monster_type": "elite", "skills": [], "drop_items": [],
+      "critR": 0.52, "critB": 2.4, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "cave_overlord", "name": "洞穴霸主", "level": 80, "exp": 800,
+      "hp": 25000, "atk": 1900, "def": 1100,
+      "hit": 950, "missing": 95,
+      "monster_type": "boss", "skills": [], "drop_items": [],
+      "critR": 0.55, "critB": 2.5, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    }
+  ]
+}

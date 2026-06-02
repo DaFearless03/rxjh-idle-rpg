@@ -1,0 +1,215 @@
+{
+  "quest_templates": [
+    {
+      "key": "quest_transfer_1",
+      "name": "初入江湖",
+      "description": "泫渤派门主让你去郊外猎取证明实力的材料",
+      "type": "career_transfer",
+      "required_transfer": 0,
+      "target_transfer": 1,
+      "prerequisite": { "level": 10 },
+      "objectives": [
+        {
+          "stage": 1,
+          "name": "证明实力",
+          "items": [
+            { "item_key": "boar_leg", "item_name": "野猪后腿", "count": 10, "drop_monster": "wild_boar" },
+            { "item_key": "wolf_bone", "item_name": "灰狼之骨", "count": 3, "drop_monster": "gray_wolf" }
+          ]
+        }
+      ],
+      "rewards": [
+        {
+          "type": "unlock_career",
+          "careers": ["warrior_blade_transfer_1st", "warrior_sword_transfer_1st", "healer_transfer_1st", "warrior_spear_transfer_1st"]
+        }
+      ],
+      "dialogue": {
+        "accept": "去吧，证明你的实力，带回10个野猪后腿和3个灰狼之骨。",
+        "complete": "不错，你已经具备了转职的条件。"
+      }
+    },
+    {
+      "key": "quest_transfer_2_positive",
+      "name": "江湖正道历练",
+      "description": "泫渤派门主让你以正道之名，猎取多种猛兽之皮，证明你已经可以独当一面",
+      "type": "career_transfer",
+      "faction": "positive",
+      "required_transfer": 1,
+      "target_transfer": 2,
+      "prerequisite": { "level": 35 },
+      "objectives": [
+        {
+          "stage": 1,
+          "name": "正道历练",
+          "items": [
+            { "item_key": "red_bear_skin", "item_name": "赤血熊之皮", "count": 10, "drop_monster": "red_bear" },
+            { "item_key": "forest_tiger_skin", "item_name": "山林黄虎之皮", "count": 10, "drop_monster": "forest_tiger" },
+            { "item_key": "white_tiger_skin", "item_name": "白纹虎之皮", "count": 10, "drop_monster": "white_tiger" }
+          ]
+        }
+      ],
+      "rewards": [
+        { "type": "set_faction", "faction": "positive" },
+        {
+          "type": "unlock_career",
+          "careers": ["warrior_blade_transfer_2st_Z", "warrior_sword_transfer_2st_Z", "healer_transfer_2st_Z", "warrior_spear_transfer_2st_Z"]
+        }
+      ],
+      "dialogue": {
+        "accept": "既然你愿以正道立身，便去猎取10个赤血熊之皮、10个山林黄虎之皮、10个白纹虎之皮回来。",
+        "complete": "好，你已经是正道的合格江湖人士了。"
+      }
+    },
+    {
+      "key": "quest_transfer_2_negative",
+      "name": "江湖邪道历练",
+      "description": "泫渤派门主以邪道之名考验你，猎取多种猛兽之皮，证明你的杀伐之力",
+      "type": "career_transfer",
+      "faction": "negative",
+      "required_transfer": 1,
+      "target_transfer": 2,
+      "prerequisite": { "level": 35 },
+      "objectives": [
+        {
+          "stage": 1,
+          "name": "邪道历练",
+          "items": [
+            { "item_key": "red_bear_skin", "item_name": "赤血熊之皮", "count": 10, "drop_monster": "red_bear" },
+            { "item_key": "forest_tiger_skin", "item_name": "山林黄虎之皮", "count": 10, "drop_monster": "forest_tiger" },
+            { "item_key": "white_tiger_skin", "item_name": "白纹虎之皮", "count": 10, "drop_monster": "white_tiger" }
+          ]
+        }
+      ],
+      "rewards": [
+        { "type": "set_faction", "faction": "negative" },
+        {
+          "type": "unlock_career",
+          "careers": ["warrior_blade_transfer_2st_X", "warrior_sword_transfer_2st_X", "healer_transfer_2st_X", "warrior_spear_transfer_2st_X"]
+        }
+      ],
+      "dialogue": {
+        "accept": "既然你愿入邪道，便去猎取10个赤血熊之皮、10个山林黄虎之皮、10个白纹虎之皮回来，证明你的狠厉。",
+        "complete": "不错，你已经是邪道的合格江湖人士了。"
+      }
+    },
+    {
+      "key": "quest_transfer_3_positive",
+      "name": "武林正道",
+      "description": "泫渤派门主让你通过三道考验，证明你是正道高手",
+      "type": "career_transfer",
+      "faction": "positive",
+      "required_transfer": 2,
+      "target_transfer": 3,
+      "prerequisite": { "level": 60 },
+      "objectives": [
+        {
+          "stage": 1,
+          "name": "初试锋芒",
+          "items": [
+            { "item_key": "magnet_stone", "item_name": "磁铁石", "count": 10, "drop_monster": "one_eye_evil_thief" },
+            { "item_key": "bamboo_leaf", "item_name": "竹叶", "count": 10, "drop_monster": "bamboo_forest_double_sword" }
+          ]
+        },
+        {
+          "stage": 2,
+          "name": "再试身手",
+          "items": [
+            { "item_key": "saber_tiger_skin", "item_name": "剑齿虎皮", "count": 10, "drop_monster": "saber_tooth_evil_tiger" },
+            { "item_key": "red_cloud_tiger_skin", "item_name": "赤云虎皮", "count": 10, "drop_monster": "red_cloud_tiger" }
+          ]
+        },
+        {
+          "stage": 3,
+          "name": "终试实力",
+          "items": [
+            { "item_key": "blood_wolf_skin", "item_name": "嗜血狂狼皮", "count": 10, "drop_monster": "bloodthirsty_wolf", "exclusive_group": "bloodthirsty_wolf" },
+            { "item_key": "blood_wolf_claw", "item_name": "嗜血狂狼爪", "count": 10, "drop_monster": "bloodthirsty_wolf", "exclusive_group": "bloodthirsty_wolf" },
+            { "item_key": "blood_wolf_tail", "item_name": "嗜血狂狼尾毛", "count": 10, "drop_monster": "bloodthirsty_wolf", "exclusive_group": "bloodthirsty_wolf" },
+            { "item_key": "blood_wolf_blood", "item_name": "嗜血狂狼之血", "count": 10, "drop_monster": "bloodthirsty_wolf", "exclusive_group": "bloodthirsty_wolf" }
+          ]
+        }
+      ],
+      "rewards": [
+        {
+          "type": "unlock_career",
+          "careers": ["warrior_blade_transfer_3st_Z", "warrior_sword_transfer_3st_Z", "healer_transfer_3st_Z", "warrior_spear_transfer_3st_Z"]
+        }
+      ],
+      "dialogue": {
+        "accept": "你已经是一方高手，但还需证明你的实力。完成三道考验方可转职。",
+        "complete": "不错，你已经是正道的武林高手了。"
+      }
+    },
+    {
+      "key": "quest_transfer_3_negative",
+      "name": "武林邪道",
+      "description": "泫渤派门主让你通过三道考验，证明你是邪道高手",
+      "type": "career_transfer",
+      "faction": "negative",
+      "required_transfer": 2,
+      "target_transfer": 3,
+      "prerequisite": { "level": 60 },
+      "objectives": [
+        {
+          "stage": 1,
+          "name": "初试锋芒",
+          "items": [
+            { "item_key": "bamboo_strip", "item_name": "竹条", "count": 10, "drop_monster": "bamboo_forest_swordsman" },
+            { "item_key": "magnet_stone", "item_name": "磁铁石", "count": 10, "drop_monster": "one_eye_evil_thief" }
+          ]
+        },
+        {
+          "stage": 2,
+          "name": "再试身手",
+          "items": [
+            { "item_key": "gold_bell_snake_scale", "item_name": "金铃蛇蛇鳞", "count": 10, "drop_monster": "gold_bell_snake" },
+            { "item_key": "coral_snake_scale", "item_name": "珊瑚蛇蛇鳞", "count": 10, "drop_monster": "coral_snake" }
+          ]
+        },
+        {
+          "stage": 3,
+          "name": "终试实力",
+          "items": [
+            { "item_key": "green_head_snake_scale", "item_name": "青头蛇蛇鳞", "count": 10, "drop_monster": "green_head_snake", "exclusive_group": "green_head_snake" },
+            { "item_key": "green_head_snake_fang", "item_name": "青头蛇前牙", "count": 10, "drop_monster": "green_head_snake", "exclusive_group": "green_head_snake" },
+            { "item_key": "qingxuan_wine", "item_name": "青玄酒", "count": 10, "drop_monster": "green_head_snake", "exclusive_group": "green_head_snake" },
+            { "item_key": "green_head_snake_venom", "item_name": "青头蛇毒囊", "count": 10, "drop_monster": "green_head_snake", "exclusive_group": "green_head_snake" }
+          ]
+        }
+      ],
+      "rewards": [
+        {
+          "type": "unlock_career",
+          "careers": ["warrior_blade_transfer_3st_X", "warrior_sword_transfer_3st_X", "healer_transfer_3st_X", "warrior_spear_transfer_3st_X"]
+        }
+      ],
+      "dialogue": {
+        "accept": "你已经是一方高手，但还需证明你的实力。完成三道考验方可转职。",
+        "complete": "不错，你已经是邪道的武林高手了。"
+      }
+    }
+  ],
+  "quest_items": {
+    "boar_leg": { "name": "野猪后腿", "sell_price": 0 },
+    "wolf_bone": { "name": "灰狼之骨", "sell_price": 0 },
+    "red_bear_skin": { "name": "赤血熊之皮", "sell_price": 0 },
+    "forest_tiger_skin": { "name": "山林黄虎之皮", "sell_price": 0 },
+    "white_tiger_skin": { "name": "白纹虎之皮", "sell_price": 0 },
+    "bamboo_leaf": { "name": "竹叶", "sell_price": 0 },
+    "saber_tiger_skin": { "name": "剑齿虎皮", "sell_price": 0 },
+    "red_cloud_tiger_skin": { "name": "赤云虎皮", "sell_price": 0 },
+    "blood_wolf_skin": { "name": "嗜血狂狼皮", "sell_price": 0 },
+    "blood_wolf_claw": { "name": "嗜血狂狼爪", "sell_price": 0 },
+    "blood_wolf_tail": { "name": "嗜血狂狼尾毛", "sell_price": 0 },
+    "blood_wolf_blood": { "name": "嗜血狂狼之血", "sell_price": 0 },
+    "bamboo_strip": { "name": "竹条", "sell_price": 0 },
+    "magnet_stone": { "name": "磁铁石", "sell_price": 0 },
+    "gold_bell_snake_scale": { "name": "金铃蛇蛇鳞", "sell_price": 0 },
+    "coral_snake_scale": { "name": "珊瑚蛇蛇鳞", "sell_price": 0 },
+    "green_head_snake_scale": { "name": "青头蛇蛇鳞", "sell_price": 0 },
+    "green_head_snake_fang": { "name": "青头蛇前牙", "sell_price": 0 },
+    "qingxuan_wine": { "name": "青玄酒", "sell_price": 0 },
+    "green_head_snake_venom": { "name": "青头蛇毒囊", "sell_price": 0 }
+  }
+}

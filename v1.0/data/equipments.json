@@ -1,0 +1,136 @@
+{
+  "equipments": [
+    {
+      "key": "blade_base_001",
+      "name": "直刀",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "atkMin": 8, "atkMax": 12 }
+    },
+    {
+      "key": "blade_base_002",
+      "name": "铁刀",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "atkMin": 12, "atkMax": 20 }
+    },
+    {
+      "key": "blade_t1_001",
+      "name": "钢刀",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_career": ["blade"],
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": { "atkMin": 18, "atkMax": 31 }
+    },
+    {
+      "key": "blade_chest_base_001",
+      "name": "无名战袍",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 12 }
+    },
+    {
+      "key": "blade_chest_base_002",
+      "name": "金丝战袍",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 20,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 16 }
+    },
+    {
+      "key": "gloves_base_001",
+      "name": "无名护手",
+      "slot": "gloves",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 5 }
+    },
+    {
+      "key": "boots_base_001",
+      "name": "布靴",
+      "slot": "boots",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 3 }
+    },
+    {
+      "key": "inner_armor_base_001",
+      "name": "布衣",
+      "slot": "inner_armor",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 5 }
+    },
+    {
+      "key": "amulet_base_001",
+      "name": "粗布项链",
+      "slot": "amulet",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "missing": 3 }
+    },
+    {
+      "key": "ring_base_001",
+      "name": "铁戒",
+      "slot": "ring",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "hit": 3 }
+    },
+    {
+      "key": "earring_base_001",
+      "name": "铜耳环",
+      "slot": "earring",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "maxHp": 20 }
+    },
+    {
+      "key": "cape_base_001",
+      "name": "破旧披风",
+      "slot": "cape",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {}
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "combat_constants": {
+    "armorBreakDefReduce": 0.20,
+    "counterDamageRate": 1.0,
+    "comboHits": 3,
+    "leechRate": 0.20,
+    "skillCritDamageBonus": 0.50,
+    "shieldDamageReduceRate": 0.5
+  },
+  "battle_flow": {
+    "battle_model": {
+      "type": "1vN",
+      "same_zone_monster_cap": 8,
+      "elite_cap_per_zone": 1,
+      "attacker_slot_limit": null,
+      "monster_spawn": {
+        "initial_spawn_count": 1,
+        "spawn_interval_seconds": 1,
+        "clear_on_zone_change": true,
+        "preheat_seconds": 2,
+        "spawn_weight": {
+          "normal_vs_normal": 1,
+          "elite_vs_normal": "1:50"
+        }
+      },
+      "monster_attack": {
+        "atk_interval_ms": 1000,
+        "independent_cooldown": true
+      },
+      "target_lock": {
+        "strategy": "lowest_hp_enemy",
+        "sticky_until_dead": true,
+        "shared_across_attack_types": true
+      }
+    },
+    "player_death": {
+      "location": "town_xuanbo",
+      "hp_mp_after_respawn": "full",
+      "exp_loss_formula": "floor(exp_to_next_level[player.level] * 0.01)",
+      "item_drop_on_death": false,
+      "quest_progress_preserved": true
+    }
+  },
+  "exp_to_next_level": {
+    "1": 100, "2": 229, "3": 396, "4": 613, "5": 895,
+    "6": 1261, "7": 1736, "8": 2353, "9": 3155, "10": 4197,
+    "11": 5551, "12": 7311, "13": 9598, "14": 12571, "15": 16435,
+    "16": 21458, "17": 27987, "18": 36474, "19": 47507, "20": 61850,
+    "21": 79062, "22": 99716, "23": 124501, "24": 154243, "25": 189933,
+    "26": 232761, "27": 284155, "28": 345828, "29": 419836, "30": 508646,
+    "31": 615218, "32": 743304, "33": 896706, "34": 1079894, "35": 1299425,
+    "36": 1562842, "37": 1878524, "38": 2266567, "39": 2724713, "40": 3274488,
+    "41": 3917724, "42": 4670310, "43": 5550835, "44": 6581049, "45": 7786399,
+    "46": 9196658, "47": 10846660, "48": 12777162, "49": 15035849, "50": 17678512,
+    "51": 20585441, "52": 23783062, "53": 27300445, "54": 31169566, "55": 35425599,
+    "56": 40107235, "57": 45257034, "58": 50921813, "59": 57153070, "60": 64007452
+  },
+  "attribute_constants": {
+    "baseHit": 0,
+    "dexToHit": 0.5,
+    "levelToHit": 2.0,
+    "baseMissing": 0,
+    "dexToMissing": 0.2,
+    "levelToMissing": 0.1,
+    "baseAtk": 0,
+    "strToAtk": 1.0,
+    "baseDef": 0,
+    "staToDef": 1.0,
+    "staToHp": 3,
+    "intToMp": 2,
+    "matk_weapon_ratio": 1.0
+  },
+  "level_cap_max": 100,
+  "current_level_cap": 60,
+  "attribute_points": {
+    "gain_per_level": {
+      "1": 1, "2": 1, "3": 1, "4": 1, "5": 1,
+      "6": 1, "7": 1, "8": 1, "9": 1, "10": 1,
+      "11": 1, "12": 1, "13": 1, "14": 1, "15": 1,
+      "16": 1, "17": 1, "18": 1, "19": 1, "20": 1,
+      "21": 1, "22": 1, "23": 1, "24": 1, "25": 1,
+      "26": 1, "27": 1, "28": 1, "29": 1, "30": 1,
+      "31": 1, "32": 1, "33": 1, "34": 1, "35": 2,
+      "36": 2, "37": 2, "38": 2, "39": 2, "40": 2,
+      "41": 2, "42": 2, "43": 2, "44": 2, "45": 2,
+      "46": 2, "47": 2, "48": 2, "49": 2, "50": 2,
+      "51": 2, "52": 2, "53": 2, "54": 2, "55": 2,
+      "56": 2, "57": 2, "58": 2, "59": 2, "60": 2
+    }
+  }
+}

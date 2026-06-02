@@ -1,0 +1,86 @@
+{
+  "careers": [
+    {
+      "key": "warrior_blade",
+      "name": "刀客",
+      "description": "高血高防",
+      "stage": "base",
+      "faction": "neutral",
+      "career_family": "blade",
+      "requirement": { "role": "warrior_blade", "level": 1 },
+      "equipments": { "weapon": "blade" },
+      "base_stats": {
+        "int": 8, "str": 8, "sta": 15, "dex": 9,
+        "baseHp": 100, "baseMp": 100
+      },
+      "attrGrow": {
+        "str": 1.5, "dex": 1, "int": 1, "sta": 1.5,
+        "hpGrowth": 60, "mpGrowth": 20
+      },
+      "martial_arts": [],
+      "passives": {},
+      "enhances": {},
+      "hidden": false
+    },
+    {
+      "key": "warrior_blade_transfer_1st",
+      "name": "刀杰",
+      "description": "刀客1转",
+      "stage": "t1",
+      "faction": "neutral",
+      "career_family": "blade",
+      "requirement": { "career": "warrior_blade", "level": 10 },
+      "equipments": { "weapon": "blade" },
+      "attrGrow": { "str": 1.5, "dex": 1, "int": 1, "sta": 1.5, "hpGrowth": 60, "mpGrowth": 20 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_blade_transfer_2st_Z",
+      "name": "弑魔刀",
+      "description": "刀客正派2转",
+      "stage": "t2",
+      "faction": "positive",
+      "career_family": "blade",
+      "requirement": { "career": "warrior_blade_transfer_1st", "level": 35 },
+      "equipments": { "weapon": "blade" },
+      "attrGrow": { "str": 1.5, "dex": 1, "int": 1, "sta": 1.5, "hpGrowth": 60, "mpGrowth": 20 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_blade_transfer_2st_X",
+      "name": "摄魂刀",
+      "description": "刀客邪派2转",
+      "stage": "t2",
+      "faction": "negative",
+      "career_family": "blade",
+      "requirement": { "career": "warrior_blade_transfer_1st", "level": 35 },
+      "equipments": { "weapon": "blade" },
+      "attrGrow": { "str": 1.5, "dex": 1, "int": 1, "sta": 1.5, "hpGrowth": 60, "mpGrowth": 20 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_blade_transfer_3st_Z",
+      "name": "至尊刀",
+      "description": "刀客正派3转",
+      "stage": "t3",
+      "faction": "positive",
+      "career_family": "blade",
+      "requirement": { "career": "warrior_blade_transfer_2st_Z", "level": 60 },
+      "equipments": { "weapon": "blade" },
+      "attrGrow": { "str": 1.5, "dex": 1, "int": 1, "sta": 1.5, "hpGrowth": 60, "mpGrowth": 20 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_blade_transfer_3st_X",
+      "name": "幽冥刀",
+      "description": "刀客邪派3转",
+      "stage": "t3",
+      "faction": "negative",
+      "career_family": "blade",
+      "requirement": { "career": "warrior_blade_transfer_2st_X", "level": 60 },
+      "equipments": { "weapon": "blade" },
+      "attrGrow": { "str": 1.5, "dex": 1, "int": 1, "sta": 1.5, "hpGrowth": 60, "mpGrowth": 20 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    }
+  ]
+}

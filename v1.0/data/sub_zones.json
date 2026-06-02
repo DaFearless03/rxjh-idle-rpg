@@ -1,0 +1,392 @@
+{
+  "sub_zones": [
+    {
+      "key": "xuanbo_village",
+      "name": "村庄周围",
+      "gold_range": [3, 8],
+      "monsters": ["stray_cat", "toad"]
+    },
+    {
+      "key": "xuanbo_field",
+      "name": "村庄野田",
+      "gold_range": [8, 15],
+      "monsters": ["stray_cat", "toad", "fox", "wild_bull", "wild_boar"]
+    },
+    {
+      "key": "xuanbo_den",
+      "name": "狼熊聚居地",
+      "gold_range": [15, 25],
+      "monsters": ["fox", "wild_bull", "wild_boar", "gray_wolf", "red_bear"]
+    },
+    {
+      "key": "xuanbo_lumber",
+      "name": "伐木场",
+      "gold_range": [20, 35],
+      "monsters": ["gray_wolf", "red_bear", "forest_tiger"]
+    },
+    {
+      "key": "xuanbo_cemetery",
+      "name": "墓地",
+      "gold_range": [28, 42],
+      "monsters": ["gray_wolf", "red_bear", "forest_tiger", "white_tiger"]
+    },
+    {
+      "key": "xuanbo_robber",
+      "name": "山寨",
+      "gold_range": [38, 55],
+      "monsters": ["forest_tiger", "white_tiger", "bandit_swordsman", "bandit_archer"]
+    },
+    {
+      "key": "liuzheng_forest",
+      "name": "关外山林",
+      "gold_range": [55, 75],
+      "monsters": ["white_tiger", "bandit_swordsman", "bandit_boss", "forest_thief"]
+    },
+    {
+      "key": "liuzheng_fishing_village",
+      "name": "渔村",
+      "gold_range": [70, 95],
+      "monsters": ["bandit_boss", "forest_thief", "pirate_raider", "fisherman_spirit"]
+    },
+    {
+      "key": "liuzheng_monster_camp",
+      "name": "怪兽营地",
+      "gold_range": [90, 120],
+      "monsters": ["pirate_raider", "fisherman_spirit", "desert_bandit", "cave_spirit"]
+    },
+    {
+      "key": "liuzheng_fire_thief_den",
+      "name": "火贼山寨",
+      "gold_range": [115, 150],
+      "monsters": ["desert_bandit", "cave_spirit", "fire_thief_leader", "fire_thief_raider"]
+    },
+    {
+      "key": "liuzheng_wanshou_pavilion",
+      "name": "万寿阁下层",
+      "gold_range": [145, 185],
+      "monsters": ["fire_thief_leader", "fire_thief_raider", "wanshou_guard", "wanshou_disciple"]
+    },
+    {
+      "key": "liuzheng_wanshou_pavilion_upper",
+      "name": "万寿阁上层",
+      "gold_range": [180, 220],
+      "monsters": ["wanshou_guard", "wanshou_disciple", "wanshou_elder", "wanshou_master"]
+    },
+    {
+      "key": "liuzheng_deep_bamboo",
+      "name": "渊竹林",
+      "gold_range": [215, 260],
+      "monsters": ["wanshou_master", "bamboo_spirit", "deep_forest_tiger", "bamboo_guard"]
+    },
+    {
+      "key": "shenwu_tiger_valley",
+      "name": "虎峡谷",
+      "gold_range": [250, 300],
+      "monsters": ["deep_forest_tiger", "saber_toothed_tiger", "cave_beast", "valley_stalker"]
+    },
+    {
+      "key": "shenwu_miser_cave",
+      "name": "吝啬鬼洞穴",
+      "gold_range": [295, 350],
+      "monsters": ["cave_beast", "valley_stalker", "miser_spirit", "treasure_guardian"]
+    },
+    {
+      "key": "shenwu_degenerate_land",
+      "name": "变质的荒地",
+      "gold_range": [340, 400],
+      "monsters": ["miser_spirit", "treasure_guardian", "degenerate_spirit", "corrupted_guardian"]
+    },
+    {
+      "key": "sanxie_forest",
+      "name": "关外山林",
+      "gold_range": [55, 75],
+      "monsters": ["white_tiger", "bandit_swordsman", "bandit_boss", "forest_thief"]
+    },
+    {
+      "key": "sanxie_deserter_camp",
+      "name": "逃兵营地",
+      "gold_range": [70, 95],
+      "monsters": ["bandit_boss", "forest_thief", "deserter", "deserter_officer"]
+    },
+    {
+      "key": "sanxie_hunter_camp",
+      "name": "猎人寨",
+      "gold_range": [90, 120],
+      "monsters": ["deserter", "deserter_officer", "hunter_chief", "hunter_raider"]
+    },
+    {
+      "key": "sanxie_green_forest_camp",
+      "name": "绿林寨",
+      "gold_range": [115, 150],
+      "monsters": ["hunter_chief", "hunter_raider", "green_forest_chief", "green_forest_raider"]
+    },
+    {
+      "key": "sanxie_wutian_lower",
+      "name": "无天阁下层",
+      "gold_range": [145, 185],
+      "monsters": ["green_forest_chief", "green_forest_raider", "wutian_disciple", "wutian_guard"]
+    },
+    {
+      "key": "sanxie_wutian_upper",
+      "name": "无天阁上层",
+      "gold_range": [180, 220],
+      "monsters": ["wutian_disciple", "wutian_guard", "wutian_elite", "wutian_leader"]
+    },
+    {
+      "key": "sanxie_bamboo_fire_forest",
+      "name": "竹火林",
+      "gold_range": [215, 260],
+      "monsters": ["wutian_leader", "flame_bamboo_spirit", "fire_forest_tiger", "burning_spirit"]
+    },
+    {
+      "key": "liushan_snake_valley",
+      "name": "蛇谷",
+      "gold_range": [250, 300],
+      "monsters": ["fire_forest_tiger", "burning_spirit", "snake_spirit", "viper_chief"]
+    },
+    {
+      "key": "liushan_black_pine_base",
+      "name": "黑松贼根据地",
+      "gold_range": [295, 350],
+      "monsters": ["snake_spirit", "viper_chief", "black_pine_thief", "black_pine_boss"]
+    },
+    {
+      "key": "liushan_thief_nest",
+      "name": "盗贼巢穴",
+      "gold_range": [340, 400],
+      "monsters": ["black_pine_thief", "black_pine_boss", "thief_master", "shadow_assassin"]
+    },
+    {
+      "key": "nanminghu_lake",
+      "name": "南明湖",
+      "gold_range": [380, 450],
+      "monsters": ["thief_master", "shadow_assassin", "lake_dragon_spirit", "ancient_spirit"]
+    },
+    {
+      "key": "nanminghu_cave",
+      "name": "南明洞",
+      "gold_range": [430, 500],
+      "monsters": ["lake_dragon_spirit", "ancient_spirit", "cave_legend", "cave_overlord"]
+    }
+  ],
+
+  "sub_zone_drops": [
+    {
+      "key": "drop_xuanbo_field",
+      "sub_zone_key": "xuanbo_field",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            { "key": "blade_t1_001", "weight": 6, "drop_rate": 0.03 },
+            { "key": "blade_chest_base_001", "weight": 8, "drop_rate": 0.05 },
+            { "key": "blade_chest_base_002", "weight": 6, "drop_rate": 0.04 },
+            { "key": "gloves_base_001", "weight": 10, "drop_rate": 0.05 },
+            { "key": "boots_base_001", "weight": 10, "drop_rate": 0.05 },
+            { "key": "inner_armor_base_001", "weight": 8, "drop_rate": 0.03 },
+            { "key": "amulet_base_001", "weight": 5, "drop_rate": 0.02 },
+            { "key": "ring_base_001", "weight": 5, "drop_rate": 0.02 },
+            { "key": "earring_base_001", "weight": 5, "drop_rate": 0.02 }
+          ],
+          "stone_pool": [
+            { "key": "cold_jade_01", "weight": 35, "drop_rate": 0.10 },
+            { "key": "vajra_01", "weight": 25, "drop_rate": 0.08 },
+            { "key": "enhance_stone_01", "weight": 30, "drop_rate": 0.15 },
+            { "key": "hot_blood_01", "weight": 10, "drop_rate": 0.03 }
+          ],
+          "drop_multiplier": { "equipment_rate": 1.0, "stone_rate": 1.0 },
+          "level_diff_modifier": { "enabled": true }
+        }
+      ]
+    },
+    {
+      "key": "drop_xuanbo_village",
+      "sub_zone_key": "xuanbo_village",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            { "key": "blade_t1_001", "weight": 10, "drop_rate": 0.02 },
+            { "key": "gloves_base_001", "weight": 12, "drop_rate": 0.03 },
+            { "key": "boots_base_001", "weight": 12, "drop_rate": 0.03 },
+            { "key": "inner_armor_base_001", "weight": 10, "drop_rate": 0.02 }
+          ],
+          "stone_pool": [
+            { "key": "cold_jade_01", "weight": 50, "drop_rate": 0.08 },
+            { "key": "enhance_stone_01", "weight": 50, "drop_rate": 0.10 }
+          ],
+          "drop_multiplier": { "equipment_rate": 1.0, "stone_rate": 1.0 },
+          "level_diff_modifier": { "enabled": true }
+        }
+      ]
+    },
+    {
+      "key": "drop_xuanbo_den",
+      "sub_zone_key": "xuanbo_den",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            { "key": "blade_chest_base_001", "weight": 8, "drop_rate": 0.04 },
+            { "key": "blade_chest_base_002", "weight": 6, "drop_rate": 0.04 },
+            { "key": "gloves_base_001", "weight": 10, "drop_rate": 0.05 },
+            { "key": "boots_base_001", "weight": 10, "drop_rate": 0.05 },
+            { "key": "inner_armor_base_001", "weight": 8, "drop_rate": 0.03 },
+            { "key": "amulet_base_001", "weight": 6, "drop_rate": 0.02 },
+            { "key": "ring_base_001", "weight": 6, "drop_rate": 0.02 },
+            { "key": "earring_base_001", "weight": 6, "drop_rate": 0.02 }
+          ],
+          "stone_pool": [
+            { "key": "cold_jade_01", "weight": 35, "drop_rate": 0.10 },
+            { "key": "vajra_01", "weight": 25, "drop_rate": 0.08 },
+            { "key": "enhance_stone_01", "weight": 30, "drop_rate": 0.15 },
+            { "key": "hot_blood_01", "weight": 10, "drop_rate": 0.04 }
+          ],
+          "drop_multiplier": { "equipment_rate": 1.0, "stone_rate": 1.0 },
+          "level_diff_modifier": { "enabled": true }
+        }
+      ]
+    },
+    {
+      "key": "drop_xuanbo_lumber",
+      "sub_zone_key": "xuanbo_lumber",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            { "key": "blade_chest_base_002", "weight": 8, "drop_rate": 0.05 },
+            { "key": "gloves_base_002", "weight": 10, "drop_rate": 0.05 },
+            { "key": "boots_base_002", "weight": 10, "drop_rate": 0.05 },
+            { "key": "inner_armor_base_002", "weight": 8, "drop_rate": 0.04 },
+            { "key": "amulet_base_002", "weight": 6, "drop_rate": 0.03 },
+            { "key": "ring_base_002", "weight": 6, "drop_rate": 0.03 },
+            { "key": "earring_base_002", "weight": 6, "drop_rate": 0.03 }
+          ],
+          "stone_pool": [
+            { "key": "vajra_01", "weight": 40, "drop_rate": 0.12 },
+            { "key": "enhance_stone_01", "weight": 35, "drop_rate": 0.18 },
+            { "key": "hot_blood_01", "weight": 15, "drop_rate": 0.05 },
+            { "key": "cold_jade_02", "weight": 10, "drop_rate": 0.03 }
+          ],
+          "drop_multiplier": { "equipment_rate": 1.0, "stone_rate": 1.0 },
+          "level_diff_modifier": { "enabled": true }
+        }
+      ]
+    },
+    {
+      "key": "drop_xuanbo_cemetery",
+      "sub_zone_key": "xuanbo_cemetery",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            { "key": "blade_chest_base_002", "weight": 8, "drop_rate": 0.05 },
+            { "key": "gloves_base_002", "weight": 10, "drop_rate": 0.05 },
+            { "key": "boots_base_002", "weight": 10, "drop_rate": 0.05 },
+            { "key": "inner_armor_base_002", "weight": 8, "drop_rate": 0.04 },
+            { "key": "amulet_base_002", "weight": 6, "drop_rate": 0.03 },
+            { "key": "ring_base_002", "weight": 6, "drop_rate": 0.03 },
+            { "key": "earring_base_002", "weight": 6, "drop_rate": 0.03 }
+          ],
+          "stone_pool": [
+            { "key": "vajra_02", "weight": 35, "drop_rate": 0.10 },
+            { "key": "enhance_stone_02", "weight": 40, "drop_rate": 0.15 },
+            { "key": "hot_blood_02", "weight": 15, "drop_rate": 0.05 },
+            { "key": "cold_jade_02", "weight": 10, "drop_rate": 0.03 }
+          ],
+          "drop_multiplier": { "equipment_rate": 1.0, "stone_rate": 1.0 },
+          "level_diff_modifier": { "enabled": true }
+        }
+      ]
+    },
+    {
+      "key": "drop_default",
+      "sub_zone_key": "default",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            { "key": "blade_chest_base_001", "weight": 8, "drop_rate": 0.04 },
+            { "key": "gloves_base_001", "weight": 10, "drop_rate": 0.05 },
+            { "key": "boots_base_001", "weight": 10, "drop_rate": 0.05 },
+            { "key": "inner_armor_base_001", "weight": 8, "drop_rate": 0.03 },
+            { "key": "amulet_base_001", "weight": 5, "drop_rate": 0.02 },
+            { "key": "ring_base_001", "weight": 5, "drop_rate": 0.02 },
+            { "key": "earring_base_001", "weight": 5, "drop_rate": 0.02 }
+          ],
+          "stone_pool": [
+            { "key": "cold_jade_01", "weight": 40, "drop_rate": 0.10 },
+            { "key": "vajra_01", "weight": 30, "drop_rate": 0.08 },
+            { "key": "enhance_stone_01", "weight": 30, "drop_rate": 0.15 }
+          ],
+          "drop_multiplier": { "equipment_rate": 1.0, "stone_rate": 1.0 },
+          "level_diff_modifier": { "enabled": true }
+        }
+      ]
+    }
+  ],
+
+  "monster_drop_box": {
+    "drop_rate": 0.001,
+    "box_type_by_map": {
+      "xuanbo_field": "box_xuanbo_01",
+      "xuanbo_village": "box_xuanbo_01",
+      "xuanbo_den": "box_xuanbo_02",
+      "xuanbo_lumber": "box_xuanbo_02",
+      "xuanbo_cemetery": "box_xuanbo_03",
+      "xuanbo_robber": "box_xuanbo_03",
+      "liuzheng_forest": "box_liuzheng_01",
+      "liuzheng_fishing_village": "box_liuzheng_01",
+      "liuzheng_monster_camp": "box_liuzheng_02",
+      "liuzheng_fire_thief_den": "box_liuzheng_02",
+      "liuzheng_wanshou_pavilion": "box_liuzheng_03",
+      "liuzheng_wanshou_pavilion_upper": "box_liuzheng_03",
+      "liuzheng_deep_bamboo": "box_liuzheng_03",
+      "shenwu_tiger_valley": "box_shenwu_01",
+      "shenwu_miser_cave": "box_shenwu_02",
+      "shenwu_degenerate_land": "box_shenwu_02",
+      "sanxie_forest": "box_sanxie_01",
+      "sanxie_deserter_camp": "box_sanxie_01",
+      "sanxie_hunter_camp": "box_sanxie_02",
+      "sanxie_green_forest_camp": "box_sanxie_02",
+      "sanxie_wutian_lower": "box_sanxie_03",
+      "sanxie_wutian_upper": "box_sanxie_03",
+      "sanxie_bamboo_fire_forest": "box_sanxie_03",
+      "liushan_snake_valley": "box_liushan_01",
+      "liushan_black_pine_base": "box_liushan_02",
+      "liushan_thief_nest": "box_liushan_02",
+      "nanminghu_lake": "box_nanminghu_01",
+      "nanminghu_cave": "box_nanminghu_02"
+    }
+  },
+
+  "boxes": [
+    { "key": "box_xuanbo_01", "name": "泫渤派宝箱", "description": "可随机开出装备或石头", "drop_rate": 0.001 },
+    { "key": "box_xuanbo_02", "name": "泫渤派秘宝", "description": "可随机开出装备或石头", "drop_rate": 0.0012 },
+    { "key": "box_xuanbo_03", "name": "泫渤派珍藏", "description": "可随机开出装备或石头", "drop_rate": 0.0015 },
+    { "key": "box_liuzheng_01", "name": "柳正关宝箱", "description": "可随机开出装备或石头", "drop_rate": 0.002 },
+    { "key": "box_liuzheng_02", "name": "柳正关秘宝", "description": "可随机开出装备或石头", "drop_rate": 0.0025 },
+    { "key": "box_liuzheng_03", "name": "柳正关珍藏", "description": "可随机开出装备或石头", "drop_rate": 0.003 },
+    { "key": "box_shenwu_01", "name": "神武门宝箱", "description": "可随机开出装备或石头", "drop_rate": 0.003 },
+    { "key": "box_shenwu_02", "name": "神武门秘宝", "description": "可随机开出装备或石头", "drop_rate": 0.004 },
+    { "key": "box_sanxie_01", "name": "三邪关宝箱", "description": "可随机开出装备或石头", "drop_rate": 0.002 },
+    { "key": "box_sanxie_02", "name": "三邪关秘宝", "description": "可随机开出装备或石头", "drop_rate": 0.003 },
+    { "key": "box_sanxie_03", "name": "三邪关珍藏", "description": "可随机开出装备或石头", "drop_rate": 0.004 },
+    { "key": "box_liushan_01", "name": "柳善提督府宝箱", "description": "可随机开出装备或石头", "drop_rate": 0.0035 },
+    { "key": "box_liushan_02", "name": "柳善提督府秘宝", "description": "可随机开出装备或石头", "drop_rate": 0.0045 },
+    { "key": "box_nanminghu_01", "name": "南明湖宝箱", "description": "可随机开出装备或石头", "drop_rate": 0.005 },
+    { "key": "box_nanminghu_02", "name": "南明湖珍藏", "description": "可随机开出装备或石头", "drop_rate": 0.006 }
+  ]
+}

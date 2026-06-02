@@ -1,0 +1,43 @@
+{
+  "qigong_effect_types": [
+    "atkMin", "atkMax", "def", "maxHp", "maxMp", "mdef", "missing", "hit",
+    "weaponSkillBonus", "critR", "critB", "hpRecovery", "mpRecovery",
+    "leech", "combo", "shieldRate", "counterDamage", "armorBreak",
+    "skillCritRate", "healBonus", "mpCostReduce", "mpRecoveryBonus",
+    "buffDuration", "mf", "gf",
+    "atkMinPct", "atkMaxPct", "hitPct", "missingPct", "maxHpPct", "maxMpPct"
+  ],
+  "attribute_points": {
+    "initial": 1,
+    "gain_per_level": "function(new_level) { return new_level < 35 ? 1 : 2; }",
+    "max_points": 999,
+    "reset": {
+      "enabled": true,
+      "cost_formula": "10000 * Math.pow(10, reset_count)"
+    }
+  },
+  "qigongs": [
+    { "key": "blade_qigong_atk_min", "name": "力劈华山", "career_family": "blade", "unlock": { "min_transfer": 0, "min_level": 1 }, "max_level": 20, "effect": { "type": "atkMinPct", "base_value": 0, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "blade_qigong_hit", "name": "摄魂一击", "career_family": "blade", "unlock": { "min_transfer": 0, "min_level": 1 }, "max_level": 20, "effect": { "type": "hitPct", "base_value": 0.10, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "blade_qigong_counter", "name": "四两千金", "career_family": "blade", "unlock": { "min_transfer": 1, "min_level": 10 }, "max_level": 20, "effect": { "type": "counterDamage", "base_value": 0.10, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "blade_qigong_armorBreak", "name": "霸气破甲", "career_family": "blade", "unlock": { "min_transfer": 2, "min_level": 35 }, "max_level": 20, "effect": { "type": "armorBreak", "base_value": 0.10, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "sword_qigong_atk_max", "name": "长虹贯日", "career_family": "sword", "unlock": { "min_transfer": 0, "min_level": 1 }, "max_level": 20, "effect": { "type": "atkMaxPct", "base_value": 0, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "sword_qigong_dodge", "name": "百变神行", "career_family": "sword", "unlock": { "min_transfer": 0, "min_level": 1 }, "max_level": 20, "effect": { "type": "missingPct", "base_value": 0.10, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "sword_qigong_combo", "name": "连环飞舞", "career_family": ["sword", "blade", "spear"], "unlock": { "min_transfer": 0, "min_level": 1 }, "max_level": 20, "effect": { "type": "combo", "base_value": 0.10, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "sword_qigong_shield", "name": "护身罡气", "career_family": "sword", "unlock": { "min_transfer": 1, "min_level": 10 }, "max_level": 20, "effect": { "type": "shieldRate", "base_value": 0.10, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "sword_qigong_leech", "name": "移花接木", "career_family": "sword", "unlock": { "min_transfer": 2, "min_level": 35 }, "max_level": 20, "effect": { "type": "leech", "base_value": 0, "value_per_level": 0.004 }, "cost": { "attribute_point": 1 } },
+    { "key": "sword_qigong_skill_atk", "name": "回柳身法", "career_family": "sword", "unlock": { "min_transfer": 3, "min_level": 60 }, "max_level": 20, "effect": { "type": "weaponSkillBonus", "base_value": 0, "value_per_level": 0.6 }, "cost": { "attribute_point": 1 } },
+    { "key": "spear_qigong_def", "name": "金钟罡气", "career_family": "spear", "unlock": { "min_transfer": 0, "min_level": 1 }, "max_level": 20, "effect": { "type": "def", "base_value": 0, "value_per_level": 1 }, "cost": { "attribute_point": 1 } },
+    { "key": "spear_qigong_heal", "name": "运气疗伤", "career_family": "spear", "unlock": { "min_transfer": 0, "min_level": 1 }, "max_level": 20, "effect": { "type": "healBonus", "base_value": 0, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "spear_qigong_hp", "name": "横练太保", "career_family": "spear", "unlock": { "min_transfer": 1, "min_level": 10 }, "max_level": 20, "effect": { "type": "maxHp", "base_value": 0, "value_per_level": 8 }, "cost": { "attribute_point": 1 } },
+    { "key": "spear_qigong_skill_atk", "name": "乾坤挪移", "career_family": "spear", "unlock": { "min_transfer": 2, "min_level": 35 }, "max_level": 20, "effect": { "type": "weaponSkillBonus", "base_value": 0, "value_per_level": 1.5 }, "cost": { "attribute_point": 1 } },
+    { "key": "spear_qigong_skill_def", "name": "灵甲护身", "career_family": "spear", "unlock": { "min_transfer": 2, "min_level": 60 }, "max_level": 20, "effect": { "type": "mdef", "base_value": 0, "value_per_level": 3 }, "cost": { "attribute_point": 1 } },
+    { "key": "staff_qigong_mp_reduce", "name": "太极心法", "career_family": "staff", "unlock": { "min_transfer": 0, "min_level": 1 }, "max_level": 20, "effect": { "type": "mpCostReduce", "base_value": 0, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "staff_qigong_maxhp", "name": "体血倍增", "career_family": "staff", "unlock": { "min_transfer": 0, "min_level": 1 }, "max_level": 20, "effect": { "type": "maxHpPct", "base_value": 0, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "staff_qigong_maxmp", "name": "洗髓易筋", "career_family": "staff", "unlock": { "min_transfer": 0, "min_level": 1 }, "max_level": 20, "effect": { "type": "maxMpPct", "base_value": 0, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "staff_qigong_skill_atk", "name": "长攻击力", "career_family": "staff", "unlock": { "min_transfer": 1, "min_level": 10 }, "max_level": 20, "effect": { "type": "weaponSkillBonus", "base_value": 0, "value_per_level": 2 }, "cost": { "attribute_point": 1 } },
+    { "key": "staff_qigong_buffDuration", "name": "吸星大法", "career_family": "staff", "unlock": { "min_transfer": 2, "min_level": 35 }, "max_level": 20, "effect": { "type": "buffDuration", "base_value": 0, "value_per_level": 15000 }, "cost": { "attribute_point": 1 } },
+    { "key": "staff_qigong_mpRecoveryBonus", "name": "运气行心", "career_family": "staff", "unlock": { "min_transfer": 3, "min_level": 60 }, "max_level": 20, "effect": { "type": "mpRecoveryBonus", "base_value": 0, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } },
+    { "key": "common_qigong_skill_crit", "name": "真武绝击", "career_family": "blade", "unlock": { "min_transfer": 3, "min_level": 60 }, "max_level": 20, "effect": { "type": "skillCritRate", "base_value": 0.10, "value_per_level": 0.01 }, "cost": { "attribute_point": 1 } }
+  ]
+}

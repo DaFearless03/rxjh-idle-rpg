@@ -1,0 +1,62 @@
+{
+  "derived_attributes": {
+    "maxHp": {
+      "formula": "(baseHp + (level - 1) * hpGrowth + sta * staToHp + sum(maxHpAdd)) * (1 + sum(maxHpPct))"
+    },
+    "maxMp": {
+      "formula": "(baseMp + (level - 1) * mpGrowth + int * intToMp + sum(maxMpAdd)) * (1 + sum(maxMpPct))"
+    },
+    "atkMin": {
+      "formula": "(baseAtk + floor(str * 0.8 * strToAtk) + sum(atkMinAdd) + sum(atkSelfAdd)) * (1 + sum(atkMinPct) + sum(atkSelfPct))"
+    },
+    "atkMax": {
+      "formula": "(baseAtk + floor(str * 1.0 * strToAtk) + sum(atkMaxAdd) + sum(atkSelfAdd)) * (1 + sum(atkMaxPct) + sum(atkSelfPct))"
+    },
+    "def": {
+      "formula": "(baseDef + sta * staToDef + sum(defAdd)) * (1 + sum(defPct))"
+    },
+    "matk": {
+      "formula": "weapon.atkMax * matk_weapon_ratio"
+    },
+    "mdef": {
+      "formula": "0 + sum(mdefAdd)"
+    },
+    "hit": {
+      "formula": "max(0, (baseHit + dex * dexToHit + level * levelToHit + sum(hitAdd)) * (1 + sum(hitPct)))"
+    },
+    "missing": {
+      "formula": "max(0, (baseMissing + dex * dexToMissing + level * levelToMissing + sum(missingAdd)) * (1 + sum(missingPct)))"
+    }
+  },
+  "base_attributes_decl": {
+    "maxHp": { "base_value": 0 },
+    "maxMp": { "base_value": 0 },
+    "atkMin": { "base_value": 0 },
+    "atkMax": { "base_value": 0 },
+    "def":   { "base_value": 0 },
+    "matk":  { "base_value": 0 },
+    "mdef":  { "base_value": 0 },
+    "hit":   { "base_value": 0 },
+    "missing": { "base_value": 0 },
+    "critR": { "base_value": 0.30 },
+    "critB": { "base_value": 1.5 },
+    "skillCritRate": { "base_value": 0 },
+    "combo":  { "base_value": 0 },
+    "shieldRate": { "base_value": 0 },
+    "counterDamage": { "base_value": 0 },
+    "armorBreak": { "base_value": 0 },
+    "hpRecovery": { "base_value": 1 },
+    "mpRecovery": { "base_value": 1 },
+    "mpRecoveryBonus": { "base_value": 0 },
+    "leech": { "base_value": 0 },
+    "healBonus": { "base_value": 0 },
+    "mpCostReduce": { "base_value": 0 },
+    "buffDuration": { "base_value": 0 },
+    "mf": { "base_value": 0 },
+    "gf": { "base_value": 0 },
+    "weaponSkillBonus": { "base_value": 0 },
+    "weaponExtraDamage": { "base_value": 0 },
+    "enhanceSuccessRate": { "base_value": 0 },
+    "goldDropBonus": { "base_value": 0 }
+  }
+}

@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>挂机RPG · 手机端主页 Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+- { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+:root {
+  --bg-base:     #f0e8d8;
+  --bg-window:   #ffffff;
+  --bg-window-2: #f8f8f0;
+  --border-outer: #303048;
+  --border-inner: #6878a8;
+  --border-shadow: #383850;
+  --text-main:   #303030;
+  --text-dim:    #686868;
+  --text-link:   #2848a0;
+  --hp-green:    #58c850;
+  --hp-yellow:   #f0c038;
+  --hp-red:      #e04040;
+  --exp-blue:    #4878d0;
+  --mp-magenta:  #b048a8;
+  --highlight:   #fff8a8;
+  --menu-accent: #d8483a;
+  --menu-blue:   #4068b8;
+  --menu-green:  #4ca050;
+  --menu-yellow: #e8b830;
+}
+html { font-size: 10px; }
+body {
+  font-family: 'Press Start 2P', 'PingFang SC', 'Courier New', monospace;
+  background: #b8d0f0;
+  color: var(--text-main);
+  font-size: 1rem;
+  line-height: 1.7;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.15) 0, rgba(255,255,255,0.15) 0.1rem, transparent 0.1rem, transparent 0.8rem);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* === 手机外壳模拟（含灵动岛）=== */
+.phone-frame {
+  width: 393px;
+  height: 852px;
+  max-height: 100vh;
+  background: var(--bg-base);
+  border: 8px solid #1a1a2a;
+  border-radius: 48px;
+  box-shadow:
+    inset 0 0 0 2px #404060,
+    0 8px 32px rgba(0,0,0,0.4);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-top: 59px;
+}
+.phone-frame::before {
+  content: '';
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 126px;
+  height: 37px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 10;
+  pointer-events: none;
+}
+@media (max-width: 480px) {
+  html { font-size: clamp(8px, 2.5445vw, 12px); }
+  .phone-frame {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    padding-top: env(safe-area-inset-top, 47px);
+  }
+  .phone-frame::before { display: none; }
+  body { background: var(--bg-base); }
+}
+
+/* === 顶部状态栏 === */
+.top-bar {
+  background: var(--bg-window);
+  border-bottom: 0.3rem solid var(--border-outer);
+  padding: 0.6rem 1rem 0.8rem;
+  flex-shrink: 0;
+}
+.top-row-1 { margin-bottom: 0.6rem; }
+.player-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  padding: 0.2rem 0.4rem;
+}
+.player-bar .name {
+  color: var(--text-main);
+  font-weight: bold;
+  max-width: 11rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.player-bar .sep { color: var(--text-dim); opacity: 0.6; }
+.player-bar .level { color: var(--menu-blue); font-weight: bold; }
+.player-bar .faction { font-weight: bold; padding: 0.1rem 0.6rem; border-radius: 0.6rem; }
+.player-bar .faction.positive { color: #fff; background: var(--menu-green); }
+.player-bar .faction.negative { color: #fff; background: var(--menu-accent); }
+.player-bar .career { color: var(--text-link); font-weight: bold; }
+
+/* === HP/MP/EXP 三条 === */
+.stat-bars-compact { display: flex; flex-direction: column; gap: 0.3rem; }
+.stat-row {
+  display: grid;
+  grid-template-columns: 3.6rem 1fr 7rem;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+.stat-label { font-weight: bold; font-size: 0.8rem; }
+.stat-label.hp { color: var(--hp-green); }
+.stat-label.mp { color: var(--menu-blue); }
+.stat-label.exp { color: var(--menu-yellow); }
+.gba-bar {
+  height: 1.1rem;
+  background: #d8d8c8;
+  border: 0.1rem solid var(--border-outer);
+  border-radius: 0.4rem;
+  overflow: hidden;
+  position: relative;
+}
+.gba-bar-fill { height: 100%; border-radius: 0.2rem; position: relative; }
+.gba-bar-fill::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 0.2rem;
+  background: rgba(255,255,255,0.5);
+}
+.gba-bar-pct {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 0.2rem rgba(0,0,0,0.85), 0 0.1rem 0 rgba(0,0,0,0.6), 0 -0.1rem 0 rgba(0,0,0,0.6);
+  line-height: 1; z-index: 2; letter-spacing: 0.05rem;
+  pointer-events: none;
+}
+.fill-hp { background: linear-gradient(to bottom, #80d878, var(--hp-green)); }
+.fill-mp { background: linear-gradient(to bottom, #6898e8, var(--menu-blue)); }
+.fill-exp { background: linear-gradient(to bottom, #f8d858, var(--menu-yellow)); }
+.stat-num { text-align: right; font-size: 0.8rem; color: var(--text-main); }
+
+/* === 主滚动区 === */
+.main-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--bg-base);
+  min-height: 0;
+}
+
+/* === 城镇横幅 === */
+.town-banner {
+  background: linear-gradient(135deg, #fff8e0, #ffe8b8);
+  border: 0.3rem solid var(--menu-yellow);
+  border-radius: 0.8rem;
+  box-shadow: 0.2rem 0.2rem 0 rgba(232,184,48,0.4);
+  padding: 1.2rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.town-banner .town-icon {
+  font-size: 3.6rem;
+  width: 4.8rem;
+  height: 4.8rem;
+  background: var(--bg-window);
+  border: 0.2rem solid var(--menu-yellow);
+  border-radius: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.town-banner .town-info { flex: 1; min-width: 0; }
+.town-banner .town-name {
+  font-size: 1.2rem;
+  color: var(--text-link);
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+.town-banner .town-desc {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+.town-banner .restore-badge {
+  background: var(--menu-green);
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.4rem;
+  font-weight: bold;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.town-banner .restore-badge::before { content: '✓'; font-size: 0.9rem; }
+
+/* === 通用面板 === */
+.panel {
+  background: var(--bg-window);
+  border: 0.3rem solid var(--border-outer);
+  border-radius: 0.6rem;
+  box-shadow:
+    inset 0 0 0 0.2rem var(--bg-window),
+    inset 0 0 0 0.4rem var(--border-inner),
+    inset 0 0 0 0.6rem var(--bg-window);
+  padding: 1rem 1.2rem;
+}
+.panel-title {
+  font-size: 0.9rem;
+  color: var(--text-link);
+  border-bottom: 0.2rem solid var(--border-inner);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.panel-title .count {
+  background: var(--menu-blue);
+  color: white;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.3rem;
+  font-size: 0.8rem;
+}
+
+/* === 任务进度卡 === */
+.quest-card {
+  background: linear-gradient(to bottom, #fff8f0, #fff0e0);
+  border: 0.2rem solid var(--menu-accent);
+  border-radius: 0.5rem;
+  padding: 0.8rem 1rem;
+  position: relative;
+}
+.quest-card .quest-row1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.quest-card .quest-name {
+  font-size: 1rem;
+  color: var(--menu-accent);
+  font-weight: bold;
+}
+.quest-card .quest-type {
+  font-size: 0.75rem;
+  background: var(--menu-accent);
+  color: white;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.3rem;
+}
+.quest-card .quest-stage {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 0.6rem;
+}
+.objective-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  padding: 0.3rem 0;
+}
+.objective-row .obj-name {
+  color: var(--text-main);
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.objective-row .obj-name::before {
+  content: '▸';
+  color: var(--menu-yellow);
+}
+.objective-row .obj-name.done::before { content: '✓'; color: var(--menu-green); }
+.objective-row .obj-name.done { color: var(--text-dim); text-decoration: line-through; }
+.objective-row .obj-progress {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.objective-row .obj-progress .done-count { color: var(--menu-green); font-weight: bold; }
+.objective-row .obj-progress.complete .done-count { color: var(--menu-blue); }
+
+/* === NPC 网格 === */
+.npc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.npc-card {
+  background: var(--bg-window-2);
+  border: 0.2rem solid var(--border-outer);
+  border-radius: 0.6rem;
+  box-shadow: 0.1rem 0.1rem 0 rgba(0,0,0,0.1);
+  padding: 0.8rem 0.8rem 0.9rem;
+  display: grid;
+  grid-template-columns: 3.8rem 1fr;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.08s;
+}
+.npc-card:active { transform: scale(0.97); background: var(--highlight); }
+.npc-card .npc-avatar {
+  width: 3.8rem; height: 3.8rem;
+  background: linear-gradient(135deg, #f0e0c0, #d8c098);
+  border: 0.2rem solid var(--border-outer);
+  border-radius: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+.npc-card .npc-info { min-width: 0; }
+.npc-card .npc-name {
+  font-size: 0.9rem;
+  color: var(--text-main);
+  font-weight: bold;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.npc-card .npc-type {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 0.3rem;
+  line-height: 1.2;
+}
+.npc-card.featured {
+  grid-column: 1 / -1;
+  background: linear-gradient(to right, #fff8e0, #fff0c8);
+  border-color: var(--menu-accent);
+  grid-template-columns: 4.2rem 1fr auto;
+  padding: 1rem;
+}
+.npc-card.featured .npc-avatar {
+  width: 4.2rem; height: 4.2rem;
+  font-size: 2.2rem;
+  border-color: var(--menu-accent);
+}
+.npc-card.featured .npc-name {
+  font-size: 1rem;
+  color: var(--menu-accent);
+}
+.npc-card.featured .npc-type { color: var(--text-main); font-weight: bold; }
+.npc-card .npc-cta {
+  font-size: 0.8rem;
+  background: var(--menu-accent);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.4rem;
+  font-weight: bold;
+}
+.npc-card.has-notice::after {
+  content: '';
+  position: absolute;
+  top: 0.4rem; right: 0.4rem;
+  width: 0.8rem; height: 0.8rem;
+  background: var(--menu-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0.4rem var(--menu-accent);
+}
+
+/* === 快速行动 === */
+.quick-action-row {
+  display: flex;
+  gap: 0.8rem;
+}
+.action-card {
+  flex: 1;
+  background: var(--bg-window);
+  border: 0.2rem solid var(--border-outer);
+  border-radius: 0.6rem;
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  transition: transform 0.08s;
+}
+.action-card:active { transform: scale(0.97); background: var(--highlight); }
+.action-card .ac-icon { font-size: 1.8rem; }
+.action-card .ac-body { flex: 1; min-width: 0; line-height: 1.3; }
+.action-card .ac-label { font-weight: bold; color: var(--text-main); }
+.action-card .ac-sub { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.2rem; }
+.action-card.primary {
+  background: linear-gradient(to bottom, #d8f0d8, #b8e8b8);
+  border-color: var(--menu-green);
+}
+.action-card.primary .ac-label { color: var(--menu-green); }
+
+/* === 底部固定动作菜单 === */
+.bottom-menu {
+  background: var(--bg-window);
+  border-top: 0.3rem solid var(--border-outer);
+  padding: 0.7rem;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.36rem;
+  flex-shrink: 0;
+}
+.menu-btn {
+  background: var(--bg-window);
+  border: 0.2rem solid var(--border-outer);
+  border-radius: 0.6rem;
+  box-shadow:
+    inset 0 0 0 0.1rem var(--bg-window),
+    inset 0 0 0 0.2rem var(--border-inner),
+    inset 0 0 0 0.3rem var(--bg-window);
+  padding: 0.5rem 0.2rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: var(--text-main);
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 4.1rem;
+  width: 100%;
+  max-width: 5.8rem;
+  justify-self: center;
+  justify-content: center;
+}
+.menu-btn:active { background: var(--highlight); transform: scale(0.95); }
+.menu-btn .icon { font-size: 1.8rem; }
+.menu-btn.has-notice { position: relative; }
+.menu-btn.has-notice::after {
+  content: '';
+  position: absolute;
+  top: 0.4rem; right: 0.4rem;
+  width: 0.6rem; height: 0.6rem;
+  background: var(--menu-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0.4rem var(--menu-accent);
+}
+.menu-btn.active {
+  background: linear-gradient(to bottom, #fff8a8, #ffd860);
+  border-color: var(--menu-accent);
+  color: var(--menu-accent);
+  font-weight: bold;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 0.4rem; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-inner); border-radius: 0.2rem; }
+
+@media (min-width: 481px) {
+  body::before {
+    content: '📱 主页 Demo · iPhone 15 Pro 模拟';
+    position: fixed;
+    top: 1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.9);
+    border: 0.2rem solid var(--border-outer);
+    border-radius: 0.6rem;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-family: 'Press Start 2P', monospace;
+    z-index: 100;
+  }
+}
+
+/* === 地图选择 bottom sheet === */
+.sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  display: none;
+  align-items: flex-end;
+  animation: fadeIn 0.2s ease-out;
+}
+.sheet-backdrop.open { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.bottom-sheet {
+  width: 100%;
+  background: var(--bg-base);
+  border-top: 0.3rem solid var(--border-outer);
+  border-radius: 1.6rem 1.6rem 0 0;
+  max-height: 78%;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.25s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet-handle {
+  width: 4rem; height: 0.4rem;
+  background: var(--border-inner);
+  border-radius: 0.2rem;
+  margin: 0.8rem auto 0.4rem;
+  flex-shrink: 0;
+}
+.sheet-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.8rem 1.4rem 1rem;
+  border-bottom: 0.2rem solid var(--border-inner);
+  flex-shrink: 0;
+}
+.sheet-title { font-size: 1.1rem; color: var(--text-link); font-weight: bold; }
+.sheet-close {
+  background: none; border: none;
+  font-size: 2.2rem; color: var(--text-dim);
+  cursor: pointer; padding: 0 0.6rem;
+  font-family: inherit; line-height: 1;
+}
+.sheet-list { flex: 1; overflow-y: auto; padding: 0.8rem 1rem 1.2rem; }
+.map-group { margin-bottom: 1rem; }
+.map-group-header {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.5rem 0.9rem;
+  background: var(--border-inner);
+  color: white;
+  border-radius: 0.5rem 0.5rem 0 0;
+  font-size: 0.9rem; font-weight: bold;
+  border: 0.2rem solid var(--border-inner);
+  border-bottom: none;
+}
+.map-group-header .group-icon { font-size: 1.4rem; line-height: 1; }
+.map-group-header .group-meta { margin-left: auto; font-size: 0.8rem; opacity: 0.85; font-weight: normal; }
+.map-sub-list {
+  background: var(--bg-window);
+  border: 0.2rem solid var(--border-inner);
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  overflow: hidden;
+}
+.map-sub-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center; gap: 0.8rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  border-bottom: 0.1rem dotted #c8c8b8;
+  cursor: pointer;
+  transition: transform 0.08s;
+}
+.map-sub-item:last-child { border-bottom: none; }
+.map-sub-item:active { transform: scale(0.99); background: var(--highlight); }
+.map-sub-item .sub-name { color: var(--text-main); font-weight: bold; }
+.map-sub-item .sub-level { color: var(--text-dim); font-size: 0.85rem; }
+.map-sub-item .sub-badge {
+  font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 0.4rem;
+  background: var(--text-dim); color: white; font-weight: bold;
+  white-space: nowrap;
+}
+.map-sub-item.current { background: linear-gradient(to right, #fff8e0, #ffe8c8); }
+.map-sub-item.current .sub-name { color: var(--menu-accent); }
+.map-sub-item.current .sub-badge { background: var(--menu-accent); }
+.map-sub-item.town .sub-name { color: var(--menu-blue); }
+.map-sub-item.town .sub-badge { background: var(--menu-blue); }
+.map-sub-item.empty .sub-name { color: var(--text-dim); }
+.map-sub-item.empty .sub-badge { background: var(--text-dim); }
+.action-card.clickable { cursor: pointer; }
+
+/* === 刀剑笑 NPC 对话气泡 === */
+.npc-dialog-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 110;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 2.6rem;
+  animation: fadeIn 0.2s ease-out;
+}
+.npc-dialog-backdrop.open { display: flex; }
+.npc-dialog {
+  width: 100%;
+  background: var(--bg-base);
+  border: 0.3rem solid var(--border-outer);
+  border-radius: 1.2rem;
+  box-shadow: inset 0 0 0 0.2rem var(--bg-window), inset 0 0 0 0.4rem var(--border-inner), 0 1rem 2.8rem rgba(0,0,0,0.45);
+  padding: 1.4rem;
+  animation: popIn 0.2s ease-out;
+}
+@keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.npc-dialog-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.npc-dialog-avatar {
+  width: 4.4rem; height: 4.4rem;
+  background: linear-gradient(135deg, #f0e0c0, #d8c098);
+  border: 0.2rem solid var(--border-outer);
+  border-radius: 0.8rem;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.4rem; flex-shrink: 0;
+}
+.npc-dialog-name { font-size: 1.1rem; color: var(--menu-accent); font-weight: bold; }
+.npc-dialog-tag { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.3rem; }
+.npc-dialog-line {
+  background: var(--bg-window);
+  border: 0.2rem solid var(--border-inner);
+  border-radius: 0.6rem;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.85rem; color: var(--text-main); line-height: 1.6;
+  margin-bottom: 1.2rem;
+}
+.npc-func-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; }
+.npc-func-btn {
+  background: var(--bg-window);
+  border: 0.2rem solid var(--border-outer);
+  border-radius: 0.6rem;
+  padding: 1.1rem 0.6rem;
+  font-family: inherit; font-size: 0.9rem; color: var(--text-main); font-weight: bold;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+  transition: transform 0.08s;
+}
+.npc-func-btn:active { transform: scale(0.96); background: var(--highlight); }
+.npc-func-btn .f-icon { font-size: 1.6rem; }
+.npc-dialog-close {
+  width: 100%; margin-top: 1rem;
+  background: none; border: 0.2rem solid var(--border-inner);
+  border-radius: 0.6rem; padding: 0.7rem;
+  font-family: inherit; font-size: 0.85rem; color: var(--text-dim);
+  cursor: pointer;
+}
+.npc-dialog-close:active { background: var(--highlight); }
+
+/* === 数量选择弹窗（药剂批量购买）=== */
+.qty-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 120;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 3rem;
+  animation: fadeIn 0.18s ease-out;
+}
+.qty-backdrop.open { display: flex; }
+.qty-box {
+  width: 100%;
+  background: var(--bg-base);
+  border: 0.3rem solid var(--border-outer);
+  border-radius: 1.2rem;
+  box-shadow: inset 0 0 0 0.2rem var(--bg-window), inset 0 0 0 0.4rem var(--border-inner), 0 1rem 2.8rem rgba(0,0,0,0.45);
+  padding: 1.4rem;
+  animation: popIn 0.18s ease-out;
+}
+.qty-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem; }
+.qty-icon {
+  width: 4rem; height: 4rem;
+  background: var(--bg-window-2);
+  border: 0.2rem solid var(--border-inner);
+  border-radius: 0.7rem;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; flex-shrink: 0;
+}
+.qty-name { font-size: 1.05rem; font-weight: bold; color: var(--text-main); }
+.qty-unit { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.3rem; }
+.qty-unit b { color: #b8860b; }
+.qty-stepper { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
+.qty-step {
+  width: 3.8rem; height: 3.8rem;
+  background: var(--bg-window);
+  border: 0.2rem solid var(--border-outer);
+  border-radius: 0.8rem;
+  font-family: inherit; font-size: 2rem; font-weight: bold; color: var(--text-main);
+  cursor: pointer; line-height: 1;
+}
+.qty-step:active { background: var(--highlight); transform: scale(0.94); }
+.qty-input {
+  width: 8.8rem; height: 3.8rem;
+  text-align: center;
+  font-family: inherit; font-size: 1.6rem; font-weight: bold; color: var(--text-main);
+  background: var(--bg-window);
+  border: 0.2rem solid var(--border-inner);
+  border-radius: 0.8rem;
+}
+.qty-quick { display: flex; gap: 0.6rem; margin-bottom: 1.2rem; }
+.qty-quick button {
+  flex: 1;
+  background: var(--bg-window);
+  border: 0.2rem solid var(--border-inner);
+  border-radius: 0.6rem;
+  padding: 0.7rem 0;
+  font-family: inherit; font-size: 0.85rem; font-weight: bold; color: var(--text-link);
+  cursor: pointer;
+}
+.qty-quick button:active { background: var(--highlight); }
+.qty-total {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--bg-window-2);
+  border: 0.2rem solid var(--border-inner);
+  border-radius: 0.6rem;
+  padding: 0.9rem 1.1rem; margin-bottom: 1.2rem;
+  font-size: 0.9rem; color: var(--text-main);
+}
+.qty-total .qt-val { font-size: 1.2rem; font-weight: bold; color: #b8860b; }
+.qty-actions { display: flex; gap: 0.8rem; }
+.qty-cancel, .qty-confirm {
+  flex: 1; padding: 0.9rem; border-radius: 0.7rem;
+  font-family: inherit; font-size: 0.95rem; font-weight: bold; cursor: pointer;
+}
+.qty-cancel { background: none; border: 0.2rem solid var(--border-inner); color: var(--text-dim); }
+.qty-confirm { background: var(--menu-green); border: none; color: white; }
+.qty-cancel:active, .qty-confirm:active { transform: scale(0.97); }
+
+/* === 子视图 sheet：返回头 + 金币条 === */
+.sheet-header.with-back { justify-content: flex-start; gap: 0.8rem; }
+.sheet-header.with-back .sheet-title { flex: 1; }
+.sheet-back {
+  background: none; border: none;
+  font-size: 1.1rem; color: var(--text-link);
+  cursor: pointer; font-family: inherit; line-height: 1; font-weight: bold;
+  padding: 0.2rem 0.2rem 0.2rem 0;
+}
+.sheet-gold-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.85rem; color: var(--text-dim);
+  background: rgba(232,184,48,0.12); border: 0.1rem solid var(--menu-yellow);
+  border-radius: 0.5rem; padding: 0.5rem 0.9rem; margin-bottom: 0.8rem;
+}
+.sheet-gold-bar b { color: #b8860b; font-size: 0.95rem; }
+
+/* 商店物品行 */
+.shop-section-label {
+  font-size: 0.8rem; color: var(--text-dim); font-weight: bold;
+  margin: 0.4rem 0.2rem 0.6rem; display: flex; align-items: center; gap: 0.5rem;
+}
+.shop-item {
+  display: grid; grid-template-columns: 3.4rem 1fr auto;
+  align-items: center; gap: 0.8rem;
+  background: var(--bg-window);
+  border: 0.2rem solid var(--border-inner);
+  border-radius: 0.6rem; padding: 0.7rem 0.9rem; margin-bottom: 0.6rem;
+}
+.shop-item .si-icon {
+  width: 3.4rem; height: 3.4rem;
+  background: var(--bg-window-2);
+  border: 0.1rem solid var(--border-inner);
+  border-radius: 0.5rem;
+  display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+}
+.shop-item .si-info { min-width: 0; }
+.shop-item .si-name { font-size: 0.9rem; font-weight: bold; color: var(--text-main); }
+.shop-item .si-stat { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.2rem; line-height: 1.3; }
+.shop-item .si-action { display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem; }
+.shop-item .si-price { font-size: 0.8rem; color: #b8860b; font-weight: bold; white-space: nowrap; }
+.shop-btn {
+  background: var(--menu-green); color: white;
+  border: none; border-radius: 0.4rem;
+  padding: 0.4rem 1.1rem; font-family: inherit; font-size: 0.8rem; font-weight: bold;
+  cursor: pointer; white-space: nowrap;
+}
+.shop-btn:active { transform: scale(0.95); }
+
+/* === 强化 / 合成 工作台：上=操作区，下=背包，拖拽放入槽位 === */
+.bottom-sheet.craft-sheet { max-height: 92%; }
+.craft-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.craft-work { flex-shrink: 0; padding: 0.8rem 1rem 1rem; border-bottom: 0.2rem solid var(--border-inner); }
+.craft-bag { flex: 1; min-height: 0; overflow-y: auto; padding: 0.8rem 1rem 1.2rem; background: rgba(0,0,0,0.035); }
+
+/* 槽位行（装备槽 + 强化石槽）*/
+.craft-slots { display: flex; align-items: center; justify-content: center; gap: 0.8rem; margin: 0.2rem 0 0.9rem; }
+.craft-arrow { font-size: 1.4rem; color: var(--text-dim); flex-shrink: 0; }
+.craft-dropzone {
+  position: relative;
+  border: 0.2rem dashed var(--border-inner); border-radius: 0.8rem;
+  background: var(--bg-window);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; color: var(--text-dim); flex-shrink: 0;
+  transition: border-color .12s, background .12s, transform .08s;
+}
+.equip-slot { width: 9.6rem; height: 7.4rem; }
+.stone-slot { width: 7.4rem; height: 7.4rem; }
+.craft-dropzone .dz-hint { font-size: 0.7rem; line-height: 1.4; padding: 0 0.4rem; }
+.craft-dropzone .dz-plus { font-size: 2rem; opacity: .45; margin-bottom: 0.2rem; }
+.craft-dropzone.filled { border-style: solid; border-color: var(--menu-blue); background: rgba(64,104,184,0.08); color: var(--text-main); }
+.craft-dropzone.dragover { border-color: var(--menu-green); background: rgba(76,160,80,0.16); transform: scale(1.04); }
+.craft-dropzone.reject { border-color: var(--menu-accent); animation: shake .3s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-0.4rem)} 40%,80%{transform:translateX(0.4rem)} }
+.dz-icon { font-size: 2.2rem; }
+.dz-name { font-size: 0.8rem; font-weight: bold; margin-top: 0.1rem; }
+.dz-tag { font-size: 0.7rem; color: var(--menu-green); font-weight: bold; }
+.dz-count { font-size: 1.3rem; font-weight: bold; color: var(--menu-blue); }
+.dz-count-label { font-size: 0.65rem; color: var(--text-dim); margin-top: 0.1rem; }
+
+/* 合成孔位网格（放入装备后渲染，空孔=放置目标）*/
+.slot-grid { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; margin: 0.2rem 0 0.8rem; }
+.slot-grid.hidden { display: none; }
+.synth-slot {
+  width: 5.4rem; height: 5.4rem;
+  border: 0.2rem dashed var(--border-inner); border-radius: 0.8rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--bg-window); font-size: 1.8rem; color: var(--text-dim);
+  transition: border-color .12s, background .12s, transform .08s;
+}
+.synth-slot.filled { border-style: solid; border-color: var(--menu-blue); background: rgba(64,104,184,0.1); color: var(--text-main); }
+.synth-slot .slot-val { font-size: 0.6rem; color: var(--menu-blue); font-weight: bold; margin-top: 0.2rem; text-align: center; line-height: 1.2; }
+.synth-slot.empty.selected { border-style: solid; border-color: var(--menu-green); background: rgba(76,160,80,0.12); color: var(--menu-green); }
+.synth-slot.empty.dragover { border-style: solid; border-color: var(--menu-green); background: rgba(76,160,80,0.22); transform: scale(1.06); }
+.synth-slot.empty.reject { border-color: var(--menu-accent); animation: shake .3s; }
+.synth-hint { font-size: 0.75rem; color: var(--text-dim); text-align: center; margin-bottom: 0.8rem; }
+.synth-hint.hidden { display: none; }
+.synth-hint b { color: var(--menu-blue); }
+
+/* 结果面板 + 警告 + 按钮（强化/合成共用）*/
+.craft-result {
+  background: var(--bg-window); border: 0.2rem solid var(--border-inner);
+  border-radius: 0.6rem; padding: 0.5rem 1rem; margin-bottom: 0.8rem;
+}
+.craft-result.hidden { display: none; }
+.cr-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; padding: 0.3rem 0; }
+.cr-row .l { color: var(--text-dim); }
+.cr-row .v { color: var(--text-main); font-weight: bold; }
+.cr-row .v.up { color: var(--menu-green); }
+.cr-row .v.cost { color: #b8860b; }
+.cr-row .v.rate { color: var(--menu-blue); }
+.cr-row .v.danger { color: var(--menu-accent); }
+.craft-warn {
+  font-size: 0.75rem; color: var(--menu-accent); text-align: center; line-height: 1.5;
+  background: rgba(216,72,58,0.08); border: 0.1rem solid var(--menu-accent);
+  border-radius: 0.5rem; padding: 0.5rem 0.8rem; margin-bottom: 0.8rem;
+}
+.craft-warn.hidden { display: none; }
+.craft-note { font-size: 0.75rem; color: var(--text-dim); text-align: center; margin-bottom: 1rem; line-height: 1.5; }
+.craft-actions { display: flex; gap: 0.8rem; }
+.craft-confirm {
+  flex: 1;
+  background: linear-gradient(to bottom, #80d878, var(--menu-green));
+  color: white; border: 0.2rem solid var(--menu-green);
+  border-radius: 0.6rem; padding: 1.1rem;
+  font-family: inherit; font-size: 1rem; font-weight: bold; cursor: pointer;
+}
+.craft-confirm:active { transform: scale(0.98); }
+.craft-confirm:disabled { background: var(--text-dim); border-color: var(--text-dim); opacity: .55; cursor: not-allowed; transform: none; }
+.craft-reset {
+  background: none; border: 0.2rem solid var(--border-inner); border-radius: 0.6rem;
+  padding: 1.1rem 1.2rem; font-family: inherit; font-size: 0.9rem; color: var(--text-dim);
+  cursor: pointer; flex-shrink: 0;
+}
+.craft-reset:active { background: var(--highlight); }
+.craft-reset.hidden { display: none; }
+
+/* 背包拖拽卡 */
+.bag-label { font-size: 0.8rem; color: var(--text-dim); font-weight: bold; margin: 0.4rem 0.2rem 0.6rem; }
+.bag-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; margin-bottom: 0.6rem; }
+.bag-tile {
+  position: relative;
+  background: var(--bg-window); border: 0.2rem solid var(--border-inner);
+  border-radius: 0.7rem; padding: 0.6rem 0.3rem 0.5rem; text-align: center;
+  cursor: grab; user-select: none; touch-action: none;
+  transition: transform .08s, opacity .12s, box-shadow .12s;
+}
+.bag-tile:active { transform: scale(0.95); cursor: grabbing; }
+.bag-tile.used { opacity: .32; pointer-events: none; }
+.bag-tile.cross { border-color: var(--menu-yellow); }
+.bag-tile .bt-icon { font-size: 2rem; line-height: 1; }
+.bag-tile .bt-name { font-size: 0.75rem; font-weight: bold; color: var(--text-main); margin-top: 0.3rem; line-height: 1.2; }
+.bag-tile .bt-sub { font-size: 0.65rem; color: var(--text-dim); margin-top: 0.1rem; line-height: 1.2; }
+.bag-tile .bt-badge {
+  position: absolute; top: -0.5rem; right: -0.4rem;
+  background: var(--menu-accent); color: #fff; font-size: 0.65rem; font-weight: bold;
+  border-radius: 0.8rem; padding: 0.1rem 0.4rem; line-height: 1.3;
+}
+.bag-tile .bt-badge.cross { background: var(--menu-yellow); color: #5a4500; }
+
+/* 拖拽浮层 + toast */
+.drag-ghost {
+  position: fixed; z-index: 9999; pointer-events: none;
+  width: 5.8rem; padding: 0.5rem 0.3rem; text-align: center;
+  background: var(--bg-window); border: 0.2rem solid var(--menu-green);
+  border-radius: 0.7rem; box-shadow: 0 0.5rem 1.4rem rgba(0,0,0,.32);
+  transform: translate(-50%, -55%) rotate(-3deg); font-family: inherit;
+}
+.drag-ghost .bt-icon { font-size: 2rem; }
+.drag-ghost .bt-name { font-size: 0.75rem; font-weight: bold; color: var(--text-main); margin-top: 0.2rem; }
+.craft-toast {
+  position: absolute; left: 50%; bottom: 9.6rem; transform: translateX(-50%);
+  background: rgba(48,48,72,0.96); color: #fff; font-size: 0.8rem;
+  padding: 0.7rem 1.4rem; border-radius: 2rem; z-index: 200;
+  opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap;
+}
+.craft-toast.show { opacity: 1; }
+
+/* === 韦大宝 仓库：上下双区，各自滚动 === */
+.wh-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.wh-pane { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.wh-pane.top { border-bottom: 0.3rem solid var(--border-outer); }
+.wh-pane-head {
+  flex-shrink: 0; display: flex; align-items: center; gap: 0.8rem;
+  padding: 0.8rem 1rem 0.6rem; font-size: 0.85rem; color: var(--text-dim);
+}
+.wh-pane-head .wh-title { font-size: 0.95rem; font-weight: bold; color: var(--text-main); }
+.wh-pane-head .wh-gold { color: #b8860b; font-weight: bold; }
+.wh-pane-head .wh-count { font-weight: bold; }
+.wh-pane-head .push { margin-left: auto; }
+.wh-sort {
+  background: var(--bg-window); border: 0.2rem solid var(--border-inner);
+  border-radius: 0.5rem; padding: 0.3rem 1rem; font-family: inherit; font-size: 0.8rem;
+  font-weight: bold; color: var(--text-link); cursor: pointer;
+}
+.wh-sort:active { background: var(--highlight); transform: scale(0.96); }
+.wh-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 0.2rem 1rem 1rem; }
+.wh-pane.top .wh-scroll { background: rgba(0,0,0,0.02); }
+.wh-pane.bottom .wh-scroll { background: rgba(0,0,0,0.05); }
+.wh-scroll .bag-tile { cursor: pointer; touch-action: auto; }
+.wh-empty { font-size: 0.8rem; color: var(--text-dim); text-align: center; padding: 1.8rem 0; }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <!-- 顶部状态栏 -->
+  <div class="top-bar">
+    <div class="top-row-1">
+      <div class="player-bar">
+        <span class="name">测试角色</span>
+        <span class="sep">·</span>
+        <span class="level">Lv.30</span>
+        <span class="sep">·</span>
+        <span class="faction positive">正派</span>
+        <span class="sep">·</span>
+        <span class="career">刀客</span>
+      </div>
+    </div>
+    <div class="stat-bars-compact">
+      <div class="stat-row">
+        <span class="stat-label hp">生命值</span>
+        <div class="gba-bar"><div class="gba-bar-fill fill-hp" style="width: 100%"></div><span class="gba-bar-pct">100%</span></div>
+        <span class="stat-num">350/350</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label mp">内功值</span>
+        <div class="gba-bar"><div class="gba-bar-fill fill-mp" style="width: 100%"></div><span class="gba-bar-pct">100%</span></div>
+        <span class="stat-num">240/240</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label exp">经验值</span>
+        <div class="gba-bar"><div class="gba-bar-fill fill-exp" style="width: 42%"></div><span class="gba-bar-pct">42%</span></div>
+        <span class="stat-num">214K/508K</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主滚动区 -->
+  <div class="main-scroll">
+
+    <!-- 城镇横幅 -->
+    <div class="town-banner">
+      <div class="town-icon">🏯</div>
+      <div class="town-info">
+        <div class="town-name">泫渤派</div>
+        <div class="town-desc">主城 · 接任务 / 购物 / 强化 / 存档</div>
+      </div>
+      <div class="restore-badge">已满状态</div>
+    </div>
+
+    <!-- 快速行动 -->
+    <div class="panel">
+      <div class="panel-title">
+        <span>⚡ 快速行动</span>
+      </div>
+      <div class="quick-action-row">
+        <div class="action-card primary">
+          <span class="ac-icon">⛏</span>
+          <div class="ac-body">
+            <div class="ac-label">继续挂机</div>
+            <div class="ac-sub">伐木场 L18-22</div>
+          </div>
+        </div>
+        <div class="action-card" id="mapBtn">
+          <span class="ac-icon">⌂</span>
+          <div class="ac-body">
+            <div class="ac-label">地图</div>
+            <div class="ac-sub">23 个 zone</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 城镇 NPC -->
+    <div class="panel">
+      <div class="panel-title">
+        <span>👥 城镇 NPC</span>
+        <span class="count">5</span>
+      </div>
+      <div class="npc-grid">
+
+        <div class="npc-card featured has-notice">
+          <div class="npc-avatar">📜</div>
+          <div class="npc-info">
+            <div class="npc-name">泫渤派门主</div>
+            <div class="npc-type">任务 · 可接 1 个 / 可交 0 个</div>
+          </div>
+          <span class="npc-cta">交谈</span>
+        </div>
+
+        <div class="npc-card" id="npcDaojianxiao">
+          <div class="npc-avatar">⚔</div>
+          <div class="npc-info">
+            <div class="npc-name">刀剑笑</div>
+            <div class="npc-type">武器 · 强化 · 合成</div>
+          </div>
+        </div>
+
+        <div class="npc-card" id="npcYinjiaolong">
+          <div class="npc-avatar">🛡</div>
+          <div class="npc-info">
+            <div class="npc-name">银娇龙</div>
+            <div class="npc-type">防具 · 披风</div>
+          </div>
+        </div>
+
+        <div class="npc-card" id="npcPingshizhi">
+          <div class="npc-avatar">🧪</div>
+          <div class="npc-info">
+            <div class="npc-name">平十指</div>
+            <div class="npc-type">药剂商</div>
+          </div>
+        </div>
+
+        <div class="npc-card" id="npcWeidabao">
+          <div class="npc-avatar">📦</div>
+          <div class="npc-info">
+            <div class="npc-name">韦大宝</div>
+            <div class="npc-type">仓库 · 50 格</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 当前任务追踪 -->
+    <!-- 已移除 -->
+
+  </div>
+
+  <!-- 底部动作菜单 -->
+  <div class="bottom-menu">
+    <button class="menu-btn"><span class="icon">🎒</span>背包</button>
+    <button class="menu-btn"><span class="icon">👤</span>角色</button>
+    <button class="menu-btn active"><span class="icon">🏠</span>主页</button>
+    <button class="menu-btn has-notice"><span class="icon">📋</span>任务</button>
+    <button class="menu-btn"><span class="icon">⚙</span>设置</button>
+  </div>
+
+  <!-- 地图选择 bottom sheet -->
+  <div class="sheet-backdrop" id="mapSheet">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <span class="sheet-title">⌂ 地图选择</span>
+        <button class="sheet-close" id="mapSheetClose">×</button>
+      </div>
+      <div class="sheet-list">
+
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">🏠</span>
+            <span>泫渤派城镇</span>
+            <span class="group-meta">补给点</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item town current" data-label="泫渤派 城镇">
+              <span class="sub-name">泫渤派</span>
+              <span class="sub-level">城镇</span>
+              <span class="sub-badge">当前</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">🌾</span>
+            <span>泫渤派郊外</span>
+            <span class="group-meta">L3-35 · 6 区</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item" data-label="村庄周围 L3-5"><span class="sub-name">村庄周围</span><span class="sub-level">L3-5</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="村庄野田 L8-12"><span class="sub-name">村庄野田</span><span class="sub-level">L8-12</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="狼熊聚居地 L12-15"><span class="sub-name">狼熊聚居地</span><span class="sub-level">L12-15</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="伐木场 L18-22"><span class="sub-name">伐木场</span><span class="sub-level">L18-22</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="墓地 L22-30"><span class="sub-name">墓地</span><span class="sub-level">L22-30</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="山寨 L30-35"><span class="sub-name">山寨</span><span class="sub-level">L30-35</span><span class="sub-badge">前往</span></div>
+          </div>
+        </div>
+
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">⛩</span>
+            <span>柳正关</span>
+            <span class="group-meta">L35-59 · 7 区</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item" data-label="关外山林 L35-37"><span class="sub-name">关外山林</span><span class="sub-level">L35-37</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="渔村 L38-42"><span class="sub-name">渔村</span><span class="sub-level">L38-42</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="怪兽营地 L43-45"><span class="sub-name">怪兽营地</span><span class="sub-level">L43-45</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="火贼山寨 L47-50"><span class="sub-name">火贼山寨</span><span class="sub-level">L47-50</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="万寿阁下层 L51-54"><span class="sub-name">万寿阁下层</span><span class="sub-level">L51-54</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="万寿阁上层 L54-57"><span class="sub-name">万寿阁上层</span><span class="sub-level">L54-57</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="渊竹林 L57-59"><span class="sub-name">渊竹林</span><span class="sub-level">L57-59</span><span class="sub-badge">前往</span></div>
+          </div>
+        </div>
+
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">🏯</span>
+            <span>神武门</span>
+            <span class="group-meta">L60-67 · 3 区</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item" data-label="虎峡谷 L60-61"><span class="sub-name">虎峡谷</span><span class="sub-level">L60-61</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="吝啬鬼洞穴 L61-63"><span class="sub-name">吝啬鬼洞穴</span><span class="sub-level">L61-63</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="变质的荒地 L64-67"><span class="sub-name">变质的荒地</span><span class="sub-level">L64-67</span><span class="sub-badge">前往</span></div>
+          </div>
+        </div>
+
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">🗡</span>
+            <span>三邪关</span>
+            <span class="group-meta">L35-59 · 7 区</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item" data-label="关外山林 L35-37"><span class="sub-name">关外山林</span><span class="sub-level">L35-37</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="逃兵营地 L38-42"><span class="sub-name">逃兵营地</span><span class="sub-level">L38-42</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="猎人寨 L43-45"><span class="sub-name">猎人寨</span><span class="sub-level">L43-45</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="绿林寨 L47-50"><span class="sub-name">绿林寨</span><span class="sub-level">L47-50</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="无天阁下层 L51-54"><span class="sub-name">无天阁下层</span><span class="sub-level">L51-54</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="无天阁上层 L54-57"><span class="sub-name">无天阁上层</span><span class="sub-level">L54-57</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="竹火林 L57-59"><span class="sub-name">竹火林</span><span class="sub-level">L57-59</span><span class="sub-badge">前往</span></div>
+          </div>
+        </div>
+
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">🏛</span>
+            <span>柳善提督府</span>
+            <span class="group-meta">L60-67 · 3 区</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item" data-label="蛇谷 L60-61"><span class="sub-name">蛇谷</span><span class="sub-level">L60-61</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="黑松贼根据地 L61-63"><span class="sub-name">黑松贼根据地</span><span class="sub-level">L61-63</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item" data-label="盗贼巢穴 L64-67"><span class="sub-name">盗贼巢穴</span><span class="sub-level">L64-67</span><span class="sub-badge">前往</span></div>
+          </div>
+        </div>
+
+        <div class="map-group">
+          <div class="map-group-header">
+            <span class="group-icon">🌊</span>
+            <span>南明湖</span>
+            <span class="group-meta">L68+ · 2 区（高危）</span>
+          </div>
+          <div class="map-sub-list">
+            <div class="map-sub-item" data-label="南明湖 L68-71"><span class="sub-name">南明湖</span><span class="sub-level">L68-71</span><span class="sub-badge">前往</span></div>
+            <div class="map-sub-item empty" data-label="南明洞 L71-75"><span class="sub-name">南明洞</span><span class="sub-level">L71-75</span><span class="sub-badge">空区域</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 刀剑笑 · NPC 对话气泡 -->
+  <div class="npc-dialog-backdrop" id="djxDialog">
+    <div class="npc-dialog" onclick="event.stopPropagation()">
+      <div class="npc-dialog-head">
+        <div class="npc-dialog-avatar">⚔</div>
+        <div>
+          <div class="npc-dialog-name">刀剑笑</div>
+          <div class="npc-dialog-tag">武器 · 强化 · 合成</div>
+        </div>
+      </div>
+      <div class="npc-dialog-line">「刀客，要趁手的新兵器，还是把旧刀磨得更利？想镶石头，我这儿也成。」</div>
+      <div class="npc-func-row">
+        <button class="npc-func-btn" data-open="djxBuy"><span class="f-icon">🛒</span>购买</button>
+        <button class="npc-func-btn" data-open="djxEnhance"><span class="f-icon">⚒</span>强化</button>
+        <button class="npc-func-btn" data-open="djxSynth"><span class="f-icon">💎</span>合成</button>
+      </div>
+      <button class="npc-dialog-close" id="djxDialogClose">离开</button>
+    </div>
+  </div>
+
+  <!-- 刀剑笑 · 购买（武器商店）-->
+  <div class="sheet-backdrop djx-sheet" id="djxBuy">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header with-back">
+        <button class="sheet-back" data-back>‹ 返回</button>
+        <span class="sheet-title">🛒 武器商店</span>
+        <button class="sheet-close" data-close>×</button>
+      </div>
+      <div class="sheet-list">
+        <div class="sheet-gold-bar">持有金币 <b>🪙 48,500</b></div>
+        <div class="shop-section-label">⚔ 刀客 · 可穿戴</div>
+        <div class="shop-item">
+          <div class="si-icon">🗡</div>
+          <div class="si-info"><div class="si-name">直刀</div><div class="si-stat">攻击 8-12 · 需求 Lv.1</div></div>
+          <div class="si-action"><span class="si-price">🪙 100</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🗡</div>
+          <div class="si-info"><div class="si-name">铁刀</div><div class="si-stat">攻击 12-20 · 需求 Lv.1</div></div>
+          <div class="si-action"><span class="si-price">🪙 200</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-section-label">📦 其他职业 · 可购买（不可穿戴）</div>
+        <div class="shop-item locked">
+          <div class="si-icon">⚔</div>
+          <div class="si-info"><div class="si-name">木剑</div><div class="si-stat">攻击 10-15 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 100</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">⚔</div>
+          <div class="si-info"><div class="si-name">重剑</div><div class="si-stat">攻击 15-25 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 200</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">🪄</div>
+          <div class="si-info"><div class="si-name">木杖</div><div class="si-stat">攻击 8-10 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 100</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">🪄</div>
+          <div class="si-info"><div class="si-name">桃木杖</div><div class="si-stat">攻击 10-15 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 200</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">🔱</div>
+          <div class="si-info"><div class="si-name">木枪</div><div class="si-stat">攻击 12-18 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 100</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">🔱</div>
+          <div class="si-info"><div class="si-name">长枪</div><div class="si-stat">攻击 17-27 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 200</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="craft-note">商店仅售 base 段武器；t1+ 武器需打怪 / 任务获得</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 刀剑笑 · 强化（工作台：上操作 / 下背包，拖拽放入）-->
+  <div class="sheet-backdrop djx-sheet" id="djxEnhance">
+    <div class="bottom-sheet craft-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header with-back">
+        <button class="sheet-back" data-back>‹ 返回</button>
+        <span class="sheet-title">⚒ 强化</span>
+        <button class="sheet-close" data-close>×</button>
+      </div>
+      <div class="craft-body">
+        <div class="craft-work">
+          <div class="sheet-gold-bar">持有金币 <b>🪙 48,500</b></div>
+          <div class="craft-slots">
+            <div class="craft-dropzone equip-slot" data-zone="equip">
+              <div class="dz-plus">＋</div><div class="dz-hint">拖入装备</div>
+            </div>
+            <div class="craft-arrow">＋</div>
+            <div class="craft-dropzone stone-slot" data-zone="enh-stone">
+              <div class="dz-plus">＋</div><div class="dz-hint">拖入<br>强化石</div>
+            </div>
+          </div>
+          <div class="craft-result hidden"></div>
+          <div class="craft-warn hidden">⚠ 强化失败 → 装备碎裂，已镶嵌石头一并消失</div>
+          <div class="craft-actions">
+            <button class="craft-confirm" disabled>强化</button>
+            <button class="craft-reset hidden" data-reset>清空</button>
+          </div>
+        </div>
+        <div class="craft-bag">
+          <div class="bag-label">🎒 可强化装备 · 武器/防具（不限职业）</div>
+          <div class="bag-grid">
+            <div class="bag-tile" data-kind="equip" data-icon="🗡" data-name="玄铁刀" data-etype="weapon" data-career="刀客" data-reqlv="20" data-enh="3" data-atkmin="42" data-atkmax="58" data-stones="2">
+              <span class="bt-badge">+3</span>
+              <div class="bt-icon">🗡</div><div class="bt-name">玄铁刀</div><div class="bt-sub">攻42-58</div>
+            </div>
+            <div class="bag-tile cross" data-kind="equip" data-icon="⚔" data-name="青锋剑" data-etype="weapon" data-career="剑客" data-reqlv="15" data-enh="0" data-atkmin="18" data-atkmax="30" data-stones="0">
+              <span class="bt-badge cross">剑客</span>
+              <div class="bt-icon">⚔</div><div class="bt-name">青锋剑</div><div class="bt-sub">攻18-30</div>
+            </div>
+            <div class="bag-tile" data-kind="equip" data-icon="🥋" data-name="金丝战袍" data-etype="armor" data-career="刀客" data-reqlv="15" data-enh="1" data-def="24" data-stones="0">
+              <span class="bt-badge">+1</span>
+              <div class="bt-icon">🥋</div><div class="bt-name">金丝战袍</div><div class="bt-sub">防24</div>
+            </div>
+            <div class="bag-tile" data-kind="equip" data-icon="🥾" data-name="玄武战靴" data-etype="armor" data-career="刀客" data-reqlv="25" data-enh="5" data-def="40" data-stones="4">
+              <span class="bt-badge">+5</span>
+              <div class="bt-icon">🥾</div><div class="bt-name">玄武战靴</div><div class="bt-sub">防40·4孔</div>
+            </div>
+          </div>
+          <div class="bag-label">🪨 强化石（消耗量随装备已镶石数 1/2/3）</div>
+          <div class="bag-grid">
+            <div class="bag-tile" data-kind="enh-stone" data-icon="🪨" data-name="强化石" data-count="7">
+              <span class="bt-badge">×7</span>
+              <div class="bt-icon">🪨</div><div class="bt-name">强化石</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 刀剑笑 · 合成（工作台：上=装备+孔位，下=背包石头，拖拽镶入）-->
+  <div class="sheet-backdrop djx-sheet" id="djxSynth">
+    <div class="bottom-sheet craft-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header with-back">
+        <button class="sheet-back" data-back>‹ 返回</button>
+        <span class="sheet-title">💎 合成 · 镶嵌</span>
+        <button class="sheet-close" data-close>×</button>
+      </div>
+      <div class="craft-body">
+        <div class="craft-work">
+          <div class="sheet-gold-bar">持有金币 <b>🪙 48,500</b></div>
+          <div class="craft-slots">
+            <div class="craft-dropzone equip-slot" data-zone="equip">
+              <div class="dz-plus">＋</div><div class="dz-hint">拖入装备</div>
+            </div>
+          </div>
+          <div class="synth-hint hidden"></div>
+          <div class="slot-grid hidden"></div>
+          <div class="craft-result hidden"></div>
+          <div class="craft-actions">
+            <button class="craft-confirm" disabled>镶嵌</button>
+            <button class="craft-reset hidden" data-reset>清空</button>
+          </div>
+        </div>
+        <div class="craft-bag">
+          <div class="bag-label">🎒 可合成装备（武器→金刚石 / 防具→寒玉石）</div>
+          <div class="bag-grid">
+            <div class="bag-tile" data-kind="equip" data-icon="🗡" data-name="玄铁刀" data-etype="weapon" data-career="刀客" data-reqlv="20" data-cap="4" data-occupied="2" data-stonecat="vajra" data-filled="攻+8|攻+5">
+              <span class="bt-badge">2/4孔</span>
+              <div class="bt-icon">🗡</div><div class="bt-name">玄铁刀</div><div class="bt-sub">金刚石孔</div>
+            </div>
+            <div class="bag-tile" data-kind="equip" data-icon="🥋" data-name="金丝战袍" data-etype="chest" data-career="刀客" data-reqlv="15" data-cap="4" data-occupied="0" data-stonecat="cold_jade" data-filled="">
+              <span class="bt-badge">0/4孔</span>
+              <div class="bt-icon">🥋</div><div class="bt-name">金丝战袍</div><div class="bt-sub">寒玉石孔</div>
+            </div>
+            <div class="bag-tile" data-kind="equip" data-icon="🎽" data-name="软猬甲" data-etype="inner_armor" data-career="刀客" data-reqlv="18" data-cap="2" data-occupied="1" data-stonecat="cold_jade" data-filled="防+4">
+              <span class="bt-badge">1/2孔</span>
+              <div class="bt-icon">🎽</div><div class="bt-name">软猬甲</div><div class="bt-sub">寒玉石孔</div>
+            </div>
+          </div>
+          <div class="bag-label">💎 金刚石（镶武器）</div>
+          <div class="bag-grid">
+            <div class="bag-tile" data-kind="stone" data-cat="vajra" data-icon="💠" data-name="金刚石" data-attr="攻击+6">
+              <div class="bt-icon">💠</div><div class="bt-name">金刚石</div><div class="bt-sub">攻击+6</div>
+            </div>
+            <div class="bag-tile" data-kind="stone" data-cat="vajra" data-icon="💠" data-name="金刚石" data-attr="命中+5">
+              <div class="bt-icon">💠</div><div class="bt-name">金刚石</div><div class="bt-sub">命中+5</div>
+            </div>
+          </div>
+          <div class="bag-label">🔷 寒玉石（镶防具）</div>
+          <div class="bag-grid">
+            <div class="bag-tile" data-kind="stone" data-cat="cold_jade" data-icon="🔷" data-name="寒玉石" data-attr="防御+5">
+              <div class="bt-icon">🔷</div><div class="bt-name">寒玉石</div><div class="bt-sub">防御+5</div>
+            </div>
+            <div class="bag-tile" data-kind="stone" data-cat="cold_jade" data-icon="🔷" data-name="寒玉石" data-attr="生命+30">
+              <div class="bt-icon">🔷</div><div class="bt-name">寒玉石</div><div class="bt-sub">生命+30</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 银娇龙 · NPC 对话气泡 -->
+  <div class="npc-dialog-backdrop" id="yjlDialog">
+    <div class="npc-dialog" onclick="event.stopPropagation()">
+      <div class="npc-dialog-head">
+        <div class="npc-dialog-avatar">🛡</div>
+        <div>
+          <div class="npc-dialog-name">银娇龙</div>
+          <div class="npc-dialog-tag">防具 · 披风</div>
+        </div>
+      </div>
+      <div class="npc-dialog-line">「护身的战袍、护手、靴子，我这儿样样齐全。还有两件稀罕披风，4 系通用，识货的自然懂。」</div>
+      <div class="npc-func-row">
+        <button class="npc-func-btn" data-open="yjlBuy"><span class="f-icon">🛒</span>购买</button>
+      </div>
+      <button class="npc-dialog-close" id="yjlDialogClose">离开</button>
+    </div>
+  </div>
+
+  <!-- 银娇龙 · 购买（防具商店）-->
+  <div class="sheet-backdrop" id="yjlBuy">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header with-back">
+        <button class="sheet-back" data-back>‹ 返回</button>
+        <span class="sheet-title">🛡 防具商店</span>
+        <button class="sheet-close" data-close>×</button>
+      </div>
+      <div class="sheet-list">
+        <div class="sheet-gold-bar">持有金币 <b>🪙 48,500</b></div>
+
+        <div class="shop-section-label">🛡 战袍 · 刀客可穿戴</div>
+        <div class="shop-item">
+          <div class="si-icon">👕</div>
+          <div class="si-info"><div class="si-name">无名战袍</div><div class="si-stat">防御 12 · 需求 Lv.10</div></div>
+          <div class="si-action"><span class="si-price">🪙 100</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">👕</div>
+          <div class="si-info"><div class="si-name">金丝战袍</div><div class="si-stat">防御 16 · 需求 Lv.20</div></div>
+          <div class="si-action"><span class="si-price">🪙 150</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">👕</div>
+          <div class="si-info"><div class="si-name">乌蚕战袍</div><div class="si-stat">防御 20 · 需求 Lv.30</div></div>
+          <div class="si-action"><span class="si-price">🪙 200</span><button class="shop-btn">购买</button></div>
+        </div>
+
+        <div class="shop-section-label">🧤 护手·靴子 · 通用可穿戴</div>
+        <div class="shop-item">
+          <div class="si-icon">🧤</div>
+          <div class="si-info"><div class="si-name">皮护手</div><div class="si-stat">防御 5 · 需求 Lv.5</div></div>
+          <div class="si-action"><span class="si-price">🪙 50</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🧤</div>
+          <div class="si-info"><div class="si-name">青铜护手</div><div class="si-stat">防御 7 · 需求 Lv.10</div></div>
+          <div class="si-action"><span class="si-price">🪙 75</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🧤</div>
+          <div class="si-info"><div class="si-name">精炼护手</div><div class="si-stat">防御 9 · 需求 Lv.20</div></div>
+          <div class="si-action"><span class="si-price">🪙 100</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🧤</div>
+          <div class="si-info"><div class="si-name">罗汉护手</div><div class="si-stat">防御 11 · 需求 Lv.30</div></div>
+          <div class="si-action"><span class="si-price">🪙 150</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🥾</div>
+          <div class="si-info"><div class="si-name">无名短靴</div><div class="si-stat">防御 2 · 需求 Lv.3</div></div>
+          <div class="si-action"><span class="si-price">🪙 50</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🥾</div>
+          <div class="si-info"><div class="si-name">青衣短靴</div><div class="si-stat">防御 3 · 需求 Lv.5</div></div>
+          <div class="si-action"><span class="si-price">🪙 60</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🥾</div>
+          <div class="si-info"><div class="si-name">皮短靴</div><div class="si-stat">防御 5 · 需求 Lv.10</div></div>
+          <div class="si-action"><span class="si-price">🪙 75</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🥾</div>
+          <div class="si-info"><div class="si-name">无名长靴</div><div class="si-stat">防御 7 · 需求 Lv.20</div></div>
+          <div class="si-action"><span class="si-price">🪙 100</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🥾</div>
+          <div class="si-info"><div class="si-name">皮长靴</div><div class="si-stat">防御 9 · 需求 Lv.30</div></div>
+          <div class="si-action"><span class="si-price">🪙 150</span><button class="shop-btn">购买</button></div>
+        </div>
+
+        <div class="shop-section-label">🧥 披风 · 4 系通用（独家）</div>
+        <div class="shop-item">
+          <div class="si-icon">🧥</div>
+          <div class="si-info"><div class="si-name">钢铁侠铠甲</div><div class="si-stat">披风 · 4 系通用 · 无门槛</div></div>
+          <div class="si-action"><span class="si-price">🪙 50,000</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🧥</div>
+          <div class="si-info"><div class="si-name">蜘蛛侠连体衣</div><div class="si-stat">披风 · 4 系通用 · 无门槛</div></div>
+          <div class="si-action"><span class="si-price">🪙 50,000</span><button class="shop-btn">购买</button></div>
+        </div>
+
+        <div class="shop-section-label">📦 其他职业战袍 · 可购买（不可穿戴）</div>
+        <div class="shop-item locked">
+          <div class="si-icon">👕</div>
+          <div class="si-info"><div class="si-name">无名侠衣</div><div class="si-stat">防御 10 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 100</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">👕</div>
+          <div class="si-info"><div class="si-name">金丝侠衣</div><div class="si-stat">防御 14 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 150</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">👕</div>
+          <div class="si-info"><div class="si-name">乌蚕侠衣</div><div class="si-stat">防御 18 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 200</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">👕</div>
+          <div class="si-info"><div class="si-name">无名法袍</div><div class="si-stat">防御 6 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 100</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">👕</div>
+          <div class="si-info"><div class="si-name">金丝法袍</div><div class="si-stat">防御 10 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 150</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">👕</div>
+          <div class="si-info"><div class="si-name">乌蚕法袍</div><div class="si-stat">防御 14 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 200</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">👕</div>
+          <div class="si-info"><div class="si-name">无名枪衣</div><div class="si-stat">防御 8 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 100</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">👕</div>
+          <div class="si-info"><div class="si-name">金丝枪衣</div><div class="si-stat">防御 12 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 150</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item locked">
+          <div class="si-icon">👕</div>
+          <div class="si-info"><div class="si-name">乌蚕枪衣</div><div class="si-stat">防御 16 · 不可穿戴</div></div>
+          <div class="si-action"><span class="si-price">🪙 200</span><button class="shop-btn">购买</button></div>
+        </div>
+
+        <div class="craft-note">v1.0 商店仅售 base 段防具；t2+ 防具需打怪 / 任务获得</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 平十指 · NPC 对话气泡 -->
+  <div class="npc-dialog-backdrop" id="pszDialog">
+    <div class="npc-dialog" onclick="event.stopPropagation()">
+      <div class="npc-dialog-head">
+        <div class="npc-dialog-avatar">🧪</div>
+        <div>
+          <div class="npc-dialog-name">平十指</div>
+          <div class="npc-dialog-tag">药剂商</div>
+        </div>
+      </div>
+      <div class="npc-dialog-line">「行走江湖，伤药内丹不可少。金创药、参，要多少有多少。」</div>
+      <div class="npc-func-row">
+        <button class="npc-func-btn" data-open="pszBuy"><span class="f-icon">🛒</span>购买</button>
+      </div>
+      <button class="npc-dialog-close" id="pszDialogClose">离开</button>
+    </div>
+  </div>
+
+  <!-- 平十指 · 购买（药剂商店）-->
+  <div class="sheet-backdrop" id="pszBuy">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header with-back">
+        <button class="sheet-back" data-back>‹ 返回</button>
+        <span class="sheet-title">🧪 药剂商店</span>
+        <button class="sheet-close" data-close>×</button>
+      </div>
+      <div class="sheet-list">
+        <div class="sheet-gold-bar">持有金币 <b>🪙 48,500</b></div>
+
+        <div class="shop-section-label">❤ 生命药剂</div>
+        <div class="shop-item">
+          <div class="si-icon">🍶</div>
+          <div class="si-info"><div class="si-name">金创药（小）</div><div class="si-stat">恢复 70 生命</div></div>
+          <div class="si-action"><span class="si-price">🪙 10</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🍶</div>
+          <div class="si-info"><div class="si-name">金创药（中）</div><div class="si-stat">恢复 160 生命</div></div>
+          <div class="si-action"><span class="si-price">🪙 50</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🍶</div>
+          <div class="si-info"><div class="si-name">金创药（大）</div><div class="si-stat">恢复 300 生命</div></div>
+          <div class="si-action"><span class="si-price">🪙 120</span><button class="shop-btn">购买</button></div>
+        </div>
+
+        <div class="shop-section-label">💧 内功药剂</div>
+        <div class="shop-item">
+          <div class="si-icon">🌿</div>
+          <div class="si-info"><div class="si-name">人参</div><div class="si-stat">恢复 70 内功</div></div>
+          <div class="si-action"><span class="si-price">🪙 10</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🌿</div>
+          <div class="si-info"><div class="si-name">野山参</div><div class="si-stat">恢复 160 内功</div></div>
+          <div class="si-action"><span class="si-price">🪙 50</span><button class="shop-btn">购买</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="si-icon">🌿</div>
+          <div class="si-info"><div class="si-name">雪原参</div><div class="si-stat">恢复 320 内功</div></div>
+          <div class="si-action"><span class="si-price">🪙 120</span><button class="shop-btn">购买</button></div>
+        </div>
+
+        <div class="craft-note">药剂可叠加（上限 999）；中/大阶药剂随等级解锁</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 数量选择弹窗（平十指 · 批量买药）-->
+  <div class="qty-backdrop" id="qtyPopup">
+    <div class="qty-box" onclick="event.stopPropagation()">
+      <div class="qty-head">
+        <div class="qty-icon" id="qtyIcon">🍶</div>
+        <div>
+          <div class="qty-name" id="qtyName">金创药（小）</div>
+          <div class="qty-unit">单价 <b id="qtyUnit">🪙 10</b> · 上限 999</div>
+        </div>
+      </div>
+      <div class="qty-stepper">
+        <button class="qty-step" data-step="-1">−</button>
+        <input class="qty-input" id="qtyInput" type="number" inputmode="numeric" value="1" min="1" max="999">
+        <button class="qty-step" data-step="1">＋</button>
+      </div>
+      <div class="qty-quick">
+        <button data-set="10">×10</button>
+        <button data-set="50">×50</button>
+        <button data-set="99">×99</button>
+        <button data-set="999">最大</button>
+      </div>
+      <div class="qty-total">
+        <span>合计</span>
+        <span class="qt-val" id="qtyTotal">🪙 10</span>
+      </div>
+      <div class="qty-actions">
+        <button class="qty-cancel" id="qtyCancel">取消</button>
+        <button class="qty-confirm" id="qtyConfirm">确认购买</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 韦大宝 · 仓库（双区：上仓库 / 下背包）-->
+  <div class="sheet-backdrop" id="whSheet">
+    <div class="bottom-sheet craft-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <span class="sheet-title">📦 韦大宝 · 仓库</span>
+        <button class="sheet-close" data-close>×</button>
+      </div>
+      <div class="wh-body">
+
+        <div class="wh-pane top">
+          <div class="wh-pane-head">
+            <span class="wh-title">🏛 仓库</span>
+            <span class="wh-count push" id="whWarehouseCount">12 / 50</span>
+            <button class="wh-sort" data-sort="warehouse">整理</button>
+          </div>
+          <div class="wh-scroll">
+            <div class="bag-grid" id="whWarehouseGrid">
+              <div class="bag-tile" data-key="hp_potion_grade1" data-icon="🍶" data-name="金创药（小）" data-count="8">
+                <div class="bt-icon">🍶</div><div class="bt-name">金创药（小）</div><div class="bt-badge">×8</div>
+              </div>
+              <div class="bag-tile" data-key="hp_potion_grade2" data-icon="🍶" data-name="金创药（中）" data-count="5">
+                <div class="bt-icon">🍶</div><div class="bt-name">金创药（中）</div><div class="bt-badge">×5</div>
+              </div>
+              <div class="bag-tile" data-key="mp_potion_grade1" data-icon="🌿" data-name="人参" data-count="6">
+                <div class="bt-icon">🌿</div><div class="bt-name">人参</div><div class="bt-badge">×6</div>
+              </div>
+              <div class="bag-tile" data-key="mp_potion_grade3" data-icon="🌿" data-name="雪原参" data-count="2">
+                <div class="bt-icon">🌿</div><div class="bt-name">雪原参</div><div class="bt-badge">×2</div>
+              </div>
+              <div class="bag-tile" data-key="cold_jade_01" data-icon="🔷" data-name="寒玉石" data-count="3">
+                <div class="bt-icon">🔷</div><div class="bt-name">寒玉石</div><div class="bt-badge">×3</div>
+              </div>
+              <div class="bag-tile" data-key="vajra_01" data-icon="💠" data-name="金刚石" data-count="2">
+                <div class="bt-icon">💠</div><div class="bt-name">金刚石</div><div class="bt-badge">×2</div>
+              </div>
+              <div class="bag-tile" data-key="enhance_stone_01" data-icon="🪨" data-name="强化石" data-count="4">
+                <div class="bt-icon">🪨</div><div class="bt-name">强化石</div><div class="bt-badge">×4</div>
+              </div>
+              <div class="bag-tile" data-key="blade_base_001" data-icon="🗡" data-name="直刀" data-count="1">
+                <div class="bt-icon">🗡</div><div class="bt-name">直刀</div>
+              </div>
+              <div class="bag-tile" data-key="blade_base_002" data-icon="🗡" data-name="铁刀" data-count="1">
+                <div class="bt-icon">🗡</div><div class="bt-name">铁刀</div>
+              </div>
+              <div class="bag-tile" data-key="blade_chest_base_001" data-icon="👕" data-name="无名战袍" data-count="1">
+                <div class="bt-icon">👕</div><div class="bt-name">无名战袍</div>
+              </div>
+              <div class="bag-tile" data-key="boots_base_003" data-icon="🥾" data-name="皮短靴" data-count="1">
+                <div class="bt-icon">🥾</div><div class="bt-name">皮短靴</div>
+              </div>
+              <div class="bag-tile" data-key="gloves_base_002" data-icon="🧤" data-name="青铜护手" data-count="1">
+                <div class="bt-icon">🧤</div><div class="bt-name">青铜护手</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wh-pane bottom">
+          <div class="wh-pane-head">
+            <span class="wh-title">🎒 背包</span>
+            <span class="wh-gold push">🪙 48,500</span>
+            <span class="wh-count" id="whBagCount">10 / 50</span>
+            <button class="wh-sort" data-sort="bag">整理</button>
+          </div>
+          <div class="wh-scroll">
+            <div class="bag-grid" id="whBagGrid">
+              <div class="bag-tile" data-key="hp_potion_grade1" data-icon="🍶" data-name="金创药（小）" data-count="20">
+                <div class="bt-icon">🍶</div><div class="bt-name">金创药（小）</div><div class="bt-badge">×20</div>
+              </div>
+              <div class="bag-tile" data-key="mp_potion_grade1" data-icon="🌿" data-name="人参" data-count="9">
+                <div class="bt-icon">🌿</div><div class="bt-name">人参</div><div class="bt-badge">×9</div>
+              </div>
+              <div class="bag-tile" data-key="cold_jade_01" data-icon="🔷" data-name="寒玉石" data-count="4">
+                <div class="bt-icon">🔷</div><div class="bt-name">寒玉石</div><div class="bt-badge">×4</div>
+              </div>
+              <div class="bag-tile" data-key="enhance_stone_01" data-icon="🪨" data-name="强化石" data-count="7">
+                <div class="bt-icon">🪨</div><div class="bt-name">强化石</div><div class="bt-badge">×7</div>
+              </div>
+              <div class="bag-tile" data-key="box_wood" data-icon="🎁" data-name="木箱" data-count="3">
+                <div class="bt-icon">🎁</div><div class="bt-name">木箱</div><div class="bt-badge">×3</div>
+              </div>
+              <div class="bag-tile" data-key="vajra_01" data-icon="💠" data-name="金刚石" data-count="1">
+                <div class="bt-icon">💠</div><div class="bt-name">金刚石</div>
+              </div>
+              <div class="bag-tile" data-key="blade_base_001" data-icon="🗡" data-name="直刀" data-count="1">
+                <div class="bt-icon">🗡</div><div class="bt-name">直刀</div>
+              </div>
+              <div class="bag-tile" data-key="blade_chest_base_001" data-icon="👕" data-name="无名战袍" data-count="1">
+                <div class="bt-icon">👕</div><div class="bt-name">无名战袍</div>
+              </div>
+              <div class="bag-tile" data-key="gloves_base_004" data-icon="🧤" data-name="罗汉护手" data-count="1">
+                <div class="bt-icon">🧤</div><div class="bt-name">罗汉护手</div>
+              </div>
+              <div class="bag-tile cross" data-key="quest_token_01" data-icon="📜" data-name="江湖信物" data-count="1" data-quest="1">
+                <div class="bt-icon">📜</div><div class="bt-name">江湖信物</div><div class="bt-badge cross">任务</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 韦大宝 · 存入/取出 数量弹窗 -->
+  <div class="qty-backdrop" id="whPopup">
+    <div class="qty-box" onclick="event.stopPropagation()">
+      <div class="qty-head">
+        <div class="qty-icon" id="whIcon">🍶</div>
+        <div>
+          <div class="qty-name" id="whName">金创药（小）</div>
+          <div class="qty-unit" id="whMeta">背包 ×20 · 仓库 12/50</div>
+        </div>
+      </div>
+      <div class="qty-stepper">
+        <button class="qty-step" data-step="-1">−</button>
+        <input class="qty-input" id="whInput" type="number" inputmode="numeric" value="1" min="1">
+        <button class="qty-step" data-step="1">＋</button>
+      </div>
+      <div class="qty-quick">
+        <button data-set="1">×1</button>
+        <button data-set="10">×10</button>
+        <button data-set="max">全部</button>
+      </div>
+      <div class="qty-actions">
+        <button class="qty-cancel" id="whCancel">取消</button>
+        <button class="qty-confirm" id="whConfirm">存入</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  (function() {
+    const sheet = document.getElementById('mapSheet');
+    const trigger = document.getElementById('mapBtn');
+    const closeBtn = document.getElementById('mapSheetClose');
+    trigger.addEventListener('click', () => sheet.classList.add('open'));
+    closeBtn.addEventListener('click', () => sheet.classList.remove('open'));
+    sheet.addEventListener('click', (e) => { if (e.target === sheet) sheet.classList.remove('open'); });
+    document.querySelectorAll('.map-sub-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.map-sub-item').forEach(i => {
+          i.classList.remove('current');
+          const b = i.querySelector('.sub-badge');
+          if (i.classList.contains('town')) b.textContent = '进入';
+          else if (i.classList.contains('empty')) b.textContent = '空区域';
+          else b.textContent = '前往';
+        });
+        item.classList.add('current');
+        item.querySelector('.sub-badge').textContent = '当前';
+        sheet.classList.remove('open');
+      });
+    });
+  })();
+
+  // 刀剑笑 NPC：对话气泡 → 分流到 购买/强化/合成
+  (function() {
+    const dialog = document.getElementById('djxDialog');
+    const trigger = document.getElementById('npcDaojianxiao');
+    const dialogClose = document.getElementById('djxDialogClose');
+    const sheetIds = ['djxBuy', 'djxEnhance', 'djxSynth'];
+
+    const openDialog = () => dialog.classList.add('open');
+    const closeDialog = () => dialog.classList.remove('open');
+
+    trigger.addEventListener('click', openDialog);
+    dialogClose.addEventListener('click', closeDialog);
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) closeDialog(); });
+
+    dialog.querySelectorAll('.npc-func-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closeDialog();
+        document.getElementById(btn.dataset.open).classList.add('open');
+      });
+    });
+
+    sheetIds.forEach(id => {
+      const sheet = document.getElementById(id);
+      sheet.querySelector('[data-back]').addEventListener('click', () => {
+        sheet.classList.remove('open');
+        openDialog();
+      });
+      sheet.querySelector('[data-close]').addEventListener('click', () => sheet.classList.remove('open'));
+      sheet.addEventListener('click', (e) => { if (e.target === sheet) sheet.classList.remove('open'); });
+    });
+  })();
+
+  // 单功能商店 NPC（银娇龙 / 平十指）：对话气泡 → 购买页
+  (function() {
+    const shops = [
+      { trigger: 'npcYinjiaolong', dialog: 'yjlDialog', dialogClose: 'yjlDialogClose', sheet: 'yjlBuy' },
+      { trigger: 'npcPingshizhi', dialog: 'pszDialog', dialogClose: 'pszDialogClose', sheet: 'pszBuy' },
+    ];
+    shops.forEach(cfg => {
+      const dialog = document.getElementById(cfg.dialog);
+      const openDialog = () => dialog.classList.add('open');
+      const closeDialog = () => dialog.classList.remove('open');
+
+      document.getElementById(cfg.trigger).addEventListener('click', openDialog);
+      document.getElementById(cfg.dialogClose).addEventListener('click', closeDialog);
+      dialog.addEventListener('click', (e) => { if (e.target === dialog) closeDialog(); });
+
+      dialog.querySelectorAll('.npc-func-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          closeDialog();
+          document.getElementById(btn.dataset.open).classList.add('open');
+        });
+      });
+
+      const sheet = document.getElementById(cfg.sheet);
+      sheet.querySelector('[data-back]').addEventListener('click', () => {
+        sheet.classList.remove('open');
+        openDialog();
+      });
+      sheet.querySelector('[data-close]').addEventListener('click', () => sheet.classList.remove('open'));
+      sheet.addEventListener('click', (e) => { if (e.target === sheet) sheet.classList.remove('open'); });
+    });
+  })();
+
+  // 平十指 · 药剂批量购买：购买 → 数量选择弹窗
+  (function() {
+    const phone = document.querySelector('.phone-frame');
+    const popup = document.getElementById('qtyPopup');
+    const elIcon = document.getElementById('qtyIcon');
+    const elName = document.getElementById('qtyName');
+    const elUnit = document.getElementById('qtyUnit');
+    const elInput = document.getElementById('qtyInput');
+    const elTotal = document.getElementById('qtyTotal');
+    const MAX = 999;
+    let unitPrice = 0, curName = '';
+    const fmt = n => n.toLocaleString('en-US');
+
+    let toastEl;
+    function toast(msg) {
+      if (!toastEl) { toastEl = document.createElement('div'); toastEl.className = 'craft-toast'; phone.appendChild(toastEl); }
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 1500);
+    }
+
+    const clamp = n => Math.max(1, Math.min(MAX, n || 1));
+    function setQty(n) { elInput.value = clamp(n); updateTotal(); }
+    function updateTotal() { elTotal.textContent = '🪙 ' + fmt(unitPrice * clamp(parseInt(elInput.value, 10))); }
+    const closePopup = () => popup.classList.remove('open');
+
+    // 仅平十指药剂页的购买按钮触发数量弹窗
+    document.querySelectorAll('#pszBuy .shop-item').forEach(item => {
+      item.querySelector('.shop-btn').addEventListener('click', () => {
+        curName = item.querySelector('.si-name').textContent;
+        unitPrice = parseInt(item.querySelector('.si-price').textContent.replace(/[^\d]/g, ''), 10) || 0;
+        elIcon.textContent = item.querySelector('.si-icon').textContent;
+        elName.textContent = curName;
+        elUnit.textContent = '🪙 ' + fmt(unitPrice);
+        setQty(1);
+        popup.classList.add('open');
+      });
+    });
+
+    popup.querySelectorAll('.qty-step').forEach(b =>
+      b.addEventListener('click', () => setQty(parseInt(elInput.value, 10) + parseInt(b.dataset.step, 10))));
+    popup.querySelectorAll('.qty-quick button').forEach(b =>
+      b.addEventListener('click', () => setQty(parseInt(b.dataset.set, 10))));
+    elInput.addEventListener('input', updateTotal);
+    elInput.addEventListener('blur', () => setQty(parseInt(elInput.value, 10)));
+
+    document.getElementById('qtyCancel').addEventListener('click', closePopup);
+    popup.addEventListener('click', (e) => { if (e.target === popup) closePopup(); });
+    document.getElementById('qtyConfirm').addEventListener('click', () => {
+      const q = clamp(parseInt(elInput.value, 10));
+      toast('已购买 ' + curName + ' ×' + q + '（演示，不结算）');
+      closePopup();
+    });
+  })();
+
+  // 韦大宝 · 仓库：双区存取（存入 / 取出 数量弹窗）
+  (function() {
+    const phone = document.querySelector('.phone-frame');
+    const sheet = document.getElementById('whSheet');
+    const trigger = document.getElementById('npcWeidabao');
+    const whGrid = document.getElementById('whWarehouseGrid');
+    const bagGrid = document.getElementById('whBagGrid');
+    const whCountEl = document.getElementById('whWarehouseCount');
+    const bagCountEl = document.getElementById('whBagCount');
+    const CAP = 50;
+
+    const popup = document.getElementById('whPopup');
+    const elIcon = document.getElementById('whIcon');
+    const elName = document.getElementById('whName');
+    const elMeta = document.getElementById('whMeta');
+    const elInput = document.getElementById('whInput');
+    const elConfirm = document.getElementById('whConfirm');
+
+    let mode = 'deposit', srcGrid, dstGrid, srcTile, srcName, maxQ = 1;
+
+    let toastEl;
+    function toast(msg) {
+      if (!toastEl) { toastEl = document.createElement('div'); toastEl.className = 'craft-toast'; phone.appendChild(toastEl); }
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 1500);
+    }
+
+    const tiles = grid => [...grid.querySelectorAll('.bag-tile')];
+    const used = grid => tiles(grid).length;
+    const findTile = (grid, key) => tiles(grid).find(t => t.dataset.key === key);
+
+    function render(t) {
+      const c = parseInt(t.dataset.count, 10);
+      let h = '<div class="bt-icon">' + t.dataset.icon + '</div><div class="bt-name">' + t.dataset.name + '</div>';
+      if (t.dataset.quest) h += '<div class="bt-badge cross">任务</div>';
+      else if (c > 1) h += '<div class="bt-badge">×' + c + '</div>';
+      t.innerHTML = h;
+    }
+    function makeTile(d) {
+      const t = document.createElement('div');
+      t.className = 'bag-tile' + (d.quest ? ' cross' : '');
+      t.dataset.key = d.key; t.dataset.icon = d.icon; t.dataset.name = d.name; t.dataset.count = d.count;
+      if (d.quest) t.dataset.quest = '1';
+      render(t);
+      return t;
+    }
+    function updateCounts() {
+      whCountEl.textContent = used(whGrid) + ' / ' + CAP;
+      bagCountEl.textContent = used(bagGrid) + ' / ' + CAP;
+    }
+
+    const clamp = n => Math.max(1, Math.min(maxQ, n || 1));
+    const setQty = n => { elInput.value = clamp(n); };
+    const closePopup = () => popup.classList.remove('open');
+
+    function openPopup(tile, m) {
+      if (m === 'deposit' && tile.dataset.quest) { toast('该物品不可存入仓库'); return; }
+      mode = m; srcTile = tile; srcName = tile.dataset.name;
+      srcGrid = m === 'deposit' ? bagGrid : whGrid;
+      dstGrid = m === 'deposit' ? whGrid : bagGrid;
+      maxQ = parseInt(tile.dataset.count, 10);
+      elIcon.textContent = tile.dataset.icon;
+      elName.textContent = srcName;
+      elMeta.textContent = (m === 'deposit' ? '背包 ×' : '仓库 ×') + maxQ +
+        (m === 'deposit' ? ' · 仓库 ' : ' · 背包 ') + used(dstGrid) + '/' + CAP;
+      elConfirm.textContent = m === 'deposit' ? '存入' : '取出';
+      setQty(maxQ);
+      popup.classList.add('open');
+    }
+
+    function doTransfer() {
+      const q = clamp(parseInt(elInput.value, 10));
+      const key = srcTile.dataset.key;
+      const destTile = findTile(dstGrid, key);
+      if (!destTile && used(dstGrid) >= CAP) {
+        toast(mode === 'deposit' ? '仓库已满，无法存入' : '背包已满，无法取出');
+        return;
+      }
+      if (destTile) { destTile.dataset.count = parseInt(destTile.dataset.count, 10) + q; render(destTile); }
+      else { dstGrid.appendChild(makeTile({ key, icon: srcTile.dataset.icon, name: srcName, count: q, quest: srcTile.dataset.quest })); }
+      const left = parseInt(srcTile.dataset.count, 10) - q;
+      if (left <= 0) srcTile.remove();
+      else { srcTile.dataset.count = left; render(srcTile); }
+      updateCounts();
+      toast((mode === 'deposit' ? '已存入 ' : '已取出 ') + srcName + ' ×' + q);
+      closePopup();
+    }
+
+    function sortGrid(grid) {
+      tiles(grid).sort((a, b) => a.dataset.key.localeCompare(b.dataset.key)).forEach(t => grid.appendChild(t));
+    }
+
+    // 仓库格子 → 取出；背包格子 → 存入（事件委托，兼容新增格子）
+    whGrid.addEventListener('click', e => { const t = e.target.closest('.bag-tile'); if (t) openPopup(t, 'withdraw'); });
+    bagGrid.addEventListener('click', e => { const t = e.target.closest('.bag-tile'); if (t) openPopup(t, 'deposit'); });
+
+    sheet.querySelectorAll('.wh-sort').forEach(b =>
+      b.addEventListener('click', () => sortGrid(b.dataset.sort === 'warehouse' ? whGrid : bagGrid)));
+
+    popup.querySelectorAll('.qty-step').forEach(b =>
+      b.addEventListener('click', () => setQty(parseInt(elInput.value, 10) + parseInt(b.dataset.step, 10))));
+    popup.querySelectorAll('.qty-quick button').forEach(b =>
+      b.addEventListener('click', () => setQty(b.dataset.set === 'max' ? maxQ : parseInt(b.dataset.set, 10))));
+    elInput.addEventListener('blur', () => setQty(parseInt(elInput.value, 10)));
+
+    document.getElementById('whCancel').addEventListener('click', closePopup);
+    popup.addEventListener('click', e => { if (e.target === popup) closePopup(); });
+    elConfirm.addEventListener('click', doTransfer);
+
+    trigger.addEventListener('click', () => { sheet.classList.add('open'); updateCounts(); });
+    sheet.querySelector('[data-close]').addEventListener('click', () => sheet.classList.remove('open'));
+    sheet.addEventListener('click', e => { if (e.target === sheet) sheet.classList.remove('open'); });
+
+    updateCounts();
+  })();
+
+  // 刀剑笑 · 强化/合成工作台：从背包拖拽放入槽位
+  (function() {
+    const phone = document.querySelector('.phone-frame');
+    let toastEl;
+    function toast(msg) {
+      if (!toastEl) { toastEl = document.createElement('div'); toastEl.className = 'craft-toast'; phone.appendChild(toastEl); }
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 1500);
+    }
+    const fmt = n => n.toLocaleString('en-US');
+    const ENH_RATE = { 1: 90, 2: 80, 3: 60, 4: 40, 5: 20, 6: 10, 7: 5, 8: 1, 9: 0.1, 10: 0.01 };
+    const SYN_RATE = [90, 50, 20, 5];               // 按已占孔位数
+    const CAT_NAME = { vajra: '金刚石', cold_jade: '寒玉石', hot_blood: '热血石' };
+
+    function reject(el) { el.classList.add('reject'); setTimeout(() => el.classList.remove('reject'), 320); }
+
+    // 通用拖拽：从 .bag-tile 拖出浮层，pointerup 命中槽位回调
+    function enableDrag(sheet, onDrop) {
+      const zoneSel = '[data-zone], .synth-slot.empty';
+      let ghost = null, dragging = false;
+      sheet.addEventListener('pointerdown', e => {
+        const tile = e.target.closest('.bag-tile');
+        if (!tile || tile.classList.contains('used')) return;
+        dragging = true;
+        ghost = document.createElement('div');
+        ghost.className = 'drag-ghost';
+        ghost.innerHTML = '<div class="bt-icon">' + (tile.dataset.icon || '') + '</div><div class="bt-name">' + (tile.dataset.name || '') + '</div>';
+        ghost._tile = tile;
+        document.body.appendChild(ghost);
+        moveGhost(e);
+        tile.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      });
+      sheet.addEventListener('pointermove', e => {
+        if (!dragging) return;
+        moveGhost(e);
+        const z = zoneUnder(e);
+        sheet.querySelectorAll('.dragover').forEach(x => x.classList.remove('dragover'));
+        if (z) z.classList.add('dragover');
+      });
+      sheet.addEventListener('pointerup', e => {
+        if (!dragging) return;
+        dragging = false;
+        const z = zoneUnder(e);
+        sheet.querySelectorAll('.dragover').forEach(x => x.classList.remove('dragover'));
+        const tile = ghost._tile;
+        ghost.remove(); ghost = null;
+        if (z) onDrop(tile, z);
+      });
+      function moveGhost(e) { ghost.style.left = e.clientX + 'px'; ghost.style.top = e.clientY + 'px'; }
+      function zoneUnder(e) {
+        ghost.style.display = 'none';
+        const el = document.elementFromPoint(e.clientX, e.clientY);
+        ghost.style.display = '';
+        return el ? el.closest(zoneSel) : null;
+      }
+    }
+
+    // ===== 强化 =====
+    (function setupEnhance() {
+      const sheet = document.getElementById('djxEnhance');
+      if (!sheet) return;
+      const equipZone = sheet.querySelector('[data-zone="equip"]');
+      const stoneZone = sheet.querySelector('[data-zone="enh-stone"]');
+      const result = sheet.querySelector('.craft-result');
+      const warn = sheet.querySelector('.craft-warn');
+      const confirmBtn = sheet.querySelector('.craft-confirm');
+      const resetBtn = sheet.querySelector('[data-reset]');
+      const st = { equip: null, need: 0, placed: 0, rate: 0 };
+
+      function emptyStoneZone() {
+        stoneZone.classList.remove('filled');
+        stoneZone.innerHTML = '<div class="dz-plus">＋</div><div class="dz-hint">拖入<br>强化石</div>';
+      }
+      function resetAll() {
+        st.equip = null; st.need = 0; st.placed = 0;
+        equipZone.classList.remove('filled');
+        equipZone.innerHTML = '<div class="dz-plus">＋</div><div class="dz-hint">拖入装备</div>';
+        emptyStoneZone();
+        result.classList.add('hidden'); result.innerHTML = '';
+        warn.classList.add('hidden');
+        confirmBtn.disabled = true; confirmBtn.textContent = '强化';
+        resetBtn.classList.add('hidden');
+        sheet.querySelectorAll('.bag-tile.used').forEach(t => t.classList.remove('used'));
+      }
+      resetBtn.addEventListener('click', resetAll);
+      // 返回 / 关闭 / 点遮罩 → 清空槽、返还物品（呼应 GDD 8.2 close_dialog 清空交互态）
+      sheet.querySelector('[data-back]').addEventListener('click', resetAll);
+      sheet.querySelector('[data-close]').addEventListener('click', resetAll);
+      sheet.addEventListener('click', e => { if (e.target === sheet) resetAll(); });
+
+      function updateConfirm() {
+        const ok = st.equip && st.need > 0 && st.placed >= st.need;
+        confirmBtn.disabled = !ok;
+        confirmBtn.textContent = '强化';
+      }
+      function placeEquip(tile) {
+        sheet.querySelectorAll('.bag-tile.used').forEach(t => t.classList.remove('used'));
+        st.placed = 0; emptyStoneZone();
+        const d = tile.dataset, enh = +d.enh, target = enh + 1, stones = +d.stones;
+        st.equip = d;
+        equipZone.classList.add('filled');
+        equipZone.innerHTML = '<div class="dz-icon">' + d.icon + '</div><div class="dz-name">' + d.name + '</div><div class="dz-tag">+' + enh + '</div>';
+        tile.classList.add('used');
+        resetBtn.classList.remove('hidden');
+        if (target > 10) {
+          st.need = 0;
+          result.classList.add('hidden'); result.innerHTML = '';
+          warn.classList.add('hidden');
+          confirmBtn.disabled = true; confirmBtn.textContent = '已满级';
+          toast('该装备已 +10 满级'); return;
+        }
+        st.need = stones === 0 ? 1 : (stones <= 3 ? 2 : 3);
+        st.rate = ENH_RATE[target];
+        const gold = (+d.reqlv) * 1000;
+        result.classList.remove('hidden');
+        result.innerHTML = '<div class="cr-row"><span class="l">消耗金币</span><span class="v cost">🪙 ' + fmt(gold) + '</span></div>';
+        warn.classList.remove('hidden');
+        updateConfirm();
+        toast('放入强化石继续');
+      }
+      function placeStone(tile) {
+        st.placed = st.need;
+        stoneZone.classList.add('filled');
+        stoneZone.innerHTML = '<div class="dz-icon">🪨</div><div class="dz-count">' + st.placed + '/' + st.need + '</div><div class="dz-count-label">强化石</div>';
+        tile.classList.add('used');
+        updateConfirm();
+      }
+      confirmBtn.addEventListener('click', () => {
+        if (confirmBtn.disabled) return;
+        toast('强化中…（演示，不结算）');
+      });
+      enableDrag(sheet, (tile, zone) => {
+        const z = zone.dataset.zone;
+        if (z === 'equip') {
+          if (tile.dataset.kind !== 'equip') return reject(zone);
+          placeEquip(tile);
+        } else if (z === 'enh-stone') {
+          if (tile.dataset.kind !== 'enh-stone') return reject(zone);
+          if (!st.equip) { toast('请先拖入装备'); return reject(zone); }
+          if (st.need === 0) return reject(zone);
+          placeStone(tile);
+        }
+      });
+    })();
+
+    // ===== 合成 =====
+    (function setupSynth() {
+      const sheet = document.getElementById('djxSynth');
+      if (!sheet) return;
+      const equipZone = sheet.querySelector('[data-zone="equip"]');
+      const grid = sheet.querySelector('.slot-grid');
+      const hint = sheet.querySelector('.synth-hint');
+      const result = sheet.querySelector('.craft-result');
+      const confirmBtn = sheet.querySelector('.craft-confirm');
+      const resetBtn = sheet.querySelector('[data-reset]');
+      const st = { equip: null, cap: 0, occupied: 0, stagedTile: null, rate: 0 };
+
+      grid.addEventListener('click', e => {
+        const s = e.target.closest('.synth-slot.empty');
+        if (s) selectSlot(+s.dataset.idx);
+      });
+      function selectSlot(i) {
+        grid.querySelectorAll('.synth-slot.empty').forEach(s => s.classList.toggle('selected', +s.dataset.idx === i));
+      }
+      function resetAll() {
+        st.equip = null; st.cap = 0; st.occupied = 0; st.stagedTile = null;
+        equipZone.classList.remove('filled');
+        equipZone.innerHTML = '<div class="dz-plus">＋</div><div class="dz-hint">拖入装备</div>';
+        grid.classList.add('hidden'); grid.innerHTML = '';
+        hint.classList.add('hidden'); hint.innerHTML = '';
+        result.classList.add('hidden'); result.innerHTML = '';
+        confirmBtn.disabled = true; confirmBtn.textContent = '镶嵌';
+        resetBtn.classList.add('hidden');
+        sheet.querySelectorAll('.bag-tile.used').forEach(t => t.classList.remove('used'));
+      }
+      resetBtn.addEventListener('click', resetAll);
+      sheet.querySelector('[data-back]').addEventListener('click', resetAll);
+      sheet.querySelector('[data-close]').addEventListener('click', resetAll);
+      sheet.addEventListener('click', e => { if (e.target === sheet) resetAll(); });
+
+      function renderGrid() {
+        grid.innerHTML = '';
+        const filled = (st.equip.filled || '').split('|').filter(Boolean);
+        for (let i = 0; i < st.cap; i++) {
+          const slot = document.createElement('div');
+          if (i < st.occupied) {
+            slot.className = 'synth-slot filled';
+            slot.innerHTML = '💠<span class="slot-val">' + (filled[i] || '') + '</span>';
+          } else {
+            slot.className = 'synth-slot empty';
+            slot.dataset.idx = i;
+            slot.textContent = '＋';
+          }
+          grid.appendChild(slot);
+        }
+        grid.classList.remove('hidden');
+      }
+      function showResult() {
+        const gold = (+st.equip.reqlv) * 1000;
+        st.rate = SYN_RATE[st.occupied] != null ? SYN_RATE[st.occupied] : 0;
+        result.classList.remove('hidden');
+        result.innerHTML = '<div class="cr-row"><span class="l">合成费用</span><span class="v cost">🪙 ' + fmt(gold) + '</span></div>';
+      }
+      function placeEquip(tile) {
+        sheet.querySelectorAll('.bag-tile.used').forEach(t => t.classList.remove('used'));
+        const d = tile.dataset;
+        st.equip = d; st.cap = +d.cap; st.occupied = +d.occupied; st.stagedTile = null;
+        equipZone.classList.add('filled');
+        equipZone.innerHTML = '<div class="dz-icon">' + d.icon + '</div><div class="dz-name">' + d.name + '</div><div class="dz-tag">' + st.occupied + '/' + st.cap + '孔</div>';
+        tile.classList.add('used');
+        resetBtn.classList.remove('hidden');
+        renderGrid();
+        hint.classList.remove('hidden');
+        hint.innerHTML = '该装备孔位仅可镶 <b>' + CAT_NAME[d.stonecat] + '</b>　从下方拖石头到空孔';
+        if (st.occupied >= st.cap) {
+          result.classList.add('hidden'); result.innerHTML = '';
+          confirmBtn.disabled = true; confirmBtn.textContent = '已满';
+          toast('该装备孔位已满'); return;
+        }
+        selectSlot(st.occupied);
+        showResult();
+        confirmBtn.disabled = true; confirmBtn.textContent = '镶嵌';
+        toast('拖一颗 ' + CAT_NAME[d.stonecat] + ' 到空孔');
+      }
+      function placeStone(tile) {
+        const d = tile.dataset;
+        if (d.cat !== st.equip.stonecat) {
+          toast('石头类型不符，需 ' + CAT_NAME[st.equip.stonecat]);
+          const t = grid.querySelector('.synth-slot.empty'); if (t) reject(t); return;
+        }
+        if (st.stagedTile && st.stagedTile !== tile) st.stagedTile.classList.remove('used');
+        const slot = grid.querySelector('.synth-slot[data-idx="' + st.occupied + '"]');
+        slot.classList.remove('empty', 'selected'); slot.classList.add('filled');
+        slot.innerHTML = '💠<span class="slot-val">' + d.attr + '</span>';
+        tile.classList.add('used');
+        st.stagedTile = tile;
+        showResult();
+        confirmBtn.disabled = false; confirmBtn.textContent = '镶嵌';
+        toast('已就位，点「镶嵌」确认');
+      }
+      confirmBtn.addEventListener('click', () => {
+        if (confirmBtn.disabled) return;
+        toast('合成中…（演示，不结算）');
+      });
+      enableDrag(sheet, (tile, zone) => {
+        if (zone.matches('[data-zone="equip"]')) {
+          if (tile.dataset.kind !== 'equip') return reject(zone);
+          placeEquip(tile);
+        } else if (zone.classList.contains('synth-slot')) {
+          if (tile.dataset.kind !== 'stone') return reject(zone);
+          if (!st.equip) { toast('请先拖入装备'); return reject(zone); }
+          placeStone(tile);
+        }
+      });
+    })();
+  })();
+</script>
+
+</body>
+</html>
