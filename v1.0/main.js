@@ -71,10 +71,26 @@ const buffsData = (await buffsRes.json()).buffs;
 const martialArtsData = (await martialArtsRes.json()).martial_arts;
 const globalSaveInit = await globalSaveInitRes.json();
 
+const stoneKeys = Object.values(stonesData)
+  .flatMap(group => Array.isArray(group) ? group : [])
+  .map(stone => stone.key);
+const potionKeys = npcsData
+  .filter(npc => npc.shop_type === 'potion')
+  .flatMap(npc => npc.items || [])
+  .map(item => item.item_key);
+const boxKeys = [...new Set(Object.values(monsterDropBoxData?.box_type_by_map || {}))];
+
 // 初始化系统模板
 TaskSystem.setTemplates(questsData.quest_templates);
 BuffSystem.setTemplates(buffsData);
 QigongSystem.setTemplates(qigongsData);
+InventorySystem.setItemClassMap({
+  equipmentKeys: equipmentsData.map(item => item.key),
+  stoneKeys,
+  consumableKeys: potionKeys,
+  boxKeys,
+  questItemKeys: Object.keys(questsData.quest_items || {}),
+});
 
 // 暴露全局配置供 UI/GMM 使用
 window.expToNext = config.exp_to_next_level;
@@ -435,8 +451,14 @@ async function initGameForPlayer(player, slotIndex) {
   eventBus.on('quest.completed', (data) => console.log(`[事件] quest.completed: ${data.questKey}`));
   eventBus.on('quest.stage_advance', (data) => console.log(`[事件] quest.stage_advance: ${data.questKey} 进入第 ${data.stage} 阶段`));
   eventBus.on('player.career_transfer', (data) => console.log(`[事件] player.career_transfer: ${data.from_career}→${data.to_career}`));
-  eventBus.on('buff.applied', (data) => console.log(`[事件] buff.applied: ${data.name}`));
-  eventBus.on('buff.expired', (data) => console.log(`[事件] buff.expired: ${data.buffKey}`));
+  eventBus.on('buff.applied', (data) => {
+    attrSys.recompute(player);
+    console.log(`[事件] buff.applied: ${data.name}`);
+  });
+  eventBus.on('buff.expired', (data) => {
+    attrSys.recompute(player);
+    console.log(`[事件] buff.expired: ${data.buffKey}`);
+  });
   eventBus.on('autoplay.start', () => console.log('[系统] 开始挂机'));
   eventBus.on('autoplay.stop', (d) => console.log(`[系统] 停止挂机: ${d.reason}`));
 

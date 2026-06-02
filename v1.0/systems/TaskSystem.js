@@ -25,15 +25,8 @@ export const TaskSystem = {
       .map(entry => this._questTemplates.find(q => q.key === entry.key))
       .filter(t => {
         if (!t) return false;
-        // 已完成
-        if (completed.includes(t.key)) return false;
-        // 转职次数过滤
-        if (t.required_transfer > transferCount) return false;
-        // 等级过滤
-        if (player.level < t.prerequisite.level) return false;
-        // faction 过滤
-        if (t.faction && t.faction !== player.faction && player.faction !== 'neutral') return false;
-        return true;
+        if (accepted.find(q => q.key === t.key)) return false;
+        return this._canAcceptQuest(player, t, { completed, transferCount }).success;
       });
   },
 
@@ -44,12 +37,16 @@ export const TaskSystem = {
    * @returns {{ success: boolean, message: string }}
    */
   acceptQuest(player, questTemplate) {
-    const accepted = player.quests?.accepted || [];
+    if (!player.quests) player.quests = { accepted: [], completed: [] };
+    const accepted = player.quests.accepted || [];
 
     // 不可重复接取
     if (accepted.find(q => q.key === questTemplate.key)) {
       return { success: false, message: '任务已接取' };
     }
+
+    const check = this._canAcceptQuest(player, questTemplate);
+    if (!check.success) return check;
 
     // faction 设定（接取时立即生效）
     if (questTemplate.faction) {
@@ -72,7 +69,6 @@ export const TaskSystem = {
       accepted_at: Date.now()
     };
 
-    if (!player.quests) player.quests = { accepted: [], completed: [] };
     player.quests.accepted.push(instance);
 
     console.log(`[任务] 接取: ${questTemplate.name}`);
@@ -103,21 +99,24 @@ export const TaskSystem = {
       });
 
       if (allCollected) {
-        quest.completed_stages.push(quest.current_stage);
+        const alreadyCompleted = quest.completed_stages.includes(quest.current_stage);
+        if (!alreadyCompleted) {
+          quest.completed_stages.push(quest.current_stage);
+        }
         const nextStage = quest.current_stage + 1;
         const hasNext = quest.objectives.some(s => s.stage === nextStage);
 
-        if (hasNext) {
+        if (hasNext && !alreadyCompleted) {
           quest.current_stage = nextStage;
           quest.stage_advance_notified = false;
           console.log(`[任务] ${quest.name} 进入第 ${nextStage} 阶段`);
           eventBus.emit('quest.stage_advance', { questKey: quest.key, stage: nextStage });
-        } else {
+        } else if (!alreadyCompleted) {
           // 全部 stage 完成，可提交
           console.log(`[任务] ${quest.name} 已完成所有阶段，可提交`);
           eventBus.emit('quest.all_stages_complete', { questKey: quest.key });
         }
-        advanced = true;
+        advanced = advanced || !alreadyCompleted;
       }
     }
     return advanced;
@@ -219,6 +218,25 @@ export const TaskSystem = {
     const career = player.career || '';
     const match = career.match(/_transfer_(\d+)st/);
     return match ? parseInt(match[1]) : 0;
+  },
+
+  _canAcceptQuest(player, questTemplate, precomputed = {}) {
+    const completed = precomputed.completed || player.quests?.completed || [];
+    const transferCount = precomputed.transferCount ?? this._getTransferCount(player);
+
+    if (completed.includes(questTemplate.key)) {
+      return { success: false, message: '任务已完成' };
+    }
+    if (questTemplate.required_transfer > transferCount) {
+      return { success: false, message: '转职次数不足' };
+    }
+    if (player.level < questTemplate.prerequisite.level) {
+      return { success: false, message: `等级不足，需要 Lv${questTemplate.prerequisite.level}` };
+    }
+    if (questTemplate.faction && questTemplate.faction !== player.faction && player.faction !== 'neutral') {
+      return { success: false, message: '派系不符合' };
+    }
+    return { success: true, message: '可接取' };
   },
 
   /** 设置 quest_templates 引用（main.js 加载后注入） */

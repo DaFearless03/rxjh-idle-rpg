@@ -222,8 +222,9 @@ export class BattleSystem {
           },
           (p) => this._attrSys.recompute(p)
         );
-        eventBus.emit('player.level_up', { from_level: fromLevel, to_level: toLevel, gained_points: 1 });
-        this._pushEvent(`[升级] Lv${fromLevel} → Lv${toLevel}，HP/MP 回满，气功点 +1`);
+        const gainedPoints = this._config.attribute_points.gain_per_level[toLevel] ?? 1;
+        eventBus.emit('player.level_up', { from_level: fromLevel, to_level: toLevel, gained_points: gainedPoints });
+        this._pushEvent(`[升级] Lv${fromLevel} → Lv${toLevel}，HP/MP 回满，气功点 +${gainedPoints}`);
       }
     );
 

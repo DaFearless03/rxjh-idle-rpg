@@ -16,7 +16,7 @@ export const WarehouseSystem = {
    * @returns {{ success: boolean, deposited: number }}
    */
   deposit(player, itemKey, count) {
-    const itemClass = this._getItemClass(itemKey);
+    const itemClass = this._getItemClass(itemKey, player);
     if (this.FORBIDDEN_TYPES.includes(itemClass)) {
       return { success: false, deposited: 0 };
     }
@@ -57,18 +57,7 @@ export const WarehouseSystem = {
     return { success: result.success, withdrawn: count - result.discarded };
   },
 
-  _getItemClass(itemKey) {
-    const equipKeys = [
-      'blade_base_001', 'blade_base_002', 'blade_t1_001',
-      'blade_chest_base_001', 'blade_chest_base_002',
-      'gloves_base_001', 'boots_base_001', 'inner_armor_base_001',
-      'amulet_base_001', 'ring_base_001', 'earring_base_001', 'cape_base_001'
-    ];
-    if (equipKeys.includes(itemKey)) return 'equipment';
-    const stoneKeys = ['cold_jade_01', 'vajra_01', 'enhance_stone_01', 'hot_blood_01'];
-    if (stoneKeys.includes(itemKey)) return 'stones';
-    const boxKeys = ['box_xuanbo_01'];
-    if (boxKeys.includes(itemKey)) return 'boxes';
-    return 'quest_items';
+  _getItemClass(itemKey, player) {
+    return InventorySystem._getItemClass(itemKey, player);
   }
 };

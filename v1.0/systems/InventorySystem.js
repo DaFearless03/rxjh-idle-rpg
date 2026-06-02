@@ -4,6 +4,33 @@
  * @ref 11_inventory.md InventorySystem 标准函数
  */
 export const InventorySystem = {
+  _itemClasses: {
+    equipment: new Set(),
+    stones: new Set(),
+    consumables: new Set(),
+    boxes: new Set(),
+    quest_items: new Set(),
+  },
+
+  /**
+   * 注册数据驱动的物品分类，避免新增配置后仍走硬编码 fallback。
+   */
+  setItemClassMap({
+    equipmentKeys = [],
+    stoneKeys = [],
+    consumableKeys = [],
+    boxKeys = [],
+    questItemKeys = [],
+  } = {}) {
+    this._itemClasses = {
+      equipment: new Set(equipmentKeys),
+      stones: new Set(stoneKeys),
+      consumables: new Set(consumableKeys),
+      boxes: new Set(boxKeys),
+      quest_items: new Set(questItemKeys),
+    };
+  },
+
   /**
    * 返回背包中该物品总数（仅 inventory，不查 warehouse）
    * 装备实例按 instance_id 单件存储，不参与堆叠 count
@@ -181,21 +208,9 @@ export const InventorySystem = {
    * @returns {number}
    */
   _getMaxStack(itemKey, player) {
-    // equip instances: max_stack=1
-    if (player.inventory?.equipment_instances) {
-      for (const inst of Object.values(player.inventory.equipment_instances)) {
-        if (inst.item_key === itemKey) return 1;
-      }
-    }
-    // stones
-    const stoneKeys = ['cold_jade_01', 'vajra_01', 'enhance_stone_01', 'hot_blood_01'];
-    if (stoneKeys.includes(itemKey)) return 99;
-    // consumables
-    // boxes
-    const boxKeys = ['box_xuanbo_01'];
-    if (boxKeys.includes(itemKey)) return 999;
-    // quest_items
-    // 默认可堆叠 99
+    const itemClass = this._getItemClass(itemKey, player);
+    if (itemClass === 'equipment') return 1;
+    if (itemClass === 'boxes') return 999;
     return 99;
   },
 
@@ -206,18 +221,24 @@ export const InventorySystem = {
    * @returns {string}
    */
   _getItemClass(itemKey, player) {
-    const equipKeys = [
-      'blade_base_001', 'blade_base_002', 'blade_t1_001',
-      'blade_chest_base_001', 'blade_chest_base_002',
-      'gloves_base_001', 'boots_base_001', 'inner_armor_base_001',
-      'amulet_base_001', 'ring_base_001', 'earring_base_001', 'cape_base_001'
-    ];
-    if (equipKeys.includes(itemKey)) return 'equipment';
-    const stoneKeys = ['cold_jade_01', 'vajra_01', 'enhance_stone_01', 'hot_blood_01'];
-    if (stoneKeys.includes(itemKey)) return 'stones';
-    const boxKeys = ['box_xuanbo_01'];
-    if (boxKeys.includes(itemKey)) return 'boxes';
-    // 任务物品通过怪物 drop_items 判断
-    return 'quest_items';
+    for (const [itemClass, keys] of Object.entries(this._itemClasses)) {
+      if (keys.has(itemKey)) return itemClass;
+    }
+
+    // Fallbacks cover old saves or test keys before templates are registered.
+    if (itemKey.startsWith('box_')) return 'boxes';
+    if (
+      itemKey.startsWith('cold_jade') ||
+      itemKey.startsWith('vajra') ||
+      itemKey.startsWith('enhance_stone') ||
+      itemKey.startsWith('hot_blood')
+    ) return 'stones';
+    if (itemKey.includes('_potion_')) return 'consumables';
+    if (player.inventory?.equipment_instances) {
+      for (const inst of Object.values(player.inventory.equipment_instances)) {
+        if (inst.item_key === itemKey) return 'equipment';
+      }
+    }
+    return 'unknown';
   }
 };

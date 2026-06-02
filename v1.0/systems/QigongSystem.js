@@ -40,9 +40,8 @@ export const QigongSystem = {
    * 获取玩家可用气功点（累计 - 已投）
    */
   getAvailablePoints(player) {
-    const total = this.calcMaxPoints(player);
-    const invested = Object.values(player.qigong?.invested || {}).reduce((s, v) => s + v, 0);
-    return total - invested;
+    this._ensureQigongState(player);
+    return player.qigong.available_points;
   },
 
   /**
@@ -85,10 +84,7 @@ export const QigongSystem = {
    * @returns {{ success: boolean, message: string }}
    */
   investQigong(player, qigongKey, points) {
-    if (!player.qigong) {
-      player.qigong = { invested: {}, attribute_reset_count: 0 };
-    }
-    if (!player.qigong.invested) player.qigong.invested = {};
+    this._ensureQigongState(player);
 
     const qigong = this._qigongTemplates.find(q => q.key === qigongKey);
     if (!qigong) return { success: false, message: `气功 ${qigongKey} 不存在` };
@@ -101,6 +97,7 @@ export const QigongSystem = {
     }
 
     player.qigong.invested[qigongKey] = current + canAdd;
+    player.qigong.available_points -= canAdd;
     console.log(`[气功] 投入 ${canAdd} 点到 ${qigong.name}（共 ${player.qigong.invested[qigongKey]} 点）`);
 
     eventBus.emit('qigong.invested', { qigongKey, points: canAdd });
@@ -113,6 +110,7 @@ export const QigongSystem = {
    * @returns {{ success: boolean, message: string }}
    */
   resetQigong(player) {
+    this._ensureQigongState(player);
     const count = player.qigong?.attribute_reset_count || 0;
     const cost = Math.floor(10000 * Math.pow(10, count));
 
@@ -123,14 +121,8 @@ export const QigongSystem = {
     const refunded = Object.values(player.qigong?.invested || {}).reduce((s, v) => s + v, 0);
     player.resources.gold -= cost;
     player.qigong.invested = {};
+    player.qigong.available_points += refunded;
     player.qigong.attribute_reset_count = (player.qigong.attribute_reset_count || 0) + 1;
-
-    const newAvailable = this.getAvailablePoints(player) + refunded;
-    // 返还点数
-    const total = this.calcMaxPoints(player);
-    // 重置后 available = total（因为 invested 全空）
-    // 但我们直接增加 refunded 到 available_points
-    player.qigong._available = newAvailable;
 
     console.log(`[气功] 重置完成，返还 ${refunded} 点，花费 ${cost} 金币`);
     return { success: true, message: `重置成功，返还 ${refunded} 点` };
@@ -225,5 +217,16 @@ export const QigongSystem = {
       }
     }
     return Math.min(level, qigong.max_level);
+  },
+
+  _ensureQigongState(player) {
+    player.qigong = player.qigong || {};
+    player.qigong.invested = player.qigong.invested || {};
+    player.qigong.attribute_reset_count = player.qigong.attribute_reset_count || 0;
+
+    if (typeof player.qigong.available_points !== 'number') {
+      const invested = Object.values(player.qigong.invested).reduce((s, v) => s + v, 0);
+      player.qigong.available_points = Math.max(0, this.calcMaxPoints(player) - invested);
+    }
   }
 };
