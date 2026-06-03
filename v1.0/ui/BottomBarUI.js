@@ -7,6 +7,8 @@ import { ShopSystem } from '../systems/ShopSystem.js';
 import { InventorySystem } from '../systems/InventorySystem.js';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js';
+import { mountInventoryPanel } from './InventoryUI.js';
+import { mountWarehouseGrids, syncWarehouseTilesToPlayer } from './WarehouseUI.js';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -512,30 +514,7 @@ function _whMakeTile(d) {
 function _renderWarehouse() {
   const p = window.game?.player;
   if (!p) return;
-
-  const whGrid = document.getElementById('whWarehouseGrid');
-  const bagGrid = document.getElementById('whBagGrid');
-  const whCountEl = document.getElementById('whWarehouseCount');
-  const bagCountEl = document.getElementById('whBagCount');
-  const goldEl = document.getElementById('whPlayerGold');
-
-  if (goldEl) goldEl.textContent = (p.gold || 0).toLocaleString();
-
-   // Render warehouse
-  const whSlots = p.warehouse?.slots || [];
-  if (whSlots.length > 0) {
-    whGrid.innerHTML = '';
-    whSlots.forEach(d => whGrid.appendChild(_whMakeTile(d)));
-  }
-  whCountEl.textContent = whSlots.length + ' / ' + WH_CAPACITY;
-
-  // Render bag
-  const bagSlots = p.inventory?.slots || [];
-  if (bagSlots.length > 0) {
-    bagGrid.innerHTML = '';
-    bagSlots.forEach(d => bagGrid.appendChild(_whMakeTile(d)));
-  }
-  bagCountEl.textContent = bagSlots.length + ' / ' + WH_CAPACITY;
+  mountWarehouseGrids(p);
 }
 
 // Warehouse popup state
@@ -565,8 +544,7 @@ function _whOpenPopup(tile, mode) {
 
   _whMaxQ = parseInt(tile.dataset.count, 10);
 
-  const dstUsed = [..._whDstGrid.querySelectorAll('.bag-tile')].length;
-  const srcUsed = [..._whSrcGrid.querySelectorAll('.bag-tile')].length;
+  const dstUsed = [..._whDstGrid.querySelectorAll('.bag-tile:not(.empty)')].length;
 
   document.getElementById('whIcon').textContent = tile.dataset.icon;
   document.getElementById('whName').textContent = _whName;
@@ -587,8 +565,8 @@ function _whDoTransfer() {
   const dstGrid = _whDstGrid;
 
   // Find existing tile in destination
-  const destTile = [...dstGrid.querySelectorAll('.bag-tile')].find(t => t.dataset.key === key);
-  const dstUsed = [...dstGrid.querySelectorAll('.bag-tile')].length;
+  const destTile = [...dstGrid.querySelectorAll('.bag-tile:not(.empty)')].find(t => t.dataset.key === key);
+  const dstUsed = [...dstGrid.querySelectorAll('.bag-tile:not(.empty)')].length;
 
   if (!destTile && dstUsed >= WH_CAPACITY) {
     window._showToast(_whMode === 'deposit' ? '仓库已满，无法存入' : '背包已满，无法取出');
@@ -607,20 +585,26 @@ function _whDoTransfer() {
     t.dataset.count = q;
     if (_whTile.dataset.quest) t.dataset.quest = '1';
     _whRenderTile(t);
-    dstGrid.appendChild(t);
+    const empty = dstGrid.querySelector('.bag-tile.empty');
+    if (empty) empty.replaceWith(t);
+    else dstGrid.appendChild(t);
   }
 
   const left = parseInt(_whTile.dataset.count, 10) - q;
   if (left <= 0) {
+    const srcGrid = _whSrcGrid;
     _whTile.remove();
+    const empty = document.createElement('div');
+    empty.className = 'bag-tile empty';
+    srcGrid.appendChild(empty);
   } else {
     _whTile.dataset.count = left;
     _whRenderTile(_whTile);
   }
 
   // Update counts
-  const whSlots = [...document.getElementById('whWarehouseGrid').querySelectorAll('.bag-tile')].length;
-  const bagSlots = [...document.getElementById('whBagGrid').querySelectorAll('.bag-tile')].length;
+  const whSlots = [...document.getElementById('whWarehouseGrid').querySelectorAll('.bag-tile:not(.empty)')].length;
+  const bagSlots = [...document.getElementById('whBagGrid').querySelectorAll('.bag-tile:not(.empty)')].length;
   document.getElementById('whWarehouseCount').textContent = whSlots + ' / ' + WH_CAPACITY;
   document.getElementById('whBagCount').textContent = bagSlots + ' / ' + WH_CAPACITY;
 
@@ -635,42 +619,40 @@ function _whDoTransfer() {
 function _syncWarehouseToPlayer() {
   const p = window.game?.player;
   if (!p) return;
-  const tiles = [...document.getElementById('whWarehouseGrid').querySelectorAll('.bag-tile')];
-  p.warehouse = p.warehouse || { slots: [] };
-  p.warehouse.slots = tiles.map(t => ({
-    key: t.dataset.key,
-    icon: t.dataset.icon,
-    name: t.dataset.name,
-    count: parseInt(t.dataset.count, 10),
-    quest: t.dataset.quest || null,
-  }));
+  syncWarehouseTilesToPlayer(p);
 }
 
 function _syncBagToPlayer(key, count, mode) {
   const p = window.game?.player;
   if (!p) return;
   p.inventory = p.inventory || { slots: [] };
-  const existing = p.inventory.slots.find(s => s.key === key);
+  const existing = p.inventory.slots.find(s => (s.item_key || s.key) === key);
   if (mode === 'withdraw') {
     if (existing) {
       existing.count += count;
     } else {
-      p.inventory.slots.push({ key, count });
+      p.inventory.slots.push({ item_key: key, key, count });
     }
   } else {
     if (existing) {
       existing.count -= count;
       if (existing.count <= 0) {
-        p.inventory.slots = p.inventory.slots.filter(s => s.key !== key);
+        p.inventory.slots = p.inventory.slots.filter(s => (s.item_key || s.key) !== key);
       }
     }
   }
 }
 
 function _whSortGrid(grid) {
-  const tiles = [...grid.querySelectorAll('.bag-tile')];
+  const tiles = [...grid.querySelectorAll('.bag-tile:not(.empty)')];
   tiles.sort((a, b) => a.dataset.key.localeCompare(b.dataset.key));
+  grid.innerHTML = '';
   tiles.forEach(t => grid.appendChild(t));
+  while (grid.querySelectorAll('.bag-tile').length < WH_CAPACITY) {
+    const empty = document.createElement('div');
+    empty.className = 'bag-tile empty';
+    grid.appendChild(empty);
+  }
 }
 
 // Setup warehouse popup events (called once)
@@ -707,12 +689,12 @@ function _setupWarehousePopup() {
 
   // Delegate clicks on warehouse/bag grids
   whWarehouseGrid.addEventListener('click', e => {
-    const t = e.target.closest('.bag-tile');
+    const t = e.target.closest('.bag-tile:not(.empty)');
     if (t) _whOpenPopup(t, 'withdraw');
   });
 
   whBagGrid.addEventListener('click', e => {
-    const t = e.target.closest('.bag-tile');
+    const t = e.target.closest('.bag-tile:not(.empty)');
     if (t) _whOpenPopup(t, 'deposit');
   });
 
@@ -831,111 +813,7 @@ function renderInventoryPanel(player) {
   if (!el) return;
   const p = player || window.game?.player;
   if (!p) return;
-  const slots = p.inventory?.slots || [];
-  const capacity = p.inventory?.capacity || 50;
-  const used = slots.filter(s => s.count > 0).length;
-  el.innerHTML = `
-    <div class="char-equipment">
-      <div class="equipment-title">📦 人物装备</div>
-      <div class="equipment-layout">
-        <div class="equipment-left">
-          <div class="equip-slot-big">
-            <div class="equip-slot-inner">
-              <div class="slot-placeholder">⚔️</div>
-              <div class="slot-label">武器</div>
-            </div>
-          </div>
-          <div class="equip-slot-big">
-            <div class="equip-slot-inner">
-              <div class="slot-placeholder">🛡️</div>
-              <div class="slot-label">内甲</div>
-            </div>
-          </div>
-          <div class="equip-slot-big">
-            <div class="equip-slot-inner">
-              <div class="slot-placeholder">🧣</div>
-              <div class="slot-label">披风</div>
-            </div>
-          </div>
-        </div>
-        <div class="equipment-right">
-          <div class="equip-row">
-            <div class="equip-slot">
-              <div class="equip-slot-inner">
-                <div class="slot-placeholder">📿</div>
-                <div class="slot-label">耳环</div>
-              </div>
-            </div>
-            <div class="equip-slot">
-              <div class="equip-slot-inner">
-                <div class="slot-placeholder">📿</div>
-                <div class="slot-label">项链</div>
-              </div>
-            </div>
-            <div class="equip-slot">
-              <div class="equip-slot-inner">
-                <div class="slot-placeholder">📿</div>
-                <div class="slot-label">耳环</div>
-              </div>
-            </div>
-          </div>
-          <div class="equip-row">
-            <div class="equip-slot">
-              <div class="equip-slot-inner">
-                <div class="slot-placeholder">💍</div>
-                <div class="slot-label">戒指</div>
-              </div>
-            </div>
-            <div class="equip-slot">
-              <div class="equip-slot-inner">
-                <div class="slot-placeholder">👕</div>
-                <div class="slot-label">衣服</div>
-              </div>
-            </div>
-            <div class="equip-slot">
-              <div class="equip-slot-inner">
-                <div class="slot-placeholder">💍</div>
-                <div class="slot-label">戒指</div>
-              </div>
-            </div>
-          </div>
-          <div class="equip-row">
-            <div class="equip-slot">
-              <div class="equip-slot-inner">
-                <div class="slot-placeholder">🧤</div>
-                <div class="slot-label">护手</div>
-              </div>
-            </div>
-            <div class="equip-slot">
-              <div class="equip-slot-inner">
-                <div class="slot-placeholder">👟</div>
-                <div class="slot-label">鞋子</div>
-              </div>
-            </div>
-            <div class="equip-slot">
-              <div class="equip-slot-inner">
-                <div class="slot-placeholder">🪖</div>
-                <div class="slot-label">头盔</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="inventory-section">
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:13px;color:#888">行囊 (${used}/${capacity})</span>
-      </div>
-      <div class="item-grid">
-        ${slots.map((s, i) => s.count > 0 ? `
-          <div class="item-slot" title="${s.item_key}">
-            <span style="font-size:16px">📦</span>
-            <span class="item-count">${s.count}</span>
-          </div>` : `
-          <div class="item-slot empty-slot"></div>`).join('')}
-      </div>
-    </div>
-  `;
+  mountInventoryPanel(el, p);
 }
 
 function renderAutoplayPanel(player) {
