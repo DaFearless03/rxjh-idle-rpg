@@ -60,10 +60,10 @@ export class BattleSystem {
 
   /** 按权重抽一只怪物 */
   _pickRandomMonster() {
+    if (!this._currentSubZone) return null;
     const zoneMonsterKeys = this._currentSubZone?.monsters || [];
-    const candidates = zoneMonsterKeys.length > 0
-      ? this._monstersData.filter(m => zoneMonsterKeys.includes(m.key))
-      : this._monstersData;
+    if (zoneMonsterKeys.length === 0) return null;
+    const candidates = this._monstersData.filter(m => zoneMonsterKeys.includes(m.key));
     const normalMonsters = candidates.filter(m => m.monster_type === 'normal');
     if (normalMonsters.length === 0) return null;
     const idx = Math.floor(Math.random() * normalMonsters.length);
@@ -264,6 +264,14 @@ export class BattleSystem {
    * @param {number} deltaMs 实际上一次调用到现在经过的毫秒（近似 tickMs）
    */
   tick(deltaMs) {
+    if (!this._currentSubZone) {
+      this._clearCombatField();
+      if (this._buffSys) {
+        this._buffSys.tick(this._player, deltaMs);
+      }
+      return;
+    }
+
     // 初始刷怪
     if (!this._initialSpawned) {
       this._doInitialSpawn();
@@ -298,6 +306,16 @@ export class BattleSystem {
       this._statusTimer = 0;
       this._printStatus();
     }
+  }
+
+  _clearCombatField() {
+    if (this.monsters.length > 0) {
+      this.monsters = [];
+    }
+    this._mainTargetKey = null;
+    this._spawnTimerMs = 0;
+    this._playerAtkCd = 0;
+    this._initialSpawned = false;
   }
 
   _printStatus() {
