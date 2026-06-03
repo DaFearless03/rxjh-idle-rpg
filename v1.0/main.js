@@ -113,6 +113,8 @@ let creationFlow = null;
 let runtimeEventUnsubscribers = [];
 let lastLifecycleSaveAt = 0;
 let lifecycleSaveInFlight = null;
+let mainScreenUIBuilt = false;
+let mainScreenEventListenersBound = false;
 
 // 暴露全局接口供 gm.js 使用
 window.Game = { get currentPlayer() { return game?.player ?? null; } };
@@ -252,15 +254,36 @@ runStartupSequence({
 
 function buildMainScreen() {
   const root = document.getElementById('ui-root');
-  buildMainScreenUI(root);
+  if (!mainScreenUIBuilt) {
+    buildMainScreenUI(root);
+    mainScreenUIBuilt = true;
+  }
   window.UIManager = UIManager;
   window._uiManager = UIManager;
 
-  // 绑定顶部信息刷新
+  bindMainScreenEventListenersOnce();
+
+  // 城镇 NPC
+  const npcContainer = document.getElementById('npc-list-container');
+  if (npcContainer) refreshTownNPCs();
+
+  // 地图列表
+  const mapContainer = document.getElementById('map-list-container');
+  if (mapContainer) buildMapList(mapContainer, game?.player?.location?.current_sub_zone_key);
+
+  // 刷新 top bar
+  UIManager._refreshTopBar();
+  UIManager._refreshHomePage();
+}
+
+function bindMainScreenEventListenersOnce() {
+  if (mainScreenEventListenersBound) return;
+  mainScreenEventListenersBound = true;
+
+  // 这些监听跟页面骨架生命周期一致，避免切角色/重进流程时重复订阅。
   eventBus.on('player.level_up', () => UIManager._refreshTopBar());
   eventBus.on('player.death', () => UIManager._refreshTopBar());
 
-  // 绑定战斗日志
   eventBus.on('battle.player_hit', (d) => UIManager._addCombatLog('player_normal_attack_hit', d));
   eventBus.on('battle.player_miss', (d) => UIManager._addCombatLog('player_normal_attack_miss', d));
   eventBus.on('battle.monster_hit', (d) => UIManager._addCombatLog('monster_attack_hit', d));
@@ -276,8 +299,7 @@ function buildMainScreen() {
   eventBus.on('player.death', () => UIManager._addCombatLog('player_died', {}));
   eventBus.on('player.level_up', (d) => UIManager.addRewardLog('level_up', { from_level: d.from_level, to_level: d.to_level }));
 
-  // 传送事件
-  eventBus.on('teleport.done', ({ to, source }) => {
+  eventBus.on('teleport.done', ({ to }) => {
     if (to == null) {
       UIManager.openPanel('home');
     } else {
@@ -286,7 +308,6 @@ function buildMainScreen() {
     UIManager._refreshAll();
   });
 
-  // NPC 事件
   eventBus.on('npc.opened', (npcData) => {
     window._currentNpc = npcData;
     window._questTemplates = questsData.quest_templates;
@@ -294,18 +315,6 @@ function buildMainScreen() {
     window._equipTemplates = equipmentsData;
     showNPCDialog(npcData, game?.player, careersData, questsData.quest_templates);
   });
-
-  // 城镇 NPC
-  const npcContainer = document.getElementById('npc-list-container');
-  if (npcContainer) refreshTownNPCs();
-
-  // 地图列表
-  const mapContainer = document.getElementById('map-list-container');
-  if (mapContainer) buildMapList(mapContainer, game?.player?.location?.current_sub_zone_key);
-
-  // 刷新 top bar
-  UIManager._refreshTopBar();
-  UIManager._refreshHomePage();
 }
 
 function refreshMapList(currentSubZoneKey) {

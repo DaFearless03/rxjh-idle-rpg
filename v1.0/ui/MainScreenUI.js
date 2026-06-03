@@ -2,7 +2,8 @@
  * @file ui/MainScreenUI.js
  * @desc 主页面骨架（demo 风格）：phone-frame + top-bar + main-scroll + bottom-menu + 所有 panel
  */
-import { eventBus } from '../core/EventBus.js';
+
+let mainScreenKeydownBound = false;
 
 export function buildMainScreenUI(container) {
   container.innerHTML = `
@@ -544,33 +545,38 @@ export function buildMainScreenUI(container) {
     </div><!-- end phone-frame -->
   `;
 
-  // ESC 关闭 sheet
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      // 优先关闭任何打开的 sheet backdrop
-      const sheets = document.querySelectorAll('.sheet-backdrop.open');
-      if (sheets.length > 0) {
-        sheets.forEach(s => s.classList.remove('open'));
-        return;
-      }
-      const npc = document.getElementById('npcDialogBackdrop');
-      if (npc?.classList.contains('open')) {
-        npc.classList.remove('open');
-        return;
-      }
-      const qty = document.getElementById('qtyBackdrop');
-      if (qty?.classList.contains('open')) {
-        qty.classList.remove('open');
-        return;
-      }
-      // 面板回退
-      const combatPanel = document.getElementById('page-combat');
-      const homePanel = document.getElementById('page-home');
-      if (combatPanel?.classList.contains('active')) {
-        window._openPanel('home');
-      } else if (!homePanel?.classList.contains('active')) {
-        window._openPanel('home');
-      }
-    }
-  });
+  if (!mainScreenKeydownBound) {
+    document.addEventListener('keydown', handleMainScreenKeydown);
+    mainScreenKeydownBound = true;
+  }
+}
+
+function handleMainScreenKeydown(e) {
+  if (e.key !== 'Escape') return;
+
+  // 优先关闭任何打开的 sheet backdrop
+  const sheets = document.querySelectorAll('.sheet-backdrop.open');
+  if (sheets.length > 0) {
+    sheets.forEach(s => s.classList.remove('open'));
+    return;
+  }
+  const npc = document.getElementById('npcDialogBackdrop');
+  if (npc?.classList.contains('open')) {
+    npc.classList.remove('open');
+    return;
+  }
+  const qty = document.getElementById('qtyBackdrop');
+  if (qty?.classList.contains('open')) {
+    qty.classList.remove('open');
+    return;
+  }
+
+  // 面板回退
+  const combatPanel = document.getElementById('page-combat');
+  const homePanel = document.getElementById('page-home');
+  if (combatPanel?.classList.contains('active')) {
+    window._openPanel('home');
+  } else if (!homePanel?.classList.contains('active')) {
+    window._openPanel('home');
+  }
 }
