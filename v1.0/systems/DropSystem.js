@@ -160,6 +160,18 @@ export class DropSystem {
       this._taskSys.stageAdvanceCheck(player);
       return true;
     }
+
+    player._quest_item_blocked = true;
+    player._quest_item_lost_info = {
+      item_key: itemKey,
+      quest_key: matchedQuest.key,
+      current_count: currentCount,
+      required_count: requiredCount,
+    };
+    if (player.auto_play) {
+      player.auto_play.is_auto_play = false;
+    }
+    console.warn(`[任务物品] ${itemKey} 无法保存（背包已满），已停止挂机`);
     return false;
   }
 
