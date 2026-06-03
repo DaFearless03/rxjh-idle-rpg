@@ -56,6 +56,8 @@ export const OfflineSimulator = {
     const player = this._restorePlayerFromSave(save);
     const startGold = player.resources?.gold || 0;
     const startDeaths = player.statistics?.total_deaths || 0;
+    const startLevel = player.level || 1;
+    const startExp = player.exp || 0;
 
     const summary = {
       elapsed_s: sim_seconds,
@@ -96,7 +98,6 @@ export const OfflineSimulator = {
     };
     const onMonsterDeath = (data) => {
       summary.kills += 1;
-      summary.exp_gained += data.exp || 0;
     };
     const onConsumeHp = (data) => {
       summary.potions_consumed[data.item] = (summary.potions_consumed[data.item] || 0) + 1;
@@ -127,6 +128,7 @@ export const OfflineSimulator = {
 
         // 更新统计
         summary.gold_gained = Math.max(0, (player.resources?.gold || 0) + summary.gold_spent_on_potions - startGold);
+        summary.exp_gained = this._calcActualExpGained(player, startLevel, startExp, save._config);
 
         // 死亡检测
         if ((player.statistics?.total_deaths || 0) > startDeaths) {
@@ -194,6 +196,26 @@ export const OfflineSimulator = {
       equipmentsData: save._equipmentsData || [],
       attrSystem,
     });
+  },
+
+  _calcActualExpGained(player, startLevel, startExp, config) {
+    const currentLevel = player.level || startLevel;
+    const currentExp = player.exp || 0;
+    const expTable = config?.exp_to_next_level || {};
+    const levelCap = config?.current_level_cap ?? currentLevel;
+
+    if (startLevel >= levelCap) return 0;
+    if (currentLevel <= startLevel) return Math.max(0, currentExp - startExp);
+
+    let gained = Math.max(0, (expTable[startLevel] || 0) - startExp);
+    for (let level = startLevel + 1; level < Math.min(currentLevel, levelCap); level++) {
+      gained += expTable[level] || 0;
+    }
+    if (currentLevel < levelCap) {
+      gained += currentExp;
+    }
+
+    return gained;
   },
 
   _yieldToUI() {
