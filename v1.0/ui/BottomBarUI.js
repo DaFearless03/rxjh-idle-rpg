@@ -474,6 +474,7 @@ window._renderPszShop = () => {
 };
 
 window._openWarehouse = () => {
+  _setupWarehousePopup();
   _renderWarehouse();
   const backdrop = document.getElementById('warehouseBackdrop');
   if (!backdrop) return;
@@ -540,6 +541,7 @@ function _renderWarehouse() {
 // Warehouse popup state
 let _whMode = 'deposit';
 let _whSrcGrid, _whDstGrid, _whTile, _whName, _whMaxQ = 1;
+let _warehousePopupEventsBound = false;
 
 function _whOpenPopup(tile, mode) {
   const popup = document.getElementById('whPopup');
@@ -673,8 +675,17 @@ function _whSortGrid(grid) {
 
 // Setup warehouse popup events (called once)
 function _setupWarehousePopup() {
+  if (_warehousePopupEventsBound) return;
+
   const popup = document.getElementById('whPopup');
   if (!popup) return;
+  const whWarehouseGrid = document.getElementById('whWarehouseGrid');
+  const whBagGrid = document.getElementById('whBagGrid');
+  const whCancel = document.getElementById('whCancel');
+  const whConfirm = document.getElementById('whConfirm');
+  if (!whWarehouseGrid || !whBagGrid || !whCancel || !whConfirm) return;
+
+  _warehousePopupEventsBound = true;
 
   popup.querySelectorAll('.qty-step').forEach(b => {
     b.addEventListener('click', () => {
@@ -690,17 +701,17 @@ function _setupWarehousePopup() {
     });
   });
 
-  document.getElementById('whCancel').addEventListener('click', () => popup.classList.remove('open'));
+  whCancel.addEventListener('click', () => popup.classList.remove('open'));
   popup.addEventListener('click', e => { if (e.target === popup) popup.classList.remove('open'); });
-  document.getElementById('whConfirm').addEventListener('click', _whDoTransfer);
+  whConfirm.addEventListener('click', _whDoTransfer);
 
   // Delegate clicks on warehouse/bag grids
-  document.getElementById('whWarehouseGrid').addEventListener('click', e => {
+  whWarehouseGrid.addEventListener('click', e => {
     const t = e.target.closest('.bag-tile');
     if (t) _whOpenPopup(t, 'withdraw');
   });
 
-  document.getElementById('whBagGrid').addEventListener('click', e => {
+  whBagGrid.addEventListener('click', e => {
     const t = e.target.closest('.bag-tile');
     if (t) _whOpenPopup(t, 'deposit');
   });
