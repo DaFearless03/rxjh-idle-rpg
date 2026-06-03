@@ -58,34 +58,32 @@ export const SaveManager = {
     const primaryRaw = storage.get(PRIMARY_KEY(slotIndex));
     const shadowRaw = storage.get(SHADOW_KEY(slotIndex));
 
-    let primaryValid = false, shadowValid = false;
-    let primaryData = null, shadowData = null;
+    const primary = await this._validatePlayerPayload(primaryRaw);
+    const shadow = primary.valid ? { valid: false, data: null, raw: null } : await this._validatePlayerPayload(shadowRaw);
 
-    if (primaryRaw) {
-      const parsed = JSON.parse(primaryRaw);
-      const expected = await computeChecksum(parsed.data, parsed.version, parsed.saved_at);
-      primaryValid = (expected === parsed.checksum);
-      if (primaryValid) primaryData = parsed.data;
-    }
-
-    if (shadowRaw && !primaryValid) {
-      const parsed = JSON.parse(shadowRaw);
-      const expected = await computeChecksum(parsed.data, parsed.version, parsed.saved_at);
-      shadowValid = (expected === parsed.checksum);
-      if (shadowValid) primaryData = parsed.data;
-    }
-
-    if (primaryValid || shadowValid) {
+    if (primary.valid || shadow.valid) {
       // 用 primary 恢复后把 shadow 同步为一致（只有 shadow 可用时提示用户）
-      if (!primaryValid && shadowValid) {
+      if (!primary.valid && shadow.valid) {
         console.warn('[存档] 检测到主存档损坏，已从影子存档恢复');
-        const json = JSON.stringify(JSON.parse(shadowRaw));
-        storage.set(PRIMARY_KEY(slotIndex), json);
+        storage.set(PRIMARY_KEY(slotIndex), shadow.raw);
       }
-      return primaryData;
+      return primary.valid ? primary.data : shadow.data;
     }
 
     return null;
+  },
+
+  async _validatePlayerPayload(raw) {
+    if (!raw) return { valid: false, data: null, raw: null };
+
+    try {
+      const parsed = JSON.parse(raw);
+      const expected = await computeChecksum(parsed.data, parsed.version, parsed.saved_at);
+      const valid = expected === parsed.checksum;
+      return { valid, data: valid ? parsed.data : null, raw: valid ? JSON.stringify(parsed) : null };
+    } catch {
+      return { valid: false, data: null, raw: null };
+    }
   },
 
   /**
@@ -125,7 +123,7 @@ export const SaveManager = {
         merit: player.resources?.merit || 0,
       },
       qigong: {
-        available_points: player.qigong?.available_points || 1,
+        available_points: player.qigong?.available_points ?? 1,
         invested: player.qigong?.invested || {},
         attribute_reset_count: player.qigong?.attribute_reset_count || 0,
       },
