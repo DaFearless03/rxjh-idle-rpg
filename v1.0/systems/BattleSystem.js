@@ -186,6 +186,7 @@ export class BattleSystem {
         this._player.hp = Math.max(0, this._player.hp - result.actualDmg);
         if (this._player.hp <= 0) {
           this._onPlayerDeath();
+          return;
         }
       }
     }
@@ -247,11 +248,24 @@ export class BattleSystem {
   _onPlayerDeath() {
     applyDeathExpLoss(this._player, { exp_to_next_level: this._config.exp_to_next_level });
     this._pushEvent(`[死亡] 玩家倒下，损失经验 ${Math.floor(this._config.exp_to_next_level[this._player.level] * 0.01)}`);
-    // 死亡自动停止挂机
+
+    this._player.location = this._player.location || {};
+    if (this._player.location.current_sub_zone_key) {
+      this._player.location.last_wilderness_sub_zone = this._player.location.current_sub_zone_key;
+    }
+    this._player.location.current_map_key = 'town_xuanbo';
+    this._player.location.current_sub_zone_key = null;
+    this._player.hp = this._player.maxHp;
+    this._player.mp = this._player.maxMp;
     if (this._player.auto_play) {
       this._player.auto_play.is_auto_play = false;
     }
-    eventBus.emit('player.death', {});
+    this._player.statistics = this._player.statistics || {};
+    this._player.statistics.total_deaths = (this._player.statistics.total_deaths || 0) + 1;
+    this._clearCombatField();
+    this._currentSubZone = null;
+
+    eventBus.emit('player.death', { reason: 'death' });
   }
 
   // ========================

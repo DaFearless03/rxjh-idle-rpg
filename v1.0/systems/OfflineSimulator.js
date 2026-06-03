@@ -55,6 +55,7 @@ export const OfflineSimulator = {
 
     const player = this._restorePlayerFromSave(save);
     const startGold = player.resources?.gold || 0;
+    const startDeaths = player.statistics?.total_deaths || 0;
 
     const summary = {
       elapsed_s: sim_seconds,
@@ -128,14 +129,10 @@ export const OfflineSimulator = {
         summary.gold_gained = Math.max(0, (player.resources?.gold || 0) + summary.gold_spent_on_potions - startGold);
 
         // 死亡检测
-        if (player.hp <= 0) {
-          summary.deaths += 1;
+        if ((player.statistics?.total_deaths || 0) > startDeaths) {
+          summary.deaths = (player.statistics?.total_deaths || 0) - startDeaths;
           summary.died_at_s = tick * TICK_MS / 1000;
-          // 死亡处理：传送回城 + is_auto_play=false
-          player.location.current_map_key = 'town_xuanbo';
-          player.location.current_sub_zone_key = null;
-          player.auto_play.is_auto_play = false;
-          this._applyPlayerDeath(player, save._expToNextLevel);
+          summary.stopped_reason = 'death';
           break;
         }
 
@@ -196,13 +193,6 @@ export const OfflineSimulator = {
       equipmentsData: save._equipmentsData || [],
       attrSystem,
     });
-  },
-
-  _applyPlayerDeath(player, expToNextLevel) {
-    const loss = Math.floor((expToNextLevel?.[player.level] || 0) * 0.01);
-    player.exp = Math.max(0, player.exp - loss);
-    player.hp = player.maxHp;
-    player.mp = player.maxMp;
   },
 
   _yieldToUI() {

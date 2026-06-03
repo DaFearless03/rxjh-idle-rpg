@@ -496,9 +496,7 @@ async function initGameForPlayer(player, slotIndex) {
   });
   onRuntimeEvent('player.death', () => {
     console.log('[系统] 玩家死亡惩罚已结算，等待复活...');
-    player.auto_play = player.auto_play || {};
-    player.auto_play.is_auto_play = false;
-    AutoPlaySystem.stop(player, 'death');
+    AutoPlaySystem.syncFromPlayer(player);
     saveCurrentPlayerNow('player_death', { force: true });
   });
   onRuntimeEvent('monster.death', (data) => {
