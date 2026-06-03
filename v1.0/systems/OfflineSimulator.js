@@ -138,17 +138,17 @@ export const OfflineSimulator = {
           break;
         }
 
-        // 停止检测
-        if (!player.auto_play.is_auto_play) {
-          summary.stopped_reason = player._stopped_reason || 'player_stopped';
-          break;
-        }
-
         // 背包满检测（任务物品）
         if (player._quest_item_blocked) {
           summary.stopped_reason = 'inventory_full_quest_item';
           summary.quest_item_lost = player._quest_item_lost_info;
           player.auto_play.is_auto_play = false;
+          break;
+        }
+
+        // 停止检测
+        if (!player.auto_play.is_auto_play) {
+          summary.stopped_reason = player._stopped_reason || 'player_stopped';
           break;
         }
 

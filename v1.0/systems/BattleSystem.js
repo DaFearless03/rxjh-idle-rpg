@@ -240,9 +240,7 @@ export class BattleSystem {
     if (this._dropSys) {
       // 找到当前 sub_zone 的掉落配置
       const subZoneDrop = this._subZoneDropsData.find(drop => drop.sub_zone_key === this._currentSubZone?.key);
-      if (subZoneDrop) {
-        this._dropSys.evaluate(this._player, monster, subZoneDrop);
-      }
+      this._dropSys.evaluate(this._player, monster, subZoneDrop || null);
     } else {
       // 无 DropSystem 时直接给少量金币（Phase 1 兼容）
       this._player.resources = this._player.resources || { gold: 0, training: 0, merit: 0 };
