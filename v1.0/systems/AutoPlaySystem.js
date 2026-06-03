@@ -6,29 +6,53 @@
 import { InventorySystem } from './InventorySystem.js';
 import { eventBus } from '../core/EventBus.js';
 
+function createCooldownState() {
+  return { hp_potion: 0, mp_potion: 0, heal_skill: 0 };
+}
+
 export const AutoPlaySystem = {
   is_auto_play: false,
-  _cooldowns: { hp_potion: 0, mp_potion: 0, heal_skill: 0 },
+  _activePlayer: null,
+  _cooldowns: createCooldownState(),
+  _resupplyCheckTimer: 0,
   _potionShopItems: [],
 
   setPotionShopItems(items = []) {
     this._potionShopItems = Array.isArray(items) ? items : [];
   },
 
-  syncFromPlayer(player) {
-    this.is_auto_play = !!player?.auto_play?.is_auto_play;
-    this._cooldowns = { hp_potion: 0, mp_potion: 0, heal_skill: 0 };
+  resetRuntimeState() {
+    this.is_auto_play = false;
+    this._activePlayer = null;
+    this._cooldowns = createCooldownState();
     this._resupplyCheckTimer = 0;
+  },
+
+  syncFromPlayer(player) {
+    this.resetRuntimeState();
+    this._activePlayer = player || null;
+    this.is_auto_play = !!player?.auto_play?.is_auto_play;
+  },
+
+  _ensurePlayerContext(player) {
+    if (this._activePlayer === player) return;
+
+    this._activePlayer = player || null;
+    this._cooldowns = createCooldownState();
+    this._resupplyCheckTimer = 0;
+    this.is_auto_play = !!player?.auto_play?.is_auto_play;
   },
 
   /**
    * 进入挂机状态
    */
   start(player) {
+    this._ensurePlayerContext(player);
     player.auto_play = player.auto_play || {};
     player.auto_play.is_auto_play = true;
     this.is_auto_play = true;
-    this._cooldowns = { hp_potion: 0, mp_potion: 0, heal_skill: 0 };
+    this._cooldowns = createCooldownState();
+    this._resupplyCheckTimer = 0;
     eventBus.emit('autoplay.start', {});
   },
 
@@ -36,9 +60,12 @@ export const AutoPlaySystem = {
    * 停止挂机（4条退出规则统一出口）
    */
   stop(player, reason = 'manual') {
+    this._ensurePlayerContext(player);
     player.auto_play = player.auto_play || {};
     player.auto_play.is_auto_play = false;
     this.is_auto_play = false;
+    this._cooldowns = createCooldownState();
+    this._resupplyCheckTimer = 0;
     eventBus.emit('autoplay.stop', { reason });
   },
 
@@ -49,7 +76,11 @@ export const AutoPlaySystem = {
    * @param {Function} teleportFn teleport(source, subZone) 传送函数引用
    */
   tick(player, deltaMs, teleportFn) {
-    if (!player.auto_play?.is_auto_play) return;
+    this._ensurePlayerContext(player);
+    if (!player.auto_play?.is_auto_play) {
+      this.is_auto_play = false;
+      return;
+    }
     this.is_auto_play = true;
 
     // 更新 cd

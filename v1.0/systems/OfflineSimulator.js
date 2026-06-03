@@ -164,6 +164,7 @@ export const OfflineSimulator = {
       eventBus.off('monster.death', onMonsterDeath);
       eventBus.off('autoplay.consume_hp', onConsumeHp);
       eventBus.off('autoplay.consume_mp', onConsumeMp);
+      AutoPlaySystem.resetRuntimeState();
     }
 
     onProgress(100);
