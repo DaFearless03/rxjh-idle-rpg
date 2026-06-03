@@ -12,7 +12,7 @@ import { mountCharacterPanel } from './CharacterUI.js';
 import { mountInventoryPanel } from './InventoryUI.js';
 import { mountQuestPanel } from './TaskUI.js';
 import { mountWarehouseGrids, syncWarehouseTilesToPlayer } from './WarehouseUI.js';
-import { openTownNPCDialog } from './NPCDialogUI.js';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=phase5-ui-4b';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js';
 import { renderEnhanceWorkbench } from './EnhanceUI.js';
 import { renderSynthesisWorkbench } from './SynthesisUI.js';

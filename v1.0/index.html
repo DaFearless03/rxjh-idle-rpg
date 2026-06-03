@@ -12,7 +12,25 @@
 <body>
   <div id="ui-root"></div>
   <div id="toast-container" class="toast-container"></div>
-  <script type="module" src="main.js"></script>
+  <script>
+    (function () {
+      function showBootError(title, detail) {
+        var root = document.getElementById('ui-root');
+        if (!root) return;
+        root.innerHTML = '<div style="margin:24px;padding:16px;border:2px solid #b34;background:#fff8f3;color:#4a1f12;font-family:monospace;white-space:pre-wrap;">'
+          + '<b>' + title + '</b>\n\n' + String(detail || 'Unknown error')
+          + '</div>';
+      }
+      window.addEventListener('error', function (event) {
+        showBootError('启动错误', event.message + '\n' + (event.filename || '') + ':' + (event.lineno || 0) + ':' + (event.colno || 0));
+      });
+      window.addEventListener('unhandledrejection', function (event) {
+        var reason = event.reason || {};
+        showBootError('异步启动错误', (reason.stack || reason.message || reason));
+      });
+    }());
+  </script>
+  <script type="module" src="main.js?v=phase5-ui-4b"></script>
   <script src="gm.js" onerror="/* gm.js 本地维护，线上 404 正常 */"></script>
 </body>
 </html>

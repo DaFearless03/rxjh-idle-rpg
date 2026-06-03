@@ -33,9 +33,9 @@ import { restoreRuntimePlayerFromSave } from './utils/player_restore.js';
 import { UIManager } from './ui/UIManager.js';
 import { buildMainScreenUI } from './ui/MainScreenUI.js';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js';
-import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js';
+import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=phase5-ui-4b';
 import { showMultiSaveUI, showCharacterCreationUI, showOfflineRewardUI } from './ui/MultiSaveUI.js';
-import './ui/BottomBarUI.js';
+import './ui/BottomBarUI.js?v=phase5-ui-4b';
 
 // ========================
 // 数据加载
