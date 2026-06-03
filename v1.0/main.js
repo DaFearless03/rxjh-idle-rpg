@@ -33,7 +33,7 @@ import { restoreRuntimePlayerFromSave } from './utils/player_restore.js';
 import { UIManager } from './ui/UIManager.js';
 import { buildMainScreenUI } from './ui/MainScreenUI.js';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js';
-import { showNPCDialog } from './ui/NPCDialogUI.js';
+import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js';
 import { showMultiSaveUI, showCharacterCreationUI, showOfflineRewardUI } from './ui/MultiSaveUI.js';
 import './ui/BottomBarUI.js';
 
@@ -334,9 +334,7 @@ function refreshTownNPCs() {
   `).join('');
 
   window._openNPC = (npcKey) => {
-    const npc = npcsData.find(n => n.key === npcKey);
-    if (!npc) return;
-    eventBus.emit('npc.opened', npc);
+    openTownNPCDialog(npcKey);
   };
 }
 

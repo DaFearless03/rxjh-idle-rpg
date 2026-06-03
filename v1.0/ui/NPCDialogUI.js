@@ -11,6 +11,29 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js';
 import { UIState } from '../systems/NPCSystem.js';
 
+const TOWN_NPC_DATA = {
+  leader: { name: '泫渤派门主', tag: '任务', avatar: '👤', line: '欢迎来到泫渤派！', funcs: ['任务'] },
+  djx: { name: '刀剑笑', tag: '武器商 / 强化', avatar: '👤', line: '客官，来看看我的神兵利器！', funcs: ['武器商店', '强化', '合成'] },
+  yjl: { name: '银娇龙', tag: '防具商', avatar: '👤', line: '本店的护具品质一流，童叟无欺！', funcs: ['防具商店'] },
+  psz: { name: '平十指', tag: '药剂商', avatar: '👤', line: '平价药剂，童叟无欺！', funcs: ['药水商店'] },
+  wdb: { name: '韦大宝', tag: '仓库', avatar: '👤', line: '存什么东西都行，找我就对了！', funcs: ['打开仓库'] },
+};
+
+export function openTownNPCDialog(npcKey) {
+  const npc = TOWN_NPC_DATA[npcKey];
+  const backdrop = document.getElementById('npcDialogBackdrop');
+  if (!npc || !backdrop) return;
+
+  document.getElementById('npcDialogAvatar').textContent = npc.avatar;
+  document.getElementById('npcDialogName').textContent = npc.name;
+  document.getElementById('npcDialogTag').textContent = npc.tag;
+  document.getElementById('npcDialogLine').textContent = npc.line;
+  document.getElementById('npcFuncRow').innerHTML = npc.funcs.map(func =>
+    `<button class="npc-func-btn" data-npc="${npcKey}" data-func="${func}">${func}</button>`
+  ).join('');
+  backdrop.classList.add('open');
+}
+
 export function showNPCDialog(npcData, player, careersData, questTemplates) {
   document.getElementById('npc-dialog-title').textContent = npcData.name || 'NPC';
 

@@ -12,6 +12,10 @@ import { mountCharacterPanel } from './CharacterUI.js';
 import { mountInventoryPanel } from './InventoryUI.js';
 import { mountQuestPanel } from './TaskUI.js';
 import { mountWarehouseGrids, syncWarehouseTilesToPlayer } from './WarehouseUI.js';
+import { openTownNPCDialog } from './NPCDialogUI.js';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js';
+import { renderEnhanceWorkbench } from './EnhanceUI.js';
+import { renderSynthesisWorkbench } from './SynthesisUI.js';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -41,27 +45,7 @@ window._switchCharTab = (tab) => {
   renderCharacterTabContent(tab);
 };
 
-window._openNPC = (npcKey) => {
-  const NPC_DATA = {
-    leader: { name: '泫渤派门主', tag: '任务', avatar: '👤', line: '欢迎来到泫渤派！', funcs: ['任务'] },
-    djx: { name: '刀剑笑', tag: '武器商 / 强化', avatar: '👤', line: '客官，来看看我的神兵利器！', funcs: ['武器商店','强化','合成'] },
-    yjl: { name: '银娇龙', tag: '防具商', avatar: '👤', line: '本店的护具品质一流，童叟无欺！', funcs: ['防具商店'] },
-    psz: { name: '平十指', tag: '药剂商', avatar: '👤', line: '平价药剂，童叟无欺！', funcs: ['药水商店'] },
-    wdb: { name: '韦大宝', tag: '仓库', avatar: '👤', line: '存什么东西都行，找我就对了！', funcs: ['打开仓库'] },
-  };
-  const d = NPC_DATA[npcKey];
-  if (!d) return;
-  const backdrop = document.getElementById('npcDialogBackdrop');
-  if (!backdrop) return;
-  document.getElementById('npcDialogAvatar').textContent = d.avatar;
-  document.getElementById('npcDialogName').textContent = d.name;
-  document.getElementById('npcDialogTag').textContent = d.tag;
-  document.getElementById('npcDialogLine').textContent = d.line;
-  document.getElementById('npcFuncRow').innerHTML = d.funcs.map((f, i) =>
-    `<button class="npc-func-btn" data-npc="${npcKey}" data-func="${f}">${f}</button>`
-  ).join('');
-  backdrop.classList.add('open');
-};
+window._openNPC = openTownNPCDialog;
 
 window._openShop = (shopType) => {
   const backdrop = document.getElementById('shopBackdrop');
@@ -80,8 +64,7 @@ window._openDjxShop = (tab) => {
   document.getElementById('djxShopGold').textContent = (window.game?.player?.resources?.gold || 0).toLocaleString();
   document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + _djxCurrentTab)?.classList.add('active');
-  document.querySelectorAll('.djx-tab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('djx-' + _djxCurrentTab + '-content').classList.add('active');
+  setActiveDjxTabContent(_djxCurrentTab);
   backdrop.classList.add('open');
   window._renderDjxShop();
 };
@@ -90,10 +73,21 @@ window._switchDjxTab = (tab) => {
   _djxCurrentTab = tab;
   document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + tab)?.classList.add('active');
-  document.querySelectorAll('.djx-tab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('djx-' + tab + '-content').classList.add('active');
+  setActiveDjxTabContent(tab);
   window._renderDjxShop();
 };
+
+function setActiveDjxTabContent(tab) {
+  document.querySelectorAll('.djx-tab-content').forEach(content => {
+    content.classList.remove('active');
+    content.style.display = 'none';
+  });
+  const active = document.getElementById('djx-' + tab + '-content');
+  if (active) {
+    active.classList.add('active');
+    active.style.display = 'flex';
+  }
+}
 
 window._renderDjxShop = () => {
   const p = window.game?.player;
@@ -101,64 +95,7 @@ window._renderDjxShop = () => {
   if (tab === 'weapon') {
     const el = document.getElementById('djx-weapon-content');
     if (!el) return;
-    // 从 npcs.json 的 shop_weapon_and_enhance 读取，只取 base 武器
-    const npcItems = [
-      { item_key: 'blade_base_001', name: '直刀', buy_price: 5000, icon: '🗡️' },
-      { item_key: 'blade_base_002', name: '铁刀', buy_price: 5000, icon: '🗡️' },
-      { item_key: 'sword_base_001', name: '木剑', buy_price: 5000, icon: '⚔️' },
-      { item_key: 'sword_base_002', name: '重剑', buy_price: 5000, icon: '⚔️' },
-      { item_key: 'staff_base_001', name: '木杖', buy_price: 5000, icon: '🪄' },
-      { item_key: 'staff_base_002', name: '桃木杖', buy_price: 5000, icon: '🪄' },
-      { item_key: 'spear_base_001', name: '木枪', buy_price: 5000, icon: '🔱' },
-      { item_key: 'spear_base_002', name: '长枪', buy_price: 5000, icon: '🔱' },
-      { item_key: 'bow_base_001', name: '竹弓', buy_price: 5000, icon: '🏹' },
-      { item_key: 'bow_base_002', name: '硬弓', buy_price: 5000, icon: '🏹' },
-    ];
-    const playerCareerFamily = p?.career_family || (p?.career?.includes('blade') ? 'blade' : p?.career?.includes('sword') ? 'sword' : p?.career?.includes('staff') ? 'staff' : p?.career?.includes('spear') ? 'spear' : p?.career?.includes('bow') ? 'bow' : 'blade');
-    const sameCareer = [], otherCareer = [];
-    const CAREER_FAMILY_MAP = { blade: ['blade'], sword: ['sword'], staff: ['staff'], spear: ['spear'], bow: ['bow'] };
-    npcItems.forEach(i => {
-      const prefix = i.item_key.split('_')[0];
-      const families = CAREER_FAMILY_MAP[prefix] || [prefix];
-      if (families.includes(playerCareerFamily)) {
-        sameCareer.push(i);
-      } else {
-        otherCareer.push(i);
-      }
-    });
-
-    const renderItems = (items) => items.map(i => `
-      <div class="shop-item">
-        <div class="shop-item-info">
-          <div class="shop-item-icon">${i.icon}</div>
-          <div>
-            <div class="shop-item-name">${i.name}</div>
-            <div class="shop-item-price">💰 ${i.buy_price.toLocaleString()}</div>
-          </div>
-        </div>
-        <button class="btn-buy" onclick="window._djxBuy('${i.item_key}', ${i.buy_price})">购买</button>
-      </div>
-    `).join('');
-
-    const sectionLabel = (label) => `<div class="shop-section-label">${label}</div>`;
-    const careerName = { blade: '刀客', sword: '剑客', staff: '医师', spear: '枪客', bow: '弓手' }[playerCareerFamily] || '本职业';
-
-    el.innerHTML = `
-      ${sectionLabel('⚔️ ' + careerName + ' · 可穿戴')}
-      ${renderItems(sameCareer)}
-      ${otherCareer.length > 0 ? sectionLabel('📦 其他职业 · 可购买（不可穿戴）') + otherCareer.map(i => `
-        <div class="shop-item">
-          <div class="shop-item-info">
-            <div class="shop-item-icon">${i.icon}</div>
-            <div>
-              <div class="shop-item-name">${i.name}</div>
-              <div class="shop-item-price">💰 ${i.buy_price.toLocaleString()}</div>
-            </div>
-          </div>
-          <button class="btn-buy" onclick="window._djxBuy('${i.item_key}', ${i.buy_price})">购买</button>
-        </div>
-      `).join('') : ''}
-    `;
+    el.innerHTML = renderWeaponShop(p);
   } else if (tab === 'synth') {
     window._renderDjxSynth('synth');
   } else if (tab === 'enhance') {
@@ -170,70 +107,13 @@ window._renderDjxSynth = (type) => {
   const el = document.getElementById('djx-' + type + '-content');
   if (!el) return;
   const p = window.game?.player;
-  const slots = p?.inventory?.slots || [];
-  // 区分装备和石头/道具
-  const equipItems = slots.filter(it => !it.item_key?.includes('stone') && !it.item_key?.includes('gem') && !it.item_key?.includes('charm'));
-  const stoneItems = slots.filter(it => it.item_key?.includes('stone') || it.item_key?.includes('gem'));
-  const makeItemGrid = (items) => {
-    if (!items.length) return '';
-    return items.map(it => `
-      <div class="bag-tile" data-kind="equip" data-key="${it.item_key}" data-icon="${it.item_key?.includes('stone')||it.item_key?.includes('gem')?'💎':'📦'}" data-name="${it.name || it.item_key}">
-        <div class="bt-icon">${it.item_key?.includes('stone')||it.item_key?.includes('gem')?'💎':'📦'}</div>
-        <div class="bt-name">${it.name || it.item_key}</div>
-      </div>
-    `).join('');
-  };
-  const makeEmptySlots = (n) => Array(n).fill('<div class="bag-tile empty-slot"></div>').join('');
-  const bagEquipGrid = makeItemGrid(equipItems) + makeEmptySlots(Math.max(0, 12 - equipItems.length));
-  const bagStoneGrid = makeItemGrid(stoneItems) + makeEmptySlots(Math.max(0, 12 - stoneItems.length));
+  el.innerHTML = type === 'synth'
+    ? renderSynthesisWorkbench(p)
+    : renderEnhanceWorkbench(p);
 
-  const isSynth = type === 'synth';
-  const craftTitle = isSynth ? '💎 合成 · 镶嵌' : '⚒ 强化';
-  const craftBtn = isSynth ? '合成' : '强化';
-  const workLabel = isSynth ? '拖入装备（武器→金刚石 / 防具→寒玉石）' : '拖入装备';
-  const stoneLabel = isSynth ? '合成石' : '强化石';
-  const slotHintEquip = isSynth ? '拖入装备' : '拖入装备';
-  const slotHintStone = isSynth ? '拖入<br>合成石' : '拖入<br>强化石';
-
-  el.innerHTML = `
-    <div class="craft-body">
-      <div class="craft-work">
-        <div class="craft-slots">
-          <div class="craft-dropzone equip-slot" data-zone="equip"
-               ondragover="event.preventDefault(); this.classList.add('dragover')"
-               ondragleave="this.classList.remove('dragover')"
-               ondrop="window._djxDropItem(event, 'equip', '${type}')">
-            <div class="dz-plus">＋</div><div class="dz-hint">拖入装备</div>
-          </div>
-          <div class="craft-arrow">＋</div>
-          <div class="craft-dropzone stone-slot" data-zone="${type}-stone"
-               ondragover="event.preventDefault(); this.classList.add('dragover')"
-               ondragleave="this.classList.remove('dragover')"
-               ondrop="window._djxDropItem(event, 'stone', '${type}')">
-            <div class="dz-plus">＋</div><div class="dz-hint">${slotHintStone}</div>
-          </div>
-        </div>
-        <div class="craft-result hidden" id="djx-${type}-result"></div>
-        <div class="craft-warn hidden" id="djx-${type}-warn"></div>
-        <div class="craft-actions">
-          <button class="craft-confirm" disabled onclick="window._djxDoCraft('${type}')">${craftBtn}</button>
-          <button class="craft-reset" data-reset onclick="window._djxClearAll('${type}')">清空</button>
-        </div>
-      </div>
-      <div class="craft-bag">
-        <div class="bag-label">🎒 ${isSynth ? '可合成装备' : '可强化装备（武器/防具）'}</div>
-        <div class="bag-grid" id="djx-${type}-equip-grid">${bagEquipGrid}</div>
-        <div class="bag-label">💎 ${stoneLabel}</div>
-        <div class="bag-grid" id="djx-${type}-stone-grid">${bagStoneGrid}</div>
-      </div>
-    </div>
-  `;
-
-  // 给 bag-tile 绑定点击选物品到槽
   el.querySelectorAll('.bag-tile[data-key]').forEach(tile => {
     tile.addEventListener('click', () => {
       const key = tile.dataset.key;
-      const isStone = key.includes('stone') || key.includes('gem');
       window._djxSelectItem(key, type);
     });
   });
@@ -267,10 +147,31 @@ window._djxDropItem = (e, slotType, type) => {
 
 window._djxSlots = { synth: {}, enhance: {} };
 
+function isCraftStoneKey(key) {
+  return /^(enhance_stone|vajra|cold_jade|hot_blood)_/.test(key || '') || key?.includes('gem');
+}
+
+function getCraftTileMeta(key, type) {
+  const safeKey = String(key || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  const tile = document.querySelector(`#djx-${type}-content .bag-tile[data-key="${safeKey}"]`);
+  return {
+    icon: tile?.dataset.icon || (isCraftStoneKey(key) ? '💎' : '⚔️'),
+    name: tile?.dataset.name || key,
+  };
+}
+
+function updateDjxCraftButton(type) {
+  const slots = window._djxSlots[type] || {};
+  const confirmBtn = document.querySelector(`#djx-${type}-content .craft-confirm`);
+  if (!confirmBtn) return;
+  confirmBtn.disabled = type === 'synth' ? !(slots.equip && slots.stone) : !slots.equip;
+}
+
 window._djxSelectItem = (key, type) => {
-  const stoneKey = key.includes('stone') || key.includes('gem') || key.includes('synth') || key.includes('enhance');
+  const stoneKey = isCraftStoneKey(key);
   const dataKey = stoneKey ? 'stone' : 'equip';
   window._djxSlots[type][dataKey] = key;
+  const meta = getCraftTileMeta(key, type);
 
   // 更新 demo 风格的 craft-dropzone
   const zoneEquip = document.querySelector(`#djx-${type}-content .craft-dropzone[data-zone="equip"]`);
@@ -280,8 +181,8 @@ window._djxSelectItem = (key, type) => {
     targetZone.classList.add('filled');
     const icon = stoneKey ? '💎' : '⚔️';
     targetZone.innerHTML = `
-      <div class="dz-icon" style="font-size:1.8rem">${icon}</div>
-      <div class="dz-name" style="font-size:0.75rem;font-weight:bold;margin-top:0.2rem">${key}</div>
+      <div class="dz-icon" style="font-size:1.8rem">${meta.icon || icon}</div>
+      <div class="dz-name" style="font-size:0.75rem;font-weight:bold;margin-top:0.2rem">${meta.name}</div>
       <div class="dz-clear" style="position:absolute;top:0.2rem;right:0.3rem;font-size:1rem;opacity:0.5;cursor:pointer">×</div>
     `;
     // 点击 × 清空该槽
@@ -290,7 +191,7 @@ window._djxSelectItem = (key, type) => {
       window._djxClearSlot(dataKey, type);
     });
   }
-  // 显示清空按钮
+  updateDjxCraftButton(type);
 };
 
 window._djxClearSlot = (slotType, type) => {
@@ -303,9 +204,12 @@ window._djxClearSlot = (slotType, type) => {
   const targetZone = slotType === 'stone' ? zoneStone : slotType === 'equip' ? zoneEquip : null;
   if (targetZone) {
     targetZone.classList.remove('filled');
-    const isStone = slotKey && (slotKey.includes('stone') || slotKey.includes('gem'));
-    targetZone.innerHTML = `<div class="dz-plus">＋</div><div class="dz-hint">${isStone ? (type === 'synth' ? '拖入<br>合成石' : '拖入<br>强化石') : '拖入装备'}</div>`;
+    const hint = slotType === 'stone'
+      ? (type === 'synth' ? '拖入<br>合成石' : '强化石<br>自动消耗')
+      : '选择已穿戴装备';
+    targetZone.innerHTML = `<div class="dz-plus">＋</div><div class="dz-hint">${hint}</div>`;
   }
+  updateDjxCraftButton(type);
 };
 
 window._djxClearAll = (type) => {
@@ -325,8 +229,12 @@ window._djxBuy = (itemKey, price) => {
   const r = ShopSystem.buy(p, npcData, itemKey, 1);
   if (r && r.success) {
     window._showToast('购买成功');
-    document.getElementById('djxShopGold').textContent = (p.resources?.gold || 0).toLocaleString();
-    window._renderDjxShop();
+    const goldText = (p.resources?.gold || 0).toLocaleString();
+    const djxGold = document.getElementById('djxShopGold');
+    if (djxGold) djxGold.textContent = goldText;
+    window._renderDjxShop?.();
+    window._renderYjlShop?.();
+    window._renderPszShop?.();
   } else { window._showToast(r.message); }
 };
 
@@ -373,63 +281,7 @@ window._openYjlShop = () => {
 window._renderYjlShop = () => {
   const el = document.getElementById('yjl-weapon-content');
   if (!el) return;
-  const p = window.game?.player;
-  const gold = p?.resources?.gold || 0;
-  const careerFamily = p?.career_family || (p?.career?.includes('blade') ? 'blade' : p?.career?.includes('sword') ? 'sword' : p?.career?.includes('staff') ? 'staff' : p?.career?.includes('spear') ? 'spear' : 'blade');
-  const ICON_MAP = { chest: '👕', gloves: '🧤', boots: '👟' };
-  const CAREER_ICON = { blade: '🗡️', sword: '⚔️', staff: '🪄', spear: '🔱', bow: '🏹' };
-  const CAREER_NAME = { blade: '刀客', sword: '剑客', staff: '医师', spear: '枪客', bow: '弓手' };
-
-  // 从 npcs.json shop_armor 读取完整数据
-  const armorRaw = [
-    { item_key: 'blade_chest_base_001', name: '无名战袍', buy_price: 100, slot: 'chest', career: 'blade' },
-    { item_key: 'blade_chest_base_002', name: '金丝战袍', buy_price: 150, slot: 'chest', career: 'blade' },
-    { item_key: 'blade_chest_base_003', name: '乌蚕战袍', buy_price: 200, slot: 'chest', career: 'blade' },
-    { item_key: 'sword_chest_base_001', name: '无名侠衣', buy_price: 100, slot: 'chest', career: 'sword' },
-    { item_key: 'sword_chest_base_002', name: '金丝侠衣', buy_price: 150, slot: 'chest', career: 'sword' },
-    { item_key: 'sword_chest_base_003', name: '乌蚕侠衣', buy_price: 200, slot: 'chest', career: 'sword' },
-    { item_key: 'staff_chest_base_001', name: '无名法袍', buy_price: 100, slot: 'chest', career: 'staff' },
-    { item_key: 'staff_chest_base_002', name: '金丝法袍', buy_price: 150, slot: 'chest', career: 'staff' },
-    { item_key: 'staff_chest_base_003', name: '乌蚕法袍', buy_price: 200, slot: 'chest', career: 'staff' },
-    { item_key: 'spear_chest_base_001', name: '无名枪衣', buy_price: 100, slot: 'chest', career: 'spear' },
-    { item_key: 'spear_chest_base_002', name: '金丝枪衣', buy_price: 150, slot: 'chest', career: 'spear' },
-    { item_key: 'spear_chest_base_003', name: '乌蚕枪衣', buy_price: 200, slot: 'chest', career: 'spear' },
-    { item_key: 'gloves_base_001', name: '皮护手', buy_price: 50, slot: 'gloves', career: null },
-    { item_key: 'gloves_base_002', name: '青铜护手', buy_price: 75, slot: 'gloves', career: null },
-    { item_key: 'gloves_base_003', name: '精炼护手', buy_price: 100, slot: 'gloves', career: null },
-    { item_key: 'gloves_base_004', name: '罗汉护手', buy_price: 150, slot: 'gloves', career: null },
-    { item_key: 'boots_base_001', name: '无名短靴', buy_price: 50, slot: 'boots', career: null },
-    { item_key: 'boots_base_002', name: '青衣短靴', buy_price: 60, slot: 'boots', career: null },
-    { item_key: 'boots_base_003', name: '皮短靴', buy_price: 75, slot: 'boots', career: null },
-    { item_key: 'boots_base_004', name: '无名长靴', buy_price: 100, slot: 'boots', career: null },
-    { item_key: 'boots_base_005', name: '皮长靴', buy_price: 150, slot: 'boots', career: null },
-  ];
-
-  const sameCareer = armorRaw.filter(a => a.career === careerFamily);
-  const otherCareer = armorRaw.filter(a => a.career && a.career !== careerFamily);
-  const universal = armorRaw.filter(a => !a.career);
-
-  const renderItems = (items) => items.map(i => `
-    <div class="shop-item">
-      <div class="shop-item-info">
-        <div class="shop-item-icon">${ICON_MAP[i.slot] || '📦'}</div>
-        <div>
-          <div class="shop-item-name">${i.name}</div>
-          <div class="shop-item-price">💰 ${i.buy_price.toLocaleString()}</div>
-        </div>
-      </div>
-      <button class="btn-buy" onclick="window._djxBuy('${i.item_key}', ${i.buy_price})">购买</button>
-    </div>
-  `).join('');
-
-  const sectionLabel = (label) => `<div class="shop-section-label">${label}</div>`;
-  const cName = CAREER_NAME[careerFamily] || '本职业';
-  let html = `💰 金币: <b>${gold.toLocaleString()}</b>`;
-  if (sameCareer.length) html += sectionLabel(`${CAREER_ICON[careerFamily] || '📦'} ${cName}可穿戴`) + renderItems(sameCareer);
-  if (universal.length) html += sectionLabel('🧤 护手 · 靴子 · 通用可穿戴') + renderItems(universal);
-  if (otherCareer.length) html += sectionLabel('📦 其他职业 · 可购买（不可穿戴）') + renderItems(otherCareer).replace(/btn-buy/g, 'btn-buy locked');
-
-  el.innerHTML = html;
+  el.innerHTML = renderArmorShop(window.game?.player);
 };
 
 window._openPszShop = () => {
@@ -442,38 +294,7 @@ window._openPszShop = () => {
 window._renderPszShop = () => {
   const el = document.getElementById('psz-weapon-content');
   if (!el) return;
-  const p = window.game?.player;
-  const gold = p?.resources?.gold || 0;
-  const hpItems = [
-    { name: '金创药（小）', buy_price: 50, icon: '🍶' },
-    { name: '金创药（中）', buy_price: 100, icon: '🍶' },
-    { name: '金创药（大）', buy_price: 200, icon: '🍶' },
-  ];
-  const mpItems = [
-    { name: '人参', buy_price: 50, icon: '🌿' },
-    { name: '野山参', buy_price: 100, icon: '🌿' },
-    { name: '雪原参', buy_price: 200, icon: '🌿' },
-  ];
-  const renderItems = (items) => items.map(i => `
-    <div class="shop-item">
-      <div class="shop-item-info">
-        <div class="shop-item-icon">${i.icon}</div>
-        <div>
-          <div class="shop-item-name">${i.name}</div>
-          <div class="shop-item-price">💰 ${i.buy_price.toLocaleString()}</div>
-        </div>
-      </div>
-      <button class="btn-buy" onclick="window._djxBuy('${i.name}', ${i.buy_price})">购买</button>
-    </div>
-  `).join('');
-  const sectionLabel = (label) => `<div class="shop-section-label">${label}</div>`;
-  el.innerHTML = `
-    💰 金币: <b>${gold.toLocaleString()}</b>
-    ${sectionLabel('❤ 生命药剂')}
-    ${renderItems(hpItems)}
-    ${sectionLabel('💧 内功药剂')}
-    ${renderItems(mpItems)}
-  `;
+  el.innerHTML = renderPotionShop(window.game?.player);
 };
 
 window._openWarehouse = () => {
