@@ -7,7 +7,10 @@ import { ShopSystem } from '../systems/ShopSystem.js';
 import { InventorySystem } from '../systems/InventorySystem.js';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js';
+import { QigongSystem } from '../systems/QigongSystem.js';
+import { mountCharacterPanel } from './CharacterUI.js';
 import { mountInventoryPanel } from './InventoryUI.js';
+import { mountQuestPanel } from './TaskUI.js';
 import { mountWarehouseGrids, syncWarehouseTilesToPlayer } from './WarehouseUI.js';
 
 window._openPanel = (panelId) => {
@@ -35,8 +38,6 @@ window._exitCombat = () => {
 };
 
 window._switchCharTab = (tab) => {
-  document.getElementById('tab-char-info')?.classList.toggle('active', tab === 'info');
-  document.getElementById('tab-char-skill')?.classList.toggle('active', tab === 'skill');
   renderCharacterTabContent(tab);
 };
 
@@ -751,61 +752,16 @@ function renderCharacterPanel(player) {
   if (!el) return;
   const p = player || window.game?.player;
   if (!p) return;
-  const expToNext = window.expToNext?.[p.level] || 0;
-  el.innerHTML = `
-    <div class="char-basic">
-      <span class="char-class">${p.career || '—'}</span>
-      <span class="char-name">${p.name || '—'}</span>
-      <span class="char-level">Lv.${p.level}</span>
-    </div>
-    <div class="char-exp">经验: ${p.exp?.toLocaleString() || 0} / ${expToNext.toLocaleString()}</div>
-    <div class="char-attrs">
-      <div class="attr-item">力:${p.str || 0}</div>
-      <div class="attr-item">心:${p.int || 0}</div>
-      <div class="attr-item">体:${p.sta || 0}</div>
-      <div class="attr-item">身:${p.dex || 0}</div>
-    </div>
-    <div class="char-stats">
-      <div class="stat-row"><span class="stat-label">生命</span><span class="stat-value">${p.maxHp || 0}</span></div>
-      <div class="stat-row"><span class="stat-label">内功</span><span class="stat-value">${p.maxMp || 0}</span></div>
-      <div class="stat-row"><span class="stat-label">攻击</span><span class="stat-value">${p.atk_min || 0}-${p.atk_max || 0}</span></div>
-      <div class="stat-row"><span class="stat-label">防御</span><span class="stat-value">${p.def || 0}</span></div>
-    </div>
-    <div class="qigong-section">
-      <div class="qigong-title">
-        <div class="qigong-title-left">🌀 气功</div>
-        <button class="btn-reset-qigong" onclick="window._resetQigong()">重置气功</button>
-        <div class="qigong-title-right">
-          <span class="qigong-points">气功点数: ${p.qigong?.available_points || 0}</span>
-        </div>
-      </div>
-      <div class="qigong-grid" id="qigong-grid"></div>
-    </div>
-  `;
-  renderQigongGrid(p);
+  mountCharacterPanel(el, p, window._characterActiveTab || 'info');
 }
 
 function renderQigongGrid(player) {
-  const grid = document.getElementById('qigong-grid');
-  if (!grid || !player) return;
-  // 显示玩家已学习的气功
-  const invested = player.qigong?.invested || {};
-  const qigongs = Object.entries(invested).map(([key, level]) => ({ key, level })).slice(0, 12);
-  if (qigongs.length === 0) {
-    grid.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;padding:16px">暂无气功</div>';
-    return;
-  }
-  grid.innerHTML = qigongs.map(q => `
-    <div class="qigong-item" onclick="window._investQigong('${q.key}', 1)">
-      <div class="qigong-level">${q.level}</div>
-      <div style="font-size:10px;color:#aaa">${q.key}</div>
-      <div class="qigong-add">+</div>
-    </div>
-  `).join('');
+  renderCharacterPanel(player);
 }
 
 function renderCharacterTabContent(tab) {
-  if (tab === 'info') renderCharacterPanel(window.game?.player);
+  window._characterActiveTab = tab;
+  renderCharacterPanel(window.game?.player);
 }
 
 function renderInventoryPanel(player) {
@@ -857,51 +813,45 @@ function renderQuestPanel(player) {
   if (!el) return;
   const p = player || window.game?.player;
   if (!p) return;
-  const accepted = p.quests?.accepted || [];
-  if (accepted.length === 0) {
-    el.innerHTML = '<div style="font-size:13px;color:#888;text-align:center;padding:20px">暂无进行中的任务</div>';
-    return;
-  }
-  el.innerHTML = `
-    <div class="quest-section">
-      <p class="quest-section-title">进行中的任务</p>
-      ${accepted.map(q => `
-        <div class="attr-row">
-          <span class="attr-label" style="color:#e94560">${q.name}</span>
-          <span class="attr-value" style="color:#888">进行中</span>
-        </div>
-      `).join('')}
-    </div>
-  `;
+  mountQuestPanel(el, p, window._questActiveSeg || 'accepted');
 }
 
 window._resetQigong = () => {
   const p = window.game?.player;
   if (!p) return;
-  import('./QigongSystem.js').then(m => {
-    const r = m.QigongSystem.resetQigong(p);
-    if (r && r.success) {
-      window._attrSys?.recompute(p);
-      UIManager.toast('气功已重置', 'success');
-      renderCharacterPanel(p);
-    } else {
-      UIManager.toast(r?.message || '重置失败', 'error');
-    }
-  });
+  const r = QigongSystem.resetQigong(p);
+  if (r && r.success) {
+    window._attrSys?.recompute(p);
+    UIManager.toast('气功已重置', 'success');
+    renderCharacterPanel(p);
+  } else {
+    UIManager.toast(r?.message || '重置失败', 'error');
+  }
 };
 
 window._investQigong = (key, pts) => {
   const p = window.game?.player;
   if (!p) return;
-  import('./QigongSystem.js').then(m => {
-    const r = m.QigongSystem.investQigong(p, key, pts);
-    if (r && r.success) {
-      window._attrSys?.recompute(p);
-      renderCharacterPanel(p);
-    } else {
-      UIManager.toast(r?.message || '分配失败', 'error');
-    }
-  });
+  const r = QigongSystem.investQigong(p, key, pts);
+  if (r && r.success) {
+    window._attrSys?.recompute(p);
+    renderCharacterPanel(p);
+  } else {
+    UIManager.toast(r?.message || '分配失败', 'error');
+  }
+};
+
+window._switchQuestSeg = (seg) => {
+  window._questActiveSeg = seg;
+  renderQuestPanel(window.game?.player);
+};
+
+window._questSubmitHint = (ready) => {
+  UIManager.toast(ready ? '请到泫渤派门主处提交任务' : '继续挂机收集任务物品', ready ? 'success' : 'info');
+};
+
+window._questAcceptHint = () => {
+  UIManager.toast('请到泫渤派门主处接取任务', 'info');
 };
 
 window._startAutoplay = () => { window.game?.startAutoPlay(); UIManager.closePanel(); };
