@@ -3,6 +3,8 @@
  * @desc 主页面骨架（demo 风格）：phone-frame + top-bar + main-scroll + bottom-menu + 所有 panel
  */
 
+import { renderZoneBattleArea } from './ZoneBattleAreaUI.js';
+
 let mainScreenKeydownBound = false;
 
 export function buildMainScreenUI(container) {
@@ -310,22 +312,8 @@ export function buildMainScreenUI(container) {
         </div>
 
         <!-- 主滚动区 -->
-        <div class="main-scroll">
-          <div class="monster-panel">
-            <div class="panel-title">
-              <span>👹 战场敌人</span>
-              <span class="count" id="monster-count">0/0</span>
-            </div>
-            <div class="monster-grid" id="monster-grid"></div>
-          </div>
-          <div class="log-panel combat-log">
-            <div class="panel-title">⚔ 战斗细节</div>
-            <div class="log-scroll" id="combat-log-area"></div>
-          </div>
-          <div class="log-panel reward-log">
-            <div class="panel-title">✦ 掉落细节</div>
-            <div class="log-scroll" id="combat-result-area"></div>
-          </div>
+        <div class="main-scroll battle-zone-layout">
+          ${renderZoneBattleArea()}
         </div>
 
         <!-- 底部动作菜单 -->

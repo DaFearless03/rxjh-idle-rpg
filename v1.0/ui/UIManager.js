@@ -4,6 +4,10 @@
  */
 import { eventBus } from '../core/EventBus.js';
 import { storage } from '../utils/storage.js';
+import { refreshMonsterList } from './MonsterListUI.js';
+import { refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js';
+import { appendCombatLog, formatCombatLog, renderCombatLog } from './CombatLogUI.js';
+import { appendRewardLog, formatRewardLog, renderRewardLog } from './RewardLogUI.js';
 
 class UIManagerClass {
   constructor() {
@@ -160,40 +164,7 @@ class UIManagerClass {
       factionEl.textContent = (p.faction === 'negative' ? '邪派' : '正派');
       factionEl.className = `faction ${p.faction === 'negative' ? 'negative' : 'positive'}`;
     }
-    const hpFill = document.getElementById('home-hp-fill');
-    const mpFill = document.getElementById('home-mp-fill');
-    const expFill = document.getElementById('home-exp-fill');
-    const hpPct = document.getElementById('home-hp-pct');
-    const mpPct = document.getElementById('home-mp-pct');
-    const expPct = document.getElementById('home-exp-pct');
-    const hpText = document.getElementById('home-hp-text');
-    const mpText = document.getElementById('home-mp-text');
-    const expText = document.getElementById('home-exp-text');
-    if (hpFill && hpPct) {
-      const pct = Math.round(p.hp / p.maxHp * 100);
-      hpFill.style.width = pct + '%';
-      hpPct.textContent = pct + '%';
-    }
-    if (mpFill && mpPct) {
-      const pct = Math.round(p.mp / p.maxMp * 100);
-      mpFill.style.width = pct + '%';
-      mpPct.textContent = pct + '%';
-    }
-    if (hpText) hpText.textContent = `${p.hp}/${p.maxHp}`;
-    if (mpText) mpText.textContent = `${p.mp}/${p.maxMp}`;
-    if (expText && expFill && expPct) {
-      const expToNext = window.expToNext?.[p.level] || 0;
-      if (p.level >= window.currentLevelCap) {
-        expText.textContent = '满级 MAX';
-        expFill.style.width = '100%';
-        expPct.textContent = 'MAX';
-      } else {
-        const pct = expToNext > 0 ? Math.round(p.exp / expToNext * 100) : 0;
-        expText.textContent = `${p.exp.toLocaleString()}/${expToNext.toLocaleString()}`;
-        expFill.style.width = pct + '%';
-        expPct.textContent = pct + '%';
-      }
-    }
+    refreshPlayerStatusBar(p, { prefix: 'home' });
   }
 
   _refreshTopBar() {
@@ -269,67 +240,13 @@ class UIManagerClass {
   _refreshStatusBar() {
     const p = window.game?.player;
     if (!p) return;
-
-    const hpFill = document.getElementById('role-hp-fill');
-    const mpFill = document.getElementById('role-mp-fill');
-    const expFill = document.getElementById('role-exp-fill');
-    const hpPct = document.getElementById('role-hp-pct');
-    const mpPct = document.getElementById('role-mp-pct');
-    const expPct = document.getElementById('role-exp-pct');
-    const hpText = document.getElementById('role-hp-text');
-    const mpText = document.getElementById('role-mp-text');
-    const expText = document.getElementById('role-exp-text');
-
-    if (hpFill && hpPct) {
-      const pct = Math.round(p.hp / p.maxHp * 100);
-      hpFill.style.width = pct + '%';
-      hpFill.className = 'gba-bar-fill fill-hp' + (pct <= 18 ? ' danger' : pct <= 36 ? ' warn' : '');
-      hpPct.textContent = pct + '%';
-    }
-    if (mpFill && mpPct) {
-      const pct = Math.round(p.mp / p.maxMp * 100);
-      mpFill.style.width = pct + '%';
-      mpPct.textContent = pct + '%';
-    }
-    if (hpText) hpText.textContent = `${p.hp}/${p.maxHp}`;
-    if (mpText) mpText.textContent = `${p.mp}/${p.maxMp}`;
-    if (expText && expFill && expPct) {
-      const expToNext = window.expToNext?.[p.level] || 0;
-      if (p.level >= window.currentLevelCap) {
-        expText.textContent = '满级 MAX';
-        expFill.style.width = '100%';
-        expPct.textContent = 'MAX';
-      } else {
-        const pct = expToNext > 0 ? Math.round(p.exp / expToNext * 100) : 0;
-        expText.textContent = `${p.exp.toLocaleString()}/${expToNext.toLocaleString()}`;
-        expFill.style.width = pct + '%';
-        expPct.textContent = pct + '%';
-      }
-    }
+    refreshPlayerIdentity(p, { prefix: 'combat' });
+    refreshPlayerStatusBar(p, { prefix: 'role' });
   }
 
   _refreshMonsterList() {
     const battle = window.game?.battle;
-    if (!battle) return;
-    const el = document.getElementById('monster-grid');
-    if (!el) return;
-    const monsters = battle.monsters || [];
-    document.getElementById('monster-count').textContent = `${monsters.length}/${battle.maxMonsters || 8}`;
-
-    el.innerHTML = monsters.slice(0, 8).map(m => {
-      const pct = m.maxHp > 0 ? Math.round(m.hp / m.maxHp * 100) : 0;
-      const hpClass = pct <= 18 ? ' fill-hp danger' : pct <= 36 ? ' fill-hp warn' : ' fill-hp';
-      return `<div class="monster-cell${!m.isAlive() ? ' dead' : ''}">
-        <span class="icon-big">👹</span>
-        <div class="body">
-          <div class="name-row">
-            <span class="name">${m.name}</span>
-            <span class="num">${m.hp}/${m.maxHp}</span>
-          </div>
-          <div class="gba-bar"><div class="gba-bar-fill${hpClass}" style="width:${pct}%"></div></div>
-        </div>
-      </div>`;
-    }).join('');
+    refreshMonsterList(battle);
   }
 
   _refreshMapList() {
@@ -344,87 +261,19 @@ class UIManagerClass {
   }
 
   // ========================
-  // 战斗日志（14种事件）
+  // 战斗日志（16种事件）
   // ========================
   _addCombatLog(eventType, data) {
-    const templates = {
-      player_normal_attack_hit: `你 → <span class="target">${data.target}</span>: <span class="damage">${data.damage}${data.crit_suffix || ''}</span>`,
-      player_normal_attack_miss: `你 → <span class="target">${data.target}</span>: <span class="damage">未命中</span>`,
-      player_skill_release: `你 释放 <span class="skill-name">${data.skill_name}</span> → <span class="target">${data.target}</span>: <span class="damage">${data.damage}${data.skill_crit_suffix || ''}</span>`,
-      player_skill_aoe_sub: `<span class="sub-target">↳ → <span class="target">${data.target}</span>: <span class="damage">${data.damage}</span></span>`,
-      monster_attack_hit: `<span class="target">${data.attacker}</span> → 你: <span class="damage">${data.damage}${data.shield_suffix || ''}</span>`,
-      monster_attack_miss: `<span class="target">${data.attacker}</span> → 你: <span class="damage">未命中</span>`,
-      combo_triggered: `你 → <span class="target">${data.target}</span>: <span class="damage">${data.damages_joined} (连击!)</span>`,
-      leech_triggered: `你 → <span class="target">${data.target}</span>: <span class="damage">${data.damage}</span> (汲取 <span class="heal-num">+${data.heal} HP</span>)`,
-      counter_triggered: `<span class="target">${data.attacker}</span> → 你: <span class="damage">${data.damage}</span> → 反伤 ${data.reflected} (<span class="target">${data.attacker}</span> -${data.reflected})`,
-      armor_break_triggered: `你 → <span class="target">${data.target}</span>: <span class="damage">${data.damage} (破甲!)</span>`,
-      auto_consume_hp: `⚗ 自动喝药: ${data.item} <span class="heal-num">+${data.recovered} HP</span>`,
-      auto_consume_mp: `⚗ 自动喝药: ${data.item} <span class="heal-num">+${data.recovered} MP</span>`,
-      buff_applied: `★ Buff: ${data.name} (${data.duration}s)`,
-      buff_expired: `✗ Buff 消失: ${data.buffKey}`,
-      monster_died: `✗ ${data.monster_name} 已倒下`,
-      player_died: `✗ 你 已倒下`,
-    };
-    const msg = templates[eventType] || `${eventType}: ${JSON.stringify(data)}`;
-    const rowClass = this._getCombatLogClass(eventType, data);
-    this._pushLog(this._combatLog, 'combat-log-area', msg, rowClass);
-  }
-
-  _getCombatLogClass(eventType, data) {
-    if (eventType === 'player_normal_attack_hit' && data.crit_suffix) return 'log-line crit';
-    if (eventType === 'leech_triggered') return 'log-line heal';
-    if (eventType === 'player_normal_attack_hit' || eventType === 'player_skill_release' ||
-        eventType === 'combo_triggered' || eventType === 'leech_triggered' ||
-        eventType === 'armor_break_triggered' || eventType === 'player_skill_aoe_sub') return 'log-line';
-    if (['auto_consume_hp','auto_consume_mp'].includes(eventType)) return 'log-line';
-    if (['monster_attack_hit','counter_triggered'].includes(eventType)) return 'log-line player-hit';
-    if (eventType === 'player_died') return 'log-line died';
-    if (eventType === 'monster_died') return 'log-line died';
-    if (eventType === 'player_normal_attack_miss' || eventType === 'monster_attack_miss') return 'log-line miss';
-    if (eventType === 'buff_applied') return 'log-line buff-on';
-    return 'log-line';
+    appendCombatLog(this._combatLog, formatCombatLog(eventType, data));
+    renderCombatLog(this._combatLog, 'combat-log-area', this._combatAutoScroll);
   }
 
   // ========================
   // 掉落日志（7种事件）
   // ========================
   addRewardLog(eventType, data) {
-    const templates = {
-      monster_kill_reward: `击杀 <span class="target">${data.monster_name}</span> → <span class="exp-amt">+${data.exp} EXP</span> / <span class="gold-amt">+${data.gold} 金币</span>`,
-      equipment_dropped: `获得装备: ${data.equipment_name}`,
-      stone_dropped: `获得石头: ${data.stone_base_name}`,
-      box_dropped: `获得盒子: ${data.box_name}`,
-      potion_dropped: `获得药剂: ${data.item_name} ×${data.count}`,
-      level_up: `升级！Lv.${data.from_level} → Lv.${data.to_level}`,
-      exp_loss_on_death: `死亡损失经验: -${data.loss}`,
-    };
-    const msg = templates[eventType] || `${eventType}: ${JSON.stringify(data)}`;
-    let rowClass = 'reward-line';
-    if (eventType === 'monster_kill_reward') rowClass = 'reward-line';
-    else if (eventType === 'level_up') rowClass = 'reward-line level-up';
-    else if (eventType === 'equipment_dropped') rowClass = 'reward-line equip';
-    else if (eventType === 'stone_dropped') rowClass = 'reward-line stone';
-    else if (eventType === 'box_dropped') rowClass = 'reward-line box';
-    else if (eventType === 'exp_loss_on_death') rowClass = 'reward-line died';
-    this._pushLog(this._rewardLog, 'combat-result-area', msg, rowClass);
-  }
-
-  _pushLog(buf, elId, msg, rowClass) {
-    buf.push({ msg, cls: rowClass });
-    if (buf.length > 200) buf.shift();
-    const el = document.getElementById(elId);
-    if (!el) return;
-    // 保留最新 200 条，重新渲染
-    const start = Math.max(0, buf.length - 100);
-    el.innerHTML = buf.slice(start).map(e =>
-      `<div class="${e.cls}">${e.msg}</div>`
-    ).join('');
-    // auto scroll
-    const isCombat = elId === 'combat-log-area';
-    const shouldScroll = isCombat ? this._combatAutoScroll : this._rewardAutoScroll;
-    if (shouldScroll) {
-      el.scrollTop = el.scrollHeight;
-    }
+    appendRewardLog(this._rewardLog, formatRewardLog(eventType, data));
+    renderRewardLog(this._rewardLog, 'combat-result-area', this._rewardAutoScroll);
   }
 
   // 监听滚动暂停 auto_scroll
