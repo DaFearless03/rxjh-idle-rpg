@@ -14,6 +14,7 @@ class UIManagerClass {
     this._rewardLog = [];    // 环形缓冲 200 条
     this._combatAutoScroll = true;
     this._rewardAutoScroll = true;
+    this._logScrollBoundElements = new WeakSet();
 
     eventBus.on('player.level_up', () => this._refreshAll());
     eventBus.on('player.death', () => this._refreshAll());
@@ -430,6 +431,9 @@ class UIManagerClass {
   setupLogScroll(elId) {
     const el = document.getElementById(elId);
     if (!el) return;
+    if (this._logScrollBoundElements.has(el)) return;
+    this._logScrollBoundElements.add(el);
+
     const isCombat = elId === 'combat-log-area';
     el.addEventListener('scroll', () => {
       const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
