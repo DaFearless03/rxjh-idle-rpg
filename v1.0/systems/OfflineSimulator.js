@@ -157,6 +157,7 @@ export const OfflineSimulator = {
         }
       }
     } finally {
+      battle.destroy?.();
       eventBus.off('player.level_up', onLevelUp);
       eventBus.off('monster.death', onMonsterDeath);
       eventBus.off('autoplay.consume_hp', onConsumeHp);

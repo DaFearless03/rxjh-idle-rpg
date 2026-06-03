@@ -48,10 +48,17 @@ export class BattleSystem {
     this._eventLog = [];
     this._statusLog = '';
 
-    // 注册事件监听
-    eventBus.on('player.death', () => {
+    this._onPlayerDeathLog = () => {
       if (!this._quiet) console.log('[系统] 玩家死亡惩罚已结算，等待复活...');
-    });
+    };
+    eventBus.on('player.death', this._onPlayerDeathLog);
+  }
+
+  destroy() {
+    if (this._onPlayerDeathLog) {
+      eventBus.off('player.death', this._onPlayerDeathLog);
+      this._onPlayerDeathLog = null;
+    }
   }
 
   // ========================

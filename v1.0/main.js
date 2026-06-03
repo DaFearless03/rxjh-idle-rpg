@@ -192,6 +192,7 @@ async function cleanupCurrentRuntime({ save = true } = {}) {
     loop.stop();
     loop = null;
   }
+  game?.battle?.destroy?.();
   clearRuntimeEventHandlers();
   NPCSystem.closeDialog();
   window._currentNpc = null;
