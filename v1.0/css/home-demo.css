@@ -42,7 +42,7 @@ body {
 .panel { display: block !important; }
 .page-panel { display: none !important; }
 .page-panel.active { display: flex !important; flex-direction: column !important; }
-.page-home { display: flex !important; flex-direction: column !important; min-height: 0 !important; flex: 1 !important; overflow: hidden !important; }
+.page-home { flex-direction: column !important; min-height: 0 !important; flex: 1 !important; overflow: hidden !important; }
 .page-home > .top-bar { flex-shrink: 0 !important; overflow: hidden !important; }
 .page-home > .main-scroll { flex: 1 !important; min-height: 0 !important; overflow-y: auto !important; }
 .page-home > .bottom-menu { flex-shrink: 0 !important; overflow: hidden !important; }

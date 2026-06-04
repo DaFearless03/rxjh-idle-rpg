@@ -31,11 +31,11 @@ import { OfflineSimulator } from './systems/OfflineSimulator.js';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave } from './utils/player_restore.js';
 import { UIManager } from './ui/UIManager.js';
-import { buildMainScreenUI } from './ui/MainScreenUI.js?v=phase5-ui-5';
+import { buildMainScreenUI } from './ui/MainScreenUI.js?v=phase5-ui-5c';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js';
-import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=phase5-ui-5';
-import { showMultiSaveUI, showCharacterCreationUI, showOfflineRewardUI } from './ui/MultiSaveUI.js?v=phase5-ui-5';
-import './ui/BottomBarUI.js?v=phase5-ui-5';
+import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=phase5-ui-5c';
+import { showMultiSaveUI, showCharacterCreationUI, showOfflineRewardUI } from './ui/MultiSaveUI.js?v=phase5-ui-5c';
+import './ui/BottomBarUI.js?v=phase5-ui-5c';
 
 // ========================
 // 数据加载
