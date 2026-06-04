@@ -970,8 +970,8 @@ body {
 .log-line.player-hit { color: #e04040; }
 .log-line.buff-on { color: var(--menu-yellow, #e8b830); background: rgba(232,184,48,0.15); padding: 2px 4px; border-radius: 3px; }
 .log-line.died { color: var(--menu-accent, #d8483a); font-weight: bold; }
-.log-line.skill-name { color: var(--menu-blue, #4068b8); font-weight: bold; }
-.log-line.sub-target { color: var(--text-dim, #686868); padding-left: 10px; }
+.log-line .skill-name { color: var(--menu-blue, #4068b8); font-weight: bold; }
+.log-line .sub-target { color: var(--text-dim, #686868); padding-left: 10px; }
 .reward-line { font-size: 8.5px; color: var(--text-main, #303030); padding: 1px 0; line-height: 1.7; }
 .reward-line .gold-amt { color: var(--menu-accent, #d8483a); font-weight: bold; }
 .reward-line .exp-amt { color: #4878d0; font-weight: bold; }

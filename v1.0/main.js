@@ -381,8 +381,15 @@ function bindMainScreenEventListenersOnce() {
     UIManager._addCombatLog('monster_died', { monster_name: d.monsterKey });
     UIManager.addRewardLog('monster_kill_reward', { monster_name: d.monsterKey, exp: d.exp || 0, gold: d.gold || 0 });
   });
-  eventBus.on('player.death', () => UIManager._addCombatLog('player_died', {}));
+  eventBus.on('player.death', (d) => {
+    UIManager._addCombatLog('player_died', {});
+    UIManager.addRewardLog('exp_loss_on_death', { loss: d?.exp_loss || 0 });
+  });
   eventBus.on('player.level_up', (d) => UIManager.addRewardLog('level_up', { from_level: d.from_level, to_level: d.to_level }));
+  eventBus.on('drop.equipment', (d) => UIManager.addRewardLog('equipment_dropped', d));
+  eventBus.on('drop.stone', (d) => UIManager.addRewardLog('stone_dropped', d));
+  eventBus.on('drop.box', (d) => UIManager.addRewardLog('box_dropped', d));
+  eventBus.on('drop.potion', (d) => UIManager.addRewardLog('potion_dropped', d));
 
   eventBus.on('teleport.done', ({ to }) => {
     if (to == null) {

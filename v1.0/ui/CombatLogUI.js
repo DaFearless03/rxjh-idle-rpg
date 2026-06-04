@@ -22,10 +22,11 @@ export function formatCombatLog(eventType, data = {}) {
   const target = escapeHtml(data.target);
   const attacker = escapeHtml(data.attacker);
   const item = escapeHtml(data.item || data.item_name);
-  const hpRecovered = data.recovered ?? data.recovery ?? 0;
+  const recovered = data.recovered ?? data.recovery ?? 0;
   const skillName = escapeHtml(data.skill_name);
   const monsterName = escapeHtml(data.monster_name);
-  const buffName = escapeHtml(data.name || data.buffKey);
+  const buffName = escapeHtml(data.buff_name || data.name || data.buffKey);
+  const buffDuration = data.duration === -1 ? '' : `（${escapeHtml(data.duration || 0)}s）`;
 
   const templates = {
     player_normal_attack_hit: `你 → <span class="target">${target}</span>: <span class="damage">${escapeHtml(data.damage)}${escapeHtml(data.crit_suffix || '')}</span>`,
@@ -39,10 +40,10 @@ export function formatCombatLog(eventType, data = {}) {
     counter_triggered: `<span class="target">${attacker}</span> → 你: <span class="damage">${escapeHtml(data.damage)}</span> → 反伤 ${escapeHtml(data.reflected)} (<span class="target">${attacker}</span> -${escapeHtml(data.reflected)})`,
     armor_break_triggered: `你 → <span class="target">${target}</span>: <span class="damage">${escapeHtml(data.damage)} (破甲!)</span>`,
     armorBreak_triggered: `你 → <span class="target">${target}</span>: <span class="damage">${escapeHtml(data.damage)} (破甲!)</span>`,
-    auto_consume_hp: `⚗ 自动喝药: ${item} <span class="heal-num">+${escapeHtml(hpRecovered)} HP</span>`,
-    auto_consume_mp: `⚗ 自动喝药: ${item} <span class="heal-num">+${escapeHtml(hpRecovered)} MP</span>`,
-    buff_applied: `★ Buff: ${buffName} (${escapeHtml(data.duration || 0)}s)`,
-    buff_expired: `✗ Buff 消失: ${buffName}`,
+    auto_consume_hp: `自动喝药: ${item} <span class="heal-num">+${escapeHtml(recovered)} HP</span>`,
+    auto_consume_mp: `自动喝药: ${item} <span class="heal-num">+${escapeHtml(recovered)} MP</span>`,
+    buff_applied: `获得 Buff: ${buffName}${buffDuration}`,
+    buff_expired: `Buff 消失: ${buffName}`,
     monster_died: `✗ ${monsterName} 已倒下`,
     player_died: '✗ 你 已倒下',
   };
@@ -55,7 +56,7 @@ export function formatCombatLog(eventType, data = {}) {
 
 export function getCombatLogClass(eventType, data = {}) {
   if (eventType === 'player_normal_attack_hit' && data.crit_suffix) return 'log-line crit';
-  if (eventType === 'leech_triggered') return 'log-line heal';
+  if (['leech_triggered', 'auto_consume_hp', 'auto_consume_mp'].includes(eventType)) return 'log-line heal';
   if ([
     'player_normal_attack_hit',
     'player_skill_release',
@@ -64,8 +65,6 @@ export function getCombatLogClass(eventType, data = {}) {
     'armor_break_triggered',
     'armorBreak_triggered',
     'player_skill_aoe_sub',
-    'auto_consume_hp',
-    'auto_consume_mp',
   ].includes(eventType)) return 'log-line';
   if (['monster_attack_hit', 'counter_triggered'].includes(eventType)) return 'log-line player-hit';
   if (['player_died', 'monster_died'].includes(eventType)) return 'log-line died';

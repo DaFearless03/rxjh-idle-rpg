@@ -20,7 +20,7 @@ function formatFallback(eventType, data) {
 
 export function formatRewardLog(eventType, data = {}) {
   const templates = {
-    monster_kill_reward: `击杀 <span class="target">${escapeHtml(data.monster_name)}</span> → <span class="exp-amt">+${escapeHtml(data.exp)} EXP</span> / <span class="gold-amt">+${escapeHtml(data.gold)} 金币</span>`,
+    monster_kill_reward: `击杀 <span class="target">${escapeHtml(data.monster_name)}</span> → <span class="exp-amt">经验 +${escapeHtml(data.exp)}</span> / <span class="gold-amt">金币 +${escapeHtml(data.gold)}</span>`,
     equipment_dropped: `获得装备: ${escapeHtml(data.equipment_name)}`,
     stone_dropped: `获得石头: ${escapeHtml(data.stone_base_name)}`,
     box_dropped: `获得盒子: ${escapeHtml(data.box_name)}`,

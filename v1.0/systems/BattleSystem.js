@@ -237,22 +237,25 @@ export class BattleSystem {
     );
 
     // 触发掉落（Phase 2）
+    let dropSummary = null;
     if (this._dropSys) {
       // 找到当前 sub_zone 的掉落配置
       const subZoneDrop = this._subZoneDropsData.find(drop => drop.sub_zone_key === this._currentSubZone?.key);
-      this._dropSys.evaluate(this._player, monster, subZoneDrop || null);
+      dropSummary = this._dropSys.evaluate(this._player, monster, subZoneDrop || null);
     } else {
       // 无 DropSystem 时直接给少量金币（Phase 1 兼容）
       this._player.resources = this._player.resources || { gold: 0, training: 0, merit: 0 };
       this._player.resources.gold += 5;
+      dropSummary = { gold: 5 };
     }
 
-    eventBus.emit('monster.death', { monsterKey: monster.key, exp: monster.exp });
+    eventBus.emit('monster.death', { monsterKey: monster.key, exp: monster.exp, gold: dropSummary?.gold || 0 });
   }
 
   _onPlayerDeath() {
+    const expLoss = Math.floor((this._config.exp_to_next_level[this._player.level] || 0) * 0.01);
     applyDeathExpLoss(this._player, { exp_to_next_level: this._config.exp_to_next_level });
-    this._pushEvent(`[死亡] 玩家倒下，损失经验 ${Math.floor(this._config.exp_to_next_level[this._player.level] * 0.01)}`);
+    this._pushEvent(`[死亡] 玩家倒下，损失经验 ${expLoss}`);
 
     this._player.location = this._player.location || {};
     if (this._player.location.current_sub_zone_key) {
@@ -270,7 +273,7 @@ export class BattleSystem {
     this._clearCombatField();
     this._currentSubZone = null;
 
-    eventBus.emit('player.death', { reason: 'death' });
+    eventBus.emit('player.death', { reason: 'death', exp_loss: expLoss });
   }
 
   // ========================

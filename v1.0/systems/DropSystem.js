@@ -6,6 +6,7 @@
 import { InventorySystem } from './InventorySystem.js';
 import { createEquipmentInstance } from '../entities/EquipmentInstance.js';
 import { random } from '../utils/random.js';
+import { eventBus } from '../core/EventBus.js';
 
 export class DropSystem {
   /**
@@ -30,6 +31,9 @@ export class DropSystem {
    * @ref 09_economy_drops.md evaluation_flow
    */
   evaluate(player, monster, subZoneDrop) {
+    const summary = {
+      gold: 0,
+    };
     const levelDiff = player.level - monster.level;
     const mods = this._calcModifiers(levelDiff);
 
@@ -46,6 +50,7 @@ export class DropSystem {
             const baseGold = Math.floor(Math.random() * (subZoneDrop.gold_range_max || 15) + (subZoneDrop.gold_range_min || 8));
             const finalGold = Math.floor(baseGold * (1 + (player.goldDropBonus || 0)) * mods.gold_modifier);
             this._dropGold(player, finalGold);
+            summary.gold += finalGold;
           }
 
           // 2b. 装备掉落
@@ -84,6 +89,8 @@ export class DropSystem {
         this._dropBox(player, boxKey);
       }
     }
+
+    return summary;
   }
 
   // ========================
@@ -103,6 +110,7 @@ export class DropSystem {
     const result = InventorySystem.addEquipmentInstance(player, newInstance);
     if (result.success) {
       console.log(`[掉落] 装备 ${template.name}`);
+      eventBus.emit('drop.equipment', { equipment_key: equipmentKey, equipment_name: template.name });
     } else {
       console.log(`[掉落] 装备 ${template.name}（背包已满，已丢弃）`);
     }
@@ -112,6 +120,7 @@ export class DropSystem {
     const result = InventorySystem.add(player, stoneKey, 1);
     if (result.success) {
       console.log(`[掉落] 石头 ${stoneKey}`);
+      eventBus.emit('drop.stone', { stone_key: stoneKey, stone_base_name: this._getStoneName(stoneKey) });
     } else {
       console.log(`[掉落] 石头 ${stoneKey}（背包已满，已丢弃）`);
     }
@@ -179,6 +188,7 @@ export class DropSystem {
     const result = InventorySystem.add(player, boxKey, 1);
     if (result.success) {
       console.log(`[掉落] 盒子 ${boxKey}`);
+      eventBus.emit('drop.box', { box_key: boxKey, box_name: boxKey });
     } else {
       console.log(`[掉落] 盒子 ${boxKey}（背包已满，已丢弃）`);
     }
@@ -227,5 +237,14 @@ export class DropSystem {
       if (r <= 0) return item;
     }
     return pool[pool.length - 1];
+  }
+
+  _getStoneName(stoneKey) {
+    for (const group of Object.values(this._stones || {})) {
+      if (!Array.isArray(group)) continue;
+      const stone = group.find(s => s.key === stoneKey);
+      if (stone) return stone.name || stoneKey;
+    }
+    return stoneKey;
   }
 }
