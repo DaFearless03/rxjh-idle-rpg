@@ -162,7 +162,12 @@ function syncGMGlobals() {
     on: (eventName, handler) => eventBus.on(eventName, handler),
     off: (eventName, handler) => eventBus.off(eventName, handler),
   };
-  window.InventorySystem = InventorySystem;
+  window.InventorySystem = {
+    add: (player, itemKey, count) => InventorySystem.add(player, itemKey, count),
+    count: (player, itemKey) => InventorySystem.count(player, itemKey),
+    remove: (player, itemKey, count) => InventorySystem.remove(player, itemKey, count),
+    addEquipmentInstance: (player, instance) => InventorySystem.addEquipmentInstance(player, instance),
+  };
   window.teleport_system = {
     teleport: (subZoneKey, source = 'gm') => {
       if (!game?.player) {
