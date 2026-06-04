@@ -12,7 +12,7 @@ import { mountCharacterPanel } from './CharacterUI.js';
 import { mountInventoryPanel } from './InventoryUI.js';
 import { mountQuestPanel } from './TaskUI.js';
 import { mountWarehouseGrids, syncWarehouseTilesToPlayer } from './WarehouseUI.js';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=phase5-ui-4b';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=phase5-ui-5';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js';
 import { renderEnhanceWorkbench } from './EnhanceUI.js';
 import { renderSynthesisWorkbench } from './SynthesisUI.js';
@@ -534,20 +534,53 @@ window._closeNPCDialog = () => {
   document.getElementById('npcDialogBackdrop')?.classList.remove('open');
 };
 
-window._toggleSound = () => {
-  // 占位
+window._closeModal = () => {
+  UIManager.popModal();
 };
-window._toggleMusic = () => {
-  // 占位
+
+let _settingsExportScope = 'all';
+
+window._settingsSetExportScope = (scope) => {
+  _settingsExportScope = scope === 'current' ? 'current' : 'all';
+  document.getElementById('exportScopeAll')?.classList.toggle('active', _settingsExportScope === 'all');
+  document.getElementById('exportScopeCurrent')?.classList.toggle('active', _settingsExportScope === 'current');
 };
-window._toggleAutoSave = () => {
-  // 占位
+
+window._settingsExportSave = () => {
+  const text = window.game?.exportSave?.({ include_all_characters: _settingsExportScope === 'all' });
+  const output = document.getElementById('settingsExportText');
+  if (output && text) output.value = text;
+  if (text) window._settingsCopyExport();
+  else UIManager.toast('导出失败：没有可导出的角色', 'error');
 };
-window._exitGame = () => {
-  if (confirm('确定退出游戏？')) {
-    localStorage.removeItem('last_slot');
-    location.reload();
+
+window._settingsCopyExport = () => {
+  const text = document.getElementById('settingsExportText')?.value || '';
+  if (!text) {
+    UIManager.toast('请先导出存档', 'info');
+    return;
   }
+  navigator.clipboard?.writeText(text)
+    .then(() => UIManager.toast('存档文本已复制', 'success'))
+    .catch(() => UIManager.toast('浏览器未允许复制，请手动复制文本', 'warn'));
+};
+
+window._settingsImportSave = () => {
+  const raw = (document.getElementById('settingsImportText')?.value || '').trim();
+  if (!raw) {
+    UIManager.toast('请先粘贴存档文本', 'info');
+    return;
+  }
+  window.game?.importSave?.(raw);
+  UIManager.toast('正在导入存档...', 'info');
+};
+
+window._returnToSaveList = async () => {
+  window.game?.saveNow?.();
+  const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=phase5-ui-5');
+  const characters = window.game?.listCharacters?.() || [];
+  UIManager.closePanel();
+  showMultiSaveUI(window._currentGlobalSave, characters, window._careersData || []);
 };
 
 function renderPanelContent(panelId) {

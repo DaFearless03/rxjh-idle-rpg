@@ -15,56 +15,109 @@ const CAREER_EMOJI = {
   healer: '💊',
 };
 
+const CAREER_INFO = {
+  warrior_blade: { name: '刀客', emoji: '⚔️', desc: '高血高防，适合稳扎稳打。' },
+  warrior_sword: { name: '剑客', emoji: '🗡️', desc: '均衡输出，命中与爆发兼顾。' },
+  warrior_spear: { name: '枪客', emoji: '🔱', desc: '长兵远距，攻击上限更亮眼。' },
+  healer: { name: '医师', emoji: '💊', desc: '治疗辅助，续航能力优秀。' },
+};
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getCareerMeta(careerKey, careersData) {
+  const fromData = careersData?.find(c => c.key === careerKey);
+  const local = CAREER_INFO[careerKey] || {};
+  return {
+    name: fromData?.name || local.name || careerKey,
+    emoji: local.emoji || CAREER_EMOJI[careerKey] || '⚔️',
+    desc: local.desc || '',
+  };
+}
+
 export function showMultiSaveUI(globalSave, characters, careersData) {
   const unlocked = globalSave?.character_slots?.unlocked_count ?? 3;
   const lastUsed = globalSave?.character_slots?.last_used_slot;
+  const maxPreviewSlots = Math.max(unlocked + 1, 5);
   const allSlots = [];
+  const used = characters.length;
 
   for (let i = 1; i <= unlocked; i++) {
     const char = characters.find(c => c.slotIndex === i);
     if (char) {
       const career = char.player?.career || 'warrior_blade';
-      const emoji = CAREER_EMOJI[career] || '⚔️';
-      const careerName = careersData?.find(c => c.key === career)?.name || career;
+      const meta = getCareerMeta(career, careersData);
       const inTown = !char.location?.current_sub_zone_key;
       const zone = inTown ? '🏠 城镇' : (char.location?.current_sub_zone_key || '未知');
       allSlots.push({
         type: 'character',
         slotIndex: i,
         name: char.player?.name || '未知',
-        career: careerName,
+        career: meta.name,
         level: char.player?.level || 1,
         zone,
-        emoji,
+        emoji: meta.emoji,
         isLastUsed: lastUsed === i,
       });
     } else {
       allSlots.push({ type: 'empty', slotIndex: i });
     }
   }
+  for (let i = unlocked + 1; i <= maxPreviewSlots; i++) {
+    allSlots.push({ type: 'locked', slotIndex: i, cost: 100 });
+  }
 
   const html = `
-    <div class="save-list">
+    <div class="save-list-shell">
+      <div class="slot-usage">
+        <span>已用 <b>${used}</b> / 已解锁 <b>${unlocked}</b></span>
+        <span class="usage-pill">上限预览 ${maxPreviewSlots}</span>
+      </div>
+      <div class="save-list">
       ${allSlots.map(slot => {
         if (slot.type === 'character') {
           return `
-          <div class="save-card${slot.isLastUsed ? ' active' : ''}"
+          <div class="save-card${slot.isLastUsed ? ' last-used' : ''}"
                onclick="window._ui_switchCharacter(${slot.slotIndex})">
-            <span class="save-slot-num">${slot.slotIndex}号位</span>
-            <div class="info">
-              <div class="name">${slot.emoji} ${slot.name}</div>
-              <div class="meta">Lv${slot.level} ${slot.career} | ${slot.zone}</div>
+            <div class="save-career-icon">${slot.emoji}</div>
+            <div class="save-info">
+              <div class="save-name">${escapeHtml(slot.name)}</div>
+              <div class="save-meta">Lv${slot.level} · ${escapeHtml(slot.career)} · ${escapeHtml(slot.zone)}</div>
+              ${slot.isLastUsed ? '<span class="last-tag">上次游玩</span>' : ''}
             </div>
+            <span class="save-slot-num">${slot.slotIndex}号位</span>
             <button class="del-btn" onclick="event.stopPropagation();window._ui_deleteCharacter(${slot.slotIndex})"
               title="删除角色">×</button>
           </div>`;
-        } else {
+        }
+        if (slot.type === 'empty') {
           return `
-          <div class="empty-slot" onclick="window._ui_createCharacter(${slot.slotIndex})">
-            ✚ 新建角色（第${slot.slotIndex}号位）
+          <div class="slot-empty" onclick="window._ui_createCharacter(${slot.slotIndex})">
+            <div class="slot-plus">＋</div>
+            <div>
+              <div class="slot-title">新建角色</div>
+              <div class="slot-sub">第 ${slot.slotIndex} 号位</div>
+            </div>
           </div>`;
         }
+        return `
+          <div class="slot-locked" onclick="window._ui_lockedSlot(${slot.slotIndex})">
+            <div class="slot-lock">🔒</div>
+            <div>
+              <div class="slot-title">未解锁槽位</div>
+              <div class="slot-sub">第 ${slot.slotIndex} 号位 · 需在角色内解锁</div>
+            </div>
+            <span class="sl-cost">💰 ${slot.cost}</span>
+          </div>`;
       }).join('')}
+      </div>
+      <div class="save-list-foot">选择角色进入游戏。删除角色需要二次确认，当前角色被删除时会自动切换到下一名角色。</div>
     </div>
   `;
 
@@ -99,38 +152,49 @@ export function showMultiSaveUI(globalSave, characters, careersData) {
     UIManager.popModal();
     setTimeout(() => showCharacterCreationUI(window._currentGlobalSave, slotIndex), 100);
   };
+
+  window._ui_lockedSlot = () => {
+    UIManager.toast('请先进入任意角色，在设置/控制台中解锁槽位', 'info');
+  };
 }
 
 export function showCharacterCreationUI(globalSave, targetSlotIndex) {
   const careers = getBaseCareers();
-  const CAREER_INFO = {
-    warrior_blade: { name: '刀客', emoji: '⚔️', desc: '高血高防' },
-    warrior_sword: { name: '剑客', emoji: '🗡️', desc: '均衡输出' },
-    warrior_spear: { name: '枪客', emoji: '🔱', desc: '长兵远距' },
-    healer: { name: '医师', emoji: '💊', desc: '治疗辅助' },
-  };
 
   const html = `
-    <div id="create-step-1">
-      <p class="text-dim mb-4" style="margin-bottom:10px">选择职业</p>
-      <div class="career-cards">
-        ${careers.map(k => `
-          <div class="career-card" id="career-${k}" onclick="window._selectCareer('${k}')">
-            <div class="emoji">${CAREER_INFO[k]?.emoji}</div>
-            <div class="cname">${CAREER_INFO[k]?.name || k}</div>
-            <div class="cdesc">${CAREER_INFO[k]?.desc || ''}</div>
-          </div>
-        `).join('')}
+    <div class="create-role-shell">
+      <div class="step-pill-row">
+        <span class="step-pill active" id="create-pill-career">1 选职业</span>
+        <span class="step-pill" id="create-pill-name">2 起名字</span>
       </div>
+      <div class="create-slot-hint">目标槽位：${targetSlotIndex ? `第 ${targetSlotIndex} 号位` : '第一个空槽'}</div>
+    <div id="create-step-1">
+      <div class="career-cards">
+        ${careers.map(k => {
+          const meta = getCareerMeta(k, window._careersData || []);
+          return `
+          <div class="career-card" id="career-${k}" onclick="window._selectCareer('${k}')">
+            <span class="cc-check">✓</span>
+            <div class="emoji">${meta.emoji}</div>
+            <div class="cname">${escapeHtml(meta.name)}</div>
+            <div class="cdesc">${escapeHtml(meta.desc)}</div>
+          </div>
+        `; }).join('')}
+      </div>
+      <button class="btn primary create-next" id="create-next-btn" disabled onclick="window._goCreateName()">下一步 · 起名</button>
     </div>
     <div id="create-step-2" style="display:none;margin-top:12px">
-      <p class="mb-4">输入角色名（1-10字符，中英数下划线）</p>
-      <input class="input mb-4" id="create-name-input" placeholder="角色名" maxlength="10" />
-      <div id="create-name-error" style="color:#e03030;font-size:11px;margin-bottom:6px"></div>
-      <div class="flex gap-4">
+      <div class="name-sheet-card">
+        <div class="name-preview" id="create-career-preview">请选择职业</div>
+        <input class="input mb-4" id="create-name-input" placeholder="输入角色名" maxlength="10" />
+        <div class="name-counter"><span id="create-name-count">0</span> / 10</div>
+        <div id="create-name-error" class="name-hint">支持中文 / 英文 / 数字 / 下划线</div>
+      </div>
+      <div class="flex gap-4 create-actions">
         <button class="btn" onclick="window._backToStep1()">上一步</button>
         <button class="btn primary flex-1" id="confirm-create-btn" onclick="window._doCreate()">确认创建</button>
       </div>
+    </div>
     </div>
   `;
 
@@ -147,22 +211,63 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
     const el = document.getElementById(`career-${careerKey}`);
     if (el) el.classList.add('selected');
     window._selectedCareer = careerKey;
+    const nextBtn = document.getElementById('create-next-btn');
+    if (nextBtn) nextBtn.disabled = false;
+  };
+
+  window._goCreateName = () => {
+    if (!window._selectedCareer) return;
+    const meta = getCareerMeta(window._selectedCareer, window._careersData || []);
+    document.getElementById('create-pill-career')?.classList.remove('active');
+    document.getElementById('create-pill-name')?.classList.add('active');
     document.getElementById('create-step-1').style.display = 'none';
     document.getElementById('create-step-2').style.display = '';
+    const preview = document.getElementById('create-career-preview');
+    if (preview) preview.textContent = `${meta.emoji} ${meta.name}`;
     const input = document.getElementById('create-name-input');
-    if (input) { input.value = ''; input.focus(); }
+    if (input) {
+      input.value = '';
+      input.focus();
+      input.addEventListener('input', updateNameHint);
+      updateNameHint();
+    }
   };
 
   window._backToStep1 = () => {
+    document.getElementById('create-pill-career')?.classList.add('active');
+    document.getElementById('create-pill-name')?.classList.remove('active');
     document.getElementById('create-step-1').style.display = '';
     document.getElementById('create-step-2').style.display = 'none';
   };
+
+  function updateNameHint() {
+    const input = document.getElementById('create-name-input');
+    const errEl = document.getElementById('create-name-error');
+    const countEl = document.getElementById('create-name-count');
+    const name = (input?.value || '').trim();
+    const len = Array.from(name).length;
+    if (countEl) countEl.textContent = len;
+    if (!errEl) return;
+    errEl.classList.remove('ok', 'err');
+    if (!name) {
+      errEl.textContent = '支持中文 / 英文 / 数字 / 下划线';
+    } else if (len > 10) {
+      errEl.textContent = '角色名不超过 10 个字符';
+      errEl.classList.add('err');
+    } else if (!/^[\u4e00-\u9fa5a-zA-Z0-9_]+$/.test(name)) {
+      errEl.textContent = '仅支持中文 / 英文 / 数字 / 下划线';
+      errEl.classList.add('err');
+    } else {
+      errEl.textContent = '名字可用';
+      errEl.classList.add('ok');
+    }
+  }
 
   window._doCreate = async () => {
     const name = (document.getElementById('create-name-input')?.value || '').trim();
     const errEl = document.getElementById('create-name-error');
     if (!name) { errEl.textContent = '角色名不能为空'; return; }
-    if (name.length > 10) { errEl.textContent = '角色名不超过10字符'; return; }
+    if (Array.from(name).length > 10) { errEl.textContent = '角色名不超过10字符'; return; }
     if (!/^[\u4e00-\u9fa5a-zA-Z0-9_]+$/.test(name)) { errEl.textContent = '仅支持中文/英文/数字/下划线'; return; }
     if (!window._selectedCareer) { errEl.textContent = '请先选择职业'; return; }
     const flow = runCharacterCreationFlow({
@@ -185,7 +290,15 @@ export function showOfflineRewardUI(summary) {
   const truncated = hours >= 24 ? '（已截断至24小时）' : '';
 
   let html = `
-    <div class="summary-field"><span class="field-label">离线时长</span><span class="field-value">${elapsedH} 小时 ${truncated}</span></div>
+    <div class="offline-reward-shell">
+    <div class="offline-hero">
+      <div class="moon">☾</div>
+      <div>
+        <div class="offline-title">离线收益结算</div>
+        <div class="offline-sub">自动挂机已为你结算完毕</div>
+      </div>
+    </div>
+    <div class="rh-time${truncated ? ' truncated' : ''}">离线 ${elapsedH} 小时 ${truncated}</div>
   `;
 
   if (summary.stopped_reason) {
@@ -195,47 +308,47 @@ export function showOfflineRewardUI(summary) {
       player_stopped: '手动停止',
       auto_resupply_gold_insufficient: '金币不足停止',
     };
-    html += `<div class="summary-field" style="color:#e03030">
-      <span class="field-label">停止原因</span>
-      <span class="field-value">⚠️ ${reasons[summary.stopped_reason] || summary.stopped_reason}</span>
+    html += `<div class="alert-box">
+      <span>⚠️ ${reasons[summary.stopped_reason] || summary.stopped_reason}</span>
     </div>`;
   }
 
   html += `
-    <div class="summary-field"><span class="field-label">击杀怪物</span><span class="field-value">${summary.kills} 只</span></div>
-    <div class="summary-field"><span class="field-label">获得经验</span><span class="field-value" style="color:#d0a000">+${summary.exp_gained}</span></div>
-    <div class="summary-field"><span class="field-label">获得金币</span><span class="field-value" style="color:#e07020">+${summary.gold_gained}</span></div>
+    <div class="reward-row"><span>击杀怪物</span><b>${summary.kills} 只</b></div>
+    <div class="reward-row exp"><span>获得经验</span><b>+${summary.exp_gained}</b></div>
+    <div class="reward-row gold"><span>获得金币</span><b>+${summary.gold_gained}</b></div>
   `;
 
   if (summary.level_ups?.length > 0) {
     const first = summary.level_ups[0];
     const last = summary.level_ups[summary.level_ups.length - 1];
     const totalPoints = summary.level_ups.reduce((s, l) => s + (l.gained_points || 1), 0);
-    html += `<div class="levelups">升级 ${summary.level_ups.length} 次：Lv${first.from_level}→Lv${last.to_level}（+${totalPoints}气功点）</div>`;
+    html += `<div class="rr-detail">升级 ${summary.level_ups.length} 次：Lv${first.from_level} → Lv${last.to_level}（+${totalPoints} 气功点）</div>`;
   }
 
   if (summary.potions_consumed && Object.keys(summary.potions_consumed).length > 0) {
     const potions = Object.entries(summary.potions_consumed).map(([k, v]) => `${k}×${v}`).join('、');
-    html += `<div class="summary-field"><span class="field-label">消耗药剂</span><span class="field-value">${potions}</span></div>`;
+    html += `<div class="reward-row minus"><span>消耗药剂</span><b>${potions}</b></div>`;
   }
   if (summary.gold_spent_on_potions > 0) {
-    html += `<div class="summary-field"><span class="field-label">买药花费</span><span class="field-value">-${summary.gold_spent_on_potions} 金币</span></div>`;
+    html += `<div class="reward-row minus"><span>买药花费</span><b>-${summary.gold_spent_on_potions} 金币</b></div>`;
   }
   if (summary.items_obtained?.length > 0) {
-    html += `<div class="summary-field"><span class="field-label">获得物品</span><span class="field-value">${summary.items_obtained.slice(0, 5).join('、')}${summary.items_obtained.length > 5 ? '...' : ''}</span></div>`;
+    html += `<div class="reward-row"><span>获得物品</span><b>${summary.items_obtained.slice(0, 5).join('、')}${summary.items_obtained.length > 5 ? '...' : ''}</b></div>`;
   }
   if (summary.boxes_obtained > 0) {
-    html += `<div class="summary-field"><span class="field-label">获得盒子</span><span class="field-value">${summary.boxes_obtained} 个</span></div>`;
+    html += `<div class="reward-row"><span>获得盒子</span><b>${summary.boxes_obtained} 个</b></div>`;
   }
   if (summary.resupply_trips > 0) {
-    html += `<div class="summary-field"><span class="field-label">自动补给</span><span class="field-value">${summary.resupply_trips} 次</span></div>`;
+    html += `<div class="reward-row"><span>自动补给</span><b>${summary.resupply_trips} 次</b></div>`;
   }
   if (summary.items_discarded > 0) {
-    html += `<div class="summary-field" style="color:#e07020"><span class="field-label">丢弃物品</span><span class="field-value">${summary.items_discarded} 件（背包满）</span></div>`;
+    html += `<div class="reward-row minus"><span>丢弃物品</span><b>${summary.items_discarded} 件（背包满）</b></div>`;
   }
   if (summary.deaths > 0) {
-    html += `<div class="summary-field" style="color:#8b0000"><span class="field-label">死亡次数</span><span class="field-value">${summary.deaths} 次</span></div>`;
+    html += `<div class="reward-row death"><span>死亡次数</span><b>${summary.deaths} 次</b></div>`;
   }
+  html += '</div>';
 
   const el = document.getElementById('offline-summary');
   if (el) el.innerHTML = html;

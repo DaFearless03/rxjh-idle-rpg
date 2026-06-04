@@ -240,21 +240,59 @@ export function buildMainScreenUI(container) {
         </div>
         <div class="main-scroll">
           <div class="panel-content">
-            <div class="setting-row" onclick="window._toggleSound()">
-              <span class="attr-label">音效</span>
-              <span class="attr-value" id="setting-sound" style="color:#4ca050">开</span>
-            </div>
-            <div class="setting-row" onclick="window._toggleMusic()">
-              <span class="attr-label">音乐</span>
-              <span class="attr-value" id="setting-music" style="color:#4ca050">开</span>
-            </div>
-            <div class="setting-row" onclick="window._toggleAutoSave()">
-              <span class="attr-label">自动存档</span>
-              <span class="attr-value" id="setting-autosave" style="color:#4ca050">开</span>
-            </div>
-            <div class="setting-row" style="margin-top:16px" onclick="window._exitGame()">
-              <span class="attr-label setting-row-danger">退出游戏</span>
-              <span class="attr-value"></span>
+            <div class="settings-shell">
+              <div class="set-card">
+                <div class="sc-head">
+                  <span class="sc-ico">📤</span>
+                  <div>
+                    <div class="sc-name">导出存档</div>
+                    <div class="sc-desc">生成 base64 文本，可复制到其他设备。</div>
+                  </div>
+                </div>
+                <div class="sc-radio-row">
+                  <button class="sc-radio active" id="exportScopeAll" onclick="window._settingsSetExportScope('all')"><span class="rd-dot"></span>全部角色</button>
+                  <button class="sc-radio" id="exportScopeCurrent" onclick="window._settingsSetExportScope('current')"><span class="rd-dot"></span>当前角色</button>
+                </div>
+                <textarea class="sc-textarea" id="settingsExportText" readonly placeholder="点击导出后显示存档文本"></textarea>
+                <div class="sc-actions">
+                  <button class="sc-btn green" onclick="window._settingsExportSave()">导出并复制</button>
+                  <button class="sc-btn ghost" onclick="window._settingsCopyExport()">复制文本</button>
+                </div>
+              </div>
+              <div class="set-card">
+                <div class="sc-head">
+                  <span class="sc-ico">📥</span>
+                  <div>
+                    <div class="sc-name">导入存档</div>
+                    <div class="sc-desc">支持全量导入或单角色导入，导入成功后会刷新页面。</div>
+                  </div>
+                </div>
+                <textarea class="sc-textarea import" id="settingsImportText" placeholder="粘贴 base64 存档文本"></textarea>
+                <div class="sc-note"><b>注意：</b>全量导入会替换当前全部角色存档。</div>
+                <button class="sc-btn blue" onclick="window._settingsImportSave()">导入存档</button>
+              </div>
+              <div class="set-card">
+                <div class="sc-head">
+                  <span class="sc-ico">👥</span>
+                  <div>
+                    <div class="sc-name">角色管理</div>
+                    <div class="sc-desc">保存当前进度并返回角色列表，进行切换、创建或删除。</div>
+                  </div>
+                </div>
+                <button class="sc-btn green" onclick="window._returnToSaveList()">返回角色列表</button>
+              </div>
+              <div class="set-card">
+                <div class="sc-head">
+                  <span class="sc-ico">ℹ️</span>
+                  <div>
+                    <div class="sc-name">关于</div>
+                    <div class="sc-desc">v1.0 挂机文字 RPG · schema_version 1.0</div>
+                  </div>
+                </div>
+                <div class="sc-info-row"><span class="sc-info-k">版本</span><span class="sc-info-v">v1.0</span></div>
+                <div class="sc-info-row"><span class="sc-info-k">存档结构</span><span class="sc-info-v">1.0</span></div>
+                <div class="sc-disabled-note">音量 / 语言 / 主题偏好在 v1.0 暂不开放。</div>
+              </div>
             </div>
           </div>
         </div>
@@ -527,6 +565,50 @@ export function buildMainScreenUI(container) {
             <span class="sheet-title">🧪 平十指</span>
           </div>
           <div style="max-height:600px;overflow-y:auto;flex:1;" id="psz-weapon-content"></div>
+        </div>
+      </div>
+
+      <!-- ===== 多存档 / 创建 / 离线收益 Modal ===== -->
+      <div class="modal-overlay save-modal-overlay" id="modal-multi-save">
+        <div class="modal-box save-modal-box">
+          <div class="modal-title">
+            <span>👥 角色列表</span>
+            <button class="sheet-close" onclick="window._closeModal()">×</button>
+          </div>
+          <div class="modal-body" id="multi-save-content"></div>
+        </div>
+      </div>
+      <div class="modal-overlay save-modal-overlay" id="modal-create">
+        <div class="modal-box save-modal-box create-modal-box">
+          <div class="modal-title">
+            <span>✨ 创建角色</span>
+            <button class="sheet-close" onclick="window._closeModal()">×</button>
+          </div>
+          <div class="modal-body" id="create-content"></div>
+        </div>
+      </div>
+      <div class="modal-overlay save-modal-overlay" id="modal-delete-confirm">
+        <div class="modal-box delete-modal-box">
+          <div class="modal-title">⚠️ 删除角色</div>
+          <div class="modal-body">
+            <div class="del-body" id="delete-confirm-msg">确认删除该角色？</div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn" onclick="window._closeModal()">取消</button>
+            <button class="btn danger" id="confirm-delete-btn">确认删除</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-overlay save-modal-overlay" id="modal-offline">
+        <div class="modal-box save-modal-box offline-modal-box">
+          <div class="modal-title">
+            <span>🌙 离线收益</span>
+            <button class="sheet-close" onclick="window._closeModal()">×</button>
+          </div>
+          <div class="modal-body" id="offline-summary"></div>
+          <div class="modal-footer">
+            <button class="btn primary" onclick="window._closeModal()">领取并继续</button>
+          </div>
         </div>
       </div>
 
