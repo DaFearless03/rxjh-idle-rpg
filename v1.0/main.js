@@ -96,7 +96,7 @@ AutoPlaySystem.setPotionShopItems(
   npcsData.find(npc => npc.shop_type === 'potion')?.items || []
 );
 
-// 暴露全局配置供 UI/GMM 使用
+// 暴露全局配置供 UI/GM 使用
 window.expToNext = config.exp_to_next_level;
 window.currentLevelCap = config.current_level_cap;
 
@@ -116,13 +116,91 @@ let lifecycleSaveInFlight = null;
 let mainScreenUIBuilt = false;
 let mainScreenEventListenersBound = false;
 
-// 暴露全局接口供 gm.js 使用
-window.Game = { get currentPlayer() { return game?.player ?? null; } };
-window.GameConfig = config;
-window._careersData = careersData;
-window._attrSys = attrSys;
-window._qigongSys = QigongSystem;
-window.SaveManager = SaveManager;
+const gmGameConfig = {
+  ...config,
+  careers: careersData,
+  equipments: equipmentsData,
+  stones: stonesData,
+  sub_zones: subZonesData,
+  zones: subZonesData,
+  npcs: npcsData,
+  quests: questsData,
+  qigongs: qigongsData,
+  buffs: buffsData,
+  martial_arts: martialArtsData,
+};
+
+function refreshActivePanelAfterGM() {
+  UIManager._refreshAll?.();
+
+  const activePanel = document.querySelector('.page-panel.active');
+  const activePanelId = activePanel?.id?.replace(/^page-/, '');
+  if (!activePanelId || activePanelId === 'home' || activePanelId === 'combat') return;
+  window._openPanel?.(activePanelId);
+}
+
+function syncGMGlobals() {
+  if (typeof SaveManager.save !== 'function') {
+    SaveManager.save = async (player = game?.player, slotIndex = currentSlotIndex) => {
+      if (!player || !slotIndex) {
+        console.warn('[GM] SaveManager.save() 失败：无当前角色或槽位');
+        return false;
+      }
+      await SaveManager.savePlayerState(player, slotIndex);
+      return true;
+    };
+  }
+
+  window.Game = {
+    get currentPlayer() { return game?.player ?? null; },
+    get currentSlotIndex() { return currentSlotIndex; },
+  };
+  window.GameConfig = gmGameConfig;
+  window.SaveManager = SaveManager;
+  window.EventBus = {
+    emit: (eventName, payload) => eventBus.emit(eventName, payload),
+    on: (eventName, handler) => eventBus.on(eventName, handler),
+    off: (eventName, handler) => eventBus.off(eventName, handler),
+  };
+  window.InventorySystem = InventorySystem;
+  window.teleport_system = {
+    teleport: (subZoneKey, source = 'gm') => {
+      if (!game?.player) {
+        console.warn('[GM] teleport_system.teleport() 失败：无当前角色');
+        return false;
+      }
+      return TeleportSystem.teleport(subZoneKey, source, game.player, game);
+    },
+  };
+  window.AttributeSystem = {
+    recompute: (player = game?.player) => {
+      if (!attrSys || !player) {
+        console.warn('[GM] AttributeSystem.recompute() 失败：无当前角色或属性系统未初始化');
+        return false;
+      }
+      attrSys.recompute(player);
+      return true;
+    },
+  };
+
+  window._careersData = careersData;
+  window._attrSys = attrSys;
+  window._qigongSys = QigongSystem;
+
+  document.documentElement.dataset.gmGlobalsReady = 'true';
+  document.documentElement.dataset.gmRequiredGlobals = [
+    'Game.currentPlayer',
+    'GameConfig',
+    'SaveManager.save',
+    'EventBus.emit',
+    'InventorySystem.add',
+    'teleport_system.teleport',
+    'AttributeSystem.recompute',
+  ].join(',');
+}
+
+// 暴露全局接口供 gm.js 使用。具体运行时引用会在切角色/清理时同步刷新。
+syncGMGlobals();
 
 function onRuntimeEvent(event, handler) {
   eventBus.on(event, handler);
@@ -208,7 +286,7 @@ async function cleanupCurrentRuntime({ save = true } = {}) {
   attrSys = null;
   dropSys = null;
   currentSlotIndex = null;
-  window._attrSys = attrSys;
+  syncGMGlobals();
 }
 
 setupPageLifecycleAutoSave();
@@ -284,6 +362,7 @@ function bindMainScreenEventListenersOnce() {
   // 这些监听跟页面骨架生命周期一致，避免切角色/重进流程时重复订阅。
   eventBus.on('player.level_up', () => UIManager._refreshTopBar());
   eventBus.on('player.death', () => UIManager._refreshTopBar());
+  eventBus.on('gm.refresh', () => refreshActivePanelAfterGM());
 
   eventBus.on('battle.player_hit', (d) => UIManager._addCombatLog('player_normal_attack_hit', d));
   eventBus.on('battle.player_miss', (d) => UIManager._addCombatLog('player_normal_attack_miss', d));
@@ -477,6 +556,7 @@ async function initGameForPlayer(player, slotIndex) {
   loop = new GameLoop({ tickIntervalMs: 100 });
   game.loop = loop;
   AutoPlaySystem.syncFromPlayer(player);
+  syncGMGlobals();
 
   // 自动存档：每秒检查一次
   let _saveTimer = 0;
