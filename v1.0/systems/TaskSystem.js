@@ -140,23 +140,12 @@ export const TaskSystem = {
     // 所有 stage 必须全部 completed
     // 兼容通过 giveItem 获得任务物品但未触发 stageAdvanceCheck 的情况：同时检查背包实际数量
     const allStages = questInstance.objectives.map(s => s.stage);
+    for (let i = 0; i < allStages.length; i++) {
+      if (!this.stageAdvanceCheck(player)) break;
+    }
     const allStagesDone = allStages.every(stage => questInstance.completed_stages.includes(stage));
     if (!allStagesDone) {
-      // 检查当前 stage 物品是否实际已集齐，若是则补全状态
-      const stageBlock = questInstance.objectives.find(s => s.stage === questInstance.current_stage);
-      if (stageBlock && stageBlock.items.every(item => InventorySystem.count(player, item.item_key) >= item.count)) {
-        // 补全 completed_stages
-        if (!questInstance.completed_stages.includes(questInstance.current_stage)) {
-          questInstance.completed_stages.push(questInstance.current_stage);
-        }
-        const nextStage = questInstance.current_stage + 1;
-        const hasNext = questInstance.objectives.some(s => s.stage === nextStage);
-        if (hasNext) {
-          questInstance.current_stage = nextStage;
-        }
-      } else {
-        return { success: false, message: '任务尚未全部完成' };
-      }
+      return { success: false, message: '任务尚未全部完成' };
     }
 
     // 必须在 quest_npc 处提交

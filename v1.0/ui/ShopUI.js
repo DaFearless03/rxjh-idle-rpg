@@ -3,8 +3,8 @@
  * @desc 城镇商店列表渲染：武器、防具、药店。
  */
 
-const CAREER_NAME = { blade: '刀客', sword: '剑客', staff: '医师', spear: '枪客', bow: '弓手' };
-const CAREER_ICON = { blade: '🗡️', sword: '⚔️', staff: '🪄', spear: '🔱', bow: '🏹' };
+const CAREER_NAME = { blade: '刀客', sword: '剑客', staff: '医师', spear: '枪客' };
+const CAREER_ICON = { blade: '🗡️', sword: '⚔️', staff: '🪄', spear: '🔱' };
 
 const WEAPON_ITEMS = [
   { item_key: 'blade_base_001', name: '直刀', buy_price: 5000, icon: '🗡️' },
@@ -15,8 +15,6 @@ const WEAPON_ITEMS = [
   { item_key: 'staff_base_002', name: '桃木杖', buy_price: 5000, icon: '🪄' },
   { item_key: 'spear_base_001', name: '木枪', buy_price: 5000, icon: '🔱' },
   { item_key: 'spear_base_002', name: '长枪', buy_price: 5000, icon: '🔱' },
-  { item_key: 'bow_base_001', name: '竹弓', buy_price: 5000, icon: '🏹' },
-  { item_key: 'bow_base_002', name: '硬弓', buy_price: 5000, icon: '🏹' },
 ];
 
 const ARMOR_ITEMS = [
@@ -68,7 +66,7 @@ function escapeHtml(value) {
 function getCareerFamily(player) {
   if (player?.career_family) return player.career_family;
   const career = player?.career || '';
-  return ['blade', 'sword', 'staff', 'spear', 'bow'].find(key => career.includes(key)) || 'blade';
+  return ['blade', 'sword', 'staff', 'spear'].find(key => career.includes(key)) || 'blade';
 }
 
 function sectionLabel(label) {

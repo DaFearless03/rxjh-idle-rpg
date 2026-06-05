@@ -226,6 +226,10 @@ window._djxClearAll = (type) => {
 window._djxBuy = (itemKey, price) => {
   const p = window.game?.player;
   if (!p) return;
+  const hasConfiguredItem =
+    window._itemMetaByKey?.[itemKey] ||
+    window._equipTemplates?.some(item => item.key === itemKey);
+  if (!hasConfiguredItem) { window._showToast('物品配置不存在'); return; }
   if ((p.resources?.gold || 0) < price) { window._showToast('金币不足'); return; }
   const npcData = { type: 'shop', items: [{ item_key: itemKey, buy_price: price }] };
   const r = ShopSystem.buy(p, npcData, itemKey, 1);

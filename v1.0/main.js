@@ -124,6 +124,9 @@ window.expToNext = config.exp_to_next_level;
 window.currentLevelCap = config.current_level_cap;
 window._itemMetaByKey = {
   ...Object.fromEntries(
+    equipmentsData.map(item => [item.key, { name: item.name, icon: '⚔️' }])
+  ),
+  ...Object.fromEntries(
     npcsData
       .filter(npc => npc.shop_type === 'potion')
       .flatMap(npc => npc.items || [])
