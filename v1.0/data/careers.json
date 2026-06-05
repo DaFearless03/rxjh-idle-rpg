@@ -81,6 +81,234 @@
       "equipments": { "weapon": "blade" },
       "attrGrow": { "str": 1.5, "dex": 1, "int": 1, "sta": 1.5, "hpGrowth": 60, "mpGrowth": 20 },
       "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_sword",
+      "name": "剑士",
+      "description": "高敏捷高闪避",
+      "stage": "base",
+      "faction": "neutral",
+      "career_family": "sword",
+      "requirement": { "role": "warrior_sword", "level": 1 },
+      "equipments": { "weapon": "sword" },
+      "base_stats": {
+        "int": 9, "str": 11, "sta": 11, "dex": 9,
+        "baseHp": 100, "baseMp": 100
+      },
+      "attrGrow": { "str": 2, "dex": 2, "int": 1.5, "sta": 1, "hpGrowth": 40, "mpGrowth": 25 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_sword_transfer_1st",
+      "name": "剑侠",
+      "description": "剑客1转",
+      "stage": "t1",
+      "faction": "neutral",
+      "career_family": "sword",
+      "requirement": { "career": "warrior_sword", "level": 10 },
+      "equipments": { "weapon": "sword" },
+      "attrGrow": { "str": 2, "dex": 2, "int": 1.5, "sta": 1, "hpGrowth": 40, "mpGrowth": 25 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_sword_transfer_2st_Z",
+      "name": "至圣剑",
+      "description": "剑客正派2转",
+      "stage": "t2",
+      "faction": "positive",
+      "career_family": "sword",
+      "requirement": { "career": "warrior_sword_transfer_1st", "level": 35 },
+      "equipments": { "weapon": "sword" },
+      "attrGrow": { "str": 2, "dex": 2, "int": 1.5, "sta": 1, "hpGrowth": 40, "mpGrowth": 25 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_sword_transfer_2st_X",
+      "name": "夺命剑",
+      "description": "剑客邪派2转",
+      "stage": "t2",
+      "faction": "negative",
+      "career_family": "sword",
+      "requirement": { "career": "warrior_sword_transfer_1st", "level": 35 },
+      "equipments": { "weapon": "sword" },
+      "attrGrow": { "str": 2, "dex": 2, "int": 1.5, "sta": 1, "hpGrowth": 40, "mpGrowth": 25 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_sword_transfer_3st_Z",
+      "name": "天人剑",
+      "description": "剑客正派3转",
+      "stage": "t3",
+      "faction": "positive",
+      "career_family": "sword",
+      "requirement": { "career": "warrior_sword_transfer_2st_Z", "level": 60 },
+      "equipments": { "weapon": "sword" },
+      "attrGrow": { "str": 2, "dex": 2, "int": 1.5, "sta": 1, "hpGrowth": 40, "mpGrowth": 25 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_sword_transfer_3st_X",
+      "name": "邪灵剑",
+      "description": "剑客邪派3转",
+      "stage": "t3",
+      "faction": "negative",
+      "career_family": "sword",
+      "requirement": { "career": "warrior_sword_transfer_2st_X", "level": 60 },
+      "equipments": { "weapon": "sword" },
+      "attrGrow": { "str": 2, "dex": 2, "int": 1.5, "sta": 1, "hpGrowth": 40, "mpGrowth": 25 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "healer",
+      "name": "医师",
+      "description": "低血量低防御可治疗可buff",
+      "stage": "base",
+      "faction": "neutral",
+      "career_family": "staff",
+      "requirement": { "role": "healer", "level": 1 },
+      "equipments": { "weapon": "staff" },
+      "base_stats": {
+        "int": 9, "str": 11, "sta": 9, "dex": 11,
+        "baseHp": 100, "baseMp": 100
+      },
+      "attrGrow": { "str": 2, "dex": 1, "int": 3.5, "sta": 1, "hpGrowth": 30, "mpGrowth": 30 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "healer_transfer_1st",
+      "name": "名医",
+      "description": "医师1转",
+      "stage": "t1",
+      "faction": "neutral",
+      "career_family": "staff",
+      "requirement": { "career": "healer", "level": 10 },
+      "equipments": { "weapon": "staff" },
+      "attrGrow": { "str": 2, "dex": 1, "int": 3.5, "sta": 1, "hpGrowth": 30, "mpGrowth": 30 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "healer_transfer_2st_Z",
+      "name": "济世者",
+      "description": "医师正派2转",
+      "stage": "t2",
+      "faction": "positive",
+      "career_family": "staff",
+      "requirement": { "career": "healer_transfer_1st", "level": 35 },
+      "equipments": { "weapon": "staff" },
+      "attrGrow": { "str": 2, "dex": 1, "int": 3.5, "sta": 1, "hpGrowth": 30, "mpGrowth": 30 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "healer_transfer_2st_X",
+      "name": "巫医",
+      "description": "医师邪派2转",
+      "stage": "t2",
+      "faction": "negative",
+      "career_family": "staff",
+      "requirement": { "career": "healer_transfer_1st", "level": 35 },
+      "equipments": { "weapon": "staff" },
+      "attrGrow": { "str": 2, "dex": 1, "int": 3.5, "sta": 1, "hpGrowth": 30, "mpGrowth": 30 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "healer_transfer_3st_Z",
+      "name": "活菩萨",
+      "description": "医师正派3转",
+      "stage": "t3",
+      "faction": "positive",
+      "career_family": "staff",
+      "requirement": { "career": "healer_transfer_2st_Z", "level": 60 },
+      "equipments": { "weapon": "staff" },
+      "attrGrow": { "str": 2, "dex": 1, "int": 3.5, "sta": 1, "hpGrowth": 30, "mpGrowth": 30 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "healer_transfer_3st_X",
+      "name": "修罗医",
+      "description": "医师邪派3转",
+      "stage": "t3",
+      "faction": "negative",
+      "career_family": "staff",
+      "requirement": { "career": "healer_transfer_2st_X", "level": 60 },
+      "equipments": { "weapon": "staff" },
+      "attrGrow": { "str": 2, "dex": 1, "int": 3.5, "sta": 1, "hpGrowth": 30, "mpGrowth": 30 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_spear",
+      "name": "枪客",
+      "description": "高血量高攻击",
+      "stage": "base",
+      "faction": "neutral",
+      "career_family": "spear",
+      "requirement": { "role": "warrior_spear", "level": 1 },
+      "equipments": { "weapon": "spear" },
+      "base_stats": {
+        "int": 9, "str": 13, "sta": 11, "dex": 7,
+        "baseHp": 100, "baseMp": 100
+      },
+      "attrGrow": { "str": 3, "dex": 1, "int": 1, "sta": 1, "hpGrowth": 50, "mpGrowth": 25 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_spear_transfer_1st",
+      "name": "枪豪",
+      "description": "枪客1转",
+      "stage": "t1",
+      "faction": "neutral",
+      "career_family": "spear",
+      "requirement": { "career": "warrior_spear", "level": 10 },
+      "equipments": { "weapon": "spear" },
+      "attrGrow": { "str": 3, "dex": 1, "int": 1, "sta": 1, "hpGrowth": 50, "mpGrowth": 25 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_spear_transfer_2st_Z",
+      "name": "玄武枪",
+      "description": "枪客正派2转",
+      "stage": "t2",
+      "faction": "positive",
+      "career_family": "spear",
+      "requirement": { "career": "warrior_spear_transfer_1st", "level": 35 },
+      "equipments": { "weapon": "spear" },
+      "attrGrow": { "str": 3, "dex": 1, "int": 1, "sta": 1, "hpGrowth": 50, "mpGrowth": 25 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_spear_transfer_2st_X",
+      "name": "鬼枪",
+      "description": "枪客邪派2转",
+      "stage": "t2",
+      "faction": "negative",
+      "career_family": "spear",
+      "requirement": { "career": "warrior_spear_transfer_1st", "level": 35 },
+      "equipments": { "weapon": "spear" },
+      "attrGrow": { "str": 3, "dex": 1, "int": 1, "sta": 1, "hpGrowth": 50, "mpGrowth": 25 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_spear_transfer_3st_Z",
+      "name": "英雄枪",
+      "description": "枪客正派3转",
+      "stage": "t3",
+      "faction": "positive",
+      "career_family": "spear",
+      "requirement": { "career": "warrior_spear_transfer_2st_Z", "level": 60 },
+      "equipments": { "weapon": "spear" },
+      "attrGrow": { "str": 3, "dex": 1, "int": 1, "sta": 1, "hpGrowth": 50, "mpGrowth": 25 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
+    },
+    {
+      "key": "warrior_spear_transfer_3st_X",
+      "name": "衍魔枪",
+      "description": "枪客邪派3转",
+      "stage": "t3",
+      "faction": "negative",
+      "career_family": "spear",
+      "requirement": { "career": "warrior_spear_transfer_2st_X", "level": 60 },
+      "equipments": { "weapon": "spear" },
+      "attrGrow": { "str": 3, "dex": 1, "int": 1, "sta": 1, "hpGrowth": 50, "mpGrowth": 25 },
+      "martial_arts": [], "passives": {}, "enhances": {}, "hidden": false
     }
   ]
 }
