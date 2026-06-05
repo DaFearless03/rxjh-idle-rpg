@@ -23,6 +23,7 @@ import { Player } from './entities/Player.js';
 import { createEquipmentInstance } from './entities/EquipmentInstance.js';
 import { SaveManager } from './core/SaveManager.js';
 import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js';
+import { assertValidGameConfig } from './core/ConfigValidator.js';
 import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js';
 import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js';
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js';
@@ -41,21 +42,24 @@ import './ui/BottomBarUI.js?v=phase6-items-1';
 // ========================
 // 数据加载
 // ========================
+const DATA_VERSION = 'phase6-config-1';
+const fetchData = (path) => fetch(`${path}?v=${DATA_VERSION}`, { cache: 'no-store' });
+
 const [configRes, careersRes, monstersRes, equipmentsRes, stonesRes, subZonesRes,
        npcsRes, questsRes, qigongsRes, buffsRes, martialArtsRes,
        globalSaveInitRes] = await Promise.all([
-  fetch('./data/config.json'),
-  fetch('./data/careers.json'),
-  fetch('./data/monsters.json'),
-  fetch('./data/equipments.json'),
-  fetch('./data/stones.json'),
-  fetch('./data/sub_zones.json'),
-  fetch('./data/npcs.json'),
-  fetch('./data/quests.json'),
-  fetch('./data/qigong.json'),
-  fetch('./data/buffs.json'),
-  fetch('./data/martial_arts.json'),
-  fetch('./data/global_save_init.json')
+  fetchData('./data/config.json'),
+  fetchData('./data/careers.json'),
+  fetchData('./data/monsters.json'),
+  fetchData('./data/equipments.json'),
+  fetchData('./data/stones.json'),
+  fetchData('./data/sub_zones.json'),
+  fetchData('./data/npcs.json'),
+  fetchData('./data/quests.json'),
+  fetchData('./data/qigong.json'),
+  fetchData('./data/buffs.json'),
+  fetchData('./data/martial_arts.json'),
+  fetchData('./data/global_save_init.json')
 ]);
 const config = await configRes.json();
 const careersData = (await careersRes.json()).careers;
@@ -82,6 +86,22 @@ const potionKeys = npcsData
   .flatMap(npc => npc.items || [])
   .map(item => item.item_key);
 const boxKeys = [...new Set(Object.values(monsterDropBoxData?.box_type_by_map || {}))];
+
+assertValidGameConfig({
+  careersData,
+  monstersData,
+  equipmentsData,
+  stonesData,
+  subZonesData,
+  subZoneDropsData,
+  monsterDropBoxData,
+  boxesData,
+  npcsData,
+  questsData,
+  qigongsData,
+  buffsData,
+  martialArtsData,
+});
 
 // 初始化系统模板
 TaskSystem.setTemplates(questsData.quest_templates);
