@@ -14,6 +14,21 @@
         "value_distribution": "normal"
       },
       "drop": { "drop_rate": 0.15, "min_level": 1, "level_scale": true }
+    },
+    {
+      "key": "cold_jade_02",
+      "name": "冰魄寒玉",
+      "description": "极寒之力凝聚的寒玉，属性更强",
+      "category": "cold_jade",
+      "attribute": {
+        "pool": [
+          { "key": "defAdd", "name": "防御力", "weight": 40, "value_range": [10, 35] },
+          { "key": "missingAdd", "name": "闪避率", "weight": 30, "value_range": [3, 12] },
+          { "key": "maxHpAdd", "name": "生命值", "weight": 30, "value_range": [30, 150] }
+        ],
+        "value_distribution": "normal"
+      },
+      "drop": { "drop_rate": 0.05, "min_level": 40, "level_scale": true }
     }
   ],
   "vajra_stones": [
@@ -33,6 +48,22 @@
         "value_distribution": "normal"
       },
       "drop": { "drop_rate": 0.10, "min_level": 1, "level_scale": true }
+    },
+    {
+      "key": "vajra_02",
+      "name": "碎星金刚",
+      "description": "蕴含星辰碎裂之力的金刚石，攻击属性更强",
+      "category": "vajra",
+      "attribute": {
+        "pool": [
+          { "key": "atkSelfAdd", "name": "攻击力", "weight": 40, "value_range": [12, 45] },
+          { "key": "weaponExtraDamageAdd", "name": "追加伤害", "weight": 25, "value_range": [8, 30] },
+          { "key": "maxHpAdd", "name": "生命值", "weight": 20, "value_range": [20, 120] },
+          { "key": "hitAdd", "name": "命中率", "weight": 15, "value_range": [3, 12] }
+        ],
+        "value_distribution": "normal"
+      },
+      "drop": { "drop_rate": 0.05, "min_level": 40, "level_scale": true }
     }
   ],
   "enhance_stones": [
@@ -43,6 +74,14 @@
       "category": "enhance",
       "attribute": null,
       "drop": { "drop_rate": 0.20, "min_level": 1, "level_scale": false }
+    },
+    {
+      "key": "enhance_stone_02",
+      "name": "高级强化石",
+      "description": "用于强化武器或防具的进阶强化石",
+      "category": "enhance",
+      "attribute": null,
+      "drop": { "drop_rate": 0.10, "min_level": 35, "level_scale": false }
     }
   ],
   "hot_blood_stones": [
@@ -60,6 +99,20 @@
         "value_distribution": "uniform"
       },
       "drop": { "drop_rate": 0.08, "min_level": 10, "level_scale": false }
+    },
+    {
+      "key": "hot_blood_02",
+      "name": "热血石",
+      "description": "蕴含热血之力的奇石，可合成在披风上",
+      "category": "hot_blood",
+      "attribute": {
+        "pool": [
+          { "key": "enhanceSuccessRateAdd", "name": "合成强化成功率", "weight": 30, "value_range": [0.01, 0.01] },
+          { "key": "goldDropBonusAdd", "name": "金币爆率", "weight": 20, "value_range": [0.05, 0.05] }
+        ],
+        "value_distribution": "normal"
+      },
+      "drop": { "drop_rate": 0.02, "min_level": 50, "level_scale": false }
     }
   ]
 }

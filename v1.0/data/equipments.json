@@ -67,11 +67,33 @@
       "base_stats": { "def": 5 }
     },
     {
+      "key": "gloves_base_002",
+      "name": "青铜护手",
+      "slot": "gloves",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 7 }
+    },
+    {
       "key": "boots_base_001",
       "name": "布靴",
       "slot": "boots",
       "faction": "neutral",
       "required_level": 1,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 3 }
+    },
+    {
+      "key": "boots_base_002",
+      "name": "青衣短靴",
+      "slot": "boots",
+      "faction": "neutral",
+      "required_level": 5,
       "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": true,
@@ -89,6 +111,17 @@
       "base_stats": { "def": 5 }
     },
     {
+      "key": "inner_armor_base_002",
+      "name": "铁锁甲",
+      "slot": "inner_armor",
+      "faction": "neutral",
+      "required_level": 25,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": false,
+      "base_stats": { "def": 15 }
+    },
+    {
       "key": "amulet_base_001",
       "name": "粗布项链",
       "slot": "amulet",
@@ -98,6 +131,17 @@
       "required_transfer": 0,
       "purchaseable": true,
       "base_stats": { "missing": 3 }
+    },
+    {
+      "key": "amulet_base_002",
+      "name": "幻身项链",
+      "slot": "amulet",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": false,
+      "base_stats": { "missing": 4 }
     },
     {
       "key": "ring_base_001",
@@ -111,6 +155,17 @@
       "base_stats": { "hit": 3 }
     },
     {
+      "key": "ring_base_002",
+      "name": "白金戒指",
+      "slot": "ring",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": false,
+      "base_stats": { "hit": 4 }
+    },
+    {
       "key": "earring_base_001",
       "name": "铜耳环",
       "slot": "earring",
@@ -119,6 +174,17 @@
       "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": true,
+      "base_stats": { "maxHp": 20 }
+    },
+    {
+      "key": "earring_base_002",
+      "name": "白玉耳环",
+      "slot": "earring",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": false,
       "base_stats": { "maxHp": 20 }
     },
     {

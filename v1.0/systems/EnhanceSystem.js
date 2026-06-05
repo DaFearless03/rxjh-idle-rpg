@@ -3,9 +3,6 @@
  * @desc 强化系统 +0~+10（成功/失败毁装备）
  * @ref 05_equipment.md 5.5.7 enhance_system
  */
-import { InventorySystem } from './InventorySystem.js';
-import { random } from '../utils/random.js';
-
 export const EnhanceSystem = {
   // 强化成功率
   SUCCESS_RATE: {
@@ -68,14 +65,14 @@ export const EnhanceSystem = {
     if (stoneCount >= 4) stonesNeeded = 3;
     else if (stoneCount >= 1) stonesNeeded = 2;
 
-    const hasStones = InventorySystem.count(player, 'enhance_stone_01') >= stonesNeeded;
-    if (!hasStones) {
+    const availableStones = this._countEnhanceStones(player);
+    if (availableStones < stonesNeeded) {
       return { success: false, message: `强化需要 ${stonesNeeded} 个强化石` };
     }
 
     // 扣钱扣石头
     player.resources.gold -= cost;
-    InventorySystem.remove(player, 'enhance_stone_01', stonesNeeded);
+    this._removeEnhanceStones(player, stonesNeeded);
 
     // 成功率判定
     const successRate = this.SUCCESS_RATE[currentLevel + 1] || 0.01;
@@ -112,6 +109,32 @@ export const EnhanceSystem = {
     if (player.inventory?.equipment_instances?.[instanceId]) {
       delete player.inventory.equipment_instances[instanceId];
     }
+  },
+
+  _countEnhanceStones(player) {
+    const slots = player.inventory?.slots || [];
+    return slots.reduce((sum, slot) => {
+      if (/^enhance_stone_/.test(slot.item_key || '')) return sum + (slot.count || 0);
+      return sum;
+    }, 0);
+  },
+
+  _removeEnhanceStones(player, count) {
+    const slots = player.inventory?.slots || [];
+    let remaining = count;
+    const stoneSlots = slots
+      .filter(slot => /^enhance_stone_/.test(slot.item_key || '') && (slot.count || 0) > 0)
+      .sort((a, b) => a.item_key.localeCompare(b.item_key));
+
+    for (const slot of stoneSlots) {
+      const take = Math.min(slot.count, remaining);
+      slot.count -= take;
+      remaining -= take;
+      if (slot.count === 0) slot.item_key = null;
+      if (remaining === 0) return true;
+    }
+
+    return false;
   },
 
   /**
