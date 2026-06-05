@@ -67,7 +67,12 @@
       "key": "bloodthirsty_wolf", "name": "嗜血狂狼", "level": 32, "exp": 58,
       "hp": 780, "atk": 195, "def": 120,
       "hit": 100, "missing": 10,
-      "monster_type": "elite", "skills": [], "drop_items": [{"item_key": "blood_wolf_skin"}],
+      "monster_type": "elite", "skills": [], "drop_items": [
+        {"item_key": "blood_wolf_skin"},
+        {"item_key": "blood_wolf_claw"},
+        {"item_key": "blood_wolf_tail"},
+        {"item_key": "blood_wolf_blood"}
+      ],
       "critR": 0.35, "critB": 1.8, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
     },
     {
@@ -176,6 +181,20 @@
       "critR": 0.40, "critB": 1.95, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
     },
     {
+      "key": "bamboo_forest_swordsman", "name": "竹林剑士", "level": 58, "exp": 214,
+      "hp": 3200, "atk": 625, "def": 370,
+      "hit": 312, "missing": 31.2,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "bamboo_strip"}],
+      "critR": 0.40, "critB": 1.95, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "bamboo_forest_double_sword", "name": "竹林双剑", "level": 59, "exp": 224,
+      "hp": 3500, "atk": 650, "def": 385,
+      "hit": 325, "missing": 32.5,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "bamboo_leaf"}],
+      "critR": 0.41, "critB": 1.98, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
       "key": "deep_forest_tiger", "name": "深渊森林虎", "level": 62, "exp": 260,
       "hp": 5000, "atk": 720, "def": 430,
       "hit": 360, "missing": 36,
@@ -197,6 +216,13 @@
       "critR": 0.44, "critB": 2.05, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
     },
     {
+      "key": "saber_tooth_evil_tiger", "name": "剑齿恶虎", "level": 66, "exp": 325,
+      "hp": 6400, "atk": 850, "def": 510,
+      "hit": 425, "missing": 42.5,
+      "monster_type": "elite", "skills": [], "drop_items": [{"item_key": "saber_tiger_skin"}],
+      "critR": 0.45, "critB": 2.08, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
       "key": "cave_beast", "name": "洞穴野兽", "level": 63, "exp": 285,
       "hp": 5500, "atk": 760, "def": 460,
       "hit": 380, "missing": 38,
@@ -214,6 +240,13 @@
       "key": "miser_spirit", "name": "吝啬鬼魂", "level": 66, "exp": 340,
       "hp": 6800, "atk": 870, "def": 530,
       "hit": 435, "missing": 43.5,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "magnet_stone"}],
+      "critR": 0.44, "critB": 2.05, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "one_eye_evil_thief", "name": "独眼恶贼", "level": 66, "exp": 348,
+      "hp": 7000, "atk": 890, "def": 535,
+      "hit": 445, "missing": 44.5,
       "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "magnet_stone"}],
       "critR": 0.44, "critB": 2.05, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
     },
@@ -323,6 +356,13 @@
       "critR": 0.43, "critB": 2.02, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
     },
     {
+      "key": "red_cloud_tiger", "name": "赤云虎", "level": 62, "exp": 265,
+      "hp": 5550, "atk": 775, "def": 462,
+      "hit": 388, "missing": 38.8,
+      "monster_type": "elite", "skills": [], "drop_items": [{"item_key": "red_cloud_tiger_skin"}],
+      "critR": 0.43, "critB": 2.02, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
       "key": "burning_spirit", "name": "燃烧幽魂", "level": 62, "exp": 268,
       "hp": 5600, "atk": 780, "def": 465,
       "hit": 390, "missing": 39,
@@ -335,6 +375,32 @@
       "hit": 415, "missing": 41.5,
       "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "gold_bell_snake_scale"}],
       "critR": 0.43, "critB": 2.02, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "gold_bell_snake", "name": "金铃蛇", "level": 64, "exp": 302,
+      "hp": 6400, "atk": 845, "def": 505,
+      "hit": 422, "missing": 42.2,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "gold_bell_snake_scale"}],
+      "critR": 0.43, "critB": 2.02, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "coral_snake", "name": "珊瑚蛇", "level": 65, "exp": 318,
+      "hp": 6750, "atk": 875, "def": 520,
+      "hit": 438, "missing": 43.8,
+      "monster_type": "normal", "skills": [], "drop_items": [{"item_key": "coral_snake_scale"}],
+      "critR": 0.44, "critB": 2.05, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
+    },
+    {
+      "key": "green_head_snake", "name": "青头蛇", "level": 66, "exp": 335,
+      "hp": 7200, "atk": 910, "def": 545,
+      "hit": 455, "missing": 45.5,
+      "monster_type": "elite", "skills": [], "drop_items": [
+        {"item_key": "green_head_snake_scale"},
+        {"item_key": "green_head_snake_fang"},
+        {"item_key": "qingxuan_wine"},
+        {"item_key": "green_head_snake_venom"}
+      ],
+      "critR": 0.45, "critB": 2.08, "armorBreak": 0, "shieldRate": 0, "counterDamage": 0, "leech": 0
     },
     {
       "key": "viper_chief", "name": "毒蛇头领", "level": 66, "exp": 330,

@@ -76,19 +76,19 @@
       "key": "liuzheng_deep_bamboo",
       "name": "渊竹林",
       "gold_range": [215, 260],
-      "monsters": ["wanshou_master", "bamboo_spirit", "deep_forest_tiger", "bamboo_guard"]
+      "monsters": ["wanshou_master", "bamboo_spirit", "bamboo_forest_swordsman", "bamboo_forest_double_sword", "deep_forest_tiger", "bamboo_guard"]
     },
     {
       "key": "shenwu_tiger_valley",
       "name": "虎峡谷",
       "gold_range": [250, 300],
-      "monsters": ["deep_forest_tiger", "saber_toothed_tiger", "cave_beast", "valley_stalker"]
+      "monsters": ["deep_forest_tiger", "saber_toothed_tiger", "saber_tooth_evil_tiger", "cave_beast", "valley_stalker"]
     },
     {
       "key": "shenwu_miser_cave",
       "name": "吝啬鬼洞穴",
       "gold_range": [295, 350],
-      "monsters": ["cave_beast", "valley_stalker", "miser_spirit", "treasure_guardian"]
+      "monsters": ["cave_beast", "valley_stalker", "miser_spirit", "one_eye_evil_thief", "treasure_guardian"]
     },
     {
       "key": "shenwu_degenerate_land",
@@ -136,13 +136,13 @@
       "key": "sanxie_bamboo_fire_forest",
       "name": "竹火林",
       "gold_range": [215, 260],
-      "monsters": ["wutian_leader", "flame_bamboo_spirit", "fire_forest_tiger", "burning_spirit"]
+      "monsters": ["wutian_leader", "flame_bamboo_spirit", "fire_forest_tiger", "red_cloud_tiger", "burning_spirit"]
     },
     {
       "key": "liushan_snake_valley",
       "name": "蛇谷",
       "gold_range": [250, 300],
-      "monsters": ["fire_forest_tiger", "burning_spirit", "snake_spirit", "viper_chief"]
+      "monsters": ["fire_forest_tiger", "burning_spirit", "snake_spirit", "gold_bell_snake", "coral_snake", "green_head_snake", "viper_chief"]
     },
     {
       "key": "liushan_black_pine_base",
