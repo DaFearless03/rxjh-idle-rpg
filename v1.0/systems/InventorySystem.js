@@ -211,6 +211,7 @@ export const InventorySystem = {
     const itemClass = this._getItemClass(itemKey, player);
     if (itemClass === 'equipment') return 1;
     if (itemClass === 'boxes') return 999;
+    if (itemClass === 'consumables') return 999;
     return 99;
   },
 

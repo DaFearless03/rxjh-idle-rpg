@@ -21,7 +21,7 @@ function formatFallback(eventType, data) {
 export function formatCombatLog(eventType, data = {}) {
   const target = escapeHtml(data.target);
   const attacker = escapeHtml(data.attacker);
-  const item = escapeHtml(data.item || data.item_name);
+  const item = escapeHtml(data.item_name || data.item);
   const recovered = data.recovered ?? data.recovery ?? 0;
   const skillName = escapeHtml(data.skill_name);
   const monsterName = escapeHtml(data.monster_name);

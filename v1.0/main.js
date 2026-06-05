@@ -13,6 +13,7 @@ import { WarehouseSystem } from './systems/WarehouseSystem.js';
 import { EnhanceSystem } from './systems/EnhanceSystem.js';
 import { SynthesisSystem } from './systems/SynthesisSystem.js';
 import { DropSystem } from './systems/DropSystem.js';
+import { BoxSystem } from './systems/BoxSystem.js';
 import { NPCSystem, UIState } from './systems/NPCSystem.js';
 import { ShopSystem } from './systems/ShopSystem.js';
 import { TaskSystem } from './systems/TaskSystem.js';
@@ -35,7 +36,7 @@ import { buildMainScreenUI } from './ui/MainScreenUI.js?v=phase5-offline-1';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=phase5-offline-1';
 import { showMultiSaveUI, showCharacterCreationUI, showOfflineRewardUI } from './ui/MultiSaveUI.js?v=phase5-offline-1';
-import './ui/BottomBarUI.js?v=phase5-offline-1';
+import './ui/BottomBarUI.js?v=phase6-items-1';
 
 // ========================
 // 数据加载
@@ -65,6 +66,7 @@ const subZonesPayload = await subZonesRes.json();
 const subZonesData = subZonesPayload.sub_zones;
 const subZoneDropsData = subZonesPayload.sub_zone_drops || [];
 const monsterDropBoxData = subZonesPayload.monster_drop_box || null;
+const boxesData = subZonesPayload.boxes || [];
 const npcsData = (await npcsRes.json()).npcs;
 const questsData = await questsRes.json();
 const qigongsData = (await qigongsRes.json()).qigongs;
@@ -85,6 +87,7 @@ const boxKeys = [...new Set(Object.values(monsterDropBoxData?.box_type_by_map ||
 TaskSystem.setTemplates(questsData.quest_templates);
 BuffSystem.setTemplates(buffsData);
 QigongSystem.setTemplates(qigongsData);
+BoxSystem.setTemplates({ boxes: boxesData, equipmentTemplates: equipmentsData });
 InventorySystem.setItemClassMap({
   equipmentKeys: equipmentsData.map(item => item.key),
   stoneKeys,
@@ -99,6 +102,20 @@ AutoPlaySystem.setPotionShopItems(
 // 暴露全局配置供 UI/GM 使用
 window.expToNext = config.exp_to_next_level;
 window.currentLevelCap = config.current_level_cap;
+window._itemMetaByKey = {
+  ...Object.fromEntries(
+    npcsData
+      .filter(npc => npc.shop_type === 'potion')
+      .flatMap(npc => npc.items || [])
+      .map(item => [item.item_key, { name: item.name, icon: item.item_key?.startsWith('mp_') ? '🌿' : '🍶' }])
+  ),
+  ...Object.fromEntries(boxesData.map(box => [box.key, { name: box.name, icon: '🎁' }])),
+  ...Object.fromEntries(
+    Object.values(stonesData)
+      .flatMap(group => Array.isArray(group) ? group : [])
+      .map(stone => [stone.key, { name: stone.name || stone.key, icon: '💎' }])
+  ),
+};
 
 // ========================
 // 全局状态
@@ -123,6 +140,7 @@ const gmGameConfig = {
   stones: stonesData,
   sub_zones: subZonesData,
   zones: subZonesData,
+  boxes: boxesData,
   npcs: npcsData,
   quests: questsData,
   qigongs: qigongsData,

@@ -373,20 +373,215 @@
   },
 
   "boxes": [
-    { "key": "box_xuanbo_01", "name": "泫渤派宝箱", "description": "可随机开出装备或石头", "drop_rate": 0.001 },
-    { "key": "box_xuanbo_02", "name": "泫渤派秘宝", "description": "可随机开出装备或石头", "drop_rate": 0.0012 },
-    { "key": "box_xuanbo_03", "name": "泫渤派珍藏", "description": "可随机开出装备或石头", "drop_rate": 0.0015 },
-    { "key": "box_liuzheng_01", "name": "柳正关宝箱", "description": "可随机开出装备或石头", "drop_rate": 0.002 },
-    { "key": "box_liuzheng_02", "name": "柳正关秘宝", "description": "可随机开出装备或石头", "drop_rate": 0.0025 },
-    { "key": "box_liuzheng_03", "name": "柳正关珍藏", "description": "可随机开出装备或石头", "drop_rate": 0.003 },
-    { "key": "box_shenwu_01", "name": "神武门宝箱", "description": "可随机开出装备或石头", "drop_rate": 0.003 },
-    { "key": "box_shenwu_02", "name": "神武门秘宝", "description": "可随机开出装备或石头", "drop_rate": 0.004 },
-    { "key": "box_sanxie_01", "name": "三邪关宝箱", "description": "可随机开出装备或石头", "drop_rate": 0.002 },
-    { "key": "box_sanxie_02", "name": "三邪关秘宝", "description": "可随机开出装备或石头", "drop_rate": 0.003 },
-    { "key": "box_sanxie_03", "name": "三邪关珍藏", "description": "可随机开出装备或石头", "drop_rate": 0.004 },
-    { "key": "box_liushan_01", "name": "柳善提督府宝箱", "description": "可随机开出装备或石头", "drop_rate": 0.0035 },
-    { "key": "box_liushan_02", "name": "柳善提督府秘宝", "description": "可随机开出装备或石头", "drop_rate": 0.0045 },
-    { "key": "box_nanminghu_01", "name": "南明湖宝箱", "description": "可随机开出装备或石头", "drop_rate": 0.005 },
-    { "key": "box_nanminghu_02", "name": "南明湖珍藏", "description": "可随机开出装备或石头", "drop_rate": 0.006 }
+    {
+      "key": "box_xuanbo_01",
+      "name": "泫渤派宝箱",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.001,
+      "openable_items": [
+        { "item_key": "hp_potion_grade1", "name": "金创药（小）", "weight": 200 },
+        { "item_key": "mp_potion_grade1", "name": "人参", "weight": 200 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 30 },
+        { "item_key": "cold_jade_01", "name": "寒玉石", "weight": 20 },
+        { "item_key": "blade_base_001", "name": "直刀", "weight": 1 },
+        { "item_key": "ring_base_001", "name": "铁戒", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_xuanbo_02",
+      "name": "泫渤派秘宝",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.0012,
+      "openable_items": [
+        { "item_key": "hp_potion_grade1", "name": "金创药（小）", "weight": 180 },
+        { "item_key": "mp_potion_grade1", "name": "人参", "weight": 180 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 35 },
+        { "item_key": "vajra_01", "name": "金刚石", "weight": 20 },
+        { "item_key": "blade_base_002", "name": "铁刀", "weight": 1 },
+        { "item_key": "amulet_base_001", "name": "粗布项链", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_xuanbo_03",
+      "name": "泫渤派珍藏",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.0015,
+      "openable_items": [
+        { "item_key": "hp_potion_grade1", "name": "金创药（小）", "weight": 160 },
+        { "item_key": "mp_potion_grade1", "name": "人参", "weight": 160 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 40 },
+        { "item_key": "hot_blood_01", "name": "热血石", "weight": 18 },
+        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1 },
+        { "item_key": "earring_base_001", "name": "铜耳环", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_liuzheng_01",
+      "name": "柳正关宝箱",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.002,
+      "openable_items": [
+        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "weight": 200 },
+        { "item_key": "mp_potion_grade2", "name": "野山参", "weight": 200 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 35 },
+        { "item_key": "cold_jade_01", "name": "寒玉石", "weight": 25 },
+        { "item_key": "blade_chest_base_002", "name": "金丝战袍", "weight": 1 },
+        { "item_key": "cape_base_001", "name": "破旧披风", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_liuzheng_02",
+      "name": "柳正关秘宝",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.0025,
+      "openable_items": [
+        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "weight": 180 },
+        { "item_key": "mp_potion_grade2", "name": "野山参", "weight": 180 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 45 },
+        { "item_key": "vajra_01", "name": "金刚石", "weight": 25 },
+        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1 },
+        { "item_key": "boots_base_001", "name": "布靴", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_liuzheng_03",
+      "name": "柳正关珍藏",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.003,
+      "openable_items": [
+        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "weight": 160 },
+        { "item_key": "mp_potion_grade2", "name": "野山参", "weight": 160 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 55 },
+        { "item_key": "hot_blood_01", "name": "热血石", "weight": 25 },
+        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1.5 },
+        { "item_key": "inner_armor_base_001", "name": "布衣", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_shenwu_01",
+      "name": "神武门宝箱",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.003,
+      "openable_items": [
+        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "weight": 200 },
+        { "item_key": "mp_potion_grade3", "name": "雪原参", "weight": 200 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 50 },
+        { "item_key": "cold_jade_01", "name": "寒玉石", "weight": 30 },
+        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1.5 },
+        { "item_key": "ring_base_001", "name": "铁戒", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_shenwu_02",
+      "name": "神武门秘宝",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.004,
+      "openable_items": [
+        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "weight": 180 },
+        { "item_key": "mp_potion_grade3", "name": "雪原参", "weight": 180 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 60 },
+        { "item_key": "vajra_01", "name": "金刚石", "weight": 35 },
+        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 2 },
+        { "item_key": "earring_base_001", "name": "铜耳环", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_sanxie_01",
+      "name": "三邪关宝箱",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.002,
+      "openable_items": [
+        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "weight": 200 },
+        { "item_key": "mp_potion_grade2", "name": "野山参", "weight": 200 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 35 },
+        { "item_key": "cold_jade_01", "name": "寒玉石", "weight": 25 },
+        { "item_key": "blade_chest_base_002", "name": "金丝战袍", "weight": 1 },
+        { "item_key": "cape_base_001", "name": "破旧披风", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_sanxie_02",
+      "name": "三邪关秘宝",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.003,
+      "openable_items": [
+        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "weight": 180 },
+        { "item_key": "mp_potion_grade2", "name": "野山参", "weight": 180 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 45 },
+        { "item_key": "vajra_01", "name": "金刚石", "weight": 25 },
+        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1 },
+        { "item_key": "boots_base_001", "name": "布靴", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_sanxie_03",
+      "name": "三邪关珍藏",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.004,
+      "openable_items": [
+        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "weight": 160 },
+        { "item_key": "mp_potion_grade2", "name": "野山参", "weight": 160 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 55 },
+        { "item_key": "hot_blood_01", "name": "热血石", "weight": 25 },
+        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1.5 },
+        { "item_key": "inner_armor_base_001", "name": "布衣", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_liushan_01",
+      "name": "柳善提督府宝箱",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.0035,
+      "openable_items": [
+        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "weight": 200 },
+        { "item_key": "mp_potion_grade3", "name": "雪原参", "weight": 200 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 50 },
+        { "item_key": "cold_jade_01", "name": "寒玉石", "weight": 30 },
+        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1.5 },
+        { "item_key": "ring_base_001", "name": "铁戒", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_liushan_02",
+      "name": "柳善提督府秘宝",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.0045,
+      "openable_items": [
+        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "weight": 180 },
+        { "item_key": "mp_potion_grade3", "name": "雪原参", "weight": 180 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 60 },
+        { "item_key": "vajra_01", "name": "金刚石", "weight": 35 },
+        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 2 },
+        { "item_key": "earring_base_001", "name": "铜耳环", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_nanminghu_01",
+      "name": "南明湖宝箱",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.005,
+      "openable_items": [
+        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "weight": 160 },
+        { "item_key": "mp_potion_grade3", "name": "雪原参", "weight": 160 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 70 },
+        { "item_key": "hot_blood_01", "name": "热血石", "weight": 40 },
+        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 2 },
+        { "item_key": "amulet_base_001", "name": "粗布项链", "weight": 1 }
+      ]
+    },
+    {
+      "key": "box_nanminghu_02",
+      "name": "南明湖珍藏",
+      "description": "可随机开出装备、石头或药剂",
+      "drop_rate": 0.006,
+      "openable_items": [
+        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "weight": 140 },
+        { "item_key": "mp_potion_grade3", "name": "雪原参", "weight": 140 },
+        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 80 },
+        { "item_key": "vajra_01", "name": "金刚石", "weight": 45 },
+        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 2.5 },
+        { "item_key": "earring_base_001", "name": "铜耳环", "weight": 1.5 }
+      ]
+    }
   ]
 }

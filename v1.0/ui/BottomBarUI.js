@@ -5,11 +5,13 @@
 import { UIManager } from './UIManager.js';
 import { ShopSystem } from '../systems/ShopSystem.js';
 import { InventorySystem } from '../systems/InventorySystem.js';
+import { ConsumableSystem } from '../systems/ConsumableSystem.js';
+import { BoxSystem } from '../systems/BoxSystem.js';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js';
 import { QigongSystem } from '../systems/QigongSystem.js';
 import { mountCharacterPanel } from './CharacterUI.js';
-import { mountInventoryPanel } from './InventoryUI.js';
+import { mountInventoryPanel } from './InventoryUI.js?v=phase6-items-1';
 import { mountQuestPanel } from './TaskUI.js';
 import { mountWarehouseGrids, syncWarehouseTilesToPlayer } from './WarehouseUI.js';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=phase5-offline-1';
@@ -626,6 +628,116 @@ function renderInventoryPanel(player) {
   mountInventoryPanel(el, p);
 }
 
+function openInventoryItemAction(tile) {
+  const p = window.game?.player;
+  if (!p || !tile?.dataset?.key) return;
+  const itemKey = tile.dataset.key;
+  const itemClass = tile.dataset.class;
+  const count = Math.max(1, Number(tile.dataset.count || InventorySystem.count(p, itemKey) || 1));
+  if (itemClass === 'consumables') {
+    openQuantityAction({
+      mode: 'consume',
+      itemKey,
+      icon: tile.dataset.icon || '🍶',
+      name: tile.dataset.name || itemKey,
+      max: count,
+      defaultQty: 1,
+    });
+    return;
+  }
+  if (itemClass === 'boxes') {
+    openQuantityAction({
+      mode: 'box',
+      itemKey,
+      icon: tile.dataset.icon || '🎁',
+      name: tile.dataset.name || itemKey,
+      max: count,
+      defaultQty: count,
+    });
+    return;
+  }
+  if (itemClass === 'quest_items') {
+    UIManager.toast('任务物品不可使用或出售', 'info');
+    return;
+  }
+  UIManager.toast('该物品暂不支持直接使用', 'info');
+}
+
+function openQuantityAction({ mode, itemKey, icon, name, max, defaultQty }) {
+  const backdrop = document.getElementById('qtyBackdrop');
+  const input = document.getElementById('qtyInput');
+  const confirm = document.getElementById('qtyConfirm');
+  if (!backdrop || !input || !confirm) return;
+
+  const safeMax = Math.max(1, Math.floor(max || 1));
+  const setQty = (value) => {
+    input.value = String(Math.min(safeMax, Math.max(1, Math.floor(Number(value) || 1))));
+    updateQuantityActionMeta(mode, itemKey);
+  };
+
+  document.getElementById('qtyIcon').textContent = icon;
+  document.getElementById('qtyName').textContent = name;
+  document.querySelector('#qtyBackdrop .qty-unit').innerHTML = `拥有: <b>${safeMax}</b> 个`;
+  input.min = '1';
+  input.max = String(safeMax);
+  setQty(defaultQty || 1);
+  confirm.textContent = mode === 'consume' ? '使用' : '开盒';
+  confirm.onclick = () => confirmQuantityAction(mode, itemKey);
+
+  document.getElementById('qtyMinus').onclick = () => setQty(Number(input.value) - 1);
+  document.getElementById('qtyPlus').onclick = () => setQty(Number(input.value) + 1);
+  input.oninput = () => setQty(input.value);
+  document.querySelectorAll('#qtyBackdrop .qty-quick button').forEach(btn => {
+    btn.onclick = () => setQty(Number(input.value) + Number(btn.dataset.qty || 0));
+  });
+
+  backdrop.classList.add('open');
+}
+
+function updateQuantityActionMeta(mode, itemKey) {
+  const p = window.game?.player;
+  const input = document.getElementById('qtyInput');
+  const total = document.querySelector('#qtyBackdrop .qty-total');
+  const qty = Math.max(1, Number(input?.value || 1));
+  if (!total) return;
+  if (mode === 'consume') {
+    const tpl = ConsumableSystem.getTemplate(itemKey);
+    const bonus = tpl?.type === 'mp' ? (p?.mpRecoveryBonus || 0) : (p?.healBonus || 0);
+    const perUse = Math.floor((tpl?.recovery || 0) * (1 + bonus));
+    total.innerHTML = `预计恢复: <span class="qt-val" id="qtyTotalPrice">${perUse * qty}</span> ${tpl?.type?.toUpperCase() || ''}`;
+    return;
+  }
+  total.innerHTML = `将开启: <span class="qt-val" id="qtyTotalPrice">${qty}</span> 个`;
+}
+
+function confirmQuantityAction(mode, itemKey) {
+  const p = window.game?.player;
+  const input = document.getElementById('qtyInput');
+  const qty = Math.max(1, Math.floor(Number(input?.value || 1)));
+  if (!p) return;
+
+  const result = mode === 'consume'
+    ? ConsumableSystem.use(p, itemKey, qty, { source: 'manual' })
+    : BoxSystem.openBox(p, itemKey, qty);
+
+  document.getElementById('qtyBackdrop')?.classList.remove('open');
+  if (result?.success) {
+    UIManager.toast(mode === 'consume' ? result.message : formatBoxOpenToast(result), 'success');
+    window.game?.saveNow?.();
+    UIManager._refreshAll?.();
+    renderInventoryPanel(p);
+  } else {
+    UIManager.toast(result?.message || '操作失败', 'error');
+  }
+}
+
+function formatBoxOpenToast(result) {
+  const items = (result.obtained || []).map(item => `${item.name || item.item_key}×${item.count}`);
+  const base = items.length > 0 ? `获得 ${items.slice(0, 4).join('、')}${items.length > 4 ? '...' : ''}` : '没有获得物品';
+  const discarded = (result.discarded || []).reduce((sum, item) => sum + item.count, 0);
+  return discarded > 0 ? `${base}；背包满丢弃 ${discarded} 件` : base;
+}
+
 function renderAutoplayPanel(player) {
   const el = document.getElementById('autoplay-panel-content');
   if (!el) return;
@@ -888,6 +1000,12 @@ window._closeMapSheet = () => {
   }
 };
 document.addEventListener('click', (e) => {
+  const inventoryTile = e.target.closest('#inventoryBagGrid .bag-tile[data-key]');
+  if (inventoryTile) {
+    openInventoryItemAction(inventoryTile);
+    return;
+  }
+
   // mapSheet close button
   if (e.target.id === 'mapSheetClose') window._closeMapSheet();
   // mapSheet backdrop click to close

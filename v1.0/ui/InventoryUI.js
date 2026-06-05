@@ -66,7 +66,7 @@ function getSlotDisplay(slot, player) {
   }
 
   const itemClass = classifyItem(slot, player);
-  const meta = ITEM_META[key] || {};
+  const meta = window._itemMetaByKey?.[key] || ITEM_META[key] || {};
   return {
     key,
     name: slot.name || meta.name || key || '未知物品',

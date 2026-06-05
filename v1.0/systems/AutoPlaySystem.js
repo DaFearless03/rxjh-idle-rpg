@@ -4,6 +4,7 @@
  * @ref 10_consumables.auto_consume / auto_heal_skill / auto_resupply
  */
 import { InventorySystem } from './InventorySystem.js';
+import { ConsumableSystem } from './ConsumableSystem.js';
 import { eventBus } from '../core/EventBus.js';
 
 function createCooldownState() {
@@ -114,18 +115,10 @@ export const AutoPlaySystem = {
     if (player.hp / player.maxHp > cfg.threshold) return false;
     if (InventorySystem.count(player, cfg.selected_item_key) <= 0) return false;
 
-    // 消耗药剂
-    const consumed = InventorySystem.remove(player, cfg.selected_item_key, 1);
-    if (!consumed) return false;
-
-    // 恢复量
-    const baseRecovery = this._getPotionRecovery(cfg.selected_item_key);
-    const healBonus = player.healBonus || 0;
-    const recovered = Math.floor(baseRecovery * (1 + healBonus));
-    player.hp = Math.min(player.maxHp, player.hp + recovered);
+    const result = ConsumableSystem.use(player, cfg.selected_item_key, 1, { source: 'auto' });
+    if (!result.success) return false;
 
     this._cooldowns.hp_potion = 5000;
-    eventBus.emit('autoplay.consume_hp', { item: cfg.selected_item_key, recovered });
     return true;
   },
 
@@ -136,16 +129,10 @@ export const AutoPlaySystem = {
     if (player.mp / player.maxMp > cfg.threshold) return false;
     if (InventorySystem.count(player, cfg.selected_item_key) <= 0) return false;
 
-    const consumed = InventorySystem.remove(player, cfg.selected_item_key, 1);
-    if (!consumed) return false;
-
-    const baseRecovery = this._getPotionRecovery(cfg.selected_item_key);
-    const mpRecoveryBonus = player.mpRecoveryBonus || 0;
-    const recovered = Math.floor(baseRecovery * (1 + mpRecoveryBonus));
-    player.mp = Math.min(player.maxMp, player.mp + recovered);
+    const result = ConsumableSystem.use(player, cfg.selected_item_key, 1, { source: 'auto' });
+    if (!result.success) return false;
 
     this._cooldowns.mp_potion = 5000;
-    eventBus.emit('autoplay.consume_mp', { item: cfg.selected_item_key, recovered });
     return true;
   },
 
@@ -257,18 +244,6 @@ export const AutoPlaySystem = {
   _getPotionBuyPrice(itemKey) {
     const item = this._potionShopItems.find(entry => entry.item_key === itemKey);
     return item?.buy_price || 0;
-  },
-
-  _getPotionRecovery(itemKey) {
-    const recoveries = {
-      'hp_potion_grade1': 70,
-      'hp_potion_grade2': 160,
-      'hp_potion_grade3': 300,
-      'mp_potion_grade1': 70,
-      'mp_potion_grade2': 160,
-      'mp_potion_grade3': 320,
-    };
-    return recoveries[itemKey] || 50;
   },
 
   _findSkill(skillKey, player) {
