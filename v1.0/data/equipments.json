@@ -23,6 +23,72 @@
       "base_stats": { "atkMin": 12, "atkMax": 20 }
     },
     {
+      "key": "sword_base_001",
+      "name": "木剑",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["sword"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "atkMin": 10, "atkMax": 15 }
+    },
+    {
+      "key": "sword_base_002",
+      "name": "重剑",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["sword"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "atkMin": 15, "atkMax": 25 }
+    },
+    {
+      "key": "staff_base_001",
+      "name": "木杖",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["staff"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "atkMin": 8, "atkMax": 10 }
+    },
+    {
+      "key": "staff_base_002",
+      "name": "桃木杖",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["staff"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "atkMin": 10, "atkMax": 15 }
+    },
+    {
+      "key": "spear_base_001",
+      "name": "木枪",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["spear"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "atkMin": 12, "atkMax": 18 }
+    },
+    {
+      "key": "spear_base_002",
+      "name": "长枪",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": ["spear"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "atkMin": 17, "atkMax": 27 }
+    },
+    {
       "key": "blade_t1_001",
       "name": "钢刀",
       "slot": "weapon",
@@ -56,6 +122,116 @@
       "base_stats": { "def": 16 }
     },
     {
+      "key": "blade_chest_base_003",
+      "name": "乌蚕战袍",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 30,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 20 }
+    },
+    {
+      "key": "sword_chest_base_001",
+      "name": "无名侠衣",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_career": ["sword"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 10 }
+    },
+    {
+      "key": "sword_chest_base_002",
+      "name": "金丝侠衣",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 20,
+      "required_career": ["sword"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 14 }
+    },
+    {
+      "key": "sword_chest_base_003",
+      "name": "乌蚕侠衣",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 30,
+      "required_career": ["sword"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 18 }
+    },
+    {
+      "key": "staff_chest_base_001",
+      "name": "无名法袍",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_career": ["staff"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 6 }
+    },
+    {
+      "key": "staff_chest_base_002",
+      "name": "金丝法袍",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 20,
+      "required_career": ["staff"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 10 }
+    },
+    {
+      "key": "staff_chest_base_003",
+      "name": "乌蚕法袍",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 30,
+      "required_career": ["staff"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 14 }
+    },
+    {
+      "key": "spear_chest_base_001",
+      "name": "无名枪衣",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_career": ["spear"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 8 }
+    },
+    {
+      "key": "spear_chest_base_002",
+      "name": "金丝枪衣",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 20,
+      "required_career": ["spear"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 12 }
+    },
+    {
+      "key": "spear_chest_base_003",
+      "name": "乌蚕枪衣",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 30,
+      "required_career": ["spear"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 16 }
+    },
+    {
       "key": "gloves_base_001",
       "name": "无名护手",
       "slot": "gloves",
@@ -78,6 +254,28 @@
       "base_stats": { "def": 7 }
     },
     {
+      "key": "gloves_base_003",
+      "name": "精炼护手",
+      "slot": "gloves",
+      "faction": "neutral",
+      "required_level": 20,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 9 }
+    },
+    {
+      "key": "gloves_base_004",
+      "name": "罗汉护手",
+      "slot": "gloves",
+      "faction": "neutral",
+      "required_level": 30,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 11 }
+    },
+    {
       "key": "boots_base_001",
       "name": "布靴",
       "slot": "boots",
@@ -98,6 +296,39 @@
       "required_transfer": 0,
       "purchaseable": true,
       "base_stats": { "def": 3 }
+    },
+    {
+      "key": "boots_base_003",
+      "name": "皮短靴",
+      "slot": "boots",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 5 }
+    },
+    {
+      "key": "boots_base_004",
+      "name": "无名长靴",
+      "slot": "boots",
+      "faction": "neutral",
+      "required_level": 20,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 7 }
+    },
+    {
+      "key": "boots_base_005",
+      "name": "皮长靴",
+      "slot": "boots",
+      "faction": "neutral",
+      "required_level": 30,
+      "required_career": ["blade"],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": { "def": 9 }
     },
     {
       "key": "inner_armor_base_001",
