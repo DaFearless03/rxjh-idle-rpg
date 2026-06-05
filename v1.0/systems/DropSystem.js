@@ -113,6 +113,7 @@ export class DropSystem {
       eventBus.emit('drop.equipment', { equipment_key: equipmentKey, equipment_name: template.name });
     } else {
       console.log(`[掉落] 装备 ${template.name}（背包已满，已丢弃）`);
+      eventBus.emit('drop.discarded', { item_key: equipmentKey, item_name: template.name, count: 1, reason: 'inventory_full' });
     }
   }
 
@@ -123,6 +124,7 @@ export class DropSystem {
       eventBus.emit('drop.stone', { stone_key: stoneKey, stone_base_name: this._getStoneName(stoneKey) });
     } else {
       console.log(`[掉落] 石头 ${stoneKey}（背包已满，已丢弃）`);
+      eventBus.emit('drop.discarded', { item_key: stoneKey, item_name: this._getStoneName(stoneKey), count: 1, reason: 'inventory_full' });
     }
   }
 
@@ -181,6 +183,7 @@ export class DropSystem {
       player.auto_play.is_auto_play = false;
     }
     console.warn(`[任务物品] ${itemKey} 无法保存（背包已满），已停止挂机`);
+    eventBus.emit('drop.discarded', { item_key: itemKey, item_name: itemKey, count: 1, reason: 'inventory_full_quest_item' });
     return false;
   }
 
@@ -191,6 +194,7 @@ export class DropSystem {
       eventBus.emit('drop.box', { box_key: boxKey, box_name: boxKey });
     } else {
       console.log(`[掉落] 盒子 ${boxKey}（背包已满，已丢弃）`);
+      eventBus.emit('drop.discarded', { item_key: boxKey, item_name: boxKey, count: 1, reason: 'inventory_full' });
     }
   }
 

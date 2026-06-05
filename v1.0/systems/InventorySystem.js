@@ -107,7 +107,7 @@ export const InventorySystem = {
       remaining = 0;
     }
 
-    return { success: remaining === 0, added, discarded };
+    return { success: discarded === 0, added, discarded };
   },
 
   /**

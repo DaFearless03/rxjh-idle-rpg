@@ -12,7 +12,7 @@ import { mountCharacterPanel } from './CharacterUI.js';
 import { mountInventoryPanel } from './InventoryUI.js';
 import { mountQuestPanel } from './TaskUI.js';
 import { mountWarehouseGrids, syncWarehouseTilesToPlayer } from './WarehouseUI.js';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=phase5-ui-5c';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=phase5-offline-1';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js';
 import { renderEnhanceWorkbench } from './EnhanceUI.js';
 import { renderSynthesisWorkbench } from './SynthesisUI.js';
@@ -577,7 +577,7 @@ window._settingsImportSave = () => {
 
 window._returnToSaveList = async () => {
   window.game?.saveNow?.();
-  const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=phase5-ui-5c');
+  const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=phase5-offline-1');
   const characters = window.game?.listCharacters?.() || [];
   UIManager.closePanel();
   showMultiSaveUI(window._currentGlobalSave, characters, window._careersData || []);

@@ -311,6 +311,12 @@ export function showOfflineRewardUI(summary) {
     html += `<div class="alert-box">
       <span>⚠️ ${reasons[summary.stopped_reason] || summary.stopped_reason}</span>
     </div>`;
+    if (summary.quest_item_lost) {
+      const lost = summary.quest_item_lost;
+      html += `<div class="alert-box detail">
+        <span>任务物品丢失：${escapeHtml(lost.item_key || '未知物品')}（${escapeHtml(lost.current_count || 0)}/${escapeHtml(lost.required_count || '?')}）</span>
+      </div>`;
+    }
   }
 
   html += `
@@ -347,6 +353,9 @@ export function showOfflineRewardUI(summary) {
   }
   if (summary.deaths > 0) {
     html += `<div class="reward-row death"><span>死亡次数</span><b>${summary.deaths} 次</b></div>`;
+    if (summary.died_at_s != null) {
+      html += `<div class="reward-row death"><span>死亡时间</span><b>离线第 ${summary.died_at_s.toFixed(0)} 秒</b></div>`;
+    }
   }
   html += '</div>';
 

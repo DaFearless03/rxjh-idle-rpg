@@ -31,11 +31,11 @@ import { OfflineSimulator } from './systems/OfflineSimulator.js';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave } from './utils/player_restore.js';
 import { UIManager } from './ui/UIManager.js';
-import { buildMainScreenUI } from './ui/MainScreenUI.js?v=phase5-ui-5c';
+import { buildMainScreenUI } from './ui/MainScreenUI.js?v=phase5-offline-1';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js';
-import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=phase5-ui-5c';
-import { showMultiSaveUI, showCharacterCreationUI, showOfflineRewardUI } from './ui/MultiSaveUI.js?v=phase5-ui-5c';
-import './ui/BottomBarUI.js?v=phase5-ui-5c';
+import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=phase5-offline-1';
+import { showMultiSaveUI, showCharacterCreationUI, showOfflineRewardUI } from './ui/MultiSaveUI.js?v=phase5-offline-1';
+import './ui/BottomBarUI.js?v=phase5-offline-1';
 
 // ========================
 // 数据加载
@@ -848,8 +848,10 @@ window.game = {
   },
 
   // ---------- 测试 ----------
-  fastForwardOffline(hours) {
-    OfflineSimulator.fastForwardOffline(hours);
+  async fastForwardOffline(hours) {
+    const summary = await OfflineSimulator.fastForwardOffline(hours);
+    showOfflineRewardUI(summary);
+    return summary;
   },
 
   saveNow() {

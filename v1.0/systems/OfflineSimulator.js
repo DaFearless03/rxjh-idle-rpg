@@ -105,10 +105,26 @@ export const OfflineSimulator = {
     const onConsumeMp = (data) => {
       summary.potions_consumed[data.item] = (summary.potions_consumed[data.item] || 0) + 1;
     };
+    const onDropEquipment = (data) => {
+      summary.items_obtained.push(data.equipment_name || data.equipment_key);
+    };
+    const onDropStone = (data) => {
+      summary.items_obtained.push(data.stone_base_name || data.stone_key);
+    };
+    const onDropBox = () => {
+      summary.boxes_obtained += 1;
+    };
+    const onDropDiscarded = (data) => {
+      summary.items_discarded += data.count || 1;
+    };
     eventBus.on('player.level_up', onLevelUp);
     eventBus.on('monster.death', onMonsterDeath);
     eventBus.on('autoplay.consume_hp', onConsumeHp);
     eventBus.on('autoplay.consume_mp', onConsumeMp);
+    eventBus.on('drop.equipment', onDropEquipment);
+    eventBus.on('drop.stone', onDropStone);
+    eventBus.on('drop.box', onDropBox);
+    eventBus.on('drop.discarded', onDropDiscarded);
     AutoPlaySystem.syncFromPlayer(player);
 
     try {
@@ -164,6 +180,10 @@ export const OfflineSimulator = {
       eventBus.off('monster.death', onMonsterDeath);
       eventBus.off('autoplay.consume_hp', onConsumeHp);
       eventBus.off('autoplay.consume_mp', onConsumeMp);
+      eventBus.off('drop.equipment', onDropEquipment);
+      eventBus.off('drop.stone', onDropStone);
+      eventBus.off('drop.box', onDropBox);
+      eventBus.off('drop.discarded', onDropDiscarded);
       AutoPlaySystem.resetRuntimeState();
     }
 
@@ -237,20 +257,23 @@ export const OfflineSimulator = {
     const seconds = hours * 3600;
     const summary = {
       elapsed_s: seconds,
-      kills: Math.floor(Math.random() * 100 * hours),
-      exp_gained: Math.floor(Math.random() * 10000 * hours),
-      gold_gained: Math.floor(Math.random() * 5000 * hours),
-      potions_consumed: {},
-      items_obtained: [],
-      boxes_obtained: Math.floor(Math.random() * 5 * hours),
-      items_discarded: 0,
+      kills: Math.max(1, Math.floor(72 * hours)),
+      exp_gained: Math.max(1, Math.floor(4800 * hours)),
+      gold_gained: Math.max(1, Math.floor(1200 * hours)),
+      potions_consumed: {
+        hp_potion_grade1: Math.max(1, Math.floor(2 * hours)),
+        mp_potion_grade1: Math.max(1, Math.floor(hours)),
+      },
+      items_obtained: ['强化石', '寒玉石', '木剑'],
+      boxes_obtained: Math.max(1, Math.floor(2 * hours)),
+      items_discarded: Math.max(1, Math.floor(hours / 2)),
       deaths: 0,
       died_at_s: null,
-      resupply_trips: 0,
-      gold_spent_on_potions: 0,
+      resupply_trips: Math.max(1, Math.floor(hours)),
+      gold_spent_on_potions: Math.max(1, Math.floor(180 * hours)),
       stopped_reason: null,
       quest_item_lost: null,
-      level_ups: [],
+      level_ups: hours >= 1 ? [{ from_level: 1, to_level: 2, gained_points: 1 }] : [],
     };
     console.log(`[离线模拟] 模拟 ${hours} 小时离线收益:`, summary);
     return summary;

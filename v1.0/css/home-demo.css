@@ -1127,6 +1127,10 @@ body {
   padding: 0.75rem 0.9rem;
   font-weight: 800;
 }
+.alert-box.detail {
+  background: rgba(220,74,74,0.04);
+  font-size: 1.05rem;
+}
 .reward-row {
   display: flex;
   justify-content: space-between;
