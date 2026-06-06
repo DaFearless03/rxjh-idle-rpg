@@ -62,7 +62,7 @@ export function renderQigongPanel(player) {
         <div class="sec-title">气功点数</div>
         <div class="qg-available">${available}</div>
       </div>
-      <button class="btn-3d red" onclick="window._resetQigong()">重置 · ${resetCost.toLocaleString()} 金币</button>
+      <button class="btn-3d red" onclick="window._requestResetQigong()">重置 · ${resetCost.toLocaleString()} 金币</button>
     </div>
     <div class="skill-grid">
       ${list.length > 0 ? list.map(q => renderQigongCard(q, available)).join('') : '<div class="q-empty">暂无已解锁气功</div>'}

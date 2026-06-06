@@ -3,7 +3,7 @@
  * @desc 刀剑笑强化工坊 UI。
  */
 
-import { getEquipmentTemplate } from './EquipUI.js';
+import { getEquipmentTemplate } from './EquipUI.js?v=release-20260606-1';
 
 const ENHANCEABLE_SLOTS = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor'];
 const SLOT_LABEL = { weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲' };
@@ -23,18 +23,21 @@ function renderEmptyTiles(count) {
 }
 
 function getEquippedChoices(player) {
-  return ENHANCEABLE_SLOTS.map(slotKey => {
+  return ENHANCEABLE_SLOTS.flatMap(slotKey => {
     const equipped = player?.equipped?.[slotKey];
-    const instanceId = equipped?.instance_id;
-    const inst = instanceId ? player?.inventory?.equipment_instances?.[instanceId] : null;
-    const tpl = getEquipmentTemplate(player, inst);
-    if (!inst) return null;
-    return {
-      key: slotKey,
-      name: tpl?.name || inst.item_key,
-      sub: `${SLOT_LABEL[slotKey] || slotKey} · +${inst.enhance_level || 0}`,
-      icon: SLOT_ICON[slotKey] || '⚔️',
-    };
+    const entries = Array.isArray(equipped) ? equipped : [equipped];
+    return entries.map((entry, index) => {
+      const instanceId = entry?.instance_id;
+      const inst = instanceId ? player?.inventory?.equipment_instances?.[instanceId] : null;
+      const tpl = getEquipmentTemplate(player, inst);
+      if (!inst) return null;
+      return {
+        key: Array.isArray(equipped) ? `${slotKey}:${index}` : slotKey,
+        name: tpl?.name || inst.item_key,
+        sub: `${SLOT_LABEL[slotKey] || slotKey}${Array.isArray(equipped) ? ` ${index + 1}` : ''} · +${inst.enhance_level || 0}`,
+        icon: SLOT_ICON[slotKey] || '⚔️',
+      };
+    }).filter(Boolean);
   }).filter(Boolean);
 }
 
@@ -50,7 +53,7 @@ function getEnhanceStones(player) {
 }
 
 function renderChoiceTile(item, kind) {
-  return `<div class="bag-tile ${kind === 'equip' ? 'equip' : 'stack'}" data-kind="${kind}" data-key="${escapeHtml(item.key)}" data-icon="${escapeHtml(item.icon)}" data-name="${escapeHtml(item.name)}">
+  return `<div class="bag-tile ${kind === 'equip' ? 'equip' : 'stack'}" draggable="true" ondragstart="window._djxDragItem(event,'${escapeHtml(item.key)}','enhance')" data-kind="${kind}" data-key="${escapeHtml(item.key)}" data-icon="${escapeHtml(item.icon)}" data-name="${escapeHtml(item.name)}">
     <div class="bt-icon">${item.icon}</div>
     <div class="bt-name">${escapeHtml(item.name)}</div>
     ${item.sub ? `<div class="bt-sub">${escapeHtml(item.sub)}</div>` : ''}
@@ -67,12 +70,12 @@ export function renderEnhanceWorkbench(player) {
   return `<div class="craft-body">
     <div class="craft-work">
       <div class="craft-slots">
-        <div class="craft-dropzone equip-slot" data-zone="equip">
-          <div class="dz-plus">＋</div><div class="dz-hint">选择已穿戴装备</div>
+        <div class="craft-dropzone equip-slot" data-zone="equip" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'equip','enhance')">
+          <div class="dz-plus">＋</div><div class="dz-hint">拖入装备</div>
         </div>
         <div class="craft-arrow">＋</div>
-        <div class="craft-dropzone stone-slot" data-zone="enhance-stone">
-          <div class="dz-plus">＋</div><div class="dz-hint">强化石<br>自动消耗</div>
+        <div class="craft-dropzone stone-slot" data-zone="enhance-stone" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'stone','enhance')">
+          <div class="dz-plus">＋</div><div class="dz-hint">拖入<br>强化石</div>
         </div>
       </div>
       <div class="craft-result hidden" id="djx-enhance-result"></div>

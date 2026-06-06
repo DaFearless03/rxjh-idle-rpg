@@ -5,10 +5,10 @@
  */
 import { SaveManager } from '../core/SaveManager.js';
 import { AttributeSystem } from './AttributeSystem.js';
-import { BattleSystem } from './BattleSystem.js';
-import { AutoPlaySystem } from './AutoPlaySystem.js';
+import { BattleSystem } from './BattleSystem.js?v=release-20260606-1';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260606-1';
 import { eventBus } from '../core/EventBus.js';
-import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js';
+import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260606-1';
 
 export const OfflineSimulator = {
   is_in_offline_simulation: false,

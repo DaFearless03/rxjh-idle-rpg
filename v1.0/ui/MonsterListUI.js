@@ -23,8 +23,23 @@ function isMonsterAlive(monster) {
 }
 
 function getMonsterIcon(monster) {
-  if (monster?.monster_type === 'elite') return '★';
   if ((monster?.preheatRemaining || 0) > 0) return '…';
+  const key = String(monster?.key || '');
+  const name = String(monster?.name || '');
+  if (monster?.monster_type === 'boss') return '♛';
+  if (monster?.monster_type === 'elite') return '⚔';
+  if (/cat|猫/.test(key + name)) return '🐱';
+  if (/toad|蛤蟆/.test(key + name)) return '🐸';
+  if (/fox|狐狸/.test(key + name)) return '🦊';
+  if (/bull|牛/.test(key + name)) return '🐂';
+  if (/boar|猪/.test(key + name)) return '🐗';
+  if (/wolf|狼/.test(key + name)) return '🐺';
+  if (/bear|熊/.test(key + name)) return '🐻';
+  if (/tiger|虎/.test(key + name)) return '🐯';
+  if (/snake|蛇/.test(key + name)) return '🐍';
+  if (/spirit|ghost|魂|灵|怨/.test(key + name)) return '👻';
+  if (/bandit|thief|pirate|raider|deserter|hunter|贼|盗|匪|寇|兵|猎人/.test(key + name)) return '🗡';
+  if (/guard|disciple|swordsman|master|elder|护卫|弟子|剑士|掌门|长老/.test(key + name)) return '⚔';
   return '👹';
 }
 

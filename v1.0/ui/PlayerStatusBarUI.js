@@ -63,12 +63,13 @@ export function refreshPlayerIdentity(player, options = {}) {
   const { prefix = 'combat' } = options;
   setText(`${prefix}-name`, player.name || '—');
   setText(`${prefix}-level`, `Lv.${player.level || 1}`);
-  setText(`${prefix}-class`, player.career || '—');
+  const careerName = window._careersData?.find(career => career.key === player.career)?.name || player.career || '—';
+  setText(`${prefix}-class`, careerName);
 
   const factionEl = document.getElementById(`${prefix}-faction`);
   if (factionEl) {
-    const isNegative = player.faction === 'negative';
-    factionEl.textContent = isNegative ? '邪派' : '正派';
-    factionEl.className = `faction ${isNegative ? 'negative' : 'positive'}`;
+    const faction = player.faction === 'negative' ? '邪派' : player.faction === 'positive' ? '正派' : '中立';
+    factionEl.textContent = faction;
+    factionEl.className = `faction ${player.faction || 'neutral'}`;
   }
 }

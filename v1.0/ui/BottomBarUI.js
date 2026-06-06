@@ -2,22 +2,22 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js';
-import { ShopSystem } from '../systems/ShopSystem.js';
+import { UIManager } from './UIManager.js?v=release-20260606-2';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260606-1';
 import { InventorySystem } from '../systems/InventorySystem.js';
-import { ConsumableSystem } from '../systems/ConsumableSystem.js';
-import { BoxSystem } from '../systems/BoxSystem.js';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260606-1';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260606-1';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260606-1';
 import { QigongSystem } from '../systems/QigongSystem.js';
-import { mountCharacterPanel } from './CharacterUI.js';
-import { mountInventoryPanel } from './InventoryUI.js?v=phase6-items-1';
-import { mountQuestPanel } from './TaskUI.js';
-import { mountWarehouseGrids, syncWarehouseTilesToPlayer } from './WarehouseUI.js';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=phase5-offline-1';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js';
-import { renderEnhanceWorkbench } from './EnhanceUI.js';
-import { renderSynthesisWorkbench } from './SynthesisUI.js';
+import { mountCharacterPanel } from './CharacterUI.js?v=release-20260606-1';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260606-1';
+import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260606-1';
+import { mountQuestPanel } from './TaskUI.js?v=release-20260606-1';
+import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260606-1';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260606-1';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260606-1';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260606-1';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260606-1';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -26,6 +26,15 @@ window._openPanel = (panelId) => {
     renderPanelContent(panelId);
   }
 };
+
+function getCurrentSubZoneKey() {
+  const battleSubZone = window.game?.battle?._currentSubZone;
+  if (typeof battleSubZone === 'string') return battleSubZone;
+  if (battleSubZone?.key) return battleSubZone.key;
+  return window.game?.player?.location?.current_sub_zone_key
+    || window.game?.currentSubZoneKey
+    || null;
+}
 
 window._closePanel = () => {
   UIManager.closePanel();
@@ -123,6 +132,7 @@ window._renderDjxSynth = (type) => {
 
 window._djxDragItem = (e, itemKey, type) => {
   e.dataTransfer.setData('text/plain', itemKey + '|' + type);
+  e.dataTransfer.effectAllowed = 'move';
 };
 
 window._djxDropItem = (e, slotType, type) => {
@@ -131,8 +141,7 @@ window._djxDropItem = (e, slotType, type) => {
   const data = e.dataTransfer.getData('text/plain');
   if (!data) return;
   const [itemKey, dragType] = data.split('|');
-  const stoneKey = itemKey.includes('stone') || itemKey.includes('gem');
-  const expectedType = slotType === 'stone' ? 'synth' : 'equip';
+  const stoneKey = isCraftStoneKey(itemKey);
   // 石头只能放stone槽，装备只能放equip槽
   if (slotType === 'stone' && !stoneKey) {
     const zone = e.target.closest('.craft-dropzone');
@@ -244,6 +253,84 @@ window._djxBuy = (itemKey, price) => {
   } else { window._showToast(r.message); }
 };
 
+let _shopQuantityState = null;
+let _shopQuantityBound = false;
+
+window._openShopQuantity = (mode, itemKey, price, name, icon, maxCount = 999, instanceId = '') => {
+  const player = window.game?.player;
+  if (!player) return;
+  const isEquipment = !!instanceId;
+  const affordable = mode === 'buy' ? Math.floor((player.resources?.gold || 0) / Math.max(1, price)) : maxCount;
+  _shopQuantityState = {
+    mode,
+    itemKey,
+    price: Number(price) || 0,
+    name,
+    icon,
+    instanceId,
+    max: Math.max(1, Math.min(isEquipment ? 1 : Number(maxCount) || 1, mode === 'buy' ? affordable : Number(maxCount) || 1)),
+  };
+  if (mode === 'buy' && affordable < 1) {
+    window._showToast('金币不足');
+    return;
+  }
+  _setupShopQuantityPopup();
+  document.getElementById('qtyIcon').textContent = icon || '📦';
+  document.getElementById('qtyName').textContent = name || itemKey;
+  document.getElementById('qtyUnitPrice').textContent = Number(price || 0).toLocaleString();
+  document.getElementById('qtyInput').value = '1';
+  document.getElementById('qtyInput').max = String(_shopQuantityState.max);
+  document.getElementById('qtyConfirm').textContent = mode === 'sell' ? '确认出售' : '确认购买';
+  _updateShopQuantityTotal();
+  document.getElementById('qtyBackdrop')?.classList.add('open');
+};
+
+function _updateShopQuantityTotal() {
+  if (!_shopQuantityState) return;
+  const input = document.getElementById('qtyInput');
+  const value = Math.max(1, Math.min(_shopQuantityState.max, Number.parseInt(input?.value || '1', 10) || 1));
+  if (input) input.value = String(value);
+  const total = document.getElementById('qtyTotalPrice');
+  if (total) total.textContent = (value * _shopQuantityState.price).toLocaleString();
+}
+
+function _setupShopQuantityPopup() {
+  if (_shopQuantityBound) return;
+  const popup = document.getElementById('qtyBackdrop');
+  const input = document.getElementById('qtyInput');
+  if (!popup || !input) return;
+  _shopQuantityBound = true;
+  document.getElementById('qtyMinus')?.addEventListener('click', () => { input.value = String((Number(input.value) || 1) - 1); _updateShopQuantityTotal(); });
+  document.getElementById('qtyPlus')?.addEventListener('click', () => { input.value = String((Number(input.value) || 1) + 1); _updateShopQuantityTotal(); });
+  popup.querySelectorAll('.qty-quick button').forEach(button => button.addEventListener('click', () => {
+    input.value = button.dataset.qty === 'max' ? String(_shopQuantityState?.max || 1) : String(button.dataset.qty || 1);
+    _updateShopQuantityTotal();
+  }));
+  input.addEventListener('input', _updateShopQuantityTotal);
+  document.getElementById('qtyConfirm')?.addEventListener('click', _confirmShopQuantity);
+}
+
+function _confirmShopQuantity() {
+  const state = _shopQuantityState;
+  const player = window.game?.player;
+  if (!state || !player) return;
+  const count = Math.max(1, Math.min(state.max, Number.parseInt(document.getElementById('qtyInput')?.value || '1', 10) || 1));
+  let result;
+  if (state.mode === 'buy') {
+    result = ShopSystem.buy(player, { type: 'shop', items: [{ item_key: state.itemKey, name: state.name, buy_price: state.price }] }, state.itemKey, count);
+  } else if (state.instanceId) {
+    result = ShopSystem.sellEquipmentInstance(player, state.instanceId, state.price);
+  } else {
+    result = ShopSystem.sell(player, { type: 'shop', items: [] }, state.itemKey, count);
+  }
+  window._showToast(result?.message || '操作失败');
+  document.getElementById('qtyBackdrop')?.classList.remove('open');
+  _shopQuantityState = null;
+  window._renderDjxShop?.();
+  window._renderYjlShop?.();
+  window._renderPszShop?.();
+}
+
 window._djxDoCraft = (type) => {
   const slots = window._djxSlots[type];
   const resultEl = document.getElementById('djx-' + type + '-result');
@@ -348,7 +435,65 @@ function _renderWarehouse() {
 // Warehouse popup state
 let _whMode = 'deposit';
 let _whSrcGrid, _whDstGrid, _whTile, _whName, _whMaxQ = 1;
+let _whEquipMode = 'deposit';
+let _whEquipTile = null;
 let _warehousePopupEventsBound = false;
+
+function _whDetailPlayer(player, mode) {
+  if (mode !== 'withdraw') return player;
+  return {
+    ...player,
+    _equipTemplates: player._equipTemplates || window._equipTemplates || [],
+    inventory: {
+      ...player.inventory,
+      equipment_instances: {
+        ...(player.inventory?.equipment_instances || {}),
+        ...(player.warehouse?.equipment_instances || {}),
+      },
+    },
+  };
+}
+
+function _whOpenEquipmentDetail(tile, mode) {
+  const popup = document.getElementById('whEquipPopup');
+  const player = window.game?.player;
+  const instanceId = tile.dataset.instanceId;
+  if (!popup || !player || !instanceId) return;
+  const detailPlayer = _whDetailPlayer(player, mode);
+  const instance = detailPlayer.inventory?.equipment_instances?.[instanceId];
+  const template = getEquipmentTemplate(detailPlayer, instance);
+  if (!instance || !template) {
+    window._showToast('装备数据异常，无法操作');
+    return;
+  }
+  _whEquipMode = mode;
+  _whEquipTile = tile;
+  document.getElementById('whEquipIcon').textContent = tile.dataset.icon || '⚔';
+  document.getElementById('whEquipName').textContent = `${template.name}${instance.enhance_level > 0 ? ` +${instance.enhance_level}` : ''}`;
+  document.getElementById('whEquipSub').textContent = `装备 · ${template.slot}`;
+  document.getElementById('whEquipBody').innerHTML = renderEquipmentDetail(detailPlayer, instanceId);
+  document.getElementById('whEquipAction').textContent = mode === 'deposit' ? '存入' : '取出';
+  popup.classList.add('open');
+}
+
+function _whDoEquipmentTransfer() {
+  const player = window.game?.player;
+  const popup = document.getElementById('whEquipPopup');
+  const instanceId = _whEquipTile?.dataset.instanceId;
+  const key = _whEquipTile?.dataset.key;
+  if (!player || !instanceId || !key) return;
+  const result = _whEquipMode === 'deposit'
+    ? WarehouseSystem.deposit(player, key, 1, { instanceId })
+    : WarehouseSystem.withdraw(player, key, 1, { instanceId });
+  if (!result.success) {
+    window._showToast(_whEquipMode === 'deposit' ? '该装备无法存入仓库' : '背包空间不足，无法取出');
+    return;
+  }
+  popup?.classList.remove('open');
+  _renderWarehouse();
+  window.game?.saveNow?.();
+  window._showToast(_whEquipMode === 'deposit' ? '装备已存入仓库' : '装备已取回背包');
+}
 
 function _whOpenPopup(tile, mode) {
   const popup = document.getElementById('whPopup');
@@ -370,7 +515,7 @@ function _whOpenPopup(tile, mode) {
     ? document.getElementById('whWarehouseGrid')
     : document.getElementById('whBagGrid');
 
-  _whMaxQ = parseInt(tile.dataset.count, 10);
+  _whMaxQ = tile.dataset.instanceId ? 1 : parseInt(tile.dataset.count, 10);
 
   const dstUsed = [..._whDstGrid.querySelectorAll('.bag-tile:not(.empty)')].length;
 
@@ -390,85 +535,20 @@ function _whDoTransfer() {
   const input = document.getElementById('whInput');
   const q = Math.max(1, Math.min(_whMaxQ, parseInt(input.value, 10) || 1));
   const key = _whTile.dataset.key;
-  const dstGrid = _whDstGrid;
-
-  // Find existing tile in destination
-  const destTile = [...dstGrid.querySelectorAll('.bag-tile:not(.empty)')].find(t => t.dataset.key === key);
-  const dstUsed = [...dstGrid.querySelectorAll('.bag-tile:not(.empty)')].length;
-
-  if (!destTile && dstUsed >= WH_CAPACITY) {
-    window._showToast(_whMode === 'deposit' ? '仓库已满，无法存入' : '背包已满，无法取出');
+  const instanceId = _whTile.dataset.instanceId || null;
+  const player = window.game?.player;
+  if (!player) return;
+  const result = _whMode === 'deposit'
+    ? WarehouseSystem.deposit(player, key, q, { instanceId })
+    : WarehouseSystem.withdraw(player, key, q, { instanceId });
+  if (!result.success) {
+    window._showToast(_whMode === 'deposit' ? '仓库空间不足，无法存入' : '背包空间不足，无法取出');
     return;
   }
-
-  if (destTile) {
-    destTile.dataset.count = parseInt(destTile.dataset.count, 10) + q;
-    _whRenderTile(destTile);
-  } else {
-    const t = document.createElement('div');
-    t.className = 'bag-tile' + (_whTile.dataset.quest ? ' cross' : '');
-    t.dataset.key = key;
-    t.dataset.icon = _whTile.dataset.icon;
-    t.dataset.name = _whName;
-    t.dataset.count = q;
-    if (_whTile.dataset.quest) t.dataset.quest = '1';
-    _whRenderTile(t);
-    const empty = dstGrid.querySelector('.bag-tile.empty');
-    if (empty) empty.replaceWith(t);
-    else dstGrid.appendChild(t);
-  }
-
-  const left = parseInt(_whTile.dataset.count, 10) - q;
-  if (left <= 0) {
-    const srcGrid = _whSrcGrid;
-    _whTile.remove();
-    const empty = document.createElement('div');
-    empty.className = 'bag-tile empty';
-    srcGrid.appendChild(empty);
-  } else {
-    _whTile.dataset.count = left;
-    _whRenderTile(_whTile);
-  }
-
-  // Update counts
-  const whSlots = [...document.getElementById('whWarehouseGrid').querySelectorAll('.bag-tile:not(.empty)')].length;
-  const bagSlots = [...document.getElementById('whBagGrid').querySelectorAll('.bag-tile:not(.empty)')].length;
-  document.getElementById('whWarehouseCount').textContent = whSlots + ' / ' + WH_CAPACITY;
-  document.getElementById('whBagCount').textContent = bagSlots + ' / ' + WH_CAPACITY;
-
-  // Sync to player data
-  _syncWarehouseToPlayer();
-  _syncBagToPlayer(key, q, _whMode);
-
+  _renderWarehouse();
+  window.game?.saveNow?.();
   window._showToast((_whMode === 'deposit' ? '已存入 ' : '已取出 ') + _whName + ' ×' + q);
   popup.classList.remove('open');
-}
-
-function _syncWarehouseToPlayer() {
-  const p = window.game?.player;
-  if (!p) return;
-  syncWarehouseTilesToPlayer(p);
-}
-
-function _syncBagToPlayer(key, count, mode) {
-  const p = window.game?.player;
-  if (!p) return;
-  p.inventory = p.inventory || { slots: [] };
-  const existing = p.inventory.slots.find(s => (s.item_key || s.key) === key);
-  if (mode === 'withdraw') {
-    if (existing) {
-      existing.count += count;
-    } else {
-      p.inventory.slots.push({ item_key: key, key, count });
-    }
-  } else {
-    if (existing) {
-      existing.count -= count;
-      if (existing.count <= 0) {
-        p.inventory.slots = p.inventory.slots.filter(s => (s.item_key || s.key) !== key);
-      }
-    }
-  }
 }
 
 function _whSortGrid(grid) {
@@ -493,7 +573,10 @@ function _setupWarehousePopup() {
   const whBagGrid = document.getElementById('whBagGrid');
   const whCancel = document.getElementById('whCancel');
   const whConfirm = document.getElementById('whConfirm');
-  if (!whWarehouseGrid || !whBagGrid || !whCancel || !whConfirm) return;
+  const whEquipPopup = document.getElementById('whEquipPopup');
+  const whEquipCancel = document.getElementById('whEquipCancel');
+  const whEquipAction = document.getElementById('whEquipAction');
+  if (!whWarehouseGrid || !whBagGrid || !whCancel || !whConfirm || !whEquipPopup || !whEquipCancel || !whEquipAction) return;
 
   _warehousePopupEventsBound = true;
 
@@ -514,16 +597,21 @@ function _setupWarehousePopup() {
   whCancel.addEventListener('click', () => popup.classList.remove('open'));
   popup.addEventListener('click', e => { if (e.target === popup) popup.classList.remove('open'); });
   whConfirm.addEventListener('click', _whDoTransfer);
+  whEquipCancel.addEventListener('click', () => whEquipPopup.classList.remove('open'));
+  whEquipPopup.addEventListener('click', e => { if (e.target === whEquipPopup) whEquipPopup.classList.remove('open'); });
+  whEquipAction.addEventListener('click', _whDoEquipmentTransfer);
 
   // Delegate clicks on warehouse/bag grids
   whWarehouseGrid.addEventListener('click', e => {
     const t = e.target.closest('.bag-tile:not(.empty)');
-    if (t) _whOpenPopup(t, 'withdraw');
+    if (t?.dataset.instanceId) _whOpenEquipmentDetail(t, 'withdraw');
+    else if (t) _whOpenPopup(t, 'withdraw');
   });
 
   whBagGrid.addEventListener('click', e => {
     const t = e.target.closest('.bag-tile:not(.empty)');
-    if (t) _whOpenPopup(t, 'deposit');
+    if (t?.dataset.instanceId) _whOpenEquipmentDetail(t, 'deposit');
+    else if (t) _whOpenPopup(t, 'deposit');
   });
 
   // Sort buttons
@@ -538,6 +626,7 @@ function _setupWarehousePopup() {
 
 window._closeNPCDialog = () => {
   document.getElementById('npcDialogBackdrop')?.classList.remove('open');
+  window.game?.closeDialog?.();
 };
 
 window._closeModal = () => {
@@ -548,8 +637,8 @@ let _settingsExportScope = 'all';
 
 window._settingsSetExportScope = (scope) => {
   _settingsExportScope = scope === 'current' ? 'current' : 'all';
-  document.getElementById('exportScopeAll')?.classList.toggle('active', _settingsExportScope === 'all');
-  document.getElementById('exportScopeCurrent')?.classList.toggle('active', _settingsExportScope === 'current');
+  document.getElementById('exportScopeAll')?.classList.toggle('on', _settingsExportScope === 'all');
+  document.getElementById('exportScopeCurrent')?.classList.toggle('on', _settingsExportScope === 'current');
 };
 
 window._settingsExportSave = () => {
@@ -583,7 +672,7 @@ window._settingsImportSave = () => {
 
 window._returnToSaveList = async () => {
   window.game?.saveNow?.();
-  const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=phase5-offline-1');
+  const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260606-1');
   const characters = window.game?.listCharacters?.() || [];
   UIManager.closePanel();
   showMultiSaveUI(window._currentGlobalSave, characters, window._careersData || []);
@@ -612,7 +701,35 @@ function renderCharacterPanel(player) {
   if (!el) return;
   const p = player || window.game?.player;
   if (!p) return;
+  syncCharacterHeader(p);
   mountCharacterPanel(el, p, window._characterActiveTab || 'info');
+}
+
+function syncCharacterHeader(player) {
+  const expToNext = window.expToNext?.[player.level] || 0;
+  const hpPct = player.maxHp > 0 ? Math.round(player.hp / player.maxHp * 100) : 0;
+  const mpPct = player.maxMp > 0 ? Math.round(player.mp / player.maxMp * 100) : 0;
+  const expPct = expToNext > 0 ? Math.round((player.exp || 0) / expToNext * 100) : 100;
+  const faction = player.faction === 'positive' ? '正派' : player.faction === 'negative' ? '邪派' : '中立';
+  const setText = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  const setWidth = (id, pct) => { const el = document.getElementById(id); if (el) el.style.width = `${Math.max(0, Math.min(100, pct))}%`; };
+
+  setText('char-player-name', player.name || '—');
+  setText('char-player-level', `Lv.${player.level || 1}`);
+  const careerName = window._careersData?.find(career => career.key === player.career)?.name || player.career || '—';
+  setText('char-player-career', careerName);
+  setText('char-player-faction', faction);
+  const factionEl = document.getElementById('char-player-faction');
+  if (factionEl) factionEl.className = `faction ${player.faction || 'neutral'}`;
+  setText('char-hp-pct', `${hpPct}%`);
+  setText('char-hp-num', `${player.hp || 0}/${player.maxHp || 0}`);
+  setWidth('char-hp-fill', hpPct);
+  setText('char-mp-pct', `${mpPct}%`);
+  setText('char-mp-num', `${player.mp || 0}/${player.maxMp || 0}`);
+  setWidth('char-mp-fill', mpPct);
+  setText('char-exp-pct', `${expPct}%`);
+  setText('char-exp-num', `${player.exp || 0}/${expToNext}`);
+  setWidth('char-exp-fill', expPct);
 }
 
 function renderQigongGrid(player) {
@@ -632,116 +749,6 @@ function renderInventoryPanel(player) {
   mountInventoryPanel(el, p);
 }
 
-function openInventoryItemAction(tile) {
-  const p = window.game?.player;
-  if (!p || !tile?.dataset?.key) return;
-  const itemKey = tile.dataset.key;
-  const itemClass = tile.dataset.class;
-  const count = Math.max(1, Number(tile.dataset.count || InventorySystem.count(p, itemKey) || 1));
-  if (itemClass === 'consumables') {
-    openQuantityAction({
-      mode: 'consume',
-      itemKey,
-      icon: tile.dataset.icon || '🍶',
-      name: tile.dataset.name || itemKey,
-      max: count,
-      defaultQty: 1,
-    });
-    return;
-  }
-  if (itemClass === 'boxes') {
-    openQuantityAction({
-      mode: 'box',
-      itemKey,
-      icon: tile.dataset.icon || '🎁',
-      name: tile.dataset.name || itemKey,
-      max: count,
-      defaultQty: count,
-    });
-    return;
-  }
-  if (itemClass === 'quest_items') {
-    UIManager.toast('任务物品不可使用或出售', 'info');
-    return;
-  }
-  UIManager.toast('该物品暂不支持直接使用', 'info');
-}
-
-function openQuantityAction({ mode, itemKey, icon, name, max, defaultQty }) {
-  const backdrop = document.getElementById('qtyBackdrop');
-  const input = document.getElementById('qtyInput');
-  const confirm = document.getElementById('qtyConfirm');
-  if (!backdrop || !input || !confirm) return;
-
-  const safeMax = Math.max(1, Math.floor(max || 1));
-  const setQty = (value) => {
-    input.value = String(Math.min(safeMax, Math.max(1, Math.floor(Number(value) || 1))));
-    updateQuantityActionMeta(mode, itemKey);
-  };
-
-  document.getElementById('qtyIcon').textContent = icon;
-  document.getElementById('qtyName').textContent = name;
-  document.querySelector('#qtyBackdrop .qty-unit').innerHTML = `拥有: <b>${safeMax}</b> 个`;
-  input.min = '1';
-  input.max = String(safeMax);
-  setQty(defaultQty || 1);
-  confirm.textContent = mode === 'consume' ? '使用' : '开盒';
-  confirm.onclick = () => confirmQuantityAction(mode, itemKey);
-
-  document.getElementById('qtyMinus').onclick = () => setQty(Number(input.value) - 1);
-  document.getElementById('qtyPlus').onclick = () => setQty(Number(input.value) + 1);
-  input.oninput = () => setQty(input.value);
-  document.querySelectorAll('#qtyBackdrop .qty-quick button').forEach(btn => {
-    btn.onclick = () => setQty(Number(input.value) + Number(btn.dataset.qty || 0));
-  });
-
-  backdrop.classList.add('open');
-}
-
-function updateQuantityActionMeta(mode, itemKey) {
-  const p = window.game?.player;
-  const input = document.getElementById('qtyInput');
-  const total = document.querySelector('#qtyBackdrop .qty-total');
-  const qty = Math.max(1, Number(input?.value || 1));
-  if (!total) return;
-  if (mode === 'consume') {
-    const tpl = ConsumableSystem.getTemplate(itemKey);
-    const bonus = tpl?.type === 'mp' ? (p?.mpRecoveryBonus || 0) : (p?.healBonus || 0);
-    const perUse = Math.floor((tpl?.recovery || 0) * (1 + bonus));
-    total.innerHTML = `预计恢复: <span class="qt-val" id="qtyTotalPrice">${perUse * qty}</span> ${tpl?.type?.toUpperCase() || ''}`;
-    return;
-  }
-  total.innerHTML = `将开启: <span class="qt-val" id="qtyTotalPrice">${qty}</span> 个`;
-}
-
-function confirmQuantityAction(mode, itemKey) {
-  const p = window.game?.player;
-  const input = document.getElementById('qtyInput');
-  const qty = Math.max(1, Math.floor(Number(input?.value || 1)));
-  if (!p) return;
-
-  const result = mode === 'consume'
-    ? ConsumableSystem.use(p, itemKey, qty, { source: 'manual' })
-    : BoxSystem.openBox(p, itemKey, qty);
-
-  document.getElementById('qtyBackdrop')?.classList.remove('open');
-  if (result?.success) {
-    UIManager.toast(mode === 'consume' ? result.message : formatBoxOpenToast(result), 'success');
-    window.game?.saveNow?.();
-    UIManager._refreshAll?.();
-    renderInventoryPanel(p);
-  } else {
-    UIManager.toast(result?.message || '操作失败', 'error');
-  }
-}
-
-function formatBoxOpenToast(result) {
-  const items = (result.obtained || []).map(item => `${item.name || item.item_key}×${item.count}`);
-  const base = items.length > 0 ? `获得 ${items.slice(0, 4).join('、')}${items.length > 4 ? '...' : ''}` : '没有获得物品';
-  const discarded = (result.discarded || []).reduce((sum, item) => sum + item.count, 0);
-  return discarded > 0 ? `${base}；背包满丢弃 ${discarded} 件` : base;
-}
-
 function renderAutoplayPanel(player) {
   const el = document.getElementById('autoplay-panel-content');
   if (!el) return;
@@ -750,23 +757,47 @@ function renderAutoplayPanel(player) {
   const ap = p.auto_play || {};
   const hpCfg = ap.auto_consume?.hp_potion || {};
   const mpCfg = ap.auto_consume?.mp_potion || {};
+  const potionOption = (key, name, selected) => `
+    <option value="${key}"${selected === key ? ' selected' : ''}>${name}（${InventorySystem.count(p, key)}）</option>`;
+  const thresholdRow = (kind, value) => `
+    <div class="med-threshold-row">
+      <span>触发阈值</span>
+      <input type="range" min="5" max="95" step="5" value="${value}"
+        oninput="window._setAutoPotionThreshold('${kind}', this.value)">
+      <b id="${kind}-threshold-label">${value}%</b>
+    </div>`;
   el.innerHTML = `
     <div class="hang-settings-section">
       <p class="hang-settings-title">💊 自动喝药设置</p>
       <div class="med-row">
-        <div class="med-label">
-          生命药剂：生命值 ≤
-          <input type="text" class="med-input" id="hp-threshold" value="${Math.round((1-(hpCfg.threshold || 0.3))*100)}">
-          % 时自动使用
+        <div class="med-config-head">
+          <span class="med-label">生命药剂</span>
+          <button class="toggle-btn${hpCfg.enabled ? ' on' : ''}" onclick="window._toggleAutoPotion('hp')"
+            aria-label="切换自动生命药剂"></button>
         </div>
+        <select class="select med-select" onchange="window._setAutoPotionItem('hp', this.value)" ${hpCfg.enabled ? '' : 'disabled'}>
+          <option value="">不使用生命药剂</option>
+          ${potionOption('hp_potion_grade1', '金创药（小）', hpCfg.selected_item_key)}
+          ${potionOption('hp_potion_grade2', '金创药（中）', hpCfg.selected_item_key)}
+          ${potionOption('hp_potion_grade3', '金创药（大）', hpCfg.selected_item_key)}
+        </select>
+        ${thresholdRow('hp', Math.round((hpCfg.threshold ?? 0.3) * 100))}
       </div>
       <div class="med-row">
-        <div class="med-label">
-          内功药剂：内功值 ≤
-          <input type="text" class="med-input" id="mp-threshold" value="${Math.round((1-(mpCfg.threshold || 0.2))*100)}">
-          % 时自动使用
+        <div class="med-config-head">
+          <span class="med-label">内功药剂</span>
+          <button class="toggle-btn${mpCfg.enabled ? ' on' : ''}" onclick="window._toggleAutoPotion('mp')"
+            aria-label="切换自动内功药剂"></button>
         </div>
+        <select class="select med-select" onchange="window._setAutoPotionItem('mp', this.value)" ${mpCfg.enabled ? '' : 'disabled'}>
+          <option value="">不使用内功药剂</option>
+          ${potionOption('mp_potion_grade1', '人参', mpCfg.selected_item_key)}
+          ${potionOption('mp_potion_grade2', '野山参', mpCfg.selected_item_key)}
+          ${potionOption('mp_potion_grade3', '雪原参', mpCfg.selected_item_key)}
+        </select>
+        ${thresholdRow('mp', Math.round((mpCfg.threshold ?? 0.3) * 100))}
       </div>
+      <p class="hang-settings-note">药剂数量为 0 时不会自动购买或消耗其他品级。</p>
     </div>
     <div style="margin-top:20px">
       ${ap.is_auto_play ? `
@@ -778,6 +809,36 @@ function renderAutoplayPanel(player) {
   `;
 }
 
+function updateAutoPotion(kind, update) {
+  const player = window.game?.player;
+  if (!player) return;
+  player.auto_play = player.auto_play || {};
+  player.auto_play.auto_consume = player.auto_play.auto_consume || {};
+  const key = kind === 'mp' ? 'mp_potion' : 'hp_potion';
+  player.auto_play.auto_consume[key] = {
+    enabled: true,
+    selected_item_key: null,
+    threshold: 0.3,
+    ...(player.auto_play.auto_consume[key] || {}),
+  };
+  update(player.auto_play.auto_consume[key]);
+  window.game?.saveNow?.();
+  renderAutoplayPanel(player);
+}
+
+window._toggleAutoPotion = (kind) => {
+  updateAutoPotion(kind, config => { config.enabled = !config.enabled; });
+};
+
+window._setAutoPotionItem = (kind, itemKey) => {
+  updateAutoPotion(kind, config => { config.selected_item_key = itemKey || null; });
+};
+
+window._setAutoPotionThreshold = (kind, value) => {
+  const threshold = Math.max(5, Math.min(95, Number(value) || 30));
+  updateAutoPotion(kind, config => { config.threshold = threshold / 100; });
+};
+
 function renderQuestPanel(player) {
   const el = document.getElementById('quest-panel-content');
   if (!el) return;
@@ -785,6 +846,46 @@ function renderQuestPanel(player) {
   if (!p) return;
   mountQuestPanel(el, p, window._questActiveSeg || 'accepted');
 }
+
+let _pendingRoleAction = null;
+
+function openRoleConfirm({ icon = '⚠', title, body, confirmText = '确认', danger = false, action }) {
+  const popup = document.getElementById('roleConfirmPopup');
+  if (!popup) return;
+  document.getElementById('roleConfirmIcon').textContent = icon;
+  document.getElementById('roleConfirmTitle').textContent = title;
+  document.getElementById('roleConfirmBody').textContent = body;
+  const button = document.getElementById('roleConfirmAction');
+  button.textContent = confirmText;
+  button.classList.toggle('danger', danger);
+  _pendingRoleAction = action;
+  popup.classList.add('open');
+}
+
+window._closeRoleConfirm = () => {
+  document.getElementById('roleConfirmPopup')?.classList.remove('open');
+  _pendingRoleAction = null;
+};
+
+window._confirmRoleAction = () => {
+  const action = _pendingRoleAction;
+  window._closeRoleConfirm();
+  action?.();
+};
+
+window._requestResetQigong = () => {
+  const player = window.game?.player;
+  if (!player) return;
+  const cost = Math.floor(10000 * Math.pow(10, player.qigong?.attribute_reset_count || 0));
+  openRoleConfirm({
+    icon: '⚠',
+    title: '重置气功',
+    body: `将返还全部已投入气功点，并消耗 ${cost.toLocaleString()} 金币。`,
+    confirmText: '确认重置',
+    danger: true,
+    action: () => window._resetQigong(),
+  });
+};
 
 window._resetQigong = () => {
   const p = window.game?.player;
@@ -811,6 +912,46 @@ window._investQigong = (key, pts) => {
   }
 };
 
+window._requestLearnMartial = (key) => {
+  const martial = (window._martialArtsData || []).find(item => item.key === key);
+  if (!martial) return;
+  openRoleConfirm({
+    icon: '📜',
+    title: '学习武功',
+    body: `确认学习「${martial.name}」？将消耗 ${(martial.learning_cost?.training || 0).toLocaleString()} 历练点。`,
+    confirmText: '确认学习',
+    action: () => window._learnMartial(key),
+  });
+};
+
+window._learnMartial = (key) => {
+  const player = window.game?.player;
+  const martial = (window._martialArtsData || []).find(item => item.key === key);
+  if (!player || !martial) return;
+  player.learned_martial_arts = player.learned_martial_arts || [];
+  if (player.learned_martial_arts.includes(key)) {
+    UIManager.toast('该武功已经掌握', 'info');
+    return;
+  }
+  const req = martial.requirement || {};
+  const transferCount = Math.max(0, (player.career_history?.length || 1) - 1);
+  if ((player.level || 1) < (req.level || 1) || transferCount < (req.min_transfer || 0)) {
+    UIManager.toast('尚未满足武功学习条件', 'error');
+    return;
+  }
+  const trainingCost = martial.learning_cost?.training || 0;
+  player.resources = player.resources || { gold: 0, training: 0, merit: 0 };
+  if ((player.resources.training || 0) < trainingCost) {
+    UIManager.toast('历练点不足', 'error');
+    return;
+  }
+  player.resources.training -= trainingCost;
+  player.learned_martial_arts.push(key);
+  window.game?.saveNow?.();
+  UIManager.toast(`学会武功：${martial.name}`, 'success');
+  renderCharacterPanel(player);
+};
+
 window._switchQuestSeg = (seg) => {
   window._questActiveSeg = seg;
   renderQuestPanel(window.game?.player);
@@ -824,8 +965,28 @@ window._questAcceptHint = () => {
   UIManager.toast('请到泫渤派门主处接取任务', 'info');
 };
 
-window._startAutoplay = () => { window.game?.startAutoPlay(); UIManager.closePanel(); };
+window._startAutoplay = () => {
+  const subZoneKey = getCurrentSubZoneKey();
+  if (!subZoneKey) {
+    UIManager.toast('请先选择一个野外区域', 'info');
+    window._startAutoplayAfterMap = true;
+    window._openMapSheet?.();
+    return;
+  }
+  window._startAutoplayAfterMap = false;
+  window.game?.startAutoPlay();
+  UIManager.openPanel('combat');
+  UIManager._refreshAll?.();
+};
 window._stopAutoplay = () => { window.game?.stopAutoPlay(); UIManager.closePanel(); };
+window._toggleWildAutoplay = () => {
+  if (window.game?.player?.auto_play?.is_auto_play) {
+    window._stopAutoplay();
+    UIManager._refreshAll?.();
+    return;
+  }
+  window._startAutoplay();
+};
 
 // 地图选择 sheet
 // 地图数据（与 demo 同步）
@@ -846,7 +1007,7 @@ const MAP_SHEET_DATA = [
       { key: 'xuanbo_village', name: '村庄周围', level: 'L3-5', badge: '前往' },
       { key: 'xuanbo_field', name: '村庄野田', level: 'L8-12', badge: '前往' },
       { key: 'xuanbo_den', name: '狼熊聚居地', level: 'L12-15', badge: '前往' },
-      { key: 'xuanbo_lumber', name: '伐木场', level: 'L18-22', badge: '当前', isCurrent: true },
+      { key: 'xuanbo_lumber', name: '伐木场', level: 'L18-22', badge: '前往' },
       { key: 'xuanbo_cemetery', name: '墓地', level: 'L22-30', badge: '前往' },
       { key: 'xuanbo_robber', name: '山寨', level: 'L30-35', badge: '前往' },
     ]
@@ -922,7 +1083,7 @@ function renderMapSheetList(currentSubZoneKey) {
       </div>
       <div class="map-sub-list">
         ${group.zones.map(sz => {
-          const isCurrent = sz.key === currentSubZoneKey || sz.isCurrent;
+          const isCurrent = currentSubZoneKey ? sz.key === currentSubZoneKey : !!sz.isTown;
           const isTown = sz.isTown;
           const isEmpty = sz.isEmpty;
           const badge = isCurrent ? '当前' : sz.badge;
@@ -968,9 +1129,16 @@ window._mapSheetSelect = (key, name) => {
   }
   // 城镇直接返回，empty 不响应，其他触发传送
   if (item?.classList.contains('town')) {
+    window._startAutoplayAfterMap = false;
     window.game?.town();
   } else if (!item?.classList.contains('empty')) {
     window.game?.teleport(key);
+    if (window._startAutoplayAfterMap) {
+      window._startAutoplayAfterMap = false;
+      window.game?.startAutoPlay();
+      UIManager.openPanel('combat');
+      UIManager._refreshAll?.();
+    }
   }
   window._closeMapSheet();
 };
@@ -984,8 +1152,7 @@ window._openMapSheet = () => {
   const backdrop = document.getElementById('mapSheet');
   if (backdrop) {
     backdrop.classList.add('open');
-    const subZone = window.game?.battle?._currentSubZone || window.game?.currentSubZoneKey;
-    renderMapSheetList(subZone);
+    renderMapSheetList(getCurrentSubZoneKey());
   }
 };
 
@@ -1006,7 +1173,6 @@ window._closeMapSheet = () => {
 document.addEventListener('click', (e) => {
   const inventoryTile = e.target.closest('#inventoryBagGrid .bag-tile[data-key]');
   if (inventoryTile) {
-    openInventoryItemAction(inventoryTile);
     return;
   }
 
@@ -1027,7 +1193,6 @@ document.addEventListener('click', (e) => {
     else if (npc === 'yjl') window._openYjlShop();
     else if (npc === 'psz') window._openPszShop();
     else if (npc === 'wdb' || func === '打开仓库') window._openWarehouse();
-    else if (npc === 'leader' || func === '任务') { window._closeNPCDialog(); window._openPanel('quest'); }
   }
   // NPC dialog close
   if (e.target.id === 'npcDialogClose') window._closeNPCDialog();

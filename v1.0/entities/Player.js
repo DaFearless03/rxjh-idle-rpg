@@ -54,7 +54,7 @@ export class Player {
     this.equipped = {
       weapon: null,
       chest: null,
-      gloves: null,
+      gloves: [null, null],
       boots: null,
       inner_armor: null,
       ring: [null, null],
@@ -78,7 +78,8 @@ export class Player {
     };
 
     // 资源（13.1 save_data_structure）
-    this.resources = { gold: 0, training: 0, merit: 0 };
+    // 新角色契约：起始 100 金币，v1.0 不赠送初始装备。
+    this.resources = { gold: 100, training: 0, merit: 0 };
 
     // 任务（已接取 / 已完成）
     this.quests = { accepted: [], completed: [] };

@@ -7,7 +7,7 @@
 const DEFAULT_EQUIPPED = {
   weapon: null,
   chest: null,
-  gloves: null,
+  gloves: [null, null],
   boots: null,
   inner_armor: null,
   ring: [null, null],
@@ -39,7 +39,7 @@ export function restoreRuntimePlayerFromSave(save, opts = {}) {
     resources: save.resources || { gold: 0, training: 0, merit: 0 },
     qigong: save.qigong || { available_points: 1, invested: {}, attribute_reset_count: 0 },
     learned_martial_arts: save.learned_martial_arts || [],
-    equipped: save.equipped || cloneDefaultEquipped(),
+    equipped: normalizeEquipped(save.equipped),
     inventory: save.inventory || { capacity: 50, slots: [], equipment_instances: {} },
     warehouse: save.warehouse || { capacity: 50, slots: [], equipment_instances: {} },
     quests: save.quests || { accepted: [], completed: [] },
@@ -66,6 +66,15 @@ export function restoreRuntimePlayerFromSave(save, opts = {}) {
   player._baseLevel = player.level;
 
   return player;
+}
+
+function normalizeEquipped(equipped) {
+  const normalized = { ...cloneDefaultEquipped(), ...(equipped || {}) };
+  for (const slot of ['gloves', 'ring', 'earring']) {
+    const value = normalized[slot];
+    normalized[slot] = Array.isArray(value) ? [value[0] || null, value[1] || null] : [value || null, null];
+  }
+  return normalized;
 }
 
 export function applyCareerRuntimeFields(player, careersData = []) {

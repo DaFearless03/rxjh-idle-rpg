@@ -4,9 +4,9 @@
  * @ref 13_save.multi_save
  */
 import { storage } from '../utils/storage.js';
-import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js';
-import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js';
-import { UIManager } from './UIManager.js';
+import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260606-1';
+import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260606-1';
+import { UIManager } from './UIManager.js?v=release-20260606-2';
 
 const CAREER_EMOJI = {
   warrior_blade: '⚔️',
@@ -44,7 +44,7 @@ function getCareerMeta(careerKey, careersData) {
 export function showMultiSaveUI(globalSave, characters, careersData) {
   const unlocked = globalSave?.character_slots?.unlocked_count ?? 3;
   const lastUsed = globalSave?.character_slots?.last_used_slot;
-  const maxPreviewSlots = Math.max(unlocked + 1, 5);
+  const maxPreviewSlots = Math.min(10, Math.max(unlocked + 1, 5));
   const allSlots = [];
   const used = characters.length;
 
@@ -54,7 +54,9 @@ export function showMultiSaveUI(globalSave, characters, careersData) {
       const career = char.player?.career || 'warrior_blade';
       const meta = getCareerMeta(career, careersData);
       const inTown = !char.location?.current_sub_zone_key;
-      const zone = inTown ? '🏠 城镇' : (char.location?.current_sub_zone_key || '未知');
+      const subZoneKey = char.location?.current_sub_zone_key || char.player?.location?.current_sub_zone_key;
+      const subZoneName = window._subZonesData?.find(zone => zone.key === subZoneKey)?.name;
+      const zone = inTown ? '泫渤派城镇' : (subZoneName || subZoneKey || '未知');
       allSlots.push({
         type: 'character',
         slotIndex: i,
@@ -77,7 +79,7 @@ export function showMultiSaveUI(globalSave, characters, careersData) {
     <div class="save-list-shell">
       <div class="slot-usage">
         <span>已用 <b>${used}</b> / 已解锁 <b>${unlocked}</b></span>
-        <span class="usage-pill">上限预览 ${maxPreviewSlots}</span>
+        <span class="usage-pill">上限 10</span>
       </div>
       <div class="save-list">
       ${allSlots.map(slot => {
@@ -88,12 +90,13 @@ export function showMultiSaveUI(globalSave, characters, careersData) {
             <div class="save-career-icon">${slot.emoji}</div>
             <div class="save-info">
               <div class="save-name">${escapeHtml(slot.name)}</div>
-              <div class="save-meta">Lv${slot.level} · ${escapeHtml(slot.career)} · ${escapeHtml(slot.zone)}</div>
+              <div class="save-meta">Lv${slot.level} · ${escapeHtml(slot.career)}</div>
+              <div class="save-zone">📍 ${escapeHtml(slot.zone)}</div>
               ${slot.isLastUsed ? '<span class="last-tag">上次游玩</span>' : ''}
             </div>
             <span class="save-slot-num">${slot.slotIndex}号位</span>
             <button class="del-btn" onclick="event.stopPropagation();window._ui_deleteCharacter(${slot.slotIndex})"
-              title="删除角色">×</button>
+              title="删除角色">删除</button>
           </div>`;
         }
         if (slot.type === 'empty') {
@@ -138,7 +141,7 @@ export function showMultiSaveUI(globalSave, characters, careersData) {
     if (!raw) return;
     let parsed;
     try { parsed = JSON.parse(raw); } catch { return; }
-    const info = getDeletionConfirmInfo(slotIndex, parsed.data || parsed);
+    const info = getDeletionConfirmInfo(slotIndex, parsed.data || parsed, careersData);
     document.getElementById('delete-confirm-msg').textContent = info.confirmBody;
     const modal = document.getElementById('modal-delete-confirm');
     document.getElementById('confirm-delete-btn').onclick = async () => {
@@ -153,8 +156,12 @@ export function showMultiSaveUI(globalSave, characters, careersData) {
     setTimeout(() => showCharacterCreationUI(window._currentGlobalSave, slotIndex), 100);
   };
 
-  window._ui_lockedSlot = () => {
-    UIManager.toast('请先进入任意角色，在设置/控制台中解锁槽位', 'info');
+  window._ui_lockedSlot = async (slotIndex) => {
+    const result = await window.game?.unlockSlot(slotIndex);
+    UIManager.toast(result?.message || '无法解锁该槽位', result?.success ? 'success' : 'info');
+    if (result?.success) {
+      showMultiSaveUI(window._currentGlobalSave, characters, careersData);
+    }
   };
 }
 
@@ -183,16 +190,20 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
       </div>
       <button class="btn primary create-next" id="create-next-btn" disabled onclick="window._goCreateName()">下一步 · 起名</button>
     </div>
-    <div id="create-step-2" style="display:none;margin-top:12px">
-      <div class="name-sheet-card">
-        <div class="name-preview" id="create-career-preview">请选择职业</div>
-        <input class="input mb-4" id="create-name-input" placeholder="输入角色名" maxlength="10" />
-        <div class="name-counter"><span id="create-name-count">0</span> / 10</div>
-        <div id="create-name-error" class="name-hint">支持中文 / 英文 / 数字 / 下划线</div>
-      </div>
-      <div class="flex gap-4 create-actions">
-        <button class="btn" onclick="window._backToStep1()">上一步</button>
-        <button class="btn primary flex-1" id="confirm-create-btn" onclick="window._doCreate()">确认创建</button>
+    <div id="create-step-2" class="create-name-backdrop">
+      <div class="create-name-sheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header"><span class="sheet-title">为角色起名</span><button class="sheet-close" onclick="window._backToStep1()">×</button></div>
+        <div class="name-sheet-card">
+          <div class="name-preview" id="create-career-preview">请选择职业</div>
+          <input class="input mb-4" id="create-name-input" placeholder="输入角色名" maxlength="10" />
+          <div class="name-counter"><span id="create-name-count">0</span> / 10</div>
+          <div id="create-name-error" class="name-hint">支持中文 / 英文 / 数字 / 下划线</div>
+        </div>
+        <div class="flex gap-4 create-actions">
+          <button class="btn" onclick="window._backToStep1()">取消</button>
+          <button class="btn primary flex-1" id="confirm-create-btn" onclick="window._doCreate()">确认创建</button>
+        </div>
       </div>
     </div>
     </div>
@@ -220,8 +231,7 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
     const meta = getCareerMeta(window._selectedCareer, window._careersData || []);
     document.getElementById('create-pill-career')?.classList.remove('active');
     document.getElementById('create-pill-name')?.classList.add('active');
-    document.getElementById('create-step-1').style.display = 'none';
-    document.getElementById('create-step-2').style.display = '';
+    document.getElementById('create-step-2').classList.add('open');
     const preview = document.getElementById('create-career-preview');
     if (preview) preview.textContent = `${meta.emoji} ${meta.name}`;
     const input = document.getElementById('create-name-input');
@@ -236,8 +246,7 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
   window._backToStep1 = () => {
     document.getElementById('create-pill-career')?.classList.add('active');
     document.getElementById('create-pill-name')?.classList.remove('active');
-    document.getElementById('create-step-1').style.display = '';
-    document.getElementById('create-step-2').style.display = 'none';
+    document.getElementById('create-step-2').classList.remove('open');
   };
 
   function updateNameHint() {
@@ -285,20 +294,22 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
 
 export function showOfflineRewardUI(summary) {
   if (!summary) return;
-  const elapsedH = (summary.elapsed_s / 3600).toFixed(1);
-  const hours = parseFloat(elapsedH);
-  const truncated = hours >= 24 ? '（已截断至24小时）' : '';
+  hideOfflineRewardLoading();
+  const elapsedSeconds = Math.min(Number(summary.elapsed_s) || 0, 86400);
+  const elapsedHours = Math.floor(elapsedSeconds / 3600);
+  const elapsedMinutes = Math.floor((elapsedSeconds % 3600) / 60);
+  const truncated = (Number(summary.elapsed_s) || 0) >= 86400;
+  const row = (icon, label, value, kind = '') => `
+    <div class="reward-row">
+      <span class="rr-label"><span class="rr-ico">${icon}</span>${label}</span>
+      <b class="rr-val ${kind}">${value}</b>
+    </div>`;
 
   let html = `
     <div class="offline-reward-shell">
-    <div class="offline-hero">
-      <div class="moon">☾</div>
-      <div>
-        <div class="offline-title">离线收益结算</div>
-        <div class="offline-sub">自动挂机已为你结算完毕</div>
-      </div>
+    <div class="rh-time${truncated ? ' truncated' : ''}">
+      离线时长 <b>${elapsedHours} 小时 ${elapsedMinutes} 分</b>${truncated ? '（已截断至 24 小时）' : ''}
     </div>
-    <div class="rh-time${truncated ? ' truncated' : ''}">离线 ${elapsedH} 小时 ${truncated}</div>
   `;
 
   if (summary.stopped_reason) {
@@ -309,52 +320,51 @@ export function showOfflineRewardUI(summary) {
       auto_resupply_gold_insufficient: '金币不足停止',
     };
     html += `<div class="alert-box">
-      <span>⚠️ ${reasons[summary.stopped_reason] || summary.stopped_reason}</span>
+      <div class="ab-title">⚠️ ${reasons[summary.stopped_reason] || summary.stopped_reason}</div>
     </div>`;
     if (summary.quest_item_lost) {
       const lost = summary.quest_item_lost;
       html += `<div class="alert-box detail">
-        <span>任务物品丢失：${escapeHtml(lost.item_key || '未知物品')}（${escapeHtml(lost.current_count || 0)}/${escapeHtml(lost.required_count || '?')}）</span>
+        <div class="ab-text">任务物品「<b>${escapeHtml(lost.item_name || lost.item_key || '未知物品')}</b>」无法保存，
+        当前进度 <b>${escapeHtml(lost.current_count || 0)}/${escapeHtml(lost.required_count || '?')}</b>。</div>
       </div>`;
     }
   }
 
-  html += `
-    <div class="reward-row"><span>击杀怪物</span><b>${summary.kills} 只</b></div>
-    <div class="reward-row exp"><span>获得经验</span><b>+${summary.exp_gained}</b></div>
-    <div class="reward-row gold"><span>获得金币</span><b>+${summary.gold_gained}</b></div>
-  `;
+  html += row('⚔', '击杀', `${summary.kills || 0} 只`);
+  html += row('✨', '经验', `+${summary.exp_gained || 0}`, 'exp');
 
   if (summary.level_ups?.length > 0) {
     const first = summary.level_ups[0];
     const last = summary.level_ups[summary.level_ups.length - 1];
     const totalPoints = summary.level_ups.reduce((s, l) => s + (l.gained_points || 1), 0);
-    html += `<div class="rr-detail">升级 ${summary.level_ups.length} 次：Lv${first.from_level} → Lv${last.to_level}（+${totalPoints} 气功点）</div>`;
+    html += row('⬆', '升级', `${summary.level_ups.length} 次<span class="rr-detail">Lv${first.from_level} → Lv${last.to_level}（+${totalPoints} 气功点）</span>`, 'up');
   }
+  html += row('🪙', '金币', `+${summary.gold_gained || 0}`, 'gold');
 
   if (summary.potions_consumed && Object.keys(summary.potions_consumed).length > 0) {
     const potions = Object.entries(summary.potions_consumed).map(([k, v]) => `${k}×${v}`).join('、');
-    html += `<div class="reward-row minus"><span>消耗药剂</span><b>${potions}</b></div>`;
+    html += row('🍶', '消耗药剂', escapeHtml(potions));
   }
   if (summary.gold_spent_on_potions > 0) {
-    html += `<div class="reward-row minus"><span>买药花费</span><b>-${summary.gold_spent_on_potions} 金币</b></div>`;
+    html += row('💸', '买药花费', `-${summary.gold_spent_on_potions}`, 'minus');
   }
   if (summary.items_obtained?.length > 0) {
-    html += `<div class="reward-row"><span>获得物品</span><b>${summary.items_obtained.slice(0, 5).join('、')}${summary.items_obtained.length > 5 ? '...' : ''}</b></div>`;
+    html += row('🎁', '获得物品', `${summary.items_obtained.length} 件`);
   }
   if (summary.boxes_obtained > 0) {
-    html += `<div class="reward-row"><span>获得盒子</span><b>${summary.boxes_obtained} 个</b></div>`;
+    html += row('📦', '获得盒子', `${summary.boxes_obtained} 个`);
   }
   if (summary.resupply_trips > 0) {
-    html += `<div class="reward-row"><span>自动补给</span><b>${summary.resupply_trips} 次</b></div>`;
+    html += row('🚶', '自动补给', `${summary.resupply_trips} 次`);
   }
   if (summary.items_discarded > 0) {
-    html += `<div class="reward-row minus"><span>丢弃物品</span><b>${summary.items_discarded} 件（背包满）</b></div>`;
+    html += row('🗑', '丢弃', `${summary.items_discarded} 件<span class="rr-detail">背包已满</span>`, 'discard');
   }
   if (summary.deaths > 0) {
-    html += `<div class="reward-row death"><span>死亡次数</span><b>${summary.deaths} 次</b></div>`;
+    html += row('💀', '死亡次数', `${summary.deaths} 次`, 'minus');
     if (summary.died_at_s != null) {
-      html += `<div class="reward-row death"><span>死亡时间</span><b>离线第 ${summary.died_at_s.toFixed(0)} 秒</b></div>`;
+      html += row('⏱', '死亡时间', `离线第 ${summary.died_at_s.toFixed(0)} 秒`, 'minus');
     }
   }
   html += '</div>';
@@ -363,4 +373,23 @@ export function showOfflineRewardUI(summary) {
   if (el) el.innerHTML = html;
   const modal = document.getElementById('modal-offline');
   if (modal) UIManager.pushModal(modal);
+}
+
+export function showOfflineRewardLoading(progress = 0) {
+  const overlay = document.getElementById('offline-loading-overlay');
+  if (!overlay) return;
+  overlay.classList.add('open');
+  updateOfflineRewardProgress(progress);
+}
+
+export function updateOfflineRewardProgress(progress = 0) {
+  const value = Math.max(0, Math.min(100, Math.round(Number(progress) || 0)));
+  const fill = document.getElementById('offline-progress-fill');
+  const text = document.getElementById('offline-progress-text');
+  if (fill) fill.style.width = `${value}%`;
+  if (text) text.textContent = `${value}%`;
+}
+
+export function hideOfflineRewardLoading() {
+  document.getElementById('offline-loading-overlay')?.classList.remove('open');
 }

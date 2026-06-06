@@ -118,7 +118,7 @@ export const AutoPlaySystem = {
     const result = ConsumableSystem.use(player, cfg.selected_item_key, 1, { source: 'auto' });
     if (!result.success) return false;
 
-    this._cooldowns.hp_potion = 5000;
+    this._cooldowns.hp_potion = cfg.cooldown ?? 5000;
     return true;
   },
 
@@ -132,7 +132,7 @@ export const AutoPlaySystem = {
     const result = ConsumableSystem.use(player, cfg.selected_item_key, 1, { source: 'auto' });
     if (!result.success) return false;
 
-    this._cooldowns.mp_potion = 5000;
+    this._cooldowns.mp_potion = cfg.cooldown ?? 5000;
     return true;
   },
 
@@ -150,7 +150,7 @@ export const AutoPlaySystem = {
     // 施放武功（这里简化处理，实际应由武功系统执行）
     player.mp = Math.max(0, player.mp - mpCost);
     const healBonus = player.healBonus || 0;
-    const healAmount = Math.floor((skill.power || 0) * (1 + healBonus));
+    const healAmount = Math.floor((skill.effect?.value || skill.power || 0) * (1 + healBonus));
     player.hp = Math.min(player.maxHp, player.hp + healAmount);
 
     this._cooldowns.heal_skill = skill.coolDown || 1000;

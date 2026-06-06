@@ -3,7 +3,7 @@
  * @desc 刀剑笑合成镶嵌工坊 UI。
  */
 
-import { getEquipmentTemplate } from './EquipUI.js';
+import { getEquipmentTemplate } from './EquipUI.js?v=release-20260606-1';
 
 const SYNTH_SLOTS = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor', 'cape'];
 const SLOT_LABEL = { weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲', cape: '披风' };
@@ -23,20 +23,23 @@ function renderEmptyTiles(count) {
 }
 
 function getEquippedChoices(player) {
-  return SYNTH_SLOTS.map(slotKey => {
+  return SYNTH_SLOTS.flatMap(slotKey => {
     const equipped = player?.equipped?.[slotKey];
-    const instanceId = equipped?.instance_id;
-    const inst = instanceId ? player?.inventory?.equipment_instances?.[instanceId] : null;
-    const tpl = getEquipmentTemplate(player, inst);
-    if (!inst) return null;
-    const used = inst.synthesis_slots?.length || 0;
-    const capacity = slotKey === 'inner_armor' ? 2 : 4;
-    return {
-      key: slotKey,
-      name: tpl?.name || inst.item_key,
-      sub: `${SLOT_LABEL[slotKey] || slotKey} · 孔位 ${used}/${capacity}`,
-      icon: SLOT_ICON[slotKey] || '⚔️',
-    };
+    const entries = Array.isArray(equipped) ? equipped : [equipped];
+    return entries.map((entry, index) => {
+      const instanceId = entry?.instance_id;
+      const inst = instanceId ? player?.inventory?.equipment_instances?.[instanceId] : null;
+      const tpl = getEquipmentTemplate(player, inst);
+      if (!inst) return null;
+      const used = (inst.synthesis_slots || []).filter(Boolean).length;
+      const capacity = slotKey === 'inner_armor' ? 2 : 4;
+      return {
+        key: Array.isArray(equipped) ? `${slotKey}:${index}` : slotKey,
+        name: tpl?.name || inst.item_key,
+        sub: `${SLOT_LABEL[slotKey] || slotKey}${Array.isArray(equipped) ? ` ${index + 1}` : ''} · 孔位 ${used}/${capacity}`,
+        icon: SLOT_ICON[slotKey] || '⚔️',
+      };
+    }).filter(Boolean);
   }).filter(Boolean);
 }
 
@@ -52,7 +55,7 @@ function getSynthesisStones(player) {
 }
 
 function renderChoiceTile(item, kind) {
-  return `<div class="bag-tile ${kind === 'equip' ? 'equip' : 'stack'}" data-kind="${kind}" data-key="${escapeHtml(item.key)}" data-icon="${escapeHtml(item.icon)}" data-name="${escapeHtml(item.name)}">
+  return `<div class="bag-tile ${kind === 'equip' ? 'equip' : 'stack'}" draggable="true" ondragstart="window._djxDragItem(event,'${escapeHtml(item.key)}','synth')" data-kind="${kind}" data-key="${escapeHtml(item.key)}" data-icon="${escapeHtml(item.icon)}" data-name="${escapeHtml(item.name)}">
     <div class="bt-icon">${item.icon}</div>
     <div class="bt-name">${escapeHtml(item.name)}</div>
     ${item.sub ? `<div class="bt-sub">${escapeHtml(item.sub)}</div>` : ''}
@@ -69,12 +72,12 @@ export function renderSynthesisWorkbench(player) {
   return `<div class="craft-body">
     <div class="craft-work">
       <div class="craft-slots">
-        <div class="craft-dropzone equip-slot" data-zone="equip">
-          <div class="dz-plus">＋</div><div class="dz-hint">选择已穿戴装备</div>
+        <div class="craft-dropzone equip-slot" data-zone="equip" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'equip','synth')">
+          <div class="dz-plus">＋</div><div class="dz-hint">拖入装备</div>
         </div>
         <div class="craft-arrow">＋</div>
-        <div class="craft-dropzone stone-slot" data-zone="synth-stone">
-          <div class="dz-plus">＋</div><div class="dz-hint">选择<br>合成石</div>
+        <div class="craft-dropzone stone-slot" data-zone="synth-stone" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'stone','synth')">
+          <div class="dz-plus">＋</div><div class="dz-hint">拖入<br>合成石</div>
         </div>
       </div>
       <div class="craft-result hidden" id="djx-synth-result"></div>

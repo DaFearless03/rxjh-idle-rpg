@@ -23,18 +23,19 @@ export const EnhanceSystem = {
    * @returns {{ success: boolean, message: string }}
    */
   enhance(player, slotKey) {
+    const { baseSlot, index, equipped } = this._resolveSlot(player, slotKey);
     // 检查槽位是否可强化
-    if (this.FORBIDDEN_SLOTS.includes(slotKey)) {
-      return { success: false, message: `槽位 ${slotKey} 不可强化` };
+    if (this.FORBIDDEN_SLOTS.includes(baseSlot)) {
+      return { success: false, message: `槽位 ${baseSlot} 不可强化` };
     }
-    if (!this.ENHANCEABLE_SLOTS.includes(slotKey)) {
-      return { success: false, message: `未知槽位 ${slotKey}` };
+    if (!this.ENHANCEABLE_SLOTS.includes(baseSlot)) {
+      return { success: false, message: `未知槽位 ${baseSlot}` };
     }
 
     // 获取已装备的实例
-    const instanceId = player.equipped?.[slotKey]?.instance_id;
+    const instanceId = equipped?.instance_id;
     if (!instanceId) {
-      return { success: false, message: `${slotKey} 槽位没有装备` };
+      return { success: false, message: `${baseSlot} 槽位没有装备` };
     }
 
     const ei = player.inventory?.equipment_instances?.[instanceId];
@@ -91,8 +92,10 @@ export const EnhanceSystem = {
    * 销毁装备（失败时调用）
    */
   _destroyEquipment(player, slotKey, instanceId) {
+    const { baseSlot, index } = this._resolveSlot(player, slotKey);
     // 从 equipped 清除
-    player.equipped[slotKey] = null;
+    if (index == null) player.equipped[baseSlot] = null;
+    else player.equipped[baseSlot][index] = null;
 
     // 从 inventory.slots 移除（通过 instance_id 找槽位）
     const slots = player.inventory?.slots || [];
@@ -141,11 +144,22 @@ export const EnhanceSystem = {
    * 获取装备模板（用于读 required_level 算费用）
    */
   _getEquipmentTemplate(player, slotKey) {
-    const instanceId = player.equipped?.[slotKey]?.instance_id;
+    const instanceId = this._resolveSlot(player, slotKey).equipped?.instance_id;
     if (!instanceId) return null;
     const ei = player.inventory?.equipment_instances?.[instanceId];
     if (!ei) return null;
     // 需要传入外部装备模板，这里简化处理：直接从 player._equipTemplates 查
     return player._equipTemplates?.find(t => t.key === ei.item_key) || null;
+  },
+
+  _resolveSlot(player, slotRef) {
+    const [baseSlot, rawIndex] = String(slotRef || '').split(':');
+    const index = rawIndex === undefined ? null : Number(rawIndex);
+    const value = player.equipped?.[baseSlot];
+    return {
+      baseSlot,
+      index,
+      equipped: index == null ? value : value?.[index],
+    };
   }
 };

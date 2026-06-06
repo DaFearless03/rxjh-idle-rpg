@@ -2,22 +2,46 @@
  * @file ui/NPCDialogUI.js
  * @desc NPC 对话窗口
  */
-import { UIManager } from './UIManager.js';
+import { UIManager } from './UIManager.js?v=release-20260606-2';
 import { TaskSystem } from '../systems/TaskSystem.js';
-import { ShopSystem } from '../systems/ShopSystem.js';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260606-1';
 import { InventorySystem } from '../systems/InventorySystem.js';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js';
-import { UIState } from '../systems/NPCSystem.js';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260606-1';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260606-1';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260606-1';
+import { NPCSystem, UIState } from '../systems/NPCSystem.js';
 
 const TOWN_NPC_DATA = {
-  leader: { name: '泫渤派门主', tag: '任务', avatar: '👤', line: '欢迎来到泫渤派！', funcs: ['任务'] },
+  leader: {
+    key: 'quest_npc',
+    name: '泫渤派门主',
+    type: 'quest',
+    tag: '任务',
+    avatar: '📜',
+    line: '初出茅庐的后生，想在江湖立足，先去证明你的实力吧。',
+    quests: [
+      { key: 'quest_transfer_1' },
+      { key: 'quest_transfer_2_positive' },
+      { key: 'quest_transfer_2_negative' },
+      { key: 'quest_transfer_3_positive' },
+      { key: 'quest_transfer_3_negative' },
+    ],
+    funcs: [],
+  },
   djx: { name: '刀剑笑', tag: '武器商 / 强化', avatar: '👤', line: '客官，来看看我的神兵利器！', funcs: ['武器商店', '强化', '合成'] },
   yjl: { name: '银娇龙', tag: '防具商', avatar: '👤', line: '本店的护具品质一流，童叟无欺！', funcs: ['防具商店'] },
   psz: { name: '平十指', tag: '药剂商', avatar: '👤', line: '平价药剂，童叟无欺！', funcs: ['药水商店'] },
   wdb: { name: '韦大宝', tag: '仓库', avatar: '👤', line: '存什么东西都行，找我就对了！', funcs: ['打开仓库'] },
 };
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 export function openTownNPCDialog(npcKey) {
   const npc = TOWN_NPC_DATA[npcKey];
@@ -28,11 +52,97 @@ export function openTownNPCDialog(npcKey) {
   document.getElementById('npcDialogName').textContent = npc.name;
   document.getElementById('npcDialogTag').textContent = npc.tag;
   document.getElementById('npcDialogLine').textContent = npc.line;
-  document.getElementById('npcFuncRow').innerHTML = npc.funcs.map(func =>
-    `<button class="npc-func-btn" data-npc="${npcKey}" data-func="${func}">${func}</button>`
-  ).join('');
+  NPCSystem.openDialog(npc);
+  window._currentNpc = npc;
+  if (npcKey === 'leader') {
+    renderTownLeaderQuestDialog('accept');
+  } else {
+    document.getElementById('npcFuncRow').innerHTML = npc.funcs.map(func =>
+      `<button class="npc-func-btn" data-npc="${npcKey}" data-func="${func}">${func}</button>`
+    ).join('');
+  }
   backdrop.classList.add('open');
 }
+
+function isQuestReady(player, quest) {
+  TaskSystem.stageAdvanceCheck(player);
+  return (quest.objectives || []).every(stage => quest.completed_stages?.includes(stage.stage));
+}
+
+function questObjectiveSummary(quest) {
+  const items = (quest.objectives || []).flatMap(stage => stage.items || []);
+  return items.map(item => `${item.item_name || item.item_key}×${item.count}`).join(' / ') || quest.description || '江湖历练';
+}
+
+function renderTownLeaderQuestDialog(tab = 'accept') {
+  const player = window.game?.player;
+  const npc = TOWN_NPC_DATA.leader;
+  const available = TaskSystem.listVisibleQuests(player, npc);
+  const accepted = player?.quests?.accepted || [];
+  const ready = accepted.filter(quest => isQuestReady(player, quest));
+  const rows = tab === 'submit' ? ready : available;
+  const action = tab === 'submit' ? '提交' : '接取';
+  const rowHtml = rows.length ? rows.map(quest => `
+    <div class="mz-quest-row">
+      <span class="mq-icon">📜</span>
+      <div class="mq-info">
+        <div class="mq-name">${escapeHtml(quest.name || quest.key)}</div>
+        <div class="mq-sub">${escapeHtml(questObjectiveSummary(quest))}</div>
+      </div>
+      <button class="mq-btn${tab === 'accept' ? ' accept' : ''}" onclick="${tab === 'accept'
+        ? `window._leaderConfirmAccept('${escapeHtml(quest.key)}')`
+        : `window._leaderSubmit('${escapeHtml(quest.key)}')`}">${action}</button>
+    </div>`).join('') : `<div class="mz-empty-note">暂无可${action}任务</div>`;
+
+  document.getElementById('npcDialogLine').textContent = tab === 'submit'
+    ? '带回来了？让我看看你这趟的成色。'
+    : npc.line;
+  document.getElementById('npcFuncRow').innerHTML = `
+    <div class="mz-tabs">
+      <button class="mz-tab${tab === 'accept' ? ' active' : ''}" onclick="window._leaderSwitchTab('accept')">接取</button>
+      <button class="mz-tab${tab === 'submit' ? ' active' : ''}" onclick="window._leaderSwitchTab('submit')">提交</button>
+    </div>
+    <div class="mz-group-label">可${action}</div>
+    ${rowHtml}
+    <div class="mz-confirm-backdrop" id="leaderQuestConfirm">
+      <div class="mz-confirm">
+        <div class="mz-confirm-text" id="leaderQuestConfirmText">确定接取任务？</div>
+        <div class="mz-confirm-row">
+          <button class="mz-confirm-cancel" onclick="window._leaderCancelAccept()">取消</button>
+          <button class="mz-confirm-ok" onclick="window._leaderDoAccept()">确定</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+window._leaderSwitchTab = (tab) => renderTownLeaderQuestDialog(tab);
+window._leaderConfirmAccept = (questKey) => {
+  const template = window._questTemplates?.find(quest => quest.key === questKey);
+  if (!template) return;
+  window._leaderPendingQuestKey = questKey;
+  document.getElementById('leaderQuestConfirmText').textContent = `确定接取『${template.name}』？`;
+  document.getElementById('leaderQuestConfirm')?.classList.add('open');
+};
+window._leaderCancelAccept = () => {
+  window._leaderPendingQuestKey = null;
+  document.getElementById('leaderQuestConfirm')?.classList.remove('open');
+};
+window._leaderDoAccept = () => {
+  const template = window._questTemplates?.find(quest => quest.key === window._leaderPendingQuestKey);
+  if (!template) return;
+  const result = TaskSystem.acceptQuest(window.game?.player, template);
+  UIManager.toast(result.message, result.success ? 'success' : 'error');
+  window._leaderPendingQuestKey = null;
+  renderTownLeaderQuestDialog('accept');
+};
+window._leaderSubmit = (questKey) => {
+  const player = window.game?.player;
+  const instance = player?.quests?.accepted?.find(quest => quest.key === questKey);
+  if (!instance) return;
+  const result = TaskSystem.submitQuest(player, instance, window._questTemplates || [], window._careersData || []);
+  UIManager.toast(result.message, result.success ? 'success' : 'error');
+  renderTownLeaderQuestDialog('submit');
+};
 
 export function showNPCDialog(npcData, player, careersData, questTemplates) {
   document.getElementById('npc-dialog-title').textContent = npcData.name || 'NPC';
@@ -101,13 +211,14 @@ function buildShopDialog(npcData, player) {
       <p class="text-dim mb-4">商品列表（点击购买）</p>
       <div class="grid-2 gap-4">
         ${items.map(item => {
+          const itemKey = item.item_key || item.key;
           const price = Math.floor((item.buy_price || 0) * (npcData.price_multiplier || 1.0));
           const canBuy = (player.resources?.gold || 0) >= price;
           return `
           <div class="item-cell" style="height:auto;padding:6px;cursor:pointer"
-               onclick="${canBuy ? `window._buyItem('${item.key}', 1)` : ''}"
+               onclick="${canBuy ? `window._buyItem('${itemKey}', 1)` : ''}"
                title="${item.description || item.name}">
-            <div style="font-size:16px">${getItemEmoji(item.key)}</div>
+            <div style="font-size:16px">${getItemEmoji(itemKey)}</div>
             <div style="font-size:10px">${item.name}</div>
             <div style="font-size:10px;color:${canBuy ? '#e07020' : '#666'}">💰 ${price}</div>
           </div>`;
@@ -118,7 +229,7 @@ function buildShopDialog(npcData, player) {
       <p class="text-dim mb-4">背包物品（点击出售）</p>
       <div class="item-grid">
         ${(player.inventory?.slots || []).filter(s => s.count > 0 && s.item_key).map(s => {
-          const isQuestItem = false; // 任务物品禁止出售
+          const isQuestItem = InventorySystem._getItemClass(s.item_key, player) === 'quest_items';
           const basePrice = getSellPrice(s.item_key);
           const sellPrice = Math.floor(basePrice * 0.5);
           if (isQuestItem || sellPrice <= 0) return '';

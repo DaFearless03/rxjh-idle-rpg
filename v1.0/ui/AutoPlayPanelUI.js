@@ -3,7 +3,16 @@
  * @desc 挂机面板（阈值滑块 / 药剂选择 / 自动补给规则）
  * @ref 10_consumables.auto_consume / auto_resupply
  */
-import { UIManager } from './UIManager.js';
+import { UIManager } from './UIManager.js?v=release-20260606-2';
+
+function getCurrentSubZoneKey() {
+  const battleSubZone = window.game?.battle?._currentSubZone;
+  if (typeof battleSubZone === 'string') return battleSubZone;
+  if (battleSubZone?.key) return battleSubZone.key;
+  return window.game?.player?.location?.current_sub_zone_key
+    || window.game?.currentSubZoneKey
+    || null;
+}
 
 export function showAutoPlayPanel(player) {
   const ap = player.auto_play || {};
@@ -44,9 +53,9 @@ export function showAutoPlayPanel(player) {
         </div>
         <div class="autoplay-row mt-4">
           <label>阈值</label>
-          <input type="range" min="5" max="95" step="5" value="${Math.round((1-hpCfg.threshold)*100)}"
+          <input type="range" min="5" max="95" step="5" value="${Math.round((hpCfg.threshold ?? 0.30)*100)}"
                  style="flex:1" oninput="window._setHPThreshold(this.value)" />
-          <span style="min-width:36px;text-align:right">${Math.round((1-hpCfg.threshold)*100)}%</span>
+          <span style="min-width:36px;text-align:right">${Math.round((hpCfg.threshold ?? 0.30)*100)}%</span>
         </div>` : ''}
       </div>
 
@@ -66,9 +75,9 @@ export function showAutoPlayPanel(player) {
         </div>
         <div class="autoplay-row mt-4">
           <label>阈值</label>
-          <input type="range" min="5" max="95" step="5" value="${Math.round((1-mpCfg.threshold)*100)}"
+          <input type="range" min="5" max="95" step="5" value="${Math.round((mpCfg.threshold ?? 0.30)*100)}"
                  style="flex:1" oninput="window._setMPThreshold(this.value)" />
-          <span style="min-width:36px;text-align:right">${Math.round((1-mpCfg.threshold)*100)}%</span>
+          <span style="min-width:36px;text-align:right">${Math.round((mpCfg.threshold ?? 0.30)*100)}%</span>
         </div>` : ''}
       </div>
 
@@ -122,7 +131,8 @@ window._setHPThreshold = (pct) => {
   p.auto_play = p.auto_play || {};
   p.auto_play.auto_consume = p.auto_play.auto_consume || {};
   p.auto_play.auto_consume.hp_potion = p.auto_play.auto_consume.hp_potion || {};
-  p.auto_play.auto_consume.hp_potion.threshold = 1 - parseInt(pct) / 100;
+  p.auto_play.auto_consume.hp_potion.threshold = parseInt(pct, 10) / 100;
+  showAutoPlayPanel(p);
 };
 window._setMPPotion = (key) => {
   const p = window.game?.player;
@@ -138,11 +148,23 @@ window._setMPThreshold = (pct) => {
   p.auto_play = p.auto_play || {};
   p.auto_play.auto_consume = p.auto_play.auto_consume || {};
   p.auto_play.auto_consume.mp_potion = p.auto_play.auto_consume.mp_potion || {};
-  p.auto_play.auto_consume.mp_potion.threshold = 1 - parseInt(pct) / 100;
+  p.auto_play.auto_consume.mp_potion.threshold = parseInt(pct, 10) / 100;
+  showAutoPlayPanel(p);
 };
 window._startAutoplay = () => {
+  const subZoneKey = getCurrentSubZoneKey();
+  if (!subZoneKey) {
+    UIManager.toast('请先选择一个野外区域', 'info');
+    UIManager.popModal();
+    window._startAutoplayAfterMap = true;
+    window._openMapSheet?.();
+    return;
+  }
+  window._startAutoplayAfterMap = false;
   window.game?.startAutoPlay();
   UIManager.popModal();
+  UIManager.openPanel('combat');
+  UIManager._refreshAll?.();
 };
 window._stopAutoplay = () => {
   window.game?.stopAutoPlay();

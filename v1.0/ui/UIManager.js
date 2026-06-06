@@ -4,10 +4,15 @@
  */
 import { eventBus } from '../core/EventBus.js';
 import { storage } from '../utils/storage.js';
-import { refreshMonsterList } from './MonsterListUI.js';
-import { refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js';
+import { refreshMonsterList } from './MonsterListUI.js?v=release-20260606-1';
+import { refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260606-1';
 import { appendCombatLog, formatCombatLog, renderCombatLog } from './CombatLogUI.js';
 import { appendRewardLog, formatRewardLog, renderRewardLog } from './RewardLogUI.js';
+import { TaskSystem } from '../systems/TaskSystem.js';
+
+function getCareerDisplayName(player) {
+  return window._careersData?.find(career => career.key === player?.career)?.name || player?.career || '—';
+}
 
 class UIManagerClass {
   constructor() {
@@ -19,6 +24,7 @@ class UIManagerClass {
     this._combatAutoScroll = true;
     this._rewardAutoScroll = true;
     this._logScrollBoundElements = new WeakSet();
+    this._homeSession = { startedAt: null, kills: 0, exp: 0, gold: 0, drops: 0 };
 
     eventBus.on('player.level_up', () => this._refreshAll());
     eventBus.on('player.death', () => this._refreshAll());
@@ -26,11 +32,29 @@ class UIManagerClass {
     eventBus.on('quest.accepted', () => this._refreshAll());
     eventBus.on('quest.completed', () => this._refreshAll());
     eventBus.on('quest.stage_advance', () => this._refreshAll());
-    eventBus.on('monster.death', () => this._refreshAll());
+    eventBus.on('battle.monsters_changed', () => this._refreshMonsterList());
+    eventBus.on('battle.player_status_changed', () => this._refreshAll());
+    eventBus.on('monster.death', (data) => {
+      if (this._homeSession.startedAt) {
+        this._homeSession.kills += 1;
+        this._homeSession.exp += Number(data?.exp || 0);
+        this._homeSession.gold += Number(data?.gold || 0);
+      }
+      this._refreshAll();
+    });
     eventBus.on('buff.applied', () => this._refreshAll());
     eventBus.on('buff.expired', () => this._refreshAll());
-    eventBus.on('autoplay.start', () => this._refreshAll());
+    eventBus.on('autoplay.start', () => {
+      this._homeSession = { startedAt: Date.now(), kills: 0, exp: 0, gold: 0, drops: 0 };
+      this._refreshAll();
+    });
     eventBus.on('autoplay.stop', () => this._refreshAll());
+    ['drop.equipment', 'drop.stone', 'drop.box', 'drop.potion'].forEach(eventName => {
+      eventBus.on(eventName, () => {
+        if (this._homeSession.startedAt) this._homeSession.drops += 1;
+        this._refreshHomePage();
+      });
+    });
     eventBus.on('autoplay.consume_hp', (d) => this._addCombatLog('auto_consume_hp', d));
     eventBus.on('autoplay.consume_mp', (d) => this._addCombatLog('auto_consume_mp', d));
     eventBus.on('teleport.done', () => this._refreshAll());
@@ -159,12 +183,75 @@ class UIManagerClass {
     const factionEl = document.getElementById('top-faction');
     if (nameEl) nameEl.textContent = p.name || '—';
     if (levelEl) levelEl.textContent = `Lv.${p.level}`;
-    if (classEl) classEl.textContent = p.career || '—';
+    if (classEl) classEl.textContent = getCareerDisplayName(p);
     if (factionEl) {
-      factionEl.textContent = (p.faction === 'negative' ? '邪派' : '正派');
-      factionEl.className = `faction ${p.faction === 'negative' ? 'negative' : 'positive'}`;
+      factionEl.textContent = p.faction === 'negative' ? '邪派' : p.faction === 'positive' ? '正派' : '中立';
+      factionEl.className = `faction ${p.faction || 'neutral'}`;
     }
     refreshPlayerStatusBar(p, { prefix: 'home' });
+    this._refreshHomeLocationState(p);
+    this._refreshQuestNotice(p);
+  }
+
+  _refreshQuestNotice(player) {
+    const questNpc = {
+      type: 'quest',
+      quests: (window._questTemplates || []).map(quest => ({ key: quest.key })),
+    };
+    const canAccept = TaskSystem.listVisibleQuests(player, questNpc).length;
+    TaskSystem.stageAdvanceCheck(player);
+    const canSubmit = (player.quests?.accepted || []).filter(quest =>
+      (quest.objectives || []).every(stage => quest.completed_stages?.includes(stage.stage))
+    ).length;
+    const leader = document.getElementById('home-leader-card');
+    const leaderMeta = document.getElementById('home-leader-meta');
+    if (leader) leader.classList.toggle('has-notice', canAccept + canSubmit > 0);
+    if (leaderMeta) leaderMeta.textContent = `任务 · 可接 ${canAccept} 个 / 可交 ${canSubmit} 个`;
+    document.querySelectorAll('.menu-btn').forEach(button => {
+      if (button.textContent.includes('任务')) button.classList.toggle('has-notice', canAccept + canSubmit > 0);
+    });
+  }
+
+  _refreshHomeLocationState(player) {
+    const subZoneKey = player.location?.current_sub_zone_key || null;
+    const townContent = document.getElementById('home-town-content');
+    const wildContent = document.getElementById('home-wild-content');
+    if (townContent) townContent.hidden = !!subZoneKey;
+    if (wildContent) wildContent.hidden = !subZoneKey;
+    if (!subZoneKey) return;
+
+    const battleZone = window.game?.battle?._currentSubZone;
+    const zone = typeof battleZone === 'object' && battleZone?.key === subZoneKey ? battleZone : null;
+    const name = zone?.name || subZoneKey;
+    const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+    setText('home-wild-name', name);
+    setText('home-wild-desc', `江湖野外 · ${zone?.monsters?.length || 0} 种怪物`);
+    const isAutoPlaying = !!player.auto_play?.is_auto_play;
+    setText('home-wild-idle', isAutoPlaying ? '挂机中' : '已暂停');
+    setText('home-wild-autoplay-icon', isAutoPlaying ? '⏸' : '▶');
+    setText('home-wild-autoplay-label', isAutoPlaying ? '停止挂机' : '开始挂机');
+    setText('home-wild-autoplay-sub', isAutoPlaying ? '保留当前位置' : '当前区域');
+    const autoplayAction = document.getElementById('home-wild-autoplay-action');
+    if (autoplayAction) {
+      autoplayAction.classList.toggle('danger', isAutoPlaying);
+      autoplayAction.classList.toggle('success', !isAutoPlaying);
+    }
+    if (isAutoPlaying && !this._homeSession.startedAt) {
+      this._homeSession.startedAt = Date.now();
+    }
+    const session = this._homeSession;
+    setText('home-wild-kills', session.kills.toLocaleString());
+    setText('home-wild-exp', session.exp.toLocaleString());
+    setText('home-wild-gold', session.gold.toLocaleString());
+    setText('home-wild-drops', session.drops.toLocaleString());
+    const elapsedSeconds = session.startedAt ? Math.max(0, Math.floor((Date.now() - session.startedAt) / 1000)) : 0;
+    setText('home-session-note', `已 ${Math.floor(elapsedSeconds / 60)}分${elapsedSeconds % 60}秒`);
+
+    const buffsEl = document.getElementById('home-wild-buffs');
+    if (buffsEl) {
+      const buffs = player.buffs || [];
+      buffsEl.innerHTML = buffs.map(buff => `<span class="buff-chip">${buff.name || buff.key || '增益'}${buff.remaining != null ? `<span class="timer">${Math.ceil(buff.remaining / 1000)}s</span>` : ''}</span>`).join('');
+    }
   }
 
   _refreshTopBar() {
@@ -175,7 +262,7 @@ class UIManagerClass {
     const classEl = document.getElementById('top-class');
     if (nameEl) nameEl.textContent = p.name || '—';
     if (levelEl) levelEl.textContent = `Lv.${p.level}`;
-    if (classEl) classEl.textContent = p.career || '—';
+    if (classEl) classEl.textContent = getCareerDisplayName(p);
     // Combat page refs
     const combatName = document.getElementById('combat-name');
     const combatLevel = document.getElementById('combat-level');
@@ -183,10 +270,11 @@ class UIManagerClass {
     const combatFaction = document.getElementById('combat-faction');
     if (combatName) combatName.textContent = p.name || '—';
     if (combatLevel) combatLevel.textContent = `Lv.${p.level}`;
-    if (combatClass) combatClass.textContent = p.career || '—';
+    if (combatClass) combatClass.textContent = getCareerDisplayName(p);
     if (combatFaction) {
-      combatFaction.textContent = (p.faction === 'negative' ? '邪派' : '正派');
-      combatFaction.className = `faction ${p.faction === 'negative' ? 'negative' : 'positive'}`;
+      const faction = p.faction === 'negative' ? '邪派' : p.faction === 'positive' ? '正派' : '中立';
+      combatFaction.textContent = faction;
+      combatFaction.className = `faction ${p.faction || 'neutral'}`;
     }
     const goldEl = document.getElementById('top-gold');
     const qigongEl = document.getElementById('top-qigong');
@@ -197,7 +285,10 @@ class UIManagerClass {
     const zoneNameEl = document.getElementById('zone-name');
     if (zoneNameEl) {
       const battle = window.game?.battle;
-      const subZone = battle?._currentSubZone || window.game?.currentSubZoneKey;
+      const battleSubZone = battle?._currentSubZone;
+      const subZone = (typeof battleSubZone === 'string' ? battleSubZone : battleSubZone?.key)
+        || window.game?.player?.location?.current_sub_zone_key
+        || window.game?.currentSubZoneKey;
       const ZONE_NAMES = {
         town_xuanbo: '泫渤派 城镇',
         xuanbo_village: '村庄周围 L3-5',

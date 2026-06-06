@@ -53,12 +53,12 @@
       "type": "shop",
       "shop_type": "potion",
       "items": [
-        { "item_key": "hp_potion_grade1", "name": "金创药（小）", "buy_price": 50 },
-        { "item_key": "mp_potion_grade1", "name": "人参", "buy_price": 50 },
-        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "buy_price": 100 },
-        { "item_key": "mp_potion_grade2", "name": "野山参", "buy_price": 100 },
-        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "buy_price": 200 },
-        { "item_key": "mp_potion_grade3", "name": "雪原参", "buy_price": 200 }
+        { "item_key": "hp_potion_grade1", "name": "金创药（小）", "buy_price": 10 },
+        { "item_key": "mp_potion_grade1", "name": "人参", "buy_price": 10 },
+        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "buy_price": 50 },
+        { "item_key": "mp_potion_grade2", "name": "野山参", "buy_price": 50 },
+        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "buy_price": 120 },
+        { "item_key": "mp_potion_grade3", "name": "雪原参", "buy_price": 120 }
       ],
       "price_multiplier": 1.0
     },

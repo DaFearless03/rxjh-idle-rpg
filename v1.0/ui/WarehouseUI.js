@@ -3,7 +3,7 @@
  * @desc 仓库双区渲染 helper。交互仍由 BottomBarUI 的存取流程托管。
  */
 
-import { renderBagTile } from './InventoryUI.js';
+import { renderBagTile } from './InventoryUI.js?v=release-20260606-1';
 
 const WH_CAPACITY = 50;
 
@@ -27,6 +27,14 @@ function renderWarehouseTiles(slots, player) {
   return tiles.join('');
 }
 
+function isEquipped(player, instanceId) {
+  if (!instanceId) return false;
+  return Object.values(player.equipped || {}).some(value => {
+    const entries = Array.isArray(value) ? value : [value];
+    return entries.some(entry => (typeof entry === 'string' ? entry : entry?.instance_id) === instanceId);
+  });
+}
+
 export function mountWarehouseGrids(player, options = {}) {
   const {
     warehouseGridId = 'whWarehouseGrid',
@@ -43,31 +51,29 @@ export function mountWarehouseGrids(player, options = {}) {
   const bagCount = document.getElementById(bagCountId);
   const gold = document.getElementById(goldId);
   const warehouseSlots = player.warehouse?.slots || [];
-  const bagSlots = player.inventory?.slots || [];
+  const bagSlots = (player.inventory?.slots || []).filter(slot => !isEquipped(player, slot.instance_id));
   const warehouseUsed = warehouseSlots.filter(s => (s.count || 0) > 0).length;
   const bagUsed = bagSlots.filter(s => (s.count || 0) > 0).length;
   const warehouseCapacity = player.warehouse?.capacity || WH_CAPACITY;
   const bagCapacity = player.inventory?.capacity || WH_CAPACITY;
 
-  if (warehouseGrid) warehouseGrid.innerHTML = renderWarehouseTiles(warehouseSlots, player);
-  if (bagGrid) bagGrid.innerHTML = renderWarehouseTiles(bagSlots, player);
+  const warehousePlayer = {
+    ...player,
+    _equipTemplates: player._equipTemplates || window._equipTemplates || [],
+    inventory: {
+      ...(player.inventory || {}),
+      equipment_instances: player.warehouse?.equipment_instances || {},
+    },
+    equipped: {},
+  };
+  const bagPlayer = {
+    ...player,
+    _equipTemplates: player._equipTemplates || window._equipTemplates || [],
+    equipped: {},
+  };
+  if (warehouseGrid) warehouseGrid.innerHTML = renderWarehouseTiles(warehouseSlots, warehousePlayer);
+  if (bagGrid) bagGrid.innerHTML = renderWarehouseTiles(bagSlots, bagPlayer);
   if (warehouseCount) warehouseCount.textContent = `${warehouseUsed} / ${warehouseCapacity}`;
   if (bagCount) bagCount.textContent = `${bagUsed} / ${bagCapacity}`;
   if (gold) gold.textContent = (player.resources?.gold || player.gold || 0).toLocaleString();
-}
-
-export function syncWarehouseTilesToPlayer(player) {
-  const grid = document.getElementById('whWarehouseGrid');
-  if (!player || !grid) return;
-  const tiles = [...grid.querySelectorAll('.bag-tile:not(.empty)')];
-  player.warehouse = player.warehouse || { capacity: WH_CAPACITY, slots: [] };
-  player.warehouse.slots = tiles.map(t => ({
-    item_key: t.dataset.key,
-    key: t.dataset.key,
-    icon: t.querySelector('.bt-icon')?.textContent || '📦',
-    name: t.querySelector('.bt-name')?.textContent || t.dataset.key,
-    count: parseInt(t.dataset.count, 10) || 1,
-    quest: t.classList.contains('cross') ? '1' : null,
-    instance_id: t.dataset.instanceId || null,
-  }));
 }

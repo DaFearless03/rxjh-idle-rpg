@@ -13,8 +13,9 @@ import { eventBus } from '../core/EventBus.js';
  * @param {Object} characterData 角色数据（用于显示 name / level / career）
  * @returns {{ confirmBody: string, characterData }}
  */
-export function getDeletionConfirmInfo(slotIndex, characterData) {
-  const careerDisplay = characterData?.career || '未知职业';
+export function getDeletionConfirmInfo(slotIndex, characterData, careersData = []) {
+  const careerKey = characterData?.player?.career || characterData?.career;
+  const careerDisplay = careersData.find(career => career.key === careerKey)?.name || careerKey || '未知职业';
   const name = characterData?.player?.name || `槽位${slotIndex}`;
   const level = characterData?.player?.level || '?';
   return {

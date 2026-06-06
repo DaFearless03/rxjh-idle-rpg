@@ -90,6 +90,11 @@ export class BattleSystem {
     monster.map_key = this._currentSubZone?.parent_map_key || this._currentSubZone?.key || null;
     this.monsters.push(monster);
     this._pushEvent(`[刷怪] ${monster.name} 出现（预热2秒）`);
+    eventBus.emit('battle.monsters_changed', {
+      reason: 'spawn',
+      count: this.monsters.length,
+      subZoneKey: this._currentSubZone?.key || null,
+    });
   }
 
   /** 初始刷怪 */
@@ -105,6 +110,16 @@ export class BattleSystem {
     }
     this._initialSpawned = true;
     this._pushEvent(`[战场] Lv${this._player.level} ${this._player.career} 进入测试zone，${this.monsters.length} 只怪物等待中`);
+    eventBus.emit('battle.monsters_changed', {
+      reason: 'initial_spawn',
+      count: this.monsters.length,
+      subZoneKey: this._currentSubZone?.key || null,
+    });
+  }
+
+  ensureInitialSpawn() {
+    if (!this._currentSubZone || this._initialSpawned) return;
+    this._doInitialSpawn();
   }
 
   // ========================
@@ -155,6 +170,11 @@ export class BattleSystem {
       if (result.isArmorBroken) eventBus.emit('battle.armor_break', { target: target.name, damage: result.actualDmg });
 
       const dead = target.takeDamage(result.actualDmg);
+      eventBus.emit('battle.monsters_changed', {
+        reason: dead ? 'damage_dead' : 'damage',
+        count: this.monsters.length,
+        subZoneKey: this._currentSubZone?.key || null,
+      });
       if (dead) {
         this._onMonsterDead(target);
       }
@@ -187,10 +207,11 @@ export class BattleSystem {
         if (result.isCountered) parts.push(`反伤(${result.actualDmg})`);
         if (result.isLeech) parts.push('汲取');
         this._pushEvent(parts.join(' '));
+        this._player.hp = Math.max(0, this._player.hp - result.actualDmg);
         eventBus.emit('battle.monster_hit', { attacker: monster.name, damage: result.actualDmg, shield_suffix: result.isShielded ? ' (护身)' : '' });
+        eventBus.emit('battle.player_status_changed', { reason: 'monster_hit' });
         if (result.isCountered) eventBus.emit('battle.counter', { attacker: monster.name, damage: result.actualDmg, reflected: result.actualDmg });
 
-        this._player.hp = Math.max(0, this._player.hp - result.actualDmg);
         if (this._player.hp <= 0) {
           this._onPlayerDeath();
           return;
@@ -206,7 +227,7 @@ export class BattleSystem {
   _onMonsterDead(monster) {
     this._pushEvent(`[击杀] ${monster.name} 倒下，经验 +${monster.exp}`);
     // 移除
-    this.monsters = this.monsters.filter(m => m.key !== monster.key);
+    this.monsters = this.monsters.filter(m => m !== monster);
     // 重置目标锁
     if (this._mainTargetKey === monster.key) {
       this._mainTargetKey = null;
@@ -235,6 +256,7 @@ export class BattleSystem {
         this._pushEvent(`[升级] Lv${fromLevel} → Lv${toLevel}，HP/MP 回满，气功点 +${gainedPoints}`);
       }
     );
+    eventBus.emit('battle.player_status_changed', { reason: 'exp_gain' });
 
     // 触发掉落（Phase 2）
     let dropSummary = null;
@@ -249,7 +271,17 @@ export class BattleSystem {
       dropSummary = { gold: 5 };
     }
 
-    eventBus.emit('monster.death', { monsterKey: monster.key, exp: monster.exp, gold: dropSummary?.gold || 0 });
+    eventBus.emit('monster.death', {
+      monsterKey: monster.key,
+      monsterName: monster.name || monster.key,
+      exp: monster.exp,
+      gold: dropSummary?.gold || 0,
+    });
+    eventBus.emit('battle.monsters_changed', {
+      reason: 'death',
+      count: this.monsters.length,
+      subZoneKey: this._currentSubZone?.key || null,
+    });
   }
 
   _onPlayerDeath() {
@@ -272,6 +304,7 @@ export class BattleSystem {
     this._player.statistics.total_deaths = (this._player.statistics.total_deaths || 0) + 1;
     this._clearCombatField();
     this._currentSubZone = null;
+    eventBus.emit('battle.player_status_changed', { reason: 'player_death' });
 
     eventBus.emit('player.death', { reason: 'death', exp_loss: expLoss });
   }
@@ -331,6 +364,7 @@ export class BattleSystem {
   }
 
   _clearCombatField() {
+    const hadMonsters = this.monsters.length > 0;
     if (this.monsters.length > 0) {
       this.monsters = [];
     }
@@ -338,6 +372,13 @@ export class BattleSystem {
     this._spawnTimerMs = 0;
     this._playerAtkCd = 0;
     this._initialSpawned = false;
+    if (hadMonsters) {
+      eventBus.emit('battle.monsters_changed', {
+        reason: 'clear',
+        count: 0,
+        subZoneKey: null,
+      });
+    }
   }
 
   _printStatus() {

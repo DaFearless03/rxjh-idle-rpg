@@ -40,19 +40,20 @@ export const SynthesisSystem = {
    * @returns {{ success: boolean, message: string }}
    */
   synthesize(player, slotKey, stoneItemKey) {
-    if (this.FORBIDDEN_SLOTS.includes(slotKey)) {
-      return { success: false, message: `槽位 ${slotKey} 不可合成` };
+    const { baseSlot, equipped } = this._resolveSlot(player, slotKey);
+    if (this.FORBIDDEN_SLOTS.includes(baseSlot)) {
+      return { success: false, message: `槽位 ${baseSlot} 不可合成` };
     }
 
-    const capacity = this.SLOT_CAPACITY[slotKey] || 0;
+    const capacity = this.SLOT_CAPACITY[baseSlot] || 0;
     if (capacity === 0) {
-      return { success: false, message: `槽位 ${slotKey} 无孔位` };
+      return { success: false, message: `槽位 ${baseSlot} 无孔位` };
     }
 
     // 获取装备实例
-    const equipInstanceId = player.equipped?.[slotKey]?.instance_id;
+    const equipInstanceId = equipped?.instance_id;
     if (!equipInstanceId) {
-      return { success: false, message: `${slotKey} 槽位没有装备` };
+      return { success: false, message: `${baseSlot} 槽位没有装备` };
     }
     const ei = player.inventory?.equipment_instances?.[equipInstanceId];
     if (!ei) {
@@ -80,7 +81,7 @@ export const SynthesisSystem = {
 
     // 获取石头模板（根据 stone item_key 反推 category）
     const stoneCategory = this._getStoneCategory(stoneItemKey);
-    const requiredCategory = this.SLOT_STONE_MAPPING[slotKey];
+    const requiredCategory = this.SLOT_STONE_MAPPING[baseSlot];
     if (stoneCategory !== requiredCategory) {
       return { success: false, message: `石头类型不匹配，需要 ${requiredCategory}，当前 ${stoneCategory}` };
     }
@@ -117,10 +118,21 @@ export const SynthesisSystem = {
   },
 
   _getEquipmentTemplate(player, slotKey) {
-    const instanceId = player.equipped?.[slotKey]?.instance_id;
+    const instanceId = this._resolveSlot(player, slotKey).equipped?.instance_id;
     if (!instanceId) return null;
     const ei = player.inventory?.equipment_instances?.[instanceId];
     if (!ei) return null;
     return player._equipTemplates?.find(t => t.key === ei.item_key) || null;
+  },
+
+  _resolveSlot(player, slotRef) {
+    const [baseSlot, rawIndex] = String(slotRef || '').split(':');
+    const index = rawIndex === undefined ? null : Number(rawIndex);
+    const value = player.equipped?.[baseSlot];
+    return {
+      baseSlot,
+      index,
+      equipped: index == null ? value : value?.[index],
+    };
   }
 };

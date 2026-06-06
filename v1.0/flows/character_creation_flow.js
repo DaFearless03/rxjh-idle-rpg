@@ -63,7 +63,7 @@ export function runCharacterCreationFlow(opts) {
         qigong: { available_points: 1, invested: {}, attribute_reset_count: 0 },
         learned_martial_arts: [],
         equipped: {
-          weapon: null, chest: null, gloves: null, boots: null,
+          weapon: null, chest: null, gloves: [null, null], boots: null,
           inner_armor: null, ring: [null, null], amulet: null,
           earring: [null, null], cape: null,
         },
