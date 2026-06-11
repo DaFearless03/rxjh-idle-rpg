@@ -1161,7 +1161,14 @@ body {
   background: rgba(0,0,0,0.035);
 }
 .shop-sell-scroll { flex: 1; min-height: 0; overflow-y: auto; }
-.shop-sell-pane .bag-grid { grid-template-columns: repeat(6, 1fr); gap: 0.4rem; margin-bottom: 0; }
+.shop-sell-pane .bag-grid {
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.4rem;
+  min-height: 0;
+  max-height: none;
+  margin-bottom: 0;
+  overflow: visible;
+}
 .shop-sell-pane .bag-tile { width: 100%; font-family: inherit; }
 .shop-sell-pane .bag-tile.nosell { opacity: 0.45; cursor: not-allowed; }
 
