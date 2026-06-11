@@ -5,7 +5,7 @@
 
 import { BoxSystem } from '../systems/BoxSystem.js';
 import { ConsumableSystem } from '../systems/ConsumableSystem.js';
-import { renderEquipmentDetail, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260611-2';
+import { renderEquipmentDetail, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260611-3';
 
 const ITEM_META = {
   hp_potion_grade1: { icon: '🍶', name: '金创药(小)' },
@@ -179,6 +179,7 @@ export function renderBagTile(slot, player, options = {}) {
 function renderBagGrid(player) {
   const slots = player?.inventory?.slots || [];
   const capacity = player?.inventory?.capacity || 50;
+  const gold = Number(player?.resources?.gold || 0);
   const bagSlots = slots.filter(slot => (slot?.count || 0) > 0 && !isInstanceEquipped(player, slot.instance_id));
   const used = bagSlots.length;
   const tiles = bagSlots.map((slot) => renderBagTile(slot, player, { bagIndex: slots.indexOf(slot) }));
@@ -188,7 +189,7 @@ function renderBagGrid(player) {
     <div class="bag-head">
       <span class="bh-title">背包</span>
       <span class="bh-count">已用 <b>${used}</b>/${capacity}</span>
-      <span class="bh-hint">拖装备穿戴 · 点物品丢弃</span>
+      <span class="bh-gold" title="当前角色金币">💰 ${gold.toLocaleString()}</span>
     </div>
     <div class="bag-scroll" id="inventoryBagScroll">
       <div class="bag-grid inventory-bag-grid" id="inventoryBagGrid">${tiles.join('')}</div>

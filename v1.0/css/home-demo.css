@@ -2037,9 +2037,12 @@ body {
 .inventory-page .bag-head .bh-title::before { content: '🎒 '; }
 .inventory-page .bag-head .bh-count { font-size: 0.74rem; }
 .inventory-page .bag-head .bh-count b { color: var(--text-link); }
-.inventory-page .bag-head .bh-hint {
+.inventory-page .bag-head .bh-gold {
   margin-left: auto;
-  font-size: 0.64rem;
+  color: #9a6500;
+  font-size: 0.74rem;
+  font-weight: bold;
+  white-space: nowrap;
 }
 .inventory-page .bag-scroll {
   flex: 1;

@@ -4,8 +4,8 @@
  */
 import { eventBus } from '../core/EventBus.js';
 import { storage } from '../utils/storage.js';
-import { refreshMonsterList } from './MonsterListUI.js?v=release-20260611-2';
-import { refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260611-2';
+import { refreshMonsterList } from './MonsterListUI.js?v=release-20260611-3';
+import { refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260611-3';
 import { appendCombatLog, formatCombatLog, renderCombatLog } from './CombatLogUI.js';
 import { appendRewardLog, formatRewardLog, renderRewardLog } from './RewardLogUI.js';
 import { TaskSystem } from '../systems/TaskSystem.js';

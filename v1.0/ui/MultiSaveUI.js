@@ -4,9 +4,9 @@
  * @ref 13_save.multi_save
  */
 import { storage } from '../utils/storage.js';
-import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260611-2';
-import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260611-2';
-import { UIManager } from './UIManager.js?v=release-20260611-2';
+import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260611-3';
+import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260611-3';
+import { UIManager } from './UIManager.js?v=release-20260611-3';
 
 const CAREER_EMOJI = {
   warrior_blade: '⚔️',
