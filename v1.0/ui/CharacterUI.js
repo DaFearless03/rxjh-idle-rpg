@@ -3,7 +3,7 @@
  * @desc 角色页：严格复用 ui_demo_role 的信息 / 气功 / 武功结构。
  */
 
-import { renderQigongPanel } from './QigongUI.js?v=release-20260611-5';
+import { renderQigongPanel } from './QigongUI.js?v=release-20260611-6';
 
 function escapeHtml(value) {
   return String(value ?? '')

@@ -1174,7 +1174,7 @@ body {
 
 /* === 强化 / 合成 工作台：上=操作区，下=背包，拖拽放入槽位 === */
 .bottom-sheet.craft-sheet { max-height: 92%; }
-#warehouseBackdrop .bottom-sheet { max-height: 95%; }
+#warehouseBackdrop .bottom-sheet { height: 88%; max-height: 88%; }
 
 .med-config-head,
 .med-threshold-row {
@@ -1477,12 +1477,12 @@ body {
 .wh-pane.bottom .wh-scroll { background: rgba(0,0,0,0.05); }
 .wh-scroll .bag-grid {
   width: 100%;
-  max-height: 9.5rem;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  overflow-x: hidden;
-  overflow-y: auto;
-  flex: 1;
   min-height: 0;
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: visible;
+  margin-bottom: 0;
 }
 .wh-scroll .bag-tile { min-width: 0; cursor: pointer; touch-action: auto; }
 

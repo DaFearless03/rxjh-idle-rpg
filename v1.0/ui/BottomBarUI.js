@@ -2,22 +2,22 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260611-5';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260611-5';
+import { UIManager } from './UIManager.js?v=release-20260611-6';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260611-6';
 import { InventorySystem } from '../systems/InventorySystem.js';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260611-5';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260611-5';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260611-5';
-import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260611-5';
-import { mountCharacterPanel } from './CharacterUI.js?v=release-20260611-5';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260611-5';
-import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260611-5';
-import { mountQuestPanel } from './TaskUI.js?v=release-20260611-5';
-import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260611-5';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260611-5';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260611-5';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260611-5';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260611-5';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260611-6';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260611-6';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260611-6';
+import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260611-6';
+import { mountCharacterPanel } from './CharacterUI.js?v=release-20260611-6';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260611-6';
+import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260611-6';
+import { mountQuestPanel } from './TaskUI.js?v=release-20260611-6';
+import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260611-6';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260611-6';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260611-6';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260611-6';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260611-6';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -672,7 +672,7 @@ window._settingsImportSave = () => {
 
 window._returnToSaveList = async () => {
   window.game?.saveNow?.();
-  const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260611-5');
+  const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260611-6');
   const characters = window.game?.listCharacters?.() || [];
   UIManager.closePanel();
   showMultiSaveUI(window._currentGlobalSave, characters, window._careersData || []);

@@ -5,7 +5,7 @@
  */
 import { eventBus } from '../core/EventBus.js';
 import { forceCloseDialog } from './NPCSystem.js';
-import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260611-5';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260611-6';
 
 export const TeleportSystem = {
   /**

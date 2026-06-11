@@ -3,7 +3,7 @@
  * @desc 挂机面板（阈值滑块 / 药剂选择 / 自动补给规则）
  * @ref 10_consumables.auto_consume / auto_resupply
  */
-import { UIManager } from './UIManager.js?v=release-20260611-5';
+import { UIManager } from './UIManager.js?v=release-20260611-6';
 
 function getCurrentSubZoneKey() {
   const battleSubZone = window.game?.battle?._currentSubZone;

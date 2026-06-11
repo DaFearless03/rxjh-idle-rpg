@@ -5,7 +5,7 @@
 
 import { BoxSystem } from '../systems/BoxSystem.js';
 import { ConsumableSystem } from '../systems/ConsumableSystem.js';
-import { renderEquipmentDetail, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260611-5';
+import { renderEquipmentDetail, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260611-6';
 
 const ITEM_META = {
   hp_potion_grade1: { icon: '🍶', name: '金创药(小)' },
