@@ -2,13 +2,13 @@
  * @file ui/NPCDialogUI.js
  * @desc NPC 对话窗口
  */
-import { UIManager } from './UIManager.js?v=release-20260611-6';
+import { UIManager } from './UIManager.js?v=release-20260611-7';
 import { TaskSystem } from '../systems/TaskSystem.js';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260611-6';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260611-7';
 import { InventorySystem } from '../systems/InventorySystem.js';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260611-6';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260611-6';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260611-6';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260611-7';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260611-7';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260611-7';
 import { NPCSystem, UIState } from '../systems/NPCSystem.js';
 
 const TOWN_NPC_DATA = {
@@ -56,9 +56,13 @@ export function openTownNPCDialog(npcKey) {
   window._currentNpc = npc;
   if (npcKey === 'leader') {
     document.getElementById("npcDialogHead").style.display = "flex";
+    document.getElementById('npcDialogLine').style.display = 'none';
+    document.getElementById('npcDialogClose').textContent = '离开';
     renderTownLeaderQuestDialog('accept');
   } else {
     document.getElementById("npcDialogHead").style.display = "flex";
+    document.getElementById('npcDialogLine').style.display = 'block';
+    document.getElementById('npcDialogClose').textContent = '关 闭';
     document.getElementById('npcFuncRow').innerHTML = npc.funcs.map(func =>
       `<button class="npc-func-btn" data-npc="${npcKey}" data-func="${func}">${func}</button>`
     ).join('');
@@ -76,6 +80,13 @@ function questObjectiveSummary(quest) {
   return items.map(item => `${item.item_name || item.item_key}×${item.count}`).join(' / ') || quest.description || '江湖历练';
 }
 
+function questTransferSummary(quest, ready = false) {
+  const template = window._questTemplates?.find(item => item.key === quest.key);
+  const transfer = Number(quest.target_transfer ?? template?.target_transfer);
+  const prefix = Number.isFinite(transfer) && transfer > 0 ? `${transfer} 转 · ` : '';
+  return `${prefix}${ready ? '物料已齐' : questObjectiveSummary(quest)}`;
+}
+
 function renderTownLeaderQuestDialog(tab = 'accept') {
   const player = window.game?.player;
   const npc = TOWN_NPC_DATA.leader;
@@ -88,7 +99,7 @@ function renderTownLeaderQuestDialog(tab = 'accept') {
       <span class="mq-icon">📜</span>
       <div class="mq-info">
         <div class="mq-name">${escapeHtml(quest.name || quest.key)}</div>
-        <div class="mq-sub">${escapeHtml(questObjectiveSummary(quest))}</div>
+        <div class="mq-sub">${escapeHtml(questTransferSummary(quest, kind === 'submit'))}</div>
       </div>
       <button class="mq-btn${kind === 'accept' ? ' accept' : ''}" onclick="${kind === 'accept'
         ? `window._leaderConfirmAccept('${escapeHtml(quest.key)}')`
@@ -103,7 +114,7 @@ function renderTownLeaderQuestDialog(tab = 'accept') {
       <button class="mz-tab${tab === 'accept' ? ' active' : ''}" onclick="window._leaderSwitchTab('accept')">接取</button>
       <button class="mz-tab${tab === 'submit' ? ' active' : ''}" onclick="window._leaderSwitchTab('submit')">提交</button>
     </div>
-    <div class="npc-dialog-line" style="margin-bottom:0.6rem">${tab === 'submit' ? '带回来了？让我看看你这趟的成色。' : npc.line}</div>
+    <div class="npc-dialog-line" style="margin-bottom:0.6rem">「${tab === 'submit' ? '带回来了？让我看看你这趟的成色。' : npc.line}」</div>
     <div class="mz-group-label">可${tab === 'submit' ? '提交' : '接取'}</div>
     ${renderRows(rows, tab === 'submit' ? 'submit' : 'accept')}
     <div class="mz-confirm-backdrop" id="leaderQuestConfirm">
@@ -144,7 +155,8 @@ window._leaderSubmit = (questKey) => {
   if (!instance) return;
   const result = TaskSystem.submitQuest(player, instance, window._questTemplates || [], window._careersData || []);
   UIManager.toast(result.message, result.success ? 'success' : 'error');
-  renderTownLeaderQuestDialog('submit');
+  if (result.success) window._closeNPCDialog?.();
+  else renderTownLeaderQuestDialog('submit');
 };
 
 export function showNPCDialog(npcData, player, careersData, questTemplates) {
