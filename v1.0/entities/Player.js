@@ -3,7 +3,7 @@
  * @desc 玩家实体（L1 刀客 warrior_blade）
  * @ref 02_attributes.base_attributes / 03_careers.warrior_blade
  */
-import { AttributeSystem } from '../systems/AttributeSystem.js?v=release-20260611-3';
+import { AttributeSystem } from '../systems/AttributeSystem.js?v=release-20260611-4';
 
 export class Player {
   /**
