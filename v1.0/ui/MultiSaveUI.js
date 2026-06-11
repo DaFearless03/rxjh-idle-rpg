@@ -4,9 +4,9 @@
  * @ref 13_save.multi_save
  */
 import { storage } from '../utils/storage.js';
-import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260606-1';
-import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260606-1';
-import { UIManager } from './UIManager.js?v=release-20260606-2';
+import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260611-1';
+import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260611-1';
+import { UIManager } from './UIManager.js?v=release-20260611-1';
 
 const CAREER_EMOJI = {
   warrior_blade: '⚔️',
@@ -285,7 +285,28 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
     });
     const r3 = flow.step3_initializeSave(window._selectedCareer, name, window._targetSlotIndex);
     if (!r3.success) { errEl.textContent = r3.message; return; }
-    await flow.step4_persist(r3.save, r3.slotIndex, window._currentGlobalSave);
+
+    // 新角色初始武器（各职业系攻击力最低的武器）
+    const _startWeapons = { blade: "blade_base_001", sword: "sword_base_001", spear: "spear_base_001", staff: "staff_base_001" };
+    const _cd = (window._careersData || []).find(c => c.key === window._selectedCareer);
+    const _family = _cd?.career_family || "blade";
+    const _weaponKey = _startWeapons[_family];
+    if (_weaponKey) {
+      const _tpl = (window._equipTemplates || []).find(e => e.key === _weaponKey);
+      if (_tpl) {
+        r3.save.inventory = r3.save.inventory || { capacity: 50, slots: [], equipment_instances: {} };
+        const _instId = 'init_' + _tpl.key;
+        r3.save.inventory.equipment_instances[_instId] = {
+          instance_id: _instId,
+          item_key: _tpl.key,
+          enhance_level: 0,
+          synthesis_slots: []
+        };
+        r3.save.inventory.slots = Array.isArray(r3.save.inventory.slots) ? r3.save.inventory.slots : [];
+        r3.save.inventory.slots.push({ item_key: _tpl.key, count: 1, instance_id: _instId });
+
+      }
+    }    await flow.step4_persist(r3.save, r3.slotIndex, window._currentGlobalSave);
     UIManager.popModal();
     UIManager.toast(`角色「${name}」创建成功！`, 'success');
     setTimeout(() => window.game?.switchCharacter(r3.slotIndex), 300);

@@ -30,17 +30,17 @@ export function buildMainScreenUI(container) {
           </div>
           <div class="stat-bars-compact">
             <div class="stat-row">
-              <span class="stat-label hp">生命</span>
+              <span class="stat-label hp">生命值</span>
               <div class="gba-bar"><div class="gba-bar-fill fill-hp" id="home-hp-fill" style="width:100%"></div><div class="gba-bar-pct" id="home-hp-pct">100%</div></div>
               <span class="stat-num" id="home-hp-text">—/—</span>
             </div>
             <div class="stat-row">
-              <span class="stat-label mp">内力</span>
+              <span class="stat-label mp">内功值</span>
               <div class="gba-bar"><div class="gba-bar-fill fill-mp" id="home-mp-fill" style="width:100%"></div><div class="gba-bar-pct" id="home-mp-pct">100%</div></div>
               <span class="stat-num" id="home-mp-text">—/—</span>
             </div>
             <div class="stat-row">
-              <span class="stat-label exp">经验</span>
+              <span class="stat-label exp">经验值</span>
               <div class="gba-bar"><div class="gba-bar-fill fill-exp" id="home-exp-fill" style="width:0%"></div><div class="gba-bar-pct" id="home-exp-pct">0%</div></div>
               <span class="stat-num" id="home-exp-text">—/—</span>
             </div>
@@ -354,17 +354,17 @@ export function buildMainScreenUI(container) {
           </div>
           <div class="stat-bars-compact">
             <div class="stat-row">
-              <span class="stat-label hp">生命</span>
+              <span class="stat-label hp">生命值</span>
               <div class="gba-bar"><div class="gba-bar-fill fill-hp" id="role-hp-fill" style="width:100%"></div><span class="gba-bar-pct" id="role-hp-pct">100%</span></div>
               <span class="stat-num" id="role-hp-text">—/—</span>
             </div>
             <div class="stat-row">
-              <span class="stat-label mp">内力</span>
+              <span class="stat-label mp">内功值</span>
               <div class="gba-bar"><div class="gba-bar-fill fill-mp" id="role-mp-fill" style="width:100%"></div><span class="gba-bar-pct" id="role-mp-pct">100%</span></div>
               <span class="stat-num" id="role-mp-text">—/—</span>
             </div>
             <div class="stat-row">
-              <span class="stat-label exp">经验</span>
+              <span class="stat-label exp">经验值</span>
               <div class="gba-bar"><div class="gba-bar-fill fill-exp" id="role-exp-fill" style="width:0%"></div><span class="gba-bar-pct" id="role-exp-pct">0%</span></div>
               <span class="stat-num" id="role-exp-text">—/—</span>
             </div>
@@ -411,7 +411,7 @@ export function buildMainScreenUI(container) {
       <!-- ===== NPC 对话气泡 ===== -->
       <div class="npc-dialog-backdrop" id="npcDialogBackdrop">
         <div class="npc-dialog" id="npcDialogBox">
-          <div class="npc-dialog-head">
+          <div class="npc-dialog-head" id="npcDialogHead">
             <div class="npc-dialog-avatar" id="npcDialogAvatar">👤</div>
             <div>
               <div class="npc-dialog-name" id="npcDialogName">刀剑笑</div>

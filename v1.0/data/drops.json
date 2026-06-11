@@ -1,0 +1,4213 @@
+{
+  "sub_zone_drops": [
+    {
+      "key": "drop_xuanbo_village",
+      "sub_zone_key": "xuanbo_village",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_base_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_base_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_base_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_base_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "gloves_base_001",
+              "weight": 24,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_001",
+              "weight": 24,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_002",
+              "weight": 24,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.08
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.15
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_xuanbo_field",
+      "sub_zone_key": "xuanbo_field",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t1_001",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t1_001",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t1_001",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t1_001",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_chest_base_001",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_base_001",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_base_001",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_base_001",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_001",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_002",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_002",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_003",
+              "weight": 8,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.08
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.15
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_xuanbo_den",
+      "sub_zone_key": "xuanbo_den",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t1_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t1_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t1_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t1_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_chest_base_001",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_base_001",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_base_001",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_base_001",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_001",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_002",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_002",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_003",
+              "weight": 8,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.08
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.15
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_xuanbo_lumber",
+      "sub_zone_key": "xuanbo_lumber",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t1_003",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t1_003",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t1_003",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t1_003",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_chest_base_002",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_base_002",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_base_002",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_base_002",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_002",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_003",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_003",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_004",
+              "weight": 8,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.08
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.15
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_xuanbo_cemetery",
+      "sub_zone_key": "xuanbo_cemetery",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t1_004",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t1_004",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t1_004",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t1_004",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_base_001",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_base_002",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_base_003",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_base_002",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_base_003",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_base_002",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_base_003",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_base_002",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_base_003",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_003",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_004",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_004",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_005",
+              "weight": 5,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.08
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.15
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_xuanbo_robber",
+      "sub_zone_key": "xuanbo_robber",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t1_005",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t1_006",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t1_005",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t1_006",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t1_005",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t1_006",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t1_005",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t1_006",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_base_002",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_004",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_005",
+              "weight": 20,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.08
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.15
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_liuzheng_forest",
+      "sub_zone_key": "liuzheng_forest",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_001",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_004",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_005",
+              "weight": 20,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_liuzheng_fishing_village",
+      "sub_zone_key": "liuzheng_fishing_village",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_001",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_004",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_005",
+              "weight": 20,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_liuzheng_monster_camp",
+      "sub_zone_key": "liuzheng_monster_camp",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_002",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_liuzheng_fire_thief_den",
+      "sub_zone_key": "liuzheng_fire_thief_den",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_002",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_liuzheng_wanshou_pavilion",
+      "sub_zone_key": "liuzheng_wanshou_pavilion",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_003",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_liuzheng_wanshou_pavilion_upper",
+      "sub_zone_key": "liuzheng_wanshou_pavilion_upper",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_003",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_liuzheng_deep_bamboo",
+      "sub_zone_key": "liuzheng_deep_bamboo",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_003",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_shenwu_tiger_valley",
+      "sub_zone_key": "shenwu_tiger_valley",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t3_001",
+              "weight": 10,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 30,
+              "drop_rate": 0.14
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            },
+            {
+              "key": "hot_blood_01",
+              "weight": 20,
+              "drop_rate": 0.06
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_shenwu_miser_cave",
+      "sub_zone_key": "shenwu_miser_cave",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t3_001",
+              "weight": 10,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 30,
+              "drop_rate": 0.14
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            },
+            {
+              "key": "hot_blood_01",
+              "weight": 20,
+              "drop_rate": 0.06
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_shenwu_degenerate_land",
+      "sub_zone_key": "shenwu_degenerate_land",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t3_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t3_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t3_001",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t3_positive_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t3_negative_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t3_positive_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t3_negative_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t3_positive_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t3_negative_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t3_positive_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t3_negative_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t3_positive_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t3_negative_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t3_positive_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t3_negative_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 30,
+              "drop_rate": 0.14
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            },
+            {
+              "key": "hot_blood_01",
+              "weight": 20,
+              "drop_rate": 0.06
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_sanxie_forest",
+      "sub_zone_key": "sanxie_forest",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_001",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_004",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_005",
+              "weight": 20,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_sanxie_deserter_camp",
+      "sub_zone_key": "sanxie_deserter_camp",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_001",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_base_003",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_004",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_005",
+              "weight": 20,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_sanxie_hunter_camp",
+      "sub_zone_key": "sanxie_hunter_camp",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_002",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_sanxie_green_forest_camp",
+      "sub_zone_key": "sanxie_green_forest_camp",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_002",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_sanxie_wutian_lower",
+      "sub_zone_key": "sanxie_wutian_lower",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_003",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_002",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_sanxie_wutian_upper",
+      "sub_zone_key": "sanxie_wutian_upper",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_003",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_sanxie_bamboo_fire_forest",
+      "sub_zone_key": "sanxie_bamboo_fire_forest",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_positive_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_001",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_002",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_003",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t2_negative_004",
+              "weight": 1,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t2_003",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_positive_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t2_negative_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_liushan_snake_valley",
+      "sub_zone_key": "liushan_snake_valley",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t3_001",
+              "weight": 10,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 30,
+              "drop_rate": 0.14
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            },
+            {
+              "key": "hot_blood_01",
+              "weight": 20,
+              "drop_rate": 0.06
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_liushan_black_pine_base",
+      "sub_zone_key": "liushan_black_pine_base",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t3_001",
+              "weight": 10,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t3_positive_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t3_negative_001",
+              "weight": 5,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 30,
+              "drop_rate": 0.14
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            },
+            {
+              "key": "hot_blood_01",
+              "weight": 20,
+              "drop_rate": 0.06
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_liushan_thief_nest",
+      "sub_zone_key": "liushan_thief_nest",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t3_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_t3_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "sword_t3_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "staff_t3_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_positive_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_positive_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_negative_001",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "spear_t3_negative_002",
+              "weight": 2,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_t3_001",
+              "weight": 20,
+              "drop_rate": 0.01
+            },
+            {
+              "key": "blade_chest_t3_positive_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_t3_negative_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t3_positive_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "sword_chest_t3_negative_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t3_positive_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "spear_chest_t3_negative_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t3_positive_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "staff_chest_t3_negative_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t3_positive_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_t3_negative_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t3_positive_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_t3_negative_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 30,
+              "drop_rate": 0.14
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.18
+            },
+            {
+              "key": "hot_blood_01",
+              "weight": 20,
+              "drop_rate": 0.06
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_nanminghu_lake",
+      "sub_zone_key": "nanminghu_lake",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t3_positive_001",
+              "weight": 50,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 25,
+              "drop_rate": 0.16
+            },
+            {
+              "key": "cold_jade_02",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "vajra_01",
+              "weight": 20,
+              "drop_rate": 0.14
+            },
+            {
+              "key": "vajra_02",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 25,
+              "drop_rate": 0.22
+            },
+            {
+              "key": "hot_blood_01",
+              "weight": 20,
+              "drop_rate": 0.08
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    },
+    {
+      "key": "drop_nanminghu_cave",
+      "sub_zone_key": "nanminghu_cave",
+      "drop_rolls": [
+        {
+          "name": "普通掉落",
+          "roll_count": 1,
+          "trigger": "always",
+          "equipment_pool": [
+            {
+              "key": "blade_t3_positive_001",
+              "weight": 50,
+              "drop_rate": 0.05
+            }
+          ],
+          "stone_pool": [
+            {
+              "key": "cold_jade_01",
+              "weight": 25,
+              "drop_rate": 0.16
+            },
+            {
+              "key": "cold_jade_02",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "vajra_01",
+              "weight": 20,
+              "drop_rate": 0.14
+            },
+            {
+              "key": "vajra_02",
+              "weight": 20,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 25,
+              "drop_rate": 0.22
+            },
+            {
+              "key": "hot_blood_01",
+              "weight": 20,
+              "drop_rate": 0.08
+            }
+          ],
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          },
+          "enabled": "true"
+        }
+      ]
+    }
+  ]
+}

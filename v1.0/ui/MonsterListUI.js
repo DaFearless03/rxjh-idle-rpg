@@ -39,7 +39,7 @@ function getMonsterIcon(monster) {
   if (/snake|蛇/.test(key + name)) return '🐍';
   if (/spirit|ghost|魂|灵|怨/.test(key + name)) return '👻';
   if (/bandit|thief|pirate|raider|deserter|hunter|贼|盗|匪|寇|兵|猎人/.test(key + name)) return '🗡';
-  if (/guard|disciple|swordsman|master|elder|护卫|弟子|剑士|掌门|长老/.test(key + name)) return '⚔';
+  if (/guard|disciple|swordsman|master|elder|护卫|弟子|剑客|掌门|长老/.test(key + name)) return '⚔';
   return '👹';
 }
 

@@ -1,0 +1,231 @@
+{
+  "boxes": [
+    {
+      "key": "box_wood",
+      "name": "香木盒子",
+      "description": "低级地图掉落的盒子",
+      "max_stack": 999,
+      "openable_items": [
+        {
+          "item_key": "earring_base_001",
+          "name": "银耳环",
+          "weight": 0.4
+        },
+        {
+          "item_key": "earring_base_002",
+          "name": "白玉耳环",
+          "weight": 0.4
+        },
+        {
+          "item_key": "earring_base_003",
+          "name": "金耳环",
+          "weight": 0.4
+        },
+        {
+          "item_key": "ring_base_001",
+          "name": "银戒指",
+          "weight": 0.4
+        },
+        {
+          "item_key": "ring_base_002",
+          "name": "白金戒指",
+          "weight": 0.4
+        },
+        {
+          "item_key": "ring_base_003",
+          "name": "紫玉戒指",
+          "weight": 0.4
+        },
+        {
+          "item_key": "necklace_base_001",
+          "name": "灵兽项链",
+          "weight": 0.4
+        },
+        {
+          "item_key": "necklace_base_002",
+          "name": "幻身项链",
+          "weight": 0.4
+        },
+        {
+          "item_key": "necklace_base_003",
+          "name": "玉影项链",
+          "weight": 0.4
+        },
+        {
+          "item_key": "hp_potion_grade1",
+          "name": "金创药（小）",
+          "weight": 200
+        },
+        {
+          "item_key": "mp_potion_grade1",
+          "name": "人参",
+          "weight": 200
+        }
+      ]
+    },
+    {
+      "key": "box_silver",
+      "name": "白银盒子",
+      "description": "中级地图掉落的盒子",
+      "max_stack": 999,
+      "openable_items": [
+        {
+          "item_key": "earring_t2_001",
+          "name": "天灵耳环",
+          "weight": 0.367
+        },
+        {
+          "item_key": "earring_t2_002",
+          "name": "紫焰耳环",
+          "weight": 0.367
+        },
+        {
+          "item_key": "earring_t2_003",
+          "name": "玄天耳环",
+          "weight": 0.367
+        },
+        {
+          "item_key": "ring_t2_001",
+          "name": "地灵戒",
+          "weight": 0.367
+        },
+        {
+          "item_key": "ring_t2_002",
+          "name": "万寿戒",
+          "weight": 0.367
+        },
+        {
+          "item_key": "ring_t2_003",
+          "name": "麒麟指环",
+          "weight": 0.367
+        },
+        {
+          "item_key": "ring_t2_004",
+          "name": "权智指环",
+          "weight": 0.367
+        },
+        {
+          "item_key": "necklace_t2_001",
+          "name": "五毒链",
+          "weight": 0.367
+        },
+        {
+          "item_key": "necklace_t2_002",
+          "name": "灵心链",
+          "weight": 0.367
+        },
+        {
+          "item_key": "necklace_t2_003",
+          "name": "碧玉护符",
+          "weight": 0.367
+        },
+        {
+          "item_key": "necklace_t2_004",
+          "name": "金罡护符",
+          "weight": 0.367
+        },
+        {
+          "item_key": "hp_potion_grade2",
+          "name": "金创药（中）",
+          "weight": 200
+        },
+        {
+          "item_key": "mp_potion_grade2",
+          "name": "野山参",
+          "weight": 200
+        }
+      ]
+    },
+    {
+      "key": "box_gold",
+      "name": "黄金盒子",
+      "description": "高级地图掉落的盒子",
+      "max_stack": 999,
+      "openable_items": [
+        {
+          "item_key": "earring_t3_001",
+          "name": "圣炎耳环",
+          "weight": 0.4
+        },
+        {
+          "item_key": "earring_t3_002",
+          "name": "磐龙耳环",
+          "weight": 0.4
+        },
+        {
+          "item_key": "ring_t3_001",
+          "name": "圣冠指环",
+          "weight": 0.4
+        },
+        {
+          "item_key": "ring_t3_002",
+          "name": "馨华指环",
+          "weight": 0.4
+        },
+        {
+          "item_key": "ring_t3_003",
+          "name": "元始指环",
+          "weight": 0.4
+        },
+        {
+          "item_key": "necklace_t3_001",
+          "name": "金灵护符",
+          "weight": 0.4
+        },
+        {
+          "item_key": "necklace_t3_002",
+          "name": "圣光项链",
+          "weight": 0.4
+        },
+        {
+          "item_key": "necklace_t3_003",
+          "name": "天神护符",
+          "weight": 0.4
+        },
+        {
+          "item_key": "hp_potion_grade3",
+          "name": "金创药（大）",
+          "weight": 200
+        },
+        {
+          "item_key": "mp_potion_grade3",
+          "name": "雪原参",
+          "weight": 200
+        }
+      ]
+    }
+  ],
+  "monster_drop_box": {
+    "drop_rate": 0.001,
+    "box_type_by_map": {
+      "xuanbo_village": "box_wood",
+      "xuanbo_field": "box_wood",
+      "xuanbo_den": "box_wood",
+      "xuanbo_lumber": "box_wood",
+      "xuanbo_cemetery": "box_wood",
+      "xuanbo_robber": "box_wood",
+      "liuzheng_forest": "box_silver",
+      "liuzheng_fishing_village": "box_silver",
+      "liuzheng_monster_camp": "box_silver",
+      "liuzheng_fire_thief_den": "box_silver",
+      "liuzheng_wanshou_pavilion": "box_silver",
+      "liuzheng_wanshou_pavilion_upper": "box_silver",
+      "liuzheng_deep_bamboo": "box_silver",
+      "sanxie_forest": "box_silver",
+      "sanxie_deserter_camp": "box_silver",
+      "sanxie_hunter_camp": "box_silver",
+      "sanxie_green_forest_camp": "box_silver",
+      "sanxie_wutian_lower": "box_silver",
+      "sanxie_wutian_upper": "box_silver",
+      "sanxie_bamboo_fire_forest": "box_silver",
+      "shenwu_tiger_valley": "box_gold",
+      "shenwu_miser_cave": "box_gold",
+      "shenwu_degenerate_land": "box_gold",
+      "liushan_snake_valley": "box_gold",
+      "liushan_black_pine_base": "box_gold",
+      "liushan_thief_nest": "box_gold",
+      "nanminghu_lake": "box_gold",
+      "nanminghu_cave": "box_gold"
+    }
+  }
+}

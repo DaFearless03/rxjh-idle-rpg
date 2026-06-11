@@ -40,6 +40,13 @@ export class DropSystem {
     // ===== 1. 经验 / 历练（Phase 1 已实现，这里仅记录 gold_modifier 用于 2a）=====
     // gold_modifier = mods.gold_modifier
 
+    // ===== 1b. 历练掉落（100%获取，每次击杀1点，受 training_modifier 影响）=====
+    if (mods.training_modifier > 0) {
+      const finalTraining = Math.ceil(1 * mods.training_modifier);
+      this._dropTraining(player, finalTraining);
+      summary.training = (summary.training || 0) + finalTraining;
+    }
+
     // ===== 2. 地图掉落池判定 =====
     if (subZoneDrop && subZoneDrop.drop_rolls) {
       for (const roll of subZoneDrop.drop_rolls) {
@@ -52,7 +59,6 @@ export class DropSystem {
             this._dropGold(player, finalGold);
             summary.gold += finalGold;
           }
-
           // 2b. 装备掉落
           if (roll.equipment_pool && roll.equipment_pool.length > 0) {
             const selected = this._weightedRandom(roll.equipment_pool);
@@ -97,6 +103,11 @@ export class DropSystem {
   // drop_* 适配层
   // ========================
 
+  _dropTraining(player, amount) {
+    player.resources = player.resources || { gold: 0, training: 0, merit: 0 };
+    player.resources.training = (player.resources.training || 0) + amount;
+  }
+
   _dropGold(player, amount) {
     player.resources = player.resources || { gold: 0, training: 0, merit: 0 };
     player.resources.gold += amount;
@@ -118,13 +129,33 @@ export class DropSystem {
   }
 
   _dropStone(player, stoneKey) {
-    const result = InventorySystem.add(player, stoneKey, 1);
+    // 从分组石头数据中查找定义
+    let stoneDef = null;
+    for (const group of Object.values(this._stones || {})) {
+      if (!Array.isArray(group)) continue;
+      stoneDef = group.find(s => s.key === stoneKey);
+      if (stoneDef) break;
+    }
+    // 生成带属性的最终 key（使用 -- 分隔符，因为属性 key 自身可能含 _）
+    let finalKey = stoneKey;
+    if (stoneDef && stoneDef.attribute && stoneDef.attribute.pool && stoneDef.attribute.pool.length > 0) {
+      const poolItem = this._weightedRandom(stoneDef.attribute.pool);
+      const [min, max] = poolItem.value_range || [0, 0];
+      let value;
+      if (min === max) {
+        value = min;
+      } else {
+        value = Math.floor(Math.random() * (max - min + 1) + min);
+      }
+      finalKey = stoneKey + '--' + poolItem.key + '--' + value;
+    }
+    const result = InventorySystem.add(player, finalKey, 1);
     if (result.success) {
-      console.log(`[掉落] 石头 ${stoneKey}`);
-      eventBus.emit('drop.stone', { stone_key: stoneKey, stone_base_name: this._getStoneName(stoneKey) });
+      console.log(`[掉落] 石头 ${finalKey}`);
+      eventBus.emit('drop.stone', { stone_key: finalKey, stone_base_name: this._getStoneName(stoneKey) });
     } else {
-      console.log(`[掉落] 石头 ${stoneKey}（背包已满，已丢弃）`);
-      eventBus.emit('drop.discarded', { item_key: stoneKey, item_name: this._getStoneName(stoneKey), count: 1, reason: 'inventory_full' });
+      console.log(`[掉落] 石头 ${finalKey}（背包已满，已丢弃）`);
+      eventBus.emit('drop.discarded', { item_key: finalKey, item_name: this._getStoneName(stoneKey), count: 1, reason: 'inventory_full' });
     }
   }
 

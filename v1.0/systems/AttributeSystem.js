@@ -184,7 +184,10 @@ export class AttributeSystem {
 
         // 合成石头加成（按 category 映射）
         for (const stoneKey of synthesisSlots) {
-          if (stoneKey.startsWith('vajra')) {
+          const stoneAttribute = this._parseStoneAttribute(stoneKey);
+          if (stoneAttribute) {
+            h[stoneAttribute.hook] = (h[stoneAttribute.hook] || 0) + stoneAttribute.value;
+          } else if (stoneKey.startsWith('vajra')) {
             h.atkMinAdd = (h.atkMinAdd || 0) + 5;
             h.atkMaxAdd = (h.atkMaxAdd || 0) + 8;
           } else if (stoneKey.startsWith('cold_jade')) {
@@ -199,5 +202,12 @@ export class AttributeSystem {
         }
       }
     }
+  }
+
+  _parseStoneAttribute(stoneKey) {
+    const [, hook, rawValue] = String(stoneKey || '').split('--');
+    const value = Number(rawValue);
+    if (!hook || !Number.isFinite(value) || hook === 'skill_level_up') return null;
+    return { hook, value };
   }
 }

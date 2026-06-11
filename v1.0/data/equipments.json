@@ -6,10 +6,15 @@
       "slot": "weapon",
       "faction": "neutral",
       "required_level": 1,
-      "required_career": ["blade"],
+      "required_career": [
+        "blade"
+      ],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "atkMin": 8, "atkMax": 12 }
+      "base_stats": {
+        "atkMin": 8,
+        "atkMax": 12
+      }
     },
     {
       "key": "blade_base_002",
@@ -17,76 +22,15 @@
       "slot": "weapon",
       "faction": "neutral",
       "required_level": 1,
-      "required_career": ["blade"],
+      "required_career": [
+        "blade"
+      ],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "atkMin": 12, "atkMax": 20 }
-    },
-    {
-      "key": "sword_base_001",
-      "name": "木剑",
-      "slot": "weapon",
-      "faction": "neutral",
-      "required_level": 1,
-      "required_career": ["sword"],
-      "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "atkMin": 10, "atkMax": 15 }
-    },
-    {
-      "key": "sword_base_002",
-      "name": "重剑",
-      "slot": "weapon",
-      "faction": "neutral",
-      "required_level": 1,
-      "required_career": ["sword"],
-      "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "atkMin": 15, "atkMax": 25 }
-    },
-    {
-      "key": "staff_base_001",
-      "name": "木杖",
-      "slot": "weapon",
-      "faction": "neutral",
-      "required_level": 1,
-      "required_career": ["staff"],
-      "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "atkMin": 8, "atkMax": 10 }
-    },
-    {
-      "key": "staff_base_002",
-      "name": "桃木杖",
-      "slot": "weapon",
-      "faction": "neutral",
-      "required_level": 1,
-      "required_career": ["staff"],
-      "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "atkMin": 10, "atkMax": 15 }
-    },
-    {
-      "key": "spear_base_001",
-      "name": "木枪",
-      "slot": "weapon",
-      "faction": "neutral",
-      "required_level": 1,
-      "required_career": ["spear"],
-      "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "atkMin": 12, "atkMax": 18 }
-    },
-    {
-      "key": "spear_base_002",
-      "name": "长枪",
-      "slot": "weapon",
-      "faction": "neutral",
-      "required_level": 1,
-      "required_career": ["spear"],
-      "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "atkMin": 17, "atkMax": 27 }
+      "base_stats": {
+        "atkMin": 12,
+        "atkMax": 20
+      }
     },
     {
       "key": "blade_t1_001",
@@ -94,10 +38,1375 @@
       "slot": "weapon",
       "faction": "neutral",
       "required_level": 10,
-      "required_career": ["blade"],
+      "required_career": [
+        "blade"
+      ],
       "required_transfer": 1,
       "purchaseable": false,
-      "base_stats": { "atkMin": 18, "atkMax": 31 }
+      "base_stats": {
+        "atkMin": 18,
+        "atkMax": 31
+      }
+    },
+    {
+      "key": "blade_t1_002",
+      "name": "半月刀",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 24,
+        "atkMax": 37
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t1_003",
+      "name": "精钢刀",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 32,
+        "atkMax": 53
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t1_004",
+      "name": "雁月刀",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 40,
+        "atkMax": 61
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t1_005",
+      "name": "赤血刀",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 50,
+        "atkMax": 75
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t1_006",
+      "name": "重曲刀",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 62,
+        "atkMax": 83
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t2_positive_001",
+      "name": "闪电刀",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 56,
+        "atkMax": 78
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t2_positive_002",
+      "name": "百战刀",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 75,
+        "atkMax": 102
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t2_positive_003",
+      "name": "青龙刀",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 96,
+        "atkMax": 128
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t2_positive_004",
+      "name": "深渊刀",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 113,
+        "atkMax": 152
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t2_negative_001",
+      "name": "寒铁刀",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 56,
+        "atkMax": 78
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t2_negative_002",
+      "name": "白月刀",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 75,
+        "atkMax": 102
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t2_negative_003",
+      "name": "破仙刀",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 96,
+        "atkMax": 128
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t2_negative_004",
+      "name": "城碧刀",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 113,
+        "atkMax": 152
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t3_positive_001",
+      "name": "飞翔刀",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 133,
+        "atkMax": 168
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t3_positive_002",
+      "name": "百魂刀",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 160,
+        "atkMax": 203
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t3_positive_003",
+      "name": "渤海刀",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 194,
+        "atkMax": 247
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t3_negative_001",
+      "name": "斩魔刀",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 133,
+        "atkMax": 168
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t3_negative_002",
+      "name": "磐龙刀",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 160,
+        "atkMax": 203
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_t3_negative_003",
+      "name": "血吟刀",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 194,
+        "atkMax": 247
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "sword_base_001",
+      "name": "木剑",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": [
+        "sword"
+      ],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {
+        "atkMin": 10,
+        "atkMax": 15
+      }
+    },
+    {
+      "key": "sword_base_002",
+      "name": "重剑",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": [
+        "sword"
+      ],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {
+        "atkMin": 15,
+        "atkMax": 25
+      }
+    },
+    {
+      "key": "sword_t1_001",
+      "name": "钢剑",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 22,
+        "atkMax": 35
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t1_002",
+      "name": "水月剑",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 28,
+        "atkMax": 43
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t1_003",
+      "name": "月花剑",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 36,
+        "atkMax": 50
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t1_004",
+      "name": "赤星剑",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 48,
+        "atkMax": 62
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t1_005",
+      "name": "青锋剑",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 60,
+        "atkMax": 74
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t1_006",
+      "name": "金月剑",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 72,
+        "atkMax": 87
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t2_positive_001",
+      "name": "血锋剑",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 88,
+        "atkMax": 103
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t2_positive_002",
+      "name": "天命剑",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 104,
+        "atkMax": 119
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t2_positive_003",
+      "name": "寒月剑",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 120,
+        "atkMax": 135
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t2_positive_004",
+      "name": "青魄剑",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 136,
+        "atkMax": 151
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t2_negative_001",
+      "name": "赤火剑",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 88,
+        "atkMax": 103
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t2_negative_002",
+      "name": "神影剑",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 104,
+        "atkMax": 119
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t2_negative_003",
+      "name": "血魔剑",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 120,
+        "atkMax": 135
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t2_negative_004",
+      "name": "血河剑",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 136,
+        "atkMax": 151
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t3_positive_001",
+      "name": "流光剑",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 156,
+        "atkMax": 171
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t3_positive_002",
+      "name": "新月剑",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 169,
+        "atkMax": 191
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t3_positive_003",
+      "name": "天地剑",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 189,
+        "atkMax": 211
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t3_negative_001",
+      "name": "斩玄剑",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 156,
+        "atkMax": 171
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t3_negative_002",
+      "name": "赤朱剑",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 169,
+        "atkMax": 191
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_t3_negative_003",
+      "name": "逐日追风剑",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 189,
+        "atkMax": 211
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "staff_base_001",
+      "name": "木杖",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": [
+        "staff"
+      ],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {
+        "atkMin": 8,
+        "atkMax": 10
+      }
+    },
+    {
+      "key": "staff_base_002",
+      "name": "桃木杖",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": [
+        "staff"
+      ],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {
+        "atkMin": 10,
+        "atkMax": 15
+      }
+    },
+    {
+      "key": "staff_t1_001",
+      "name": "越女杖",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 15,
+        "atkMax": 20
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t1_002",
+      "name": "太月杖",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 20,
+        "atkMax": 26
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t1_003",
+      "name": "碧玉杖",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 32,
+        "atkMax": 38
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t1_004",
+      "name": "檀香杖",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 38,
+        "atkMax": 46
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t1_005",
+      "name": "太乙杖",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 54,
+        "atkMax": 62
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t1_006",
+      "name": "百花杖",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 62,
+        "atkMax": 72
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t2_positive_001",
+      "name": "雁离杖",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 78,
+        "atkMax": 88
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t2_positive_002",
+      "name": "九锡杖",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 94,
+        "atkMax": 104
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t2_positive_003",
+      "name": "火欲杖",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 112,
+        "atkMax": 122
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t2_positive_004",
+      "name": "龙骨杖",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 122,
+        "atkMax": 132
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t2_negative_001",
+      "name": "血仙杖",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 78,
+        "atkMax": 88
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t2_negative_002",
+      "name": "九天杖",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 94,
+        "atkMax": 104
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t2_negative_003",
+      "name": "鬼泣杖",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 112,
+        "atkMax": 122
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t2_negative_004",
+      "name": "赤魔杖",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 122,
+        "atkMax": 132
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t3_positive_001",
+      "name": "鬼头杖",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 132,
+        "atkMax": 143
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t3_positive_002",
+      "name": "寒龙杖",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 153,
+        "atkMax": 168
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t3_positive_003",
+      "name": "圣天神杖",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 167,
+        "atkMax": 182
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t3_negative_001",
+      "name": "冥蛇杖",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 132,
+        "atkMax": 143
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t3_negative_002",
+      "name": "万绝神杖",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 153,
+        "atkMax": 168
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_t3_negative_003",
+      "name": "蚀天魔杖",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 167,
+        "atkMax": 182
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "spear_base_001",
+      "name": "木枪",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": [
+        "spear"
+      ],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {
+        "atkMin": 12,
+        "atkMax": 18
+      }
+    },
+    {
+      "key": "spear_base_002",
+      "name": "长枪",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": [
+        "spear"
+      ],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {
+        "atkMin": 17,
+        "atkMax": 27
+      }
+    },
+    {
+      "key": "spear_t1_001",
+      "name": "流星枪",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 24,
+        "atkMax": 35
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t1_002",
+      "name": "月牙枪",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 29,
+        "atkMax": 43
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t1_003",
+      "name": "狼牙枪",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 41,
+        "atkMax": 55
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t1_004",
+      "name": "赤蛇枪",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 53,
+        "atkMax": 67
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t1_005",
+      "name": "天焰枪",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 65,
+        "atkMax": 79
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t1_006",
+      "name": "飞龙枪",
+      "slot": "weapon",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 1,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 77,
+        "atkMax": 92
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t2_positive_001",
+      "name": "月影枪",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 93,
+        "atkMax": 108
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t2_positive_002",
+      "name": "天翎枪",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 109,
+        "atkMax": 124
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t2_positive_003",
+      "name": "七星枪",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 125,
+        "atkMax": 140
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t2_positive_004",
+      "name": "益宣枪",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 141,
+        "atkMax": 156
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t2_negative_001",
+      "name": "龙泉枪",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 93,
+        "atkMax": 108
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t2_negative_002",
+      "name": "魅焰枪",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 109,
+        "atkMax": 124
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t2_negative_003",
+      "name": "噬魄枪",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 125,
+        "atkMax": 140
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t2_negative_004",
+      "name": "玄冥枪",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 141,
+        "atkMax": 156
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t3_positive_001",
+      "name": "九龙枪",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 161,
+        "atkMax": 176
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t3_positive_002",
+      "name": "神慧枪",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 175,
+        "atkMax": 196
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t3_positive_003",
+      "name": "磐龙破魔枪",
+      "slot": "weapon",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 194,
+        "atkMax": 216
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t3_negative_001",
+      "name": "天诛枪",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 161,
+        "atkMax": 176
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t3_negative_002",
+      "name": "吟血魔枪",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 175,
+        "atkMax": 196
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_t3_negative_003",
+      "name": "灭世断魂枪",
+      "slot": "weapon",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 194,
+        "atkMax": 216
+      },
+      "required_career": [
+        "spear"
+      ]
     },
     {
       "key": "blade_chest_base_001",
@@ -105,10 +1414,14 @@
       "slot": "chest",
       "faction": "neutral",
       "required_level": 10,
-      "required_career": ["blade"],
+      "required_career": [
+        "blade"
+      ],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 12 }
+      "base_stats": {
+        "def": 12
+      }
     },
     {
       "key": "blade_chest_base_002",
@@ -116,10 +1429,14 @@
       "slot": "chest",
       "faction": "neutral",
       "required_level": 20,
-      "required_career": ["blade"],
+      "required_career": [
+        "blade"
+      ],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 16 }
+      "base_stats": {
+        "def": 16
+      }
     },
     {
       "key": "blade_chest_base_003",
@@ -127,10 +1444,164 @@
       "slot": "chest",
       "faction": "neutral",
       "required_level": 30,
-      "required_career": ["blade"],
+      "required_career": [
+        "blade"
+      ],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 20 }
+      "base_stats": {
+        "def": 20
+      }
+    },
+    {
+      "key": "blade_chest_t2_positive_001",
+      "name": "龙虎战袍",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 40,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 24
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_chest_t2_positive_002",
+      "name": "封神战袍",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 50,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 28
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_chest_t2_negative_001",
+      "name": "破天战袍",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 40,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 24
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_chest_t2_negative_002",
+      "name": "赤龙战袍",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 50,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 28
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_chest_t3_positive_001",
+      "name": "昊天战袍",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 32
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_chest_t3_positive_002",
+      "name": "广寒战袍",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 70,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 38
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_chest_t3_negative_001",
+      "name": "雪天战袍",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 32
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_chest_t3_negative_002",
+      "name": "地藏战袍",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 70,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 38
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_chest_t4_positive_001",
+      "name": "月神战袍",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 80,
+      "required_transfer": 4,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 50
+      },
+      "required_career": [
+        "blade"
+      ]
+    },
+    {
+      "key": "blade_chest_t4_negative_001",
+      "name": "凝血战袍",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 80,
+      "required_transfer": 4,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 50
+      },
+      "required_career": [
+        "blade"
+      ]
     },
     {
       "key": "sword_chest_base_001",
@@ -138,10 +1609,14 @@
       "slot": "chest",
       "faction": "neutral",
       "required_level": 10,
-      "required_career": ["sword"],
+      "required_career": [
+        "sword"
+      ],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 10 }
+      "base_stats": {
+        "def": 10
+      }
     },
     {
       "key": "sword_chest_base_002",
@@ -149,10 +1624,14 @@
       "slot": "chest",
       "faction": "neutral",
       "required_level": 20,
-      "required_career": ["sword"],
+      "required_career": [
+        "sword"
+      ],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 14 }
+      "base_stats": {
+        "def": 14
+      }
     },
     {
       "key": "sword_chest_base_003",
@@ -160,43 +1639,164 @@
       "slot": "chest",
       "faction": "neutral",
       "required_level": 30,
-      "required_career": ["sword"],
+      "required_career": [
+        "sword"
+      ],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 18 }
+      "base_stats": {
+        "def": 18
+      }
     },
     {
-      "key": "staff_chest_base_001",
-      "name": "无名法袍",
+      "key": "sword_chest_t2_positive_001",
+      "name": "龙虎侠衣",
       "slot": "chest",
-      "faction": "neutral",
-      "required_level": 10,
-      "required_career": ["staff"],
-      "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "def": 6 }
+      "faction": "positive",
+      "required_level": 40,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 20
+      },
+      "required_career": [
+        "sword"
+      ]
     },
     {
-      "key": "staff_chest_base_002",
-      "name": "金丝法袍",
+      "key": "sword_chest_t2_positive_002",
+      "name": "封神侠衣",
       "slot": "chest",
-      "faction": "neutral",
-      "required_level": 20,
-      "required_career": ["staff"],
-      "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "def": 10 }
+      "faction": "positive",
+      "required_level": 50,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 24
+      },
+      "required_career": [
+        "sword"
+      ]
     },
     {
-      "key": "staff_chest_base_003",
-      "name": "乌蚕法袍",
+      "key": "sword_chest_t2_negative_001",
+      "name": "破天侠衣",
       "slot": "chest",
-      "faction": "neutral",
-      "required_level": 30,
-      "required_career": ["staff"],
-      "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "def": 14 }
+      "faction": "negative",
+      "required_level": 40,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 20
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_chest_t2_negative_002",
+      "name": "赤龙侠衣",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 50,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 24
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_chest_t3_positive_001",
+      "name": "昊天侠衣",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 28
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_chest_t3_positive_002",
+      "name": "广寒侠衣",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 70,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 34
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_chest_t3_negative_001",
+      "name": "雪天侠衣",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 28
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_chest_t3_negative_002",
+      "name": "地藏侠衣",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 70,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 34
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_chest_t4_positive_001",
+      "name": "月神侠衣",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 80,
+      "required_transfer": 4,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 45
+      },
+      "required_career": [
+        "sword"
+      ]
+    },
+    {
+      "key": "sword_chest_t4_negative_001",
+      "name": "凝血侠衣",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 80,
+      "required_transfer": 4,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 45
+      },
+      "required_career": [
+        "sword"
+      ]
     },
     {
       "key": "spear_chest_base_001",
@@ -204,10 +1804,14 @@
       "slot": "chest",
       "faction": "neutral",
       "required_level": 10,
-      "required_career": ["spear"],
+      "required_career": [
+        "spear"
+      ],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 8 }
+      "base_stats": {
+        "def": 8
+      }
     },
     {
       "key": "spear_chest_base_002",
@@ -215,10 +1819,14 @@
       "slot": "chest",
       "faction": "neutral",
       "required_level": 20,
-      "required_career": ["spear"],
+      "required_career": [
+        "spear"
+      ],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 12 }
+      "base_stats": {
+        "def": 12
+      }
     },
     {
       "key": "spear_chest_base_003",
@@ -226,21 +1834,371 @@
       "slot": "chest",
       "faction": "neutral",
       "required_level": 30,
-      "required_career": ["spear"],
+      "required_career": [
+        "spear"
+      ],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 16 }
+      "base_stats": {
+        "def": 16
+      }
+    },
+    {
+      "key": "spear_chest_t2_positive_001",
+      "name": "龙虎枪衣",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 40,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 18
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_chest_t2_positive_002",
+      "name": "封神枪衣",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 50,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 22
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_chest_t2_negative_001",
+      "name": "破天枪衣",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 40,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 18
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_chest_t2_negative_002",
+      "name": "赤龙枪衣",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 50,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 22
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_chest_t3_positive_001",
+      "name": "昊天枪衣",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 26
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_chest_t3_positive_002",
+      "name": "广寒枪衣",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 70,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 32
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_chest_t3_negative_001",
+      "name": "雪天枪衣",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 26
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_chest_t3_negative_002",
+      "name": "地藏枪衣",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 70,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 32
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_chest_t4_positive_001",
+      "name": "月神枪衣",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 80,
+      "required_transfer": 4,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 42
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "spear_chest_t4_negative_001",
+      "name": "凝血枪衣",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 80,
+      "required_transfer": 4,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 42
+      },
+      "required_career": [
+        "spear"
+      ]
+    },
+    {
+      "key": "staff_chest_base_001",
+      "name": "无名法袍",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_career": [
+        "staff"
+      ],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {
+        "def": 6
+      }
+    },
+    {
+      "key": "staff_chest_base_002",
+      "name": "金丝法袍",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 20,
+      "required_career": [
+        "staff"
+      ],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {
+        "def": 10
+      }
+    },
+    {
+      "key": "staff_chest_base_003",
+      "name": "乌蚕法袍",
+      "slot": "chest",
+      "faction": "neutral",
+      "required_level": 30,
+      "required_career": [
+        "staff"
+      ],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {
+        "def": 14
+      }
+    },
+    {
+      "key": "staff_chest_t2_positive_001",
+      "name": "龙虎法袍",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 40,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 16
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_chest_t2_positive_002",
+      "name": "封神法袍",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 50,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 20
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_chest_t2_negative_001",
+      "name": "破天法袍",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 40,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 16
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_chest_t2_negative_002",
+      "name": "赤龙法袍",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 50,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 20
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_chest_t3_positive_001",
+      "name": "昊天法袍",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 22
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_chest_t3_positive_002",
+      "name": "广寒法袍",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 70,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 26
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_chest_t3_negative_001",
+      "name": "雪天法袍",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 22
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_chest_t3_negative_002",
+      "name": "地藏法袍",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 70,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 26
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_chest_t4_positive_001",
+      "name": "月神医衣",
+      "slot": "chest",
+      "faction": "positive",
+      "required_level": 80,
+      "required_transfer": 4,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 35
+      },
+      "required_career": [
+        "staff"
+      ]
+    },
+    {
+      "key": "staff_chest_t4_negative_001",
+      "name": "凝血医衣",
+      "slot": "chest",
+      "faction": "negative",
+      "required_level": 80,
+      "required_transfer": 4,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 35
+      },
+      "required_career": [
+        "staff"
+      ]
     },
     {
       "key": "gloves_base_001",
-      "name": "无名护手",
+      "name": "皮护手",
       "slot": "gloves",
       "faction": "neutral",
-      "required_level": 1,
-      "required_career": ["blade"],
+      "required_level": 5,
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 5 }
+      "base_stats": {
+        "def": 5
+      }
     },
     {
       "key": "gloves_base_002",
@@ -248,10 +2206,11 @@
       "slot": "gloves",
       "faction": "neutral",
       "required_level": 10,
-      "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 7 }
+      "base_stats": {
+        "def": 7
+      }
     },
     {
       "key": "gloves_base_003",
@@ -259,10 +2218,11 @@
       "slot": "gloves",
       "faction": "neutral",
       "required_level": 20,
-      "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 9 }
+      "base_stats": {
+        "def": 9
+      }
     },
     {
       "key": "gloves_base_004",
@@ -270,21 +2230,143 @@
       "slot": "gloves",
       "faction": "neutral",
       "required_level": 30,
-      "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 11 }
+      "base_stats": {
+        "def": 11
+      }
+    },
+    {
+      "key": "gloves_t2_positive_001",
+      "name": "龙虎护手",
+      "slot": "gloves",
+      "faction": "positive",
+      "required_level": 40,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 13
+      }
+    },
+    {
+      "key": "gloves_t2_positive_002",
+      "name": "封神护手",
+      "slot": "gloves",
+      "faction": "positive",
+      "required_level": 50,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 15
+      }
+    },
+    {
+      "key": "gloves_t2_negative_001",
+      "name": "破天护手",
+      "slot": "gloves",
+      "faction": "negative",
+      "required_level": 40,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 13
+      }
+    },
+    {
+      "key": "gloves_t2_negative_002",
+      "name": "赤龙护手",
+      "slot": "gloves",
+      "faction": "negative",
+      "required_level": 50,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 15
+      }
+    },
+    {
+      "key": "gloves_t3_positive_001",
+      "name": "昊天护手",
+      "slot": "gloves",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 18
+      }
+    },
+    {
+      "key": "gloves_t3_positive_002",
+      "name": "追月护手",
+      "slot": "gloves",
+      "faction": "positive",
+      "required_level": 70,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 22
+      }
+    },
+    {
+      "key": "gloves_t3_negative_001",
+      "name": "雪天护手",
+      "slot": "gloves",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 18
+      }
+    },
+    {
+      "key": "gloves_t3_negative_002",
+      "name": "凌鹰护手",
+      "slot": "gloves",
+      "faction": "negative",
+      "required_level": 70,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 22
+      }
+    },
+    {
+      "key": "gloves_t4_positive_001",
+      "name": "月神护手",
+      "slot": "gloves",
+      "faction": "positive",
+      "required_level": 80,
+      "required_transfer": 4,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 32
+      }
+    },
+    {
+      "key": "gloves_t4_negative_001",
+      "name": "凝血护手",
+      "slot": "gloves",
+      "faction": "negative",
+      "required_level": 80,
+      "required_transfer": 4,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 32
+      }
     },
     {
       "key": "boots_base_001",
-      "name": "布靴",
+      "name": "无名短靴",
       "slot": "boots",
       "faction": "neutral",
-      "required_level": 1,
-      "required_career": ["blade"],
+      "required_level": 3,
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 3 }
+      "base_stats": {
+        "def": 2
+      }
     },
     {
       "key": "boots_base_002",
@@ -292,10 +2374,11 @@
       "slot": "boots",
       "faction": "neutral",
       "required_level": 5,
-      "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 3 }
+      "base_stats": {
+        "def": 3
+      }
     },
     {
       "key": "boots_base_003",
@@ -303,10 +2386,11 @@
       "slot": "boots",
       "faction": "neutral",
       "required_level": 10,
-      "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 5 }
+      "base_stats": {
+        "def": 5
+      }
     },
     {
       "key": "boots_base_004",
@@ -314,10 +2398,11 @@
       "slot": "boots",
       "faction": "neutral",
       "required_level": 20,
-      "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 7 }
+      "base_stats": {
+        "def": 7
+      }
     },
     {
       "key": "boots_base_005",
@@ -325,21 +2410,143 @@
       "slot": "boots",
       "faction": "neutral",
       "required_level": 30,
-      "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": true,
-      "base_stats": { "def": 9 }
+      "base_stats": {
+        "def": 9
+      }
+    },
+    {
+      "key": "boots_t2_positive_001",
+      "name": "龙虎长靴",
+      "slot": "boots",
+      "faction": "positive",
+      "required_level": 40,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 12
+      }
+    },
+    {
+      "key": "boots_t2_positive_002",
+      "name": "封神长靴",
+      "slot": "boots",
+      "faction": "positive",
+      "required_level": 50,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 15
+      }
+    },
+    {
+      "key": "boots_t2_negative_001",
+      "name": "破天长靴",
+      "slot": "boots",
+      "faction": "negative",
+      "required_level": 40,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 12
+      }
+    },
+    {
+      "key": "boots_t2_negative_002",
+      "name": "赤龙长靴",
+      "slot": "boots",
+      "faction": "negative",
+      "required_level": 50,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 15
+      }
+    },
+    {
+      "key": "boots_t3_positive_001",
+      "name": "昊天长靴",
+      "slot": "boots",
+      "faction": "positive",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 18
+      }
+    },
+    {
+      "key": "boots_t3_positive_002",
+      "name": "广寒长靴",
+      "slot": "boots",
+      "faction": "positive",
+      "required_level": 70,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 22
+      }
+    },
+    {
+      "key": "boots_t3_negative_001",
+      "name": "雪天长靴",
+      "slot": "boots",
+      "faction": "negative",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 18
+      }
+    },
+    {
+      "key": "boots_t3_negative_002",
+      "name": "地藏长靴",
+      "slot": "boots",
+      "faction": "negative",
+      "required_level": 70,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 22
+      }
+    },
+    {
+      "key": "boots_t4_positive_001",
+      "name": "月神长靴",
+      "slot": "boots",
+      "faction": "positive",
+      "required_level": 80,
+      "required_transfer": 4,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 30
+      }
+    },
+    {
+      "key": "boots_t4_negative_001",
+      "name": "凝血长靴",
+      "slot": "boots",
+      "faction": "negative",
+      "required_level": 80,
+      "required_transfer": 4,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 30
+      }
     },
     {
       "key": "inner_armor_base_001",
-      "name": "布衣",
+      "name": "兽皮甲",
       "slot": "inner_armor",
       "faction": "neutral",
-      "required_level": 1,
-      "required_career": ["blade"],
+      "required_level": 15,
       "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "def": 5 }
+      "purchaseable": false,
+      "base_stats": {
+        "def": 5
+      }
     },
     {
       "key": "inner_armor_base_002",
@@ -347,65 +2554,203 @@
       "slot": "inner_armor",
       "faction": "neutral",
       "required_level": 25,
-      "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": false,
-      "base_stats": { "def": 15 }
+      "base_stats": {
+        "def": 15
+      }
     },
     {
-      "key": "amulet_base_001",
-      "name": "粗布项链",
+      "key": "inner_armor_t2_001",
+      "name": "金丝甲",
+      "slot": "inner_armor",
+      "faction": "neutral",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 20
+      }
+    },
+    {
+      "key": "inner_armor_t2_002",
+      "name": "软猬甲",
+      "slot": "inner_armor",
+      "faction": "neutral",
+      "required_level": 45,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 25
+      }
+    },
+    {
+      "key": "inner_armor_t2_003",
+      "name": "玄武战衣",
+      "slot": "inner_armor",
+      "faction": "neutral",
+      "required_level": 55,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 30
+      }
+    },
+    {
+      "key": "inner_armor_t3_001",
+      "name": "天蚕宝甲",
+      "slot": "inner_armor",
+      "faction": "neutral",
+      "required_level": 65,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 35
+      }
+    },
+    {
+      "key": "inner_armor_t3_002",
+      "name": "裂魂玄甲",
+      "slot": "inner_armor",
+      "faction": "neutral",
+      "required_level": 75,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "def": 40
+      }
+    },
+    {
+      "key": "necklace_base_001",
+      "name": "灵兽项链",
       "slot": "amulet",
       "faction": "neutral",
-      "required_level": 1,
-      "required_career": ["blade"],
+      "required_level": 10,
       "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "missing": 3 }
+      "purchaseable": false,
+      "base_stats": {
+        "missing": 3
+      }
     },
     {
-      "key": "amulet_base_002",
+      "key": "necklace_base_002",
       "name": "幻身项链",
       "slot": "amulet",
       "faction": "neutral",
       "required_level": 10,
-      "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": false,
-      "base_stats": { "missing": 4 }
+      "base_stats": {
+        "missing": 4
+      }
     },
     {
-      "key": "ring_base_001",
-      "name": "铁戒",
-      "slot": "ring",
-      "faction": "neutral",
-      "required_level": 1,
-      "required_career": ["blade"],
-      "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "hit": 3 }
-    },
-    {
-      "key": "ring_base_002",
-      "name": "白金戒指",
-      "slot": "ring",
+      "key": "necklace_base_003",
+      "name": "玉影项链",
+      "slot": "amulet",
       "faction": "neutral",
       "required_level": 10,
-      "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": false,
-      "base_stats": { "hit": 4 }
+      "base_stats": {
+        "missing": 5
+      }
+    },
+    {
+      "key": "necklace_t2_001",
+      "name": "五毒链",
+      "slot": "amulet",
+      "faction": "neutral",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "missing": 6
+      }
+    },
+    {
+      "key": "necklace_t2_002",
+      "name": "灵心链",
+      "slot": "amulet",
+      "faction": "neutral",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "missing": 7
+      }
+    },
+    {
+      "key": "necklace_t2_003",
+      "name": "碧玉护符",
+      "slot": "amulet",
+      "faction": "neutral",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "missing": 8
+      }
+    },
+    {
+      "key": "necklace_t2_004",
+      "name": "金罡护符",
+      "slot": "amulet",
+      "faction": "neutral",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "missing": 5
+      }
+    },
+    {
+      "key": "necklace_t3_001",
+      "name": "金灵护符",
+      "slot": "amulet",
+      "faction": "neutral",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "missing": 9
+      }
+    },
+    {
+      "key": "necklace_t3_002",
+      "name": "圣光项链",
+      "slot": "amulet",
+      "faction": "neutral",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "missing": 10
+      }
+    },
+    {
+      "key": "necklace_t3_003",
+      "name": "天神护符",
+      "slot": "amulet",
+      "faction": "neutral",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "missing": 10
+      }
     },
     {
       "key": "earring_base_001",
-      "name": "铜耳环",
+      "name": "银耳环",
       "slot": "earring",
       "faction": "neutral",
-      "required_level": 1,
-      "required_career": ["blade"],
+      "required_level": 10,
       "required_transfer": 0,
-      "purchaseable": true,
-      "base_stats": { "maxHp": 20 }
+      "purchaseable": false,
+      "base_stats": {
+        "maxHp": 20
+      }
     },
     {
       "key": "earring_base_002",
@@ -413,10 +2758,268 @@
       "slot": "earring",
       "faction": "neutral",
       "required_level": 10,
-      "required_career": ["blade"],
       "required_transfer": 0,
       "purchaseable": false,
-      "base_stats": { "maxHp": 20 }
+      "base_stats": {
+        "maxHp": 20
+      }
+    },
+    {
+      "key": "earring_base_003",
+      "name": "金耳环",
+      "slot": "earring",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 0,
+      "purchaseable": false,
+      "base_stats": {
+        "maxHp": 30
+      }
+    },
+    {
+      "key": "earring_t2_001",
+      "name": "天灵耳环",
+      "slot": "earring",
+      "faction": "neutral",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "maxHp": 40
+      }
+    },
+    {
+      "key": "earring_t2_002",
+      "name": "紫焰耳环",
+      "slot": "earring",
+      "faction": "neutral",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "maxHp": 50
+      }
+    },
+    {
+      "key": "earring_t2_003",
+      "name": "玄天耳环",
+      "slot": "earring",
+      "faction": "neutral",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "qigong": 1
+      }
+    },
+    {
+      "key": "earring_t3_001",
+      "name": "圣炎耳环",
+      "slot": "earring",
+      "faction": "neutral",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "maxHp": 50,
+        "maxMp": 50
+      }
+    },
+    {
+      "key": "earring_t3_002",
+      "name": "磐龙耳环",
+      "slot": "earring",
+      "faction": "neutral",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "qigong": 2
+      }
+    },
+    {
+      "key": "ring_base_001",
+      "name": "银戒指",
+      "slot": "ring",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 0,
+      "purchaseable": false,
+      "base_stats": {
+        "hit": 3
+      }
+    },
+    {
+      "key": "ring_base_002",
+      "name": "白金戒指",
+      "slot": "ring",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 0,
+      "purchaseable": false,
+      "base_stats": {
+        "hit": 4
+      }
+    },
+    {
+      "key": "ring_base_003",
+      "name": "紫玉戒指",
+      "slot": "ring",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_transfer": 0,
+      "purchaseable": false,
+      "base_stats": {
+        "hit": 5
+      }
+    },
+    {
+      "key": "ring_t2_001",
+      "name": "地灵戒",
+      "slot": "ring",
+      "faction": "neutral",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "hit": 6
+      }
+    },
+    {
+      "key": "ring_t2_002",
+      "name": "万寿戒",
+      "slot": "ring",
+      "faction": "neutral",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "hit": 7
+      }
+    },
+    {
+      "key": "ring_t2_003",
+      "name": "麒麟指环",
+      "slot": "ring",
+      "faction": "neutral",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "hit": 8
+      }
+    },
+    {
+      "key": "ring_t2_004",
+      "name": "权智指环",
+      "slot": "ring",
+      "faction": "neutral",
+      "required_level": 35,
+      "required_transfer": 2,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 3,
+        "atkMax": 3
+      }
+    },
+    {
+      "key": "ring_t3_001",
+      "name": "圣冠指环",
+      "slot": "ring",
+      "faction": "neutral",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "hit": 9
+      }
+    },
+    {
+      "key": "ring_t3_002",
+      "name": "馨华指环",
+      "slot": "ring",
+      "faction": "neutral",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "hit": 10
+      }
+    },
+    {
+      "key": "ring_t3_003",
+      "name": "元始指环",
+      "slot": "ring",
+      "faction": "neutral",
+      "required_level": 60,
+      "required_transfer": 3,
+      "purchaseable": false,
+      "base_stats": {
+        "atkMin": 5,
+        "atkMax": 5
+      }
+    },
+    {
+      "key": "cape_iron_man_armor",
+      "name": "钢铁侠铠甲",
+      "slot": "cape",
+      "faction": "neutral",
+      "required_level": 0,
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {},
+      "required_career": [
+        "blade",
+        "sword",
+        "spear",
+        "staff"
+      ]
+    },
+    {
+      "key": "cape_spider_man_suit",
+      "name": "蜘蛛侠连体衣",
+      "slot": "cape",
+      "faction": "neutral",
+      "required_level": 0,
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {},
+      "required_career": [
+        "blade",
+        "sword",
+        "spear",
+        "staff"
+      ]
+    },
+    {
+      "key": "amulet_base_001",
+      "name": "粗布项链",
+      "slot": "amulet",
+      "faction": "neutral",
+      "required_level": 1,
+      "required_career": [
+        "blade"
+      ],
+      "required_transfer": 0,
+      "purchaseable": true,
+      "base_stats": {
+        "missing": 3
+      }
+    },
+    {
+      "key": "amulet_base_002",
+      "name": "幻身项链",
+      "slot": "amulet",
+      "faction": "neutral",
+      "required_level": 10,
+      "required_career": [
+        "blade"
+      ],
+      "required_transfer": 0,
+      "purchaseable": false,
+      "base_stats": {
+        "missing": 4
+      }
     },
     {
       "key": "cape_base_001",
@@ -424,7 +3027,9 @@
       "slot": "cape",
       "faction": "neutral",
       "required_level": 1,
-      "required_career": ["blade"],
+      "required_career": [
+        "blade"
+      ],
       "required_transfer": 0,
       "purchaseable": true,
       "base_stats": {}

@@ -4,8 +4,8 @@
  */
 import { eventBus } from '../core/EventBus.js';
 import { storage } from '../utils/storage.js';
-import { refreshMonsterList } from './MonsterListUI.js?v=release-20260606-1';
-import { refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260606-1';
+import { refreshMonsterList } from './MonsterListUI.js?v=release-20260611-1';
+import { refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260611-1';
 import { appendCombatLog, formatCombatLog, renderCombatLog } from './CombatLogUI.js';
 import { appendRewardLog, formatRewardLog, renderRewardLog } from './RewardLogUI.js';
 import { TaskSystem } from '../systems/TaskSystem.js';
@@ -218,7 +218,11 @@ class UIManagerClass {
     const wildContent = document.getElementById('home-wild-content');
     if (townContent) townContent.hidden = !!subZoneKey;
     if (wildContent) wildContent.hidden = !subZoneKey;
-    if (!subZoneKey) return;
+    const restoreBadgeEl = document.getElementById("restore-badge");
+    if (restoreBadgeEl) {
+      const townFull = !subZoneKey && player.hp >= player.maxHp && player.mp >= player.maxMp;
+      restoreBadgeEl.style.display = townFull ? "none" : "";
+    }    if (!subZoneKey) return;
 
     const battleZone = window.game?.battle?._currentSubZone;
     const zone = typeof battleZone === 'object' && battleZone?.key === subZoneKey ? battleZone : null;

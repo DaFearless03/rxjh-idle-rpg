@@ -2,22 +2,22 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260606-2';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260606-1';
+import { UIManager } from './UIManager.js?v=release-20260611-1';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260611-1';
 import { InventorySystem } from '../systems/InventorySystem.js';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260606-1';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260606-1';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260606-1';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260611-1';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260611-1';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260611-1';
 import { QigongSystem } from '../systems/QigongSystem.js';
-import { mountCharacterPanel } from './CharacterUI.js?v=release-20260606-1';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260606-1';
-import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260606-1';
-import { mountQuestPanel } from './TaskUI.js?v=release-20260606-1';
-import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260606-1';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260606-1';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260606-1';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260606-1';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260606-1';
+import { mountCharacterPanel } from './CharacterUI.js?v=release-20260611-1';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260611-1';
+import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260611-1';
+import { mountQuestPanel } from './TaskUI.js?v=release-20260611-1';
+import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260611-1';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260611-1';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260611-1';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260611-1';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260611-1';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -672,7 +672,7 @@ window._settingsImportSave = () => {
 
 window._returnToSaveList = async () => {
   window.game?.saveNow?.();
-  const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260606-1');
+  const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260611-1');
   const characters = window.game?.listCharacters?.() || [];
   UIManager.closePanel();
   showMultiSaveUI(window._currentGlobalSave, characters, window._careersData || []);
@@ -757,53 +757,75 @@ function renderAutoplayPanel(player) {
   const ap = p.auto_play || {};
   const hpCfg = ap.auto_consume?.hp_potion || {};
   const mpCfg = ap.auto_consume?.mp_potion || {};
-  const potionOption = (key, name, selected) => `
-    <option value="${key}"${selected === key ? ' selected' : ''}>${name}（${InventorySystem.count(p, key)}）</option>`;
-  const thresholdRow = (kind, value) => `
-    <div class="med-threshold-row">
-      <span>触发阈值</span>
-      <input type="range" min="5" max="95" step="5" value="${value}"
-        oninput="window._setAutoPotionThreshold('${kind}', this.value)">
-      <b id="${kind}-threshold-label">${value}%</b>
-    </div>`;
+  const hpResupply = ap.auto_resupply?.trigger_rules?.hp || {};
+  const mpResupply = ap.auto_resupply?.trigger_rules?.mp || {};
+  const hpBuy = ap.auto_resupply?.purchase_rules?.hp || {};
+  const mpBuy = ap.auto_resupply?.purchase_rules?.mp || {};
+  const potionName = {
+    hp_potion_grade1: '金创药（小）', hp_potion_grade2: '金创药（中）', hp_potion_grade3: '金创药（大）',
+    mp_potion_grade1: '人参', mp_potion_grade2: '野山参', mp_potion_grade3: '雪原参',
+  };
+
+  const toggleBtn = (kind, enabled, action) =>
+    '<button class="btn-3d' + (enabled ? ' blue' : '') + '" style="padding:0.4rem 0.9rem;font-size:0.75rem;min-width:3.8rem" onclick="' + action + '">' + (enabled ? 'ON' : 'OFF') + '</button>';
+
+  const potionSelect = (kind, selected, enabled, handler = '_setAutoPotionItem') => {
+    const keys = kind === 'hp' ? ['hp_potion_grade1','hp_potion_grade2','hp_potion_grade3'] : ['mp_potion_grade1','mp_potion_grade2','mp_potion_grade3'];
+    return '<select class="select" style="width:100%;padding:0.4rem;font-size:0.78rem" onchange="window.' + handler + '(\'' + kind + '\', this.value)"' + (enabled ? '' : ' disabled') + '>' +
+      '<option value="">不使用</option>' +
+      keys.map(k => '<option value="' + k + '"' + (selected === k ? ' selected' : '') + '>' + potionName[k] + '（' + InventorySystem.count(p, k) + '）</option>').join('') +
+      '</select>';
+  };
+
+  const sliderRow = (label, value, min, max, step, action, id) =>
+    '<div class="stat-line"><span class="sl-k">' + label + '</span>' +
+    '<div style="flex:1;margin:0 0.5rem;"><div class="gba-bar" style="height:0.55rem;margin:0.1rem 0"><div class="gba-bar-fill fill-exp" style="width:' + Math.round((value - min) / (max - min) * 100) + '%"></div></div>' +
+    '<input type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + value + '" style="width:100%" oninput="' + action + '"></div>' +
+    '<span class="sl-v" id="' + id + '" style="min-width:2.5rem;text-align:right;font-size:0.75rem">' + value + '</span></div>';
+
   el.innerHTML = `
-    <div class="hang-settings-section">
-      <p class="hang-settings-title">💊 自动喝药设置</p>
-      <div class="med-row">
-        <div class="med-config-head">
-          <span class="med-label">生命药剂</span>
-          <button class="toggle-btn${hpCfg.enabled ? ' on' : ''}" onclick="window._toggleAutoPotion('hp')"
-            aria-label="切换自动生命药剂"></button>
-        </div>
-        <select class="select med-select" onchange="window._setAutoPotionItem('hp', this.value)" ${hpCfg.enabled ? '' : 'disabled'}>
-          <option value="">不使用生命药剂</option>
-          ${potionOption('hp_potion_grade1', '金创药（小）', hpCfg.selected_item_key)}
-          ${potionOption('hp_potion_grade2', '金创药（中）', hpCfg.selected_item_key)}
-          ${potionOption('hp_potion_grade3', '金创药（大）', hpCfg.selected_item_key)}
-        </select>
-        ${thresholdRow('hp', Math.round((hpCfg.threshold ?? 0.3) * 100))}
+    <div class="sec-panel">
+      <div class="panel-title"><span>💊 自动喝药</span></div>
+      <!-- HP -->
+      <div class="stat-line"><span class="sl-k">生命药剂</span>
+        ${toggleBtn('hp', hpCfg.enabled, "window._toggleAutoPotion('hp')")}
       </div>
-      <div class="med-row">
-        <div class="med-config-head">
-          <span class="med-label">内功药剂</span>
-          <button class="toggle-btn${mpCfg.enabled ? ' on' : ''}" onclick="window._toggleAutoPotion('mp')"
-            aria-label="切换自动内功药剂"></button>
-        </div>
-        <select class="select med-select" onchange="window._setAutoPotionItem('mp', this.value)" ${mpCfg.enabled ? '' : 'disabled'}>
-          <option value="">不使用内功药剂</option>
-          ${potionOption('mp_potion_grade1', '人参', mpCfg.selected_item_key)}
-          ${potionOption('mp_potion_grade2', '野山参', mpCfg.selected_item_key)}
-          ${potionOption('mp_potion_grade3', '雪原参', mpCfg.selected_item_key)}
-        </select>
-        ${thresholdRow('mp', Math.round((mpCfg.threshold ?? 0.3) * 100))}
+      ${potionSelect('hp', hpCfg.selected_item_key, hpCfg.enabled)}
+      ${sliderRow('HP 阈值', Math.round((hpCfg.threshold ?? 0.3) * 100), 5, 95, 5, "window._setAutoPotionThreshold('hp', this.value)", 'hp-threshold-label')}
+
+      <!-- MP -->
+      <div class="stat-line" style="margin-top:0.9rem"><span class="sl-k">内功药剂</span>
+        ${toggleBtn('mp', mpCfg.enabled, "window._toggleAutoPotion('mp')")}
       </div>
-      <p class="hang-settings-note">药剂数量为 0 时不会自动购买或消耗其他品级。</p>
+      ${potionSelect('mp', mpCfg.selected_item_key, mpCfg.enabled)}
+      ${sliderRow('MP 阈值', Math.round((mpCfg.threshold ?? 0.3) * 100), 5, 95, 5, "window._setAutoPotionThreshold('mp', this.value)", 'mp-threshold-label')}
     </div>
-    <div style="margin-top:20px">
+
+    <div class="sec-panel">
+      <div class="panel-title"><span>📦 自动补给</span></div>
+      <p class="hang-settings-note" style="margin:0 0 0.6rem;font-size:0.7rem">🔁 药剂低于触发数量 → 自动回城购买 → 返回挂机</p>
+      <!-- HP Resupply -->
+      <div class="stat-line"><span class="sl-k">生命补给</span>
+        ${toggleBtn('hp', hpResupply.enabled, "window._toggleAutoResupply('hp')")}
+      </div>
+      ${potionSelect('hp', hpBuy.selected_potion, hpResupply.enabled, '_setAutoResupplyItem')}
+      ${sliderRow('触发', hpResupply.trigger_threshold ?? 10, 2, 50, 1, "window._setAutoResupplyTrigger('hp', this.value)", 'rs-hp-trigger-label')}
+      ${sliderRow('买至', hpBuy.target_quantity ?? 50, 5, 100, 5, "window._setAutoResupplyTarget('hp', this.value)", 'rs-hp-target-label')}
+
+      <!-- MP Resupply -->
+      <div class="stat-line" style="margin-top:0.9rem"><span class="sl-k">内功补给</span>
+        ${toggleBtn('mp', mpResupply.enabled, "window._toggleAutoResupply('mp')")}
+      </div>
+      ${potionSelect('mp', mpBuy.selected_potion, mpResupply.enabled, '_setAutoResupplyItem')}
+      ${sliderRow('触发', mpResupply.trigger_threshold ?? 10, 2, 50, 1, "window._setAutoResupplyTrigger('mp', this.value)", 'rs-mp-trigger-label')}
+      ${sliderRow('买至', mpBuy.target_quantity ?? 50, 5, 100, 5, "window._setAutoResupplyTarget('mp', this.value)", 'rs-mp-target-label')}
+    </div>
+
+    <div style="margin-top:0.9rem">
       ${ap.is_auto_play ? `
-        <button class="btn danger" style="width:100%" onclick="window._stopAutoplay()">⏹ 停止挂机</button>
+        <button class="btn-3d red" style="width:100%;padding:0.9rem;font-size:0.95rem" onclick="window._stopAutoplay()">⏹ 停止挂机</button>
       ` : `
-        <button class="btn primary" style="width:100%" onclick="window._startAutoplay()">▶ 开始挂机</button>
+        <button class="btn-3d green" style="width:100%;padding:0.9rem;font-size:0.95rem" onclick="window._startAutoplay()">▶ 开始挂机</button>
       `}
     </div>
   `;
@@ -827,7 +849,16 @@ function updateAutoPotion(kind, update) {
 }
 
 window._toggleAutoPotion = (kind) => {
-  updateAutoPotion(kind, config => { config.enabled = !config.enabled; });
+  const player = window.game?.player;
+  const cfg = player?.auto_play?.auto_consume?.[kind === 'mp' ? 'mp_potion' : 'hp_potion'];
+  const enabled = !(cfg?.enabled);
+  updateAutoPotion(kind, config => {
+    config.enabled = enabled;
+    if (enabled && !config.selected_item_key) {
+      config.selected_item_key = kind === 'mp' ? 'mp_potion_grade1' : 'hp_potion_grade1';
+    }
+    if (!enabled) config.selected_item_key = null;
+  });
 };
 
 window._setAutoPotionItem = (kind, itemKey) => {
@@ -1234,3 +1265,36 @@ document.querySelectorAll('#page-combat .menu-btn').forEach(btn => {
 
 // Setup warehouse popup events (once)
 _setupWarehousePopup();
+
+function updateAutoResupply(kind, updateFn) {
+  const player = window.game?.player;
+  if (!player) return;
+  player.auto_play = player.auto_play || {};
+  player.auto_play.auto_resupply = player.auto_play.auto_resupply || { trigger_rules: {}, purchase_rules: {} };
+  const resupply = player.auto_play.auto_resupply;
+  resupply.trigger_rules[kind] = { enabled: true, selected_potion: null, trigger_threshold: 10, ...(resupply.trigger_rules[kind] || {}) };
+  resupply.purchase_rules[kind] = { enabled: true, selected_potion: null, target_quantity: 50, ...(resupply.purchase_rules[kind] || {}) };
+  updateFn(resupply.trigger_rules[kind], resupply.purchase_rules[kind]);
+  if (kind === 'hp') { resupply.purchase_rules.hp = resupply.purchase_rules[kind]; resupply.trigger_rules.hp = resupply.trigger_rules[kind]; }
+  if (kind === 'mp') { resupply.purchase_rules.mp = resupply.purchase_rules[kind]; resupply.trigger_rules.mp = resupply.trigger_rules[kind]; }
+  window.game?.saveNow?.();
+  renderAutoplayPanel(player);
+}
+
+window._toggleAutoResupply = (kind) => {
+  updateAutoResupply(kind, (trigger, buy) => { trigger.enabled = !trigger.enabled; buy.enabled = !buy.enabled; });
+};
+
+window._setAutoResupplyItem = (kind, itemKey) => {
+  updateAutoResupply(kind, (trigger, buy) => { trigger.selected_potion = itemKey || null; buy.selected_potion = itemKey || null; });
+};
+
+window._setAutoResupplyTrigger = (kind, value) => {
+  const v = Math.max(2, Math.min(50, Number(value) || 10));
+  updateAutoResupply(kind, (trigger) => { trigger.trigger_threshold = v; });
+};
+
+window._setAutoResupplyTarget = (kind, value) => {
+  const v = Math.max(5, Math.min(100, Number(value) || 50));
+  updateAutoResupply(kind, (trigger, buy) => { buy.target_quantity = v; });
+};

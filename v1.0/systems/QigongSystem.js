@@ -9,6 +9,44 @@ export const QigongSystem = {
   _qigongTemplates: [],
 
   /**
+   * effect type → 人类可读标签
+   */
+  EFFECT_LABELS: {
+    atkMin: '最小攻击力', atkMax: '最大攻击力', def: '防御力',
+    maxHp: '生命值', maxMp: '内功值', mdef: '武功防御力',
+    missing: '闪避', hit: '命中',
+    weaponSkillBonus: '武功攻击力', critR: '暴击率', critB: '暴击伤害',
+    hpRecovery: '生命恢复', mpRecovery: '内功恢复',
+    leech: '吸取生命', combo: '连击几率', shieldRate: '护身几率',
+    counterDamage: '反伤几率', armorBreak: '破甲几率',
+    skillCritRate: '真武绝击几率', healBonus: '治疗加成',
+    mpCostReduce: '内功消耗减少', mpRecoveryBonus: '内功恢复加成',
+    buffDuration: 'Buff 持续时间', mf: '制造几率', gf: '制造加成',
+    atkMinPct: '最小攻击力', atkMaxPct: '最大攻击力',
+    hitPct: '命中率', missingPct: '闪避率',
+    maxHpPct: '生命值', maxMpPct: '内功值',
+  },
+
+  /**
+   * effect type → 描述前缀
+   */
+  EFFECT_DESC: {
+    atkMin: '增加最小攻击力', atkMax: '增加最大攻击力', def: '增加防御力',
+    maxHp: '增加生命值', maxMp: '增加内功值', mdef: '增加武功防御力',
+    missing: '增加闪避', hit: '增加命中',
+    weaponSkillBonus: '增加武功攻击力', critR: '增加暴击率', critB: '增加暴击伤害',
+    hpRecovery: '增加生命恢复', mpRecovery: '增加内功恢复',
+    leech: '攻击时吸取生命', combo: '增加连击几率', shieldRate: '增加护身几率',
+    counterDamage: '受到攻击时反伤', armorBreak: '增加破甲几率',
+    skillCritRate: '增加真武绝击几率', healBonus: '增加治疗加成',
+    mpCostReduce: '减少内功消耗', mpRecoveryBonus: '增加内功恢复加成',
+    buffDuration: '增加 Buff 持续时间', mf: '增加制造几率', gf: '增加制造加成',
+    atkMinPct: '增加最小攻击力', atkMaxPct: '增加最大攻击力',
+    hitPct: '增加命中率', missingPct: '增加闪避率',
+    maxHpPct: '增加生命值', maxMpPct: '增加内功值',
+  },
+
+  /**
    * 注册气功模板（main.js 加载后调用）
    */
   setTemplates(qigongsData) {
@@ -62,16 +100,67 @@ export const QigongSystem = {
     }).map(q => {
       const invested = player.qigong?.invested?.[q.key] || 0;
       const effectiveLevel = this._calcEffectiveLevel(player, q);
+      const effectType = q.effect.type;
+      const current = this._calcEffectValue(q, invested);
+      const next = this._calcEffectValue(q, invested + 1);
+      const isPct = effectType.endsWith('Pct') || ['critR','critB','combo','shieldRate','counterDamage',
+        'armorBreak','skillCritRate','healBonus','mpCostReduce','mpRecoveryBonus','leech',
+        'mf','gf'].includes(effectType);
+      const fmtFn = (v) => isPct ? Math.round(v * 100) + '%' : Math.round(v).toString();
       return {
         key: q.key,
         name: q.name,
-        description: q.description,
+        description: this.EFFECT_DESC[effectType] || (q.description || effectType),
         invested,
         effectiveLevel,
         max_level: q.max_level,
-        effect_type: q.effect.type,
-        currentValue: this._calcEffectValue(q, invested),
-        nextValue: this._calcEffectValue(q, invested + 1)
+        effect_type: effectType,
+        currentValue: fmtFn(current),
+        nextValue: fmtFn(next),
+      };
+    });
+  },
+
+  /**
+   * 获取玩家职业系的所有气功（含未解锁的）
+   * 用于展示锁定态气功卡
+   */
+  listAllCareerQigongs(player) {
+    const transferCount = this._getTransferCount(player);
+    const careerFamily = player.career_family;
+
+    return this._qigongTemplates.filter(q => {
+      const cf = Array.isArray(q.career_family) ? q.career_family : [q.career_family];
+      return cf.includes(careerFamily);
+    }).sort((a, b) => {
+      // unlocked first, then by level requirement
+      const aLocked = transferCount < a.unlock.min_transfer || player.level < a.unlock.min_level;
+      const bLocked = transferCount < b.unlock.min_transfer || player.level < b.unlock.min_level;
+      if (aLocked !== bLocked) return aLocked ? 1 : -1;
+      return a.unlock.min_level - b.unlock.min_level;
+    }).map(q => {
+      const invested = player.qigong?.invested?.[q.key] || 0;
+      const unlocked = transferCount >= q.unlock.min_transfer && player.level >= q.unlock.min_level;
+      const lockParts = [];
+      if (player.level < q.unlock.min_level) lockParts.push('Lv.' + q.unlock.min_level);
+      if (transferCount < q.unlock.min_transfer) lockParts.push(q.unlock.min_transfer + ' 转');
+      const lockText = lockParts.length ? '需 ' + lockParts.join(' · ') + ' 解锁' : '';
+      const effectType = q.effect.type;
+      const current = this._calcEffectValue(q, invested);
+      const isPct = effectType.endsWith('Pct') || ['critR','critB','combo','shieldRate','counterDamage',
+        'armorBreak','skillCritRate','healBonus','mpCostReduce','mpRecoveryBonus','leech',
+        'mf','gf'].includes(effectType);
+      const fmtFn = (v) => isPct ? Math.round(v * 100) + '%' : Math.round(v).toString();
+      return {
+        key: q.key,
+        name: q.name,
+        description: this.EFFECT_DESC[effectType] || (q.description || effectType),
+        invested,
+        unlocked,
+        lockText,
+        max_level: q.max_level,
+        effect_type: effectType,
+        currentValue: fmtFn(current),
       };
     });
   },
@@ -168,16 +257,12 @@ export const QigongSystem = {
 
       for (const stoneKey of inst.synthesis_slots) {
         if (stoneKey.startsWith('hot_blood')) {
-          // 热血石：找到对应气功 key 并加对应加成
-          // hot_blood_skill_stack_rules：hot_blood_xxx → 对应气功 key
           const skillKey = stoneKey.replace('hot_blood_', '').replace(/_0\d$/, '');
-          // 简化：直接用气功 key 匹配
           const invested = player.qigong?.invested?.[stoneKey.replace('hot_blood_', 'qigong_')] || 0;
           if (invested >= 1) {
-            // 找对应气功
             const qigong = this._qigongTemplates.find(q => q.key === stoneKey.replace('hot_blood_', ''));
             if (qigong) {
-              const bonus = Math.min(10, qigong.max_level) - invested; // 最多 +10
+              const bonus = Math.min(10, qigong.max_level) - invested;
               if (bonus > 0) {
                 const effectType = qigong.effect.type;
                 if (effectType.endsWith('Pct')) {
@@ -193,15 +278,12 @@ export const QigongSystem = {
     }
   },
 
-  // 计算气功当前效果值（base + invested * per_level）
   _calcEffectValue(qigong, points) {
     return qigong.effect.base_value + points * qigong.effect.value_per_level;
   },
 
-  // 计算含耳环加成的有效气功等级
   _calcEffectiveLevel(player, qigong) {
     let level = player.qigong?.invested?.[qigong.key] || 0;
-    // 耳环加成
     const earringSlots = player.equipped?.earring || [];
     for (const earringVal of earringSlots) {
       if (!earringVal?.instance_id) continue;
@@ -209,7 +291,6 @@ export const QigongSystem = {
       if (!inst?.synthesis_slots) continue;
       for (const stoneKey of inst.synthesis_slots) {
         if (stoneKey.startsWith('hot_blood')) {
-          // 简化：找对应气功是否有对应热血石
           if (stoneKey.includes(qigong.key)) {
             level += Math.min(10, qigong.max_level);
           }

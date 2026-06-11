@@ -11,6 +11,7 @@ export class Monster {
   constructor(template) {
     this.key = template.key;
     this.name = template.name;
+    this.passive = template.passive || false;
     this.level = template.level ?? 1;
     this.exp = template.exp ?? 0;
     this.hp = template.hp ?? 0;

@@ -3,7 +3,7 @@
  * @desc 刀剑笑强化工坊 UI。
  */
 
-import { getEquipmentTemplate } from './EquipUI.js?v=release-20260606-1';
+import { getEquipmentTemplate } from './EquipUI.js?v=release-20260611-1';
 
 const ENHANCEABLE_SLOTS = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor'];
 const SLOT_LABEL = { weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲' };

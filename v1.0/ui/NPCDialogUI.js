@@ -2,13 +2,13 @@
  * @file ui/NPCDialogUI.js
  * @desc NPC 对话窗口
  */
-import { UIManager } from './UIManager.js?v=release-20260606-2';
+import { UIManager } from './UIManager.js?v=release-20260611-1';
 import { TaskSystem } from '../systems/TaskSystem.js';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260606-1';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260611-1';
 import { InventorySystem } from '../systems/InventorySystem.js';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260606-1';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260606-1';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260606-1';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260611-1';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260611-1';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260611-1';
 import { NPCSystem, UIState } from '../systems/NPCSystem.js';
 
 const TOWN_NPC_DATA = {
@@ -55,8 +55,10 @@ export function openTownNPCDialog(npcKey) {
   NPCSystem.openDialog(npc);
   window._currentNpc = npc;
   if (npcKey === 'leader') {
+    document.getElementById("npcDialogHead").style.display = "flex";
     renderTownLeaderQuestDialog('accept');
   } else {
+    document.getElementById("npcDialogHead").style.display = "flex";
     document.getElementById('npcFuncRow').innerHTML = npc.funcs.map(func =>
       `<button class="npc-func-btn" data-npc="${npcKey}" data-func="${func}">${func}</button>`
     ).join('');
@@ -80,32 +82,32 @@ function renderTownLeaderQuestDialog(tab = 'accept') {
   const available = TaskSystem.listVisibleQuests(player, npc);
   const accepted = player?.quests?.accepted || [];
   const ready = accepted.filter(quest => isQuestReady(player, quest));
-  const rows = tab === 'submit' ? ready : available;
-  const action = tab === 'submit' ? '提交' : '接取';
-  const rowHtml = rows.length ? rows.map(quest => `
+
+  const renderRows = (quests, kind) => quests.length ? quests.map(quest => `
     <div class="mz-quest-row">
       <span class="mq-icon">📜</span>
       <div class="mq-info">
         <div class="mq-name">${escapeHtml(quest.name || quest.key)}</div>
         <div class="mq-sub">${escapeHtml(questObjectiveSummary(quest))}</div>
       </div>
-      <button class="mq-btn${tab === 'accept' ? ' accept' : ''}" onclick="${tab === 'accept'
+      <button class="mq-btn${kind === 'accept' ? ' accept' : ''}" onclick="${kind === 'accept'
         ? `window._leaderConfirmAccept('${escapeHtml(quest.key)}')`
-        : `window._leaderSubmit('${escapeHtml(quest.key)}')`}">${action}</button>
-    </div>`).join('') : `<div class="mz-empty-note">暂无可${action}任务</div>`;
+        : `window._leaderSubmit('${escapeHtml(quest.key)}')`}">${kind === 'accept' ? '接取' : '提交'}</button>
+    </div>`).join('') : `<div class="mz-empty-note">暂无可${kind === 'accept' ? '接任务' : '提交任务'}</div>`;
 
-  document.getElementById('npcDialogLine').textContent = tab === 'submit'
-    ? '带回来了？让我看看你这趟的成色。'
-    : npc.line;
-  document.getElementById('npcFuncRow').innerHTML = `
+  const fr = document.getElementById('npcFuncRow');
+  fr.style.display = 'block';
+  const rows = tab === "submit" ? ready : available;
+  fr.innerHTML = `
     <div class="mz-tabs">
       <button class="mz-tab${tab === 'accept' ? ' active' : ''}" onclick="window._leaderSwitchTab('accept')">接取</button>
       <button class="mz-tab${tab === 'submit' ? ' active' : ''}" onclick="window._leaderSwitchTab('submit')">提交</button>
     </div>
-    <div class="mz-group-label">可${action}</div>
-    ${rowHtml}
+    <div class="npc-dialog-line" style="margin-bottom:0.6rem">${tab === 'submit' ? '带回来了？让我看看你这趟的成色。' : npc.line}</div>
+    <div class="mz-group-label">可${tab === 'submit' ? '提交' : '接取'}</div>
+    ${renderRows(rows, tab === 'submit' ? 'submit' : 'accept')}
     <div class="mz-confirm-backdrop" id="leaderQuestConfirm">
-      <div class="mz-confirm">
+      <div class="mz-confirm" onclick="event.stopPropagation()">
         <div class="mz-confirm-text" id="leaderQuestConfirmText">确定接取任务？</div>
         <div class="mz-confirm-row">
           <button class="mz-confirm-cancel" onclick="window._leaderCancelAccept()">取消</button>
@@ -114,6 +116,7 @@ function renderTownLeaderQuestDialog(tab = 'accept') {
       </div>
     </div>`;
 }
+
 
 window._leaderSwitchTab = (tab) => renderTownLeaderQuestDialog(tab);
 window._leaderConfirmAccept = (questKey) => {

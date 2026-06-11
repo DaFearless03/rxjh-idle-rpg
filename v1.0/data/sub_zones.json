@@ -3,173 +3,491 @@
     {
       "key": "xuanbo_village",
       "name": "村庄周围",
-      "gold_range": [3, 8],
-      "monsters": ["stray_cat", "toad"]
+      "gold_range": [
+        3,
+        5
+      ],
+      "monsters": [
+        "stray_cat",
+        "toad"
+      ],
+      "level_range": [
+        3,
+        5
+      ]
     },
     {
       "key": "xuanbo_field",
       "name": "村庄野田",
-      "gold_range": [8, 15],
-      "monsters": ["stray_cat", "toad", "fox", "wild_bull", "wild_boar"]
+      "gold_range": [
+        8,
+        12
+      ],
+      "monsters": [
+        "fox",
+        "wild_bull",
+        "wild_boar"
+      ],
+      "level_range": [
+        8,
+        12
+      ]
     },
     {
       "key": "xuanbo_den",
       "name": "狼熊聚居地",
-      "gold_range": [15, 25],
-      "monsters": ["fox", "wild_bull", "wild_boar", "gray_wolf", "red_bear"]
+      "gold_range": [
+        12,
+        15
+      ],
+      "monsters": [
+        "gray_wolf",
+        "bear",
+        "gray_wolf_king"
+      ],
+      "level_range": [
+        12,
+        15
+      ]
     },
     {
       "key": "xuanbo_lumber",
       "name": "伐木场",
-      "gold_range": [20, 35],
-      "monsters": ["gray_wolf", "red_bear", "forest_tiger"]
+      "gold_range": [
+        18,
+        22
+      ],
+      "monsters": [
+        "three_tail_fox",
+        "woodcutter",
+        "woodcutter_leader",
+        "blood_wolf",
+        "flower_bear",
+        "blood_wolf_king"
+      ],
+      "level_range": [
+        18,
+        22
+      ]
     },
     {
       "key": "xuanbo_cemetery",
       "name": "墓地",
-      "gold_range": [28, 42],
-      "monsters": ["gray_wolf", "red_bear", "forest_tiger", "white_tiger"]
+      "gold_range": [
+        22,
+        30
+      ],
+      "monsters": [
+        "big_ape",
+        "small_zombie",
+        "small_blue_ghost",
+        "dancing_girl",
+        "broken_monk",
+        "mountain_ghost"
+      ],
+      "level_range": [
+        22,
+        30
+      ]
     },
     {
       "key": "xuanbo_robber",
       "name": "山寨",
-      "gold_range": [38, 55],
-      "monsters": ["forest_tiger", "white_tiger", "bandit_swordsman", "bandit_archer"]
+      "gold_range": [
+        30,
+        35
+      ],
+      "monsters": [
+        "big_robber",
+        "giant_axe_robber",
+        "robber_chief"
+      ],
+      "level_range": [
+        30,
+        35
+      ]
     },
     {
       "key": "liuzheng_forest",
       "name": "关外山林",
-      "gold_range": [55, 75],
-      "monsters": ["white_tiger", "bandit_swordsman", "bandit_boss", "forest_thief"]
+      "gold_range": [
+        35,
+        37
+      ],
+      "monsters": [
+        "red_bear",
+        "forest_tiger",
+        "white_tiger"
+      ],
+      "level_range": [
+        35,
+        37
+      ]
     },
     {
       "key": "liuzheng_fishing_village",
       "name": "渔村",
-      "gold_range": [70, 95],
-      "monsters": ["bandit_boss", "forest_thief", "pirate_raider", "fisherman_spirit"]
+      "gold_range": [
+        38,
+        42
+      ],
+      "monsters": [
+        "pirate_villager",
+        "double_gun_pirate",
+        "big_arm_stranger"
+      ],
+      "level_range": [
+        38,
+        42
+      ]
     },
     {
       "key": "liuzheng_monster_camp",
       "name": "怪兽营地",
-      "gold_range": [90, 120],
-      "monsters": ["pirate_raider", "fisherman_spirit", "desert_bandit", "cave_spirit"]
+      "gold_range": [
+        43,
+        45
+      ],
+      "monsters": [
+        "small_mountain_creature",
+        "sharp_claw_sas",
+        "mountain_sas"
+      ],
+      "level_range": [
+        43,
+        45
+      ]
     },
     {
       "key": "liuzheng_fire_thief_den",
       "name": "火贼山寨",
-      "gold_range": [115, 150],
-      "monsters": ["desert_bandit", "cave_spirit", "fire_thief_leader", "fire_thief_raider"]
+      "gold_range": [
+        47,
+        50
+      ],
+      "monsters": [
+        "lotus_cultist",
+        "foreign_evil_monk",
+        "red_hair_fire_thief",
+        "one_eye_fire_thief"
+      ],
+      "level_range": [
+        47,
+        50
+      ]
     },
     {
       "key": "liuzheng_wanshou_pavilion",
       "name": "万寿阁下层",
-      "gold_range": [145, 185],
-      "monsters": ["fire_thief_leader", "fire_thief_raider", "wanshou_guard", "wanshou_disciple"]
+      "gold_range": [
+        51,
+        54
+      ],
+      "monsters": [
+        "songwu_short_sword_disciple",
+        "songwu_short_axe_disciple",
+        "songwu_spear_disciple",
+        "songwu_new_recruit",
+        "songwu_bully"
+      ],
+      "level_range": [
+        51,
+        54
+      ]
     },
     {
       "key": "liuzheng_wanshou_pavilion_upper",
       "name": "万寿阁上层",
-      "gold_range": [180, 220],
-      "monsters": ["wanshou_guard", "wanshou_disciple", "wanshou_elder", "wanshou_master"]
+      "gold_range": [
+        54,
+        57
+      ],
+      "monsters": [
+        "songwu_chain_hammer_disciple",
+        "songwu_crazy_blade_disciple",
+        "jinbei_remote_sword",
+        "songwu_fast_blade_warrior"
+      ],
+      "level_range": [
+        54,
+        57
+      ]
     },
     {
       "key": "liuzheng_deep_bamboo",
       "name": "渊竹林",
-      "gold_range": [215, 260],
-      "monsters": ["wanshou_master", "bamboo_spirit", "bamboo_forest_swordsman", "bamboo_forest_double_sword", "deep_forest_tiger", "bamboo_guard"]
+      "gold_range": [
+        57,
+        59
+      ],
+      "monsters": [
+        "bamboo_forest_fairy",
+        "bamboo_forest_wood_thief",
+        "bamboo_forest_double_sword",
+        "one_eye_evil_thief"
+      ],
+      "level_range": [
+        57,
+        59
+      ]
     },
     {
       "key": "shenwu_tiger_valley",
       "name": "虎峡谷",
-      "gold_range": [250, 300],
-      "monsters": ["deep_forest_tiger", "saber_toothed_tiger", "saber_tooth_evil_tiger", "cave_beast", "valley_stalker"]
+      "gold_range": [
+        60,
+        61
+      ],
+      "monsters": [
+        "red_cloud_tiger",
+        "saber_tooth_evil_tiger",
+        "bloodthirsty_wolf"
+      ],
+      "level_range": [
+        60,
+        61
+      ]
     },
     {
       "key": "shenwu_miser_cave",
       "name": "吝啬鬼洞穴",
-      "gold_range": [295, 350],
-      "monsters": ["cave_beast", "valley_stalker", "miser_spirit", "one_eye_evil_thief", "treasure_guardian"]
+      "gold_range": [
+        61,
+        63
+      ],
+      "monsters": [
+        "hunchback_flying_tiger_thief",
+        "miser",
+        "divine_palm_tiger_thief"
+      ],
+      "level_range": [
+        61,
+        63
+      ]
     },
     {
       "key": "shenwu_degenerate_land",
       "name": "变质的荒地",
-      "gold_range": [340, 400],
-      "monsters": ["miser_spirit", "treasure_guardian", "degenerate_spirit", "corrupted_guardian"]
+      "gold_range": [
+        64,
+        67
+      ],
+      "monsters": [
+        "bounty_scar_warrior",
+        "bounty_female_assassin",
+        "iron_armor_guard",
+        "ghost_mask_warrior"
+      ],
+      "level_range": [
+        64,
+        67
+      ]
     },
     {
       "key": "sanxie_forest",
       "name": "关外山林",
-      "gold_range": [55, 75],
-      "monsters": ["white_tiger", "bandit_swordsman", "bandit_boss", "forest_thief"]
+      "gold_range": [
+        35,
+        37
+      ],
+      "monsters": [
+        "red_bear",
+        "forest_tiger",
+        "white_tiger"
+      ],
+      "level_range": [
+        35,
+        37
+      ]
     },
     {
       "key": "sanxie_deserter_camp",
       "name": "逃兵营地",
-      "gold_range": [70, 95],
-      "monsters": ["bandit_boss", "forest_thief", "deserter", "deserter_officer"]
+      "gold_range": [
+        38,
+        42
+      ],
+      "monsters": [
+        "long_spear_bandit",
+        "big_blade_bandit",
+        "big_arm_stranger"
+      ],
+      "level_range": [
+        38,
+        42
+      ]
     },
     {
       "key": "sanxie_hunter_camp",
       "name": "猎人寨",
-      "gold_range": [90, 120],
-      "monsters": ["deserter", "deserter_officer", "hunter_chief", "hunter_raider"]
+      "gold_range": [
+        43,
+        45
+      ],
+      "monsters": [
+        "iron_palm_camel",
+        "one_eye_monster",
+        "bounty_hunter_female"
+      ],
+      "level_range": [
+        43,
+        45
+      ]
     },
     {
       "key": "sanxie_green_forest_camp",
       "name": "绿林寨",
-      "gold_range": [115, 150],
-      "monsters": ["hunter_chief", "hunter_raider", "green_forest_chief", "green_forest_raider"]
+      "gold_range": [
+        47,
+        50
+      ],
+      "monsters": [
+        "ronin_warrior",
+        "fast_blade_warrior",
+        "green_forest_bandit",
+        "prison_escape_bandit"
+      ],
+      "level_range": [
+        47,
+        50
+      ]
     },
     {
       "key": "sanxie_wutian_lower",
       "name": "无天阁下层",
-      "gold_range": [145, 185],
-      "monsters": ["green_forest_chief", "green_forest_raider", "wutian_disciple", "wutian_guard"]
+      "gold_range": [
+        51,
+        54
+      ],
+      "monsters": [
+        "stick_bandit",
+        "amber_bandit",
+        "thief_small_head",
+        "meteor_hammer_bandit",
+        "black_face_bandit"
+      ],
+      "level_range": [
+        51,
+        54
+      ]
     },
     {
       "key": "sanxie_wutian_upper",
       "name": "无天阁上层",
-      "gold_range": [180, 220],
-      "monsters": ["wutian_disciple", "wutian_guard", "wutian_elite", "wutian_leader"]
+      "gold_range": [
+        54,
+        57
+      ],
+      "monsters": [
+        "tamed_wolf_bandit",
+        "bearded_bandit",
+        "ring_eye_bandit",
+        "scar_bandit"
+      ],
+      "level_range": [
+        54,
+        57
+      ]
     },
     {
       "key": "sanxie_bamboo_fire_forest",
       "name": "竹火林",
-      "gold_range": [215, 260],
-      "monsters": ["wutian_leader", "flame_bamboo_spirit", "fire_forest_tiger", "red_cloud_tiger", "burning_spirit"]
+      "gold_range": [
+        57,
+        59
+      ],
+      "monsters": [
+        "bamboo_god_servant",
+        "bamboo_spear_warrior",
+        "bamboo_forest_swordsman",
+        "one_eye_evil_thief"
+      ],
+      "level_range": [
+        57,
+        59
+      ]
     },
     {
       "key": "liushan_snake_valley",
       "name": "蛇谷",
-      "gold_range": [250, 300],
-      "monsters": ["fire_forest_tiger", "burning_spirit", "snake_spirit", "gold_bell_snake", "coral_snake", "green_head_snake", "viper_chief"]
+      "gold_range": [
+        60,
+        61
+      ],
+      "monsters": [
+        "gold_bell_snake",
+        "coral_snake",
+        "green_head_snake"
+      ],
+      "level_range": [
+        60,
+        61
+      ]
     },
     {
       "key": "liushan_black_pine_base",
       "name": "黑松贼根据地",
-      "gold_range": [295, 350],
-      "monsters": ["snake_spirit", "viper_chief", "black_pine_thief", "black_pine_boss"]
+      "gold_range": [
+        61,
+        63
+      ],
+      "monsters": [
+        "black_pine_patrol_thief",
+        "black_pine_red_eye_thief",
+        "black_pine_ghost_mask_thief"
+      ],
+      "level_range": [
+        61,
+        63
+      ]
     },
     {
       "key": "liushan_thief_nest",
       "name": "盗贼巢穴",
-      "gold_range": [340, 400],
-      "monsters": ["black_pine_thief", "black_pine_boss", "thief_master", "shadow_assassin"]
+      "gold_range": [
+        64,
+        67
+      ],
+      "monsters": [
+        "violent_smuggler",
+        "straight_brow_drug_dealer",
+        "masked_great_thief",
+        "flying_female_thief"
+      ],
+      "level_range": [
+        64,
+        67
+      ]
     },
     {
       "key": "nanminghu_lake",
       "name": "南明湖",
-      "gold_range": [380, 450],
-      "monsters": ["thief_master", "shadow_assassin", "lake_dragon_spirit", "ancient_spirit"]
+      "gold_range": [
+        380,
+        450
+      ],
+      "monsters": [
+        "thief_master",
+        "shadow_assassin",
+        "lake_dragon_spirit",
+        "ancient_spirit"
+      ]
     },
     {
       "key": "nanminghu_cave",
       "name": "南明洞",
-      "gold_range": [430, 500],
-      "monsters": ["lake_dragon_spirit", "ancient_spirit", "cave_legend", "cave_overlord"]
+      "gold_range": [
+        430,
+        500
+      ],
+      "monsters": [
+        "lake_dragon_spirit",
+        "ancient_spirit",
+        "cave_legend",
+        "cave_overlord"
+      ]
     }
   ],
-
   "sub_zone_drops": [
     {
       "key": "drop_xuanbo_field",
@@ -180,24 +498,81 @@
           "roll_count": 1,
           "trigger": "always",
           "equipment_pool": [
-            { "key": "blade_t1_001", "weight": 6, "drop_rate": 0.03 },
-            { "key": "blade_chest_base_001", "weight": 8, "drop_rate": 0.05 },
-            { "key": "blade_chest_base_002", "weight": 6, "drop_rate": 0.04 },
-            { "key": "gloves_base_001", "weight": 10, "drop_rate": 0.05 },
-            { "key": "boots_base_001", "weight": 10, "drop_rate": 0.05 },
-            { "key": "inner_armor_base_001", "weight": 8, "drop_rate": 0.03 },
-            { "key": "amulet_base_001", "weight": 5, "drop_rate": 0.02 },
-            { "key": "ring_base_001", "weight": 5, "drop_rate": 0.02 },
-            { "key": "earring_base_001", "weight": 5, "drop_rate": 0.02 }
+            {
+              "key": "blade_t1_001",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "blade_chest_base_001",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "blade_chest_base_002",
+              "weight": 6,
+              "drop_rate": 0.04
+            },
+            {
+              "key": "gloves_base_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "inner_armor_base_001",
+              "weight": 8,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "amulet_base_001",
+              "weight": 5,
+              "drop_rate": 0.02
+            },
+            {
+              "key": "ring_base_001",
+              "weight": 5,
+              "drop_rate": 0.02
+            },
+            {
+              "key": "earring_base_001",
+              "weight": 5,
+              "drop_rate": 0.02
+            }
           ],
           "stone_pool": [
-            { "key": "cold_jade_01", "weight": 35, "drop_rate": 0.10 },
-            { "key": "vajra_01", "weight": 25, "drop_rate": 0.08 },
-            { "key": "enhance_stone_01", "weight": 30, "drop_rate": 0.15 },
-            { "key": "hot_blood_01", "weight": 10, "drop_rate": 0.03 }
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.08
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.15
+            },
+            {
+              "key": "hot_blood_01",
+              "weight": 10,
+              "drop_rate": 0.03
+            }
           ],
-          "drop_multiplier": { "equipment_rate": 1.0, "stone_rate": 1.0 },
-          "level_diff_modifier": { "enabled": true }
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          }
         }
       ]
     },
@@ -210,17 +585,46 @@
           "roll_count": 1,
           "trigger": "always",
           "equipment_pool": [
-            { "key": "blade_t1_001", "weight": 10, "drop_rate": 0.02 },
-            { "key": "gloves_base_001", "weight": 12, "drop_rate": 0.03 },
-            { "key": "boots_base_001", "weight": 12, "drop_rate": 0.03 },
-            { "key": "inner_armor_base_001", "weight": 10, "drop_rate": 0.02 }
+            {
+              "key": "blade_t1_001",
+              "weight": 10,
+              "drop_rate": 0.02
+            },
+            {
+              "key": "gloves_base_001",
+              "weight": 12,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "boots_base_001",
+              "weight": 12,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "inner_armor_base_001",
+              "weight": 10,
+              "drop_rate": 0.02
+            }
           ],
           "stone_pool": [
-            { "key": "cold_jade_01", "weight": 50, "drop_rate": 0.08 },
-            { "key": "enhance_stone_01", "weight": 50, "drop_rate": 0.10 }
+            {
+              "key": "cold_jade_01",
+              "weight": 50,
+              "drop_rate": 0.08
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 50,
+              "drop_rate": 0.1
+            }
           ],
-          "drop_multiplier": { "equipment_rate": 1.0, "stone_rate": 1.0 },
-          "level_diff_modifier": { "enabled": true }
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          }
         }
       ]
     },
@@ -233,23 +637,76 @@
           "roll_count": 1,
           "trigger": "always",
           "equipment_pool": [
-            { "key": "blade_chest_base_001", "weight": 8, "drop_rate": 0.04 },
-            { "key": "blade_chest_base_002", "weight": 6, "drop_rate": 0.04 },
-            { "key": "gloves_base_001", "weight": 10, "drop_rate": 0.05 },
-            { "key": "boots_base_001", "weight": 10, "drop_rate": 0.05 },
-            { "key": "inner_armor_base_001", "weight": 8, "drop_rate": 0.03 },
-            { "key": "amulet_base_001", "weight": 6, "drop_rate": 0.02 },
-            { "key": "ring_base_001", "weight": 6, "drop_rate": 0.02 },
-            { "key": "earring_base_001", "weight": 6, "drop_rate": 0.02 }
+            {
+              "key": "blade_chest_base_001",
+              "weight": 8,
+              "drop_rate": 0.04
+            },
+            {
+              "key": "blade_chest_base_002",
+              "weight": 6,
+              "drop_rate": 0.04
+            },
+            {
+              "key": "gloves_base_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "inner_armor_base_001",
+              "weight": 8,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "amulet_base_001",
+              "weight": 6,
+              "drop_rate": 0.02
+            },
+            {
+              "key": "ring_base_001",
+              "weight": 6,
+              "drop_rate": 0.02
+            },
+            {
+              "key": "earring_base_001",
+              "weight": 6,
+              "drop_rate": 0.02
+            }
           ],
           "stone_pool": [
-            { "key": "cold_jade_01", "weight": 35, "drop_rate": 0.10 },
-            { "key": "vajra_01", "weight": 25, "drop_rate": 0.08 },
-            { "key": "enhance_stone_01", "weight": 30, "drop_rate": 0.15 },
-            { "key": "hot_blood_01", "weight": 10, "drop_rate": 0.04 }
+            {
+              "key": "cold_jade_01",
+              "weight": 35,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "vajra_01",
+              "weight": 25,
+              "drop_rate": 0.08
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.15
+            },
+            {
+              "key": "hot_blood_01",
+              "weight": 10,
+              "drop_rate": 0.04
+            }
           ],
-          "drop_multiplier": { "equipment_rate": 1.0, "stone_rate": 1.0 },
-          "level_diff_modifier": { "enabled": true }
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          }
         }
       ]
     },
@@ -262,22 +719,71 @@
           "roll_count": 1,
           "trigger": "always",
           "equipment_pool": [
-            { "key": "blade_chest_base_002", "weight": 8, "drop_rate": 0.05 },
-            { "key": "gloves_base_002", "weight": 10, "drop_rate": 0.05 },
-            { "key": "boots_base_002", "weight": 10, "drop_rate": 0.05 },
-            { "key": "inner_armor_base_002", "weight": 8, "drop_rate": 0.04 },
-            { "key": "amulet_base_002", "weight": 6, "drop_rate": 0.03 },
-            { "key": "ring_base_002", "weight": 6, "drop_rate": 0.03 },
-            { "key": "earring_base_002", "weight": 6, "drop_rate": 0.03 }
+            {
+              "key": "blade_chest_base_002",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "inner_armor_base_002",
+              "weight": 8,
+              "drop_rate": 0.04
+            },
+            {
+              "key": "amulet_base_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "ring_base_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "earring_base_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            }
           ],
           "stone_pool": [
-            { "key": "vajra_01", "weight": 40, "drop_rate": 0.12 },
-            { "key": "enhance_stone_01", "weight": 35, "drop_rate": 0.18 },
-            { "key": "hot_blood_01", "weight": 15, "drop_rate": 0.05 },
-            { "key": "cold_jade_02", "weight": 10, "drop_rate": 0.03 }
+            {
+              "key": "vajra_01",
+              "weight": 40,
+              "drop_rate": 0.12
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 35,
+              "drop_rate": 0.18
+            },
+            {
+              "key": "hot_blood_01",
+              "weight": 15,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "cold_jade_02",
+              "weight": 10,
+              "drop_rate": 0.03
+            }
           ],
-          "drop_multiplier": { "equipment_rate": 1.0, "stone_rate": 1.0 },
-          "level_diff_modifier": { "enabled": true }
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          }
         }
       ]
     },
@@ -290,22 +796,71 @@
           "roll_count": 1,
           "trigger": "always",
           "equipment_pool": [
-            { "key": "blade_chest_base_002", "weight": 8, "drop_rate": 0.05 },
-            { "key": "gloves_base_002", "weight": 10, "drop_rate": 0.05 },
-            { "key": "boots_base_002", "weight": 10, "drop_rate": 0.05 },
-            { "key": "inner_armor_base_002", "weight": 8, "drop_rate": 0.04 },
-            { "key": "amulet_base_002", "weight": 6, "drop_rate": 0.03 },
-            { "key": "ring_base_002", "weight": 6, "drop_rate": 0.03 },
-            { "key": "earring_base_002", "weight": 6, "drop_rate": 0.03 }
+            {
+              "key": "blade_chest_base_002",
+              "weight": 8,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "gloves_base_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_002",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "inner_armor_base_002",
+              "weight": 8,
+              "drop_rate": 0.04
+            },
+            {
+              "key": "amulet_base_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "ring_base_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "earring_base_002",
+              "weight": 6,
+              "drop_rate": 0.03
+            }
           ],
           "stone_pool": [
-            { "key": "vajra_02", "weight": 35, "drop_rate": 0.10 },
-            { "key": "enhance_stone_02", "weight": 40, "drop_rate": 0.15 },
-            { "key": "hot_blood_02", "weight": 15, "drop_rate": 0.05 },
-            { "key": "cold_jade_02", "weight": 10, "drop_rate": 0.03 }
+            {
+              "key": "vajra_02",
+              "weight": 35,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "enhance_stone_02",
+              "weight": 40,
+              "drop_rate": 0.15
+            },
+            {
+              "key": "hot_blood_02",
+              "weight": 15,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "cold_jade_02",
+              "weight": 10,
+              "drop_rate": 0.03
+            }
           ],
-          "drop_multiplier": { "equipment_rate": 1.0, "stone_rate": 1.0 },
-          "level_diff_modifier": { "enabled": true }
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          }
         }
       ]
     },
@@ -318,26 +873,70 @@
           "roll_count": 1,
           "trigger": "always",
           "equipment_pool": [
-            { "key": "blade_chest_base_001", "weight": 8, "drop_rate": 0.04 },
-            { "key": "gloves_base_001", "weight": 10, "drop_rate": 0.05 },
-            { "key": "boots_base_001", "weight": 10, "drop_rate": 0.05 },
-            { "key": "inner_armor_base_001", "weight": 8, "drop_rate": 0.03 },
-            { "key": "amulet_base_001", "weight": 5, "drop_rate": 0.02 },
-            { "key": "ring_base_001", "weight": 5, "drop_rate": 0.02 },
-            { "key": "earring_base_001", "weight": 5, "drop_rate": 0.02 }
+            {
+              "key": "blade_chest_base_001",
+              "weight": 8,
+              "drop_rate": 0.04
+            },
+            {
+              "key": "gloves_base_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "boots_base_001",
+              "weight": 10,
+              "drop_rate": 0.05
+            },
+            {
+              "key": "inner_armor_base_001",
+              "weight": 8,
+              "drop_rate": 0.03
+            },
+            {
+              "key": "amulet_base_001",
+              "weight": 5,
+              "drop_rate": 0.02
+            },
+            {
+              "key": "ring_base_001",
+              "weight": 5,
+              "drop_rate": 0.02
+            },
+            {
+              "key": "earring_base_001",
+              "weight": 5,
+              "drop_rate": 0.02
+            }
           ],
           "stone_pool": [
-            { "key": "cold_jade_01", "weight": 40, "drop_rate": 0.10 },
-            { "key": "vajra_01", "weight": 30, "drop_rate": 0.08 },
-            { "key": "enhance_stone_01", "weight": 30, "drop_rate": 0.15 }
+            {
+              "key": "cold_jade_01",
+              "weight": 40,
+              "drop_rate": 0.1
+            },
+            {
+              "key": "vajra_01",
+              "weight": 30,
+              "drop_rate": 0.08
+            },
+            {
+              "key": "enhance_stone_01",
+              "weight": 30,
+              "drop_rate": 0.15
+            }
           ],
-          "drop_multiplier": { "equipment_rate": 1.0, "stone_rate": 1.0 },
-          "level_diff_modifier": { "enabled": true }
+          "drop_multiplier": {
+            "equipment_rate": 1.0,
+            "stone_rate": 1.0
+          },
+          "level_diff_modifier": {
+            "enabled": true
+          }
         }
       ]
     }
   ],
-
   "monster_drop_box": {
     "drop_rate": 0.001,
     "box_type_by_map": {
@@ -371,7 +970,6 @@
       "nanminghu_cave": "box_nanminghu_02"
     }
   },
-
   "boxes": [
     {
       "key": "box_xuanbo_01",
@@ -379,12 +977,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.001,
       "openable_items": [
-        { "item_key": "hp_potion_grade1", "name": "金创药（小）", "weight": 200 },
-        { "item_key": "mp_potion_grade1", "name": "人参", "weight": 200 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 30 },
-        { "item_key": "cold_jade_01", "name": "寒玉石", "weight": 20 },
-        { "item_key": "blade_base_001", "name": "直刀", "weight": 1 },
-        { "item_key": "ring_base_001", "name": "铁戒", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade1",
+          "name": "金创药（小）",
+          "weight": 200
+        },
+        {
+          "item_key": "mp_potion_grade1",
+          "name": "人参",
+          "weight": 200
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 30
+        },
+        {
+          "item_key": "cold_jade_01",
+          "name": "寒玉石",
+          "weight": 20
+        },
+        {
+          "item_key": "blade_base_001",
+          "name": "直刀",
+          "weight": 1
+        },
+        {
+          "item_key": "ring_base_001",
+          "name": "铁戒",
+          "weight": 1
+        }
       ]
     },
     {
@@ -393,12 +1015,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.0012,
       "openable_items": [
-        { "item_key": "hp_potion_grade1", "name": "金创药（小）", "weight": 180 },
-        { "item_key": "mp_potion_grade1", "name": "人参", "weight": 180 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 35 },
-        { "item_key": "vajra_01", "name": "金刚石", "weight": 20 },
-        { "item_key": "blade_base_002", "name": "铁刀", "weight": 1 },
-        { "item_key": "amulet_base_001", "name": "粗布项链", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade1",
+          "name": "金创药（小）",
+          "weight": 180
+        },
+        {
+          "item_key": "mp_potion_grade1",
+          "name": "人参",
+          "weight": 180
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 35
+        },
+        {
+          "item_key": "vajra_01",
+          "name": "金刚石",
+          "weight": 20
+        },
+        {
+          "item_key": "blade_base_002",
+          "name": "铁刀",
+          "weight": 1
+        },
+        {
+          "item_key": "amulet_base_001",
+          "name": "粗布项链",
+          "weight": 1
+        }
       ]
     },
     {
@@ -407,12 +1053,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.0015,
       "openable_items": [
-        { "item_key": "hp_potion_grade1", "name": "金创药（小）", "weight": 160 },
-        { "item_key": "mp_potion_grade1", "name": "人参", "weight": 160 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 40 },
-        { "item_key": "hot_blood_01", "name": "热血石", "weight": 18 },
-        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1 },
-        { "item_key": "earring_base_001", "name": "铜耳环", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade1",
+          "name": "金创药（小）",
+          "weight": 160
+        },
+        {
+          "item_key": "mp_potion_grade1",
+          "name": "人参",
+          "weight": 160
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 40
+        },
+        {
+          "item_key": "hot_blood_01",
+          "name": "热血石",
+          "weight": 18
+        },
+        {
+          "item_key": "blade_t1_001",
+          "name": "钢刀",
+          "weight": 1
+        },
+        {
+          "item_key": "earring_base_001",
+          "name": "铜耳环",
+          "weight": 1
+        }
       ]
     },
     {
@@ -421,12 +1091,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.002,
       "openable_items": [
-        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "weight": 200 },
-        { "item_key": "mp_potion_grade2", "name": "野山参", "weight": 200 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 35 },
-        { "item_key": "cold_jade_01", "name": "寒玉石", "weight": 25 },
-        { "item_key": "blade_chest_base_002", "name": "金丝战袍", "weight": 1 },
-        { "item_key": "cape_base_001", "name": "破旧披风", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade2",
+          "name": "金创药（中）",
+          "weight": 200
+        },
+        {
+          "item_key": "mp_potion_grade2",
+          "name": "野山参",
+          "weight": 200
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 35
+        },
+        {
+          "item_key": "cold_jade_01",
+          "name": "寒玉石",
+          "weight": 25
+        },
+        {
+          "item_key": "blade_chest_base_002",
+          "name": "金丝战袍",
+          "weight": 1
+        },
+        {
+          "item_key": "cape_base_001",
+          "name": "破旧披风",
+          "weight": 1
+        }
       ]
     },
     {
@@ -435,12 +1129,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.0025,
       "openable_items": [
-        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "weight": 180 },
-        { "item_key": "mp_potion_grade2", "name": "野山参", "weight": 180 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 45 },
-        { "item_key": "vajra_01", "name": "金刚石", "weight": 25 },
-        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1 },
-        { "item_key": "boots_base_001", "name": "布靴", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade2",
+          "name": "金创药（中）",
+          "weight": 180
+        },
+        {
+          "item_key": "mp_potion_grade2",
+          "name": "野山参",
+          "weight": 180
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 45
+        },
+        {
+          "item_key": "vajra_01",
+          "name": "金刚石",
+          "weight": 25
+        },
+        {
+          "item_key": "blade_t1_001",
+          "name": "钢刀",
+          "weight": 1
+        },
+        {
+          "item_key": "boots_base_001",
+          "name": "布靴",
+          "weight": 1
+        }
       ]
     },
     {
@@ -449,12 +1167,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.003,
       "openable_items": [
-        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "weight": 160 },
-        { "item_key": "mp_potion_grade2", "name": "野山参", "weight": 160 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 55 },
-        { "item_key": "hot_blood_01", "name": "热血石", "weight": 25 },
-        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1.5 },
-        { "item_key": "inner_armor_base_001", "name": "布衣", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade2",
+          "name": "金创药（中）",
+          "weight": 160
+        },
+        {
+          "item_key": "mp_potion_grade2",
+          "name": "野山参",
+          "weight": 160
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 55
+        },
+        {
+          "item_key": "hot_blood_01",
+          "name": "热血石",
+          "weight": 25
+        },
+        {
+          "item_key": "blade_t1_001",
+          "name": "钢刀",
+          "weight": 1.5
+        },
+        {
+          "item_key": "inner_armor_base_001",
+          "name": "布衣",
+          "weight": 1
+        }
       ]
     },
     {
@@ -463,12 +1205,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.003,
       "openable_items": [
-        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "weight": 200 },
-        { "item_key": "mp_potion_grade3", "name": "雪原参", "weight": 200 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 50 },
-        { "item_key": "cold_jade_01", "name": "寒玉石", "weight": 30 },
-        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1.5 },
-        { "item_key": "ring_base_001", "name": "铁戒", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade3",
+          "name": "金创药（大）",
+          "weight": 200
+        },
+        {
+          "item_key": "mp_potion_grade3",
+          "name": "雪原参",
+          "weight": 200
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 50
+        },
+        {
+          "item_key": "cold_jade_01",
+          "name": "寒玉石",
+          "weight": 30
+        },
+        {
+          "item_key": "blade_t1_001",
+          "name": "钢刀",
+          "weight": 1.5
+        },
+        {
+          "item_key": "ring_base_001",
+          "name": "铁戒",
+          "weight": 1
+        }
       ]
     },
     {
@@ -477,12 +1243,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.004,
       "openable_items": [
-        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "weight": 180 },
-        { "item_key": "mp_potion_grade3", "name": "雪原参", "weight": 180 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 60 },
-        { "item_key": "vajra_01", "name": "金刚石", "weight": 35 },
-        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 2 },
-        { "item_key": "earring_base_001", "name": "铜耳环", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade3",
+          "name": "金创药（大）",
+          "weight": 180
+        },
+        {
+          "item_key": "mp_potion_grade3",
+          "name": "雪原参",
+          "weight": 180
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 60
+        },
+        {
+          "item_key": "vajra_01",
+          "name": "金刚石",
+          "weight": 35
+        },
+        {
+          "item_key": "blade_t1_001",
+          "name": "钢刀",
+          "weight": 2
+        },
+        {
+          "item_key": "earring_base_001",
+          "name": "铜耳环",
+          "weight": 1
+        }
       ]
     },
     {
@@ -491,12 +1281,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.002,
       "openable_items": [
-        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "weight": 200 },
-        { "item_key": "mp_potion_grade2", "name": "野山参", "weight": 200 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 35 },
-        { "item_key": "cold_jade_01", "name": "寒玉石", "weight": 25 },
-        { "item_key": "blade_chest_base_002", "name": "金丝战袍", "weight": 1 },
-        { "item_key": "cape_base_001", "name": "破旧披风", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade2",
+          "name": "金创药（中）",
+          "weight": 200
+        },
+        {
+          "item_key": "mp_potion_grade2",
+          "name": "野山参",
+          "weight": 200
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 35
+        },
+        {
+          "item_key": "cold_jade_01",
+          "name": "寒玉石",
+          "weight": 25
+        },
+        {
+          "item_key": "blade_chest_base_002",
+          "name": "金丝战袍",
+          "weight": 1
+        },
+        {
+          "item_key": "cape_base_001",
+          "name": "破旧披风",
+          "weight": 1
+        }
       ]
     },
     {
@@ -505,12 +1319,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.003,
       "openable_items": [
-        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "weight": 180 },
-        { "item_key": "mp_potion_grade2", "name": "野山参", "weight": 180 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 45 },
-        { "item_key": "vajra_01", "name": "金刚石", "weight": 25 },
-        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1 },
-        { "item_key": "boots_base_001", "name": "布靴", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade2",
+          "name": "金创药（中）",
+          "weight": 180
+        },
+        {
+          "item_key": "mp_potion_grade2",
+          "name": "野山参",
+          "weight": 180
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 45
+        },
+        {
+          "item_key": "vajra_01",
+          "name": "金刚石",
+          "weight": 25
+        },
+        {
+          "item_key": "blade_t1_001",
+          "name": "钢刀",
+          "weight": 1
+        },
+        {
+          "item_key": "boots_base_001",
+          "name": "布靴",
+          "weight": 1
+        }
       ]
     },
     {
@@ -519,12 +1357,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.004,
       "openable_items": [
-        { "item_key": "hp_potion_grade2", "name": "金创药（中）", "weight": 160 },
-        { "item_key": "mp_potion_grade2", "name": "野山参", "weight": 160 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 55 },
-        { "item_key": "hot_blood_01", "name": "热血石", "weight": 25 },
-        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1.5 },
-        { "item_key": "inner_armor_base_001", "name": "布衣", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade2",
+          "name": "金创药（中）",
+          "weight": 160
+        },
+        {
+          "item_key": "mp_potion_grade2",
+          "name": "野山参",
+          "weight": 160
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 55
+        },
+        {
+          "item_key": "hot_blood_01",
+          "name": "热血石",
+          "weight": 25
+        },
+        {
+          "item_key": "blade_t1_001",
+          "name": "钢刀",
+          "weight": 1.5
+        },
+        {
+          "item_key": "inner_armor_base_001",
+          "name": "布衣",
+          "weight": 1
+        }
       ]
     },
     {
@@ -533,12 +1395,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.0035,
       "openable_items": [
-        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "weight": 200 },
-        { "item_key": "mp_potion_grade3", "name": "雪原参", "weight": 200 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 50 },
-        { "item_key": "cold_jade_01", "name": "寒玉石", "weight": 30 },
-        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 1.5 },
-        { "item_key": "ring_base_001", "name": "铁戒", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade3",
+          "name": "金创药（大）",
+          "weight": 200
+        },
+        {
+          "item_key": "mp_potion_grade3",
+          "name": "雪原参",
+          "weight": 200
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 50
+        },
+        {
+          "item_key": "cold_jade_01",
+          "name": "寒玉石",
+          "weight": 30
+        },
+        {
+          "item_key": "blade_t1_001",
+          "name": "钢刀",
+          "weight": 1.5
+        },
+        {
+          "item_key": "ring_base_001",
+          "name": "铁戒",
+          "weight": 1
+        }
       ]
     },
     {
@@ -547,12 +1433,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.0045,
       "openable_items": [
-        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "weight": 180 },
-        { "item_key": "mp_potion_grade3", "name": "雪原参", "weight": 180 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 60 },
-        { "item_key": "vajra_01", "name": "金刚石", "weight": 35 },
-        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 2 },
-        { "item_key": "earring_base_001", "name": "铜耳环", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade3",
+          "name": "金创药（大）",
+          "weight": 180
+        },
+        {
+          "item_key": "mp_potion_grade3",
+          "name": "雪原参",
+          "weight": 180
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 60
+        },
+        {
+          "item_key": "vajra_01",
+          "name": "金刚石",
+          "weight": 35
+        },
+        {
+          "item_key": "blade_t1_001",
+          "name": "钢刀",
+          "weight": 2
+        },
+        {
+          "item_key": "earring_base_001",
+          "name": "铜耳环",
+          "weight": 1
+        }
       ]
     },
     {
@@ -561,12 +1471,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.005,
       "openable_items": [
-        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "weight": 160 },
-        { "item_key": "mp_potion_grade3", "name": "雪原参", "weight": 160 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 70 },
-        { "item_key": "hot_blood_01", "name": "热血石", "weight": 40 },
-        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 2 },
-        { "item_key": "amulet_base_001", "name": "粗布项链", "weight": 1 }
+        {
+          "item_key": "hp_potion_grade3",
+          "name": "金创药（大）",
+          "weight": 160
+        },
+        {
+          "item_key": "mp_potion_grade3",
+          "name": "雪原参",
+          "weight": 160
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 70
+        },
+        {
+          "item_key": "hot_blood_01",
+          "name": "热血石",
+          "weight": 40
+        },
+        {
+          "item_key": "blade_t1_001",
+          "name": "钢刀",
+          "weight": 2
+        },
+        {
+          "item_key": "amulet_base_001",
+          "name": "粗布项链",
+          "weight": 1
+        }
       ]
     },
     {
@@ -575,12 +1509,36 @@
       "description": "可随机开出装备、石头或药剂",
       "drop_rate": 0.006,
       "openable_items": [
-        { "item_key": "hp_potion_grade3", "name": "金创药（大）", "weight": 140 },
-        { "item_key": "mp_potion_grade3", "name": "雪原参", "weight": 140 },
-        { "item_key": "enhance_stone_01", "name": "强化石", "weight": 80 },
-        { "item_key": "vajra_01", "name": "金刚石", "weight": 45 },
-        { "item_key": "blade_t1_001", "name": "钢刀", "weight": 2.5 },
-        { "item_key": "earring_base_001", "name": "铜耳环", "weight": 1.5 }
+        {
+          "item_key": "hp_potion_grade3",
+          "name": "金创药（大）",
+          "weight": 140
+        },
+        {
+          "item_key": "mp_potion_grade3",
+          "name": "雪原参",
+          "weight": 140
+        },
+        {
+          "item_key": "enhance_stone_01",
+          "name": "强化石",
+          "weight": 80
+        },
+        {
+          "item_key": "vajra_01",
+          "name": "金刚石",
+          "weight": 45
+        },
+        {
+          "item_key": "blade_t1_001",
+          "name": "钢刀",
+          "weight": 2.5
+        },
+        {
+          "item_key": "earring_base_001",
+          "name": "铜耳环",
+          "weight": 1.5
+        }
       ]
     }
   ]

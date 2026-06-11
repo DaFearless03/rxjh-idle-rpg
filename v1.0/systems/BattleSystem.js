@@ -72,9 +72,10 @@ export class BattleSystem {
     if (zoneMonsterKeys.length === 0) return null;
     const candidates = this._monstersData.filter(m => zoneMonsterKeys.includes(m.key));
     const normalMonsters = candidates.filter(m => m.monster_type === 'normal');
-    if (normalMonsters.length === 0) return null;
-    const idx = Math.floor(Math.random() * normalMonsters.length);
-    return normalMonsters[idx];
+    const spawnPool = normalMonsters.length > 0 ? normalMonsters : candidates;
+    if (spawnPool.length === 0) return null;
+    const idx = Math.floor(Math.random() * spawnPool.length);
+    return spawnPool[idx];
   }
 
   /** 尝试生成一只怪物 */
@@ -152,6 +153,7 @@ export class BattleSystem {
     if (!target || !target.isAlive()) return;
 
     const result = this._damageSys.attack_resolution_pipeline(this._player, target, 'normal', null);
+    if (!result.isMiss && target.passive) { target._provoked = true; }
 
     if (result.isMiss) {
       this._pushEvent(`[普攻] 玩家 → ${target.name} MISS`);
@@ -189,6 +191,9 @@ export class BattleSystem {
     for (const monster of this.monsters) {
       if (!monster.isAlive()) continue;
       monster.tickUpdate(deltaMs);
+
+      // 被动怪物：未受到攻击前不主动攻击玩家
+      if (monster.passive && !monster._provoked) continue;
 
       if (!monster.isReadyToAttack()) continue;
       if (monster._atkCdRemaining > 0) continue;
@@ -268,7 +273,8 @@ export class BattleSystem {
       // 无 DropSystem 时直接给少量金币（Phase 1 兼容）
       this._player.resources = this._player.resources || { gold: 0, training: 0, merit: 0 };
       this._player.resources.gold += 5;
-      dropSummary = { gold: 5 };
+      this._player.resources.training = (this._player.resources.training || 0) + 1;
+      dropSummary = { gold: 5, training: 1 };
     }
 
     eventBus.emit('monster.death', {
@@ -276,6 +282,7 @@ export class BattleSystem {
       monsterName: monster.name || monster.key,
       exp: monster.exp,
       gold: dropSummary?.gold || 0,
+      training: dropSummary?.training || 0,
     });
     eventBus.emit('battle.monsters_changed', {
       reason: 'death',

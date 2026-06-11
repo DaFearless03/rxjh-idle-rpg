@@ -5,7 +5,7 @@
 
 import { BoxSystem } from '../systems/BoxSystem.js';
 import { ConsumableSystem } from '../systems/ConsumableSystem.js';
-import { renderEquipmentDetail, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260606-1';
+import { renderEquipmentDetail, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260611-1';
 
 const ITEM_META = {
   hp_potion_grade1: { icon: '🍶', name: '金创药(小)' },
@@ -38,18 +38,35 @@ function classifyItem(slot, player) {
 }
 
 function parseStoneAttr(key) {
-  const parts = String(key || '').split('_');
-  if (parts.length < 4) return '';
-  const attr = parts.slice(3, -1).join('_');
-  const value = parts[parts.length - 1];
+  if (!key || !key.includes('--')) return '';
+  const parts = String(key).split('--');
+  if (parts.length < 3) return '';
+  const attr = parts[1];
+  const value = parts[2];
   if (!attr || !Number.isFinite(Number(value))) return '';
   const labels = {
     defAdd: '防御',
     maxHpAdd: '生命',
+    missingAdd: '闪避',
     atkSelfAdd: '攻击',
+    weaponSkillBonusAdd: '武功攻击',
+    weaponExtraDamageAdd: '追加伤害',
     hitAdd: '命中',
+    skill_level_up: '技能等级',
+    enhanceSuccessRateAdd: '合成成功率',
+    goldDropBonusAdd: '金币爆率',
+    defSelfAdd: '防御',
+    maxHpSelfAdd: '生命',
+    atkAdd: '攻击',
+    hitSelfAdd: '命中',
   };
-  return `${labels[attr] || attr}+${value}`;
+  if (!labels[attr]) return '';
+  return labels[attr] + '+' + value;
+}
+
+function getStoneBaseKey(key) {
+  if (key && key.includes('--')) return key.split('--')[0];
+  return key;
 }
 
 function getSlotDisplay(slot, player) {
@@ -69,10 +86,11 @@ function getSlotDisplay(slot, player) {
   }
 
   const itemClass = classifyItem(slot, player);
-  const meta = window._itemMetaByKey?.[key] || ITEM_META[key] || {};
+  const baseKey = getStoneBaseKey(key);
+  const meta = window._itemMetaByKey?.[baseKey] || ITEM_META[baseKey] || {};
   return {
     key,
-    name: slot.name || meta.name || key || '未知物品',
+    name: slot.name || meta.name || baseKey || '未知物品',
     icon: slot.icon || meta.icon || getItemIcon(key, itemClass),
     sub: slot.attr || parseStoneAttr(key),
     enhance: 0,

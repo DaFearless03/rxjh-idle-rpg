@@ -7,35 +7,35 @@ import { Game } from './core/Game.js';
 import { GameLoop } from './core/GameLoop.js';
 import { eventBus } from './core/EventBus.js';
 import { AttributeSystem } from './systems/AttributeSystem.js';
-import { BattleSystem } from './systems/BattleSystem.js?v=release-20260606-1';
+import { BattleSystem } from './systems/BattleSystem.js?v=release-20260611-1';
 import { InventorySystem } from './systems/InventorySystem.js';
-import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260606-1';
-import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260606-1';
-import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260606-1';
+import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260611-1';
+import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260611-1';
+import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260611-1';
 import { DropSystem } from './systems/DropSystem.js';
 import { BoxSystem } from './systems/BoxSystem.js';
 import { NPCSystem, UIState } from './systems/NPCSystem.js';
-import { ShopSystem } from './systems/ShopSystem.js?v=release-20260606-1';
+import { ShopSystem } from './systems/ShopSystem.js?v=release-20260611-1';
 import { TaskSystem } from './systems/TaskSystem.js';
 import { QigongSystem } from './systems/QigongSystem.js';
 import { BuffSystem } from './systems/BuffSystem.js';
-import { Player } from './entities/Player.js?v=release-20260606-1';
+import { Player } from './entities/Player.js?v=release-20260611-1';
 import { createEquipmentInstance } from './entities/EquipmentInstance.js';
 import { SaveManager } from './core/SaveManager.js';
 import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js';
 import { assertValidGameConfig } from './core/ConfigValidator.js';
-import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260606-1';
-import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260606-1';
+import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260611-1';
+import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260611-1';
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js';
-import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260606-1';
-import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260606-1';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260606-1';
+import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260611-1';
+import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260611-1';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260611-1';
 import { storage } from './utils/storage.js';
-import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260606-1';
-import { UIManager } from './ui/UIManager.js?v=release-20260606-2';
-import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260606-2';
-import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260606-1';
-import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260606-1';
+import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260611-1';
+import { UIManager } from './ui/UIManager.js?v=release-20260611-1';
+import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260611-1';
+import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260611-1';
+import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260611-1';
 import {
   hideOfflineRewardLoading,
   showMultiSaveUI,
@@ -43,18 +43,18 @@ import {
   showOfflineRewardLoading,
   showOfflineRewardUI,
   updateOfflineRewardProgress,
-} from './ui/MultiSaveUI.js?v=release-20260606-1';
-import './ui/BottomBarUI.js?v=release-20260606-2';
+} from './ui/MultiSaveUI.js?v=release-20260611-1';
+import './ui/BottomBarUI.js?v=release-20260611-1';
 
 // ========================
 // 数据加载
 // ========================
-const DATA_VERSION = 'release-20260606-1';
+const DATA_VERSION = 'release-20260611-1';
 const fetchData = (path) => fetch(`${path}?v=${DATA_VERSION}`, { cache: 'no-store' });
 
 const [configRes, careersRes, monstersRes, equipmentsRes, stonesRes, subZonesRes,
        npcsRes, questsRes, qigongsRes, buffsRes, martialArtsRes,
-       globalSaveInitRes] = await Promise.all([
+       dropsRes, boxesRes, globalSaveInitRes] = await Promise.all([
   fetchData('./data/config.json'),
   fetchData('./data/careers.json'),
   fetchData('./data/monsters.json'),
@@ -66,6 +66,8 @@ const [configRes, careersRes, monstersRes, equipmentsRes, stonesRes, subZonesRes
   fetchData('./data/qigong.json'),
   fetchData('./data/buffs.json'),
   fetchData('./data/martial_arts.json'),
+  fetchData('./data/drops.json'),
+  fetchData('./data/boxes.json'),
   fetchData('./data/global_save_init.json')
 ]);
 const config = await configRes.json();
@@ -75,9 +77,11 @@ const equipmentsData = (await equipmentsRes.json()).equipments;
 const stonesData = await stonesRes.json();
 const subZonesPayload = await subZonesRes.json();
 const subZonesData = subZonesPayload.sub_zones;
-const subZoneDropsData = subZonesPayload.sub_zone_drops || [];
-const monsterDropBoxData = subZonesPayload.monster_drop_box || null;
-const boxesData = subZonesPayload.boxes || [];
+const boxesPayload = await boxesRes.json();
+const boxesData = boxesPayload.boxes || subZonesPayload.boxes || [];
+const monsterDropBoxData = boxesPayload.monster_drop_box || subZonesPayload.monster_drop_box || null;
+const dropsPayload = await dropsRes.json();
+const subZoneDropsData = dropsPayload.sub_zone_drops || subZonesPayload.sub_zone_drops || [];
 const npcsData = (await npcsRes.json()).npcs;
 const questsData = await questsRes.json();
 const qigongsData = (await qigongsRes.json()).qigongs;
@@ -632,6 +636,19 @@ async function initGameForPlayer(player, slotIndex) {
     game.battle.tick(delta);
     AutoPlaySystem.tick(player, delta, (source, zone) => TeleportSystem.teleport(zone, source, player, game));
 
+    // 城镇恢复：每次 tick 恢复 HP/MP（10%/s）
+    if (!player.location.current_sub_zone_key) {
+      let recovered = false;
+      if (player.hp < player.maxHp) {
+        player.hp = Math.min(player.maxHp, player.hp + Math.ceil(player.maxHp * 0.01));
+        recovered = true;
+      }
+      if (player.mp < player.maxMp) {
+        player.mp = Math.min(player.maxMp, player.mp + Math.ceil(player.maxMp * 0.01));
+        recovered = true;
+      }
+      if (recovered) UIManager._refreshAll();
+    }
     _saveTimer += delta;
     if (_saveTimer >= 60000) {
       _saveTimer = 0;
