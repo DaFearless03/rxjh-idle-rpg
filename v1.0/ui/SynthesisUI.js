@@ -3,7 +3,7 @@
  * @desc 刀剑笑合成镶嵌工坊 UI。
  */
 
-import { getEquipmentTemplate } from './EquipUI.js?v=release-20260611-7';
+import { getEquipmentTemplate } from './EquipUI.js?v=release-20260612-2';
 
 const SYNTH_SLOTS = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor', 'cape'];
 const SLOT_LABEL = { weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲', cape: '披风' };

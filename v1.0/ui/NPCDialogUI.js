@@ -2,13 +2,13 @@
  * @file ui/NPCDialogUI.js
  * @desc NPC 对话窗口
  */
-import { UIManager } from './UIManager.js?v=release-20260611-7';
+import { UIManager } from './UIManager.js?v=release-20260612-2';
 import { TaskSystem } from '../systems/TaskSystem.js';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260611-7';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260612-2';
 import { InventorySystem } from '../systems/InventorySystem.js';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260611-7';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260611-7';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260611-7';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260612-2';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260612-2';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260612-2';
 import { NPCSystem, UIState } from '../systems/NPCSystem.js';
 
 const TOWN_NPC_DATA = {
