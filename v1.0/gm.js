@@ -14,10 +14,28 @@
   const player = () => window.Game?.currentPlayer || null;
   const config = () => window.GameConfig || {};
   const value = (id, fallback = 0) => Number(document.getElementById(id)?.value) || fallback;
-  const selected = id => document.getElementById(id)?.value || '';
+  const selected = id => document.getElementById(id)?.dataset?.value || document.getElementById(id)?.value || '';
+  const slotLabels = { weapon:'⚔ 武器', chest:'🧥 胸甲', gloves:'🧤 手套', boots:'👢 鞋子', inner_armor:'🛡 内甲', ring:'💍 戒指', earring:'✨ 耳环', amulet:'📿 项链', cape:'🦸 披风' };
+  const familyLabels = { blade:'🔪 刀', sword:'⚔ 剑', spear:'🔱 枪', staff:'🌿 医' };
+  const factionLabels = { positive:'☀正', negative:'🌙邪', neutral:'⚪中' };
 
   function toast(message, type = 'info') {
-    window._uiManager?.toast?.(`(GM) ${message}`, type);
+    const shell = document.querySelector('#gm-panel .gm-shell');
+    if (shell) {
+      let stack = shell.querySelector('.gm-toast-stack');
+      if (!stack) {
+        stack = document.createElement('div');
+        stack.className = 'gm-toast-stack';
+        shell.appendChild(stack);
+      }
+      const item = document.createElement('div');
+      item.className = `gm-toast ${type}`;
+      item.textContent = message;
+      stack.appendChild(item);
+      setTimeout(() => item.remove(), 2200);
+    } else {
+      window._uiManager?.toast?.(`(GM) ${message}`, type);
+    }
     console.log('[GM]', message);
   }
 
@@ -50,22 +68,56 @@
     return window.InventorySystem?.add?.(current, key, count);
   }
 
-  function equipmentOptions() {
-    return (config().equipments || []).map(item =>
-      `<option value="${esc(item.key)}">${esc(item.name || item.key)} · ${esc(item.slot)} · Lv${item.required_level || 1}</option>`
-    ).join('');
+  function equipmentStats(item) {
+    const stats = item.base_stats || {};
+    if (stats.atkMin != null || stats.atkMax != null) return `攻 ${stats.atkMin || 0}~${stats.atkMax || 0}`;
+    return Object.entries(stats).map(([key, val]) => `${key} ${val}`).join(' · ') || '无基础属性';
   }
 
-  function careerOptions() {
-    return (config().careers || []).map(item =>
-      `<option value="${esc(item.key)}">${esc(item.name || item.key)} · ${esc(item.career_family || '')}</option>`
-    ).join('');
+  function optionTag(item) {
+    const faction = item.faction || 'neutral';
+    return `<span class="eq-tag lv">Lv.${item.required_level || 1}</span><span class="eq-tag ${faction === 'positive' ? 'pos' : faction === 'negative' ? 'neg' : 'neu'}">${factionLabels[faction] || faction}</span>`;
   }
 
-  function stoneOptions() {
-    return Object.values(config().stones || {}).flatMap(group => Array.isArray(group) ? group : []).map(item =>
-      `<option value="${esc(item.key)}">${esc(item.name || item.key)}</option>`
-    ).join('');
+  function dropdown(id, items, selectedValue, rich = false) {
+    const active = items.find(item => item.value === selectedValue) || items[0];
+    return `<div class="gm-dropdown" id="${id}" data-value="${esc(active?.value || '')}">
+      <button class="dd-trigger" type="button">${esc(active?.label || '(无)')}</button>
+      <div class="dd-list">${items.map((item, index) => `<button type="button" class="dd-item${index === 0 ? ' selected' : ''}" data-value="${esc(item.value)}" data-label="${esc(item.label)}">${rich ? item.html : esc(item.label)}</button>`).join('')}</div>
+    </div>`;
+  }
+
+  function equipmentDropdown() {
+    const slots = Object.entries(slotLabels).map(([value, label]) => ({ value, label }));
+    const families = Object.entries(familyLabels).map(([value, label]) => ({ value, label }));
+    return `<div class="stone-gen">
+      <div class="stone-gen-row"><span class="sg-label">部位</span>${dropdown('gm-equip-slot', slots, 'weapon')}</div>
+      <div class="stone-gen-row" id="gm-equip-family-row"><span class="sg-label">职业</span>${dropdown('gm-equip-family', families, 'blade')}</div>
+      <div class="stone-gen-row"><span class="sg-label">装备</span><div id="gm-equip-name-wrap"></div></div>
+      <div class="stone-gen-row"><span class="sg-label">数量</span><input class="gm-input compact" id="gm-equip-count" type="number" value="1" min="1" max="99"><button class="gm-btn" data-action="give-equipment">给予</button></div>
+      <div class="sg-result" id="gm-equip-result"></div>
+    </div>`;
+  }
+
+  function careerDropdown() {
+    const items = (config().careers || []).map(item => ({
+      value: item.key,
+      label: `${item.name || item.key} (${item.key})`,
+      html: `<div class="eq-info"><div class="eq-name-line">${esc(item.name || item.key)} <span class="eq-tag ${item.faction === 'positive' ? 'pos' : item.faction === 'negative' ? 'neg' : 'neu'}">${esc(item.stage || 'base')}</span></div><div class="eq-stats">${familyLabels[item.career_family] || item.career_family} · ${factionLabels[item.faction] || item.faction} · ${esc(item.key)}</div></div>`,
+    }));
+    return dropdown('gm-career', items, player()?.career || items[0]?.value, true);
+  }
+
+  function stoneGenerator() {
+    const stones = Object.values(config().stones || {}).flatMap(group => Array.isArray(group) ? group : []);
+    const items = stones.map(stone => ({ value: stone.key, label: stone.name || stone.key }));
+    return `<div class="stone-gen">
+      <div class="stone-gen-row"><span class="sg-label">石头</span>${dropdown('gm-stone', items, 'cold_jade_01')}</div>
+      <div class="stone-gen-row" id="gm-stone-attr-row"><span class="sg-label">属性</span><div id="gm-stone-attr-wrap"></div></div>
+      <div class="stone-gen-row" id="gm-stone-value-row"><span class="sg-label">数值</span><input class="gm-input compact" id="gm-stone-value" type="number"></div>
+      <div class="stone-gen-row"><span class="sg-label">数量</span><input class="gm-input compact" id="gm-stone-count" type="number" value="10" min="1" max="99"><button class="gm-btn" data-action="give-stone">生成</button></div>
+      <div class="sg-result" id="gm-stone-result"></div>
+    </div>`;
   }
 
   function zoneGroups() {
@@ -80,11 +132,11 @@
       xuanbo: ['🌾', '泫渤派郊外'], liuzheng: ['⛩', '柳正关'], sanxie: ['🏴', '三邪关'],
       shenwu: ['⚔', '神武门'], liushan: ['🐍', '柳善提督府'], nanminghu: ['🌊', '南明湖'],
     };
-    const town = `<div class="gm-map-group"><div class="gm-map-head">🏯 泫渤派城镇</div><div class="gm-map-list"><button class="gm-tp" data-zone="">城镇</button></div></div>`;
+    const town = `<div class="map-group"><div class="map-group-header"><span class="group-icon">🏯</span>泫渤派城镇</div><div class="map-sub-list"><button class="tp-btn" data-zone="">城镇</button></div></div>`;
     return town + [...groups.entries()].map(([prefix, entries]) => {
       const [icon, label] = labels[prefix] || ['🗺', prefix];
-      return `<div class="gm-map-group"><div class="gm-map-head">${icon} ${esc(label)}</div><div class="gm-map-list">${
-        entries.map(zone => `<button class="gm-tp" data-zone="${esc(zone.key)}">${esc(zone.name || zone.key)}</button>`).join('')
+      return `<div class="map-group"><div class="map-group-header"><span class="group-icon">${icon}</span>${esc(label)}</div><div class="map-sub-list">${
+        entries.map(zone => `<button class="tp-btn" data-zone="${esc(zone.key)}">${esc(zone.name || zone.key)}</button>`).join('')
       }</div></div>`;
     }).join('');
   }
@@ -103,7 +155,7 @@
           <h1>🛠 GM 调试面板</h1>
           <p>Ctrl+Shift+G · 调试专用</p>
         </header>
-        <nav class="gm-tabs">
+        <nav class="gm-tab-bar">
           <button class="gm-tab active" data-tab="resource">💰 资源</button>
           <button class="gm-tab" data-tab="equip">⚔ 装备</button>
           <button class="gm-tab" data-tab="item">💎 道具</button>
@@ -113,31 +165,30 @@
         </nav>
         <main class="gm-body">
           <div class="gm-pane active" data-pane="resource">
-            ${card('💰', '金币', `<div class="gm-buttons"><button data-action="gold" data-value="1000">+1,000</button><button data-action="gold" data-value="10000">+10,000</button></div><div class="gm-input-row"><input id="gm-gold" type="number" placeholder="自定义数量"><button data-action="gold-custom">发放</button></div>`)}
-            ${card('✨', '经验（自动连升级）', `<div class="gm-buttons"><button data-action="exp" data-value="1000">+1,000</button><button data-action="exp" data-value="10000">+10,000</button></div><div class="gm-input-row"><input id="gm-exp" type="number" placeholder="自定义数量"><button data-action="exp-custom">发放</button></div>`)}
-            ${card('🔮', '气功点', `<div class="gm-buttons"><button data-action="qigong" data-value="5">+5 点</button></div><div class="gm-input-row"><input id="gm-qigong" type="number" placeholder="自定义点数"><button data-action="qigong-custom">发放</button></div>`)}
-            ${card('❤️', '生命 / 内功', `<div class="gm-buttons"><button data-action="heal">满 HP/MP</button></div>`)}
-            ${card('📊', '设置等级', `<div class="gm-input-row"><input id="gm-level" type="number" min="1" max="200"><button data-action="level">确认</button></div>`)}
+            ${card('💰', '金币', `<div class="gm-btn-row"><button class="gm-btn" data-action="gold" data-value="1000">+1,000</button><button class="gm-btn" data-action="gold" data-value="10000">+10,000</button></div><div class="gm-input-row"><input class="gm-input" id="gm-gold" type="number" placeholder="自定义数量"><button class="gm-btn" data-action="gold-custom">发放</button></div>`)}
+            ${card('✨', '经验（自动连升级）', `<div class="gm-btn-row"><button class="gm-btn" data-action="exp" data-value="1000">+1,000</button><button class="gm-btn" data-action="exp" data-value="10000">+10,000</button></div><div class="gm-input-row"><input class="gm-input" id="gm-exp" type="number" placeholder="自定义数量"><button class="gm-btn" data-action="exp-custom">发放</button></div>`)}
+            ${card('🔮', '气功点', `<div class="gm-btn-row"><button class="gm-btn" data-action="qigong" data-value="5">+5 点</button></div><div class="gm-input-row"><input class="gm-input" id="gm-qigong" type="number" placeholder="自定义点数"><button class="gm-btn" data-action="qigong-custom">发放</button></div>`)}
+            ${card('❤️', '生命 / 内功', `<div class="gm-btn-row"><button class="gm-btn" data-action="heal">满 HP/MP</button></div>`)}
+            ${card('📊', '设置等级', `<div class="gm-input-row"><input class="gm-input" id="gm-level" type="number" min="1" max="60" value="30"><button class="gm-btn" data-action="level">确认</button></div>`)}
           </div>
           <div class="gm-pane" data-pane="equip">
-            ${card('🎯', '给予装备', `<div class="gm-stack"><label>装备<select id="gm-equipment">${equipmentOptions()}</select></label><label>数量<input id="gm-equip-count" type="number" value="1" min="1" max="99"></label><button data-action="give-equipment">给予</button></div>`)}
-            ${card('📦', '一键套装', `<div class="gm-buttons"><button data-action="set" data-value="0">全套 Base</button><button data-action="set" data-value="1">全套 T1</button></div>`)}
-            ${card('🔨', '强化当前武器', `<div class="gm-buttons"><button data-action="enhance" data-value="10">当前武器 → +10</button></div><div class="gm-input-row"><input id="gm-enhance" type="number" value="5" min="0" max="10"><button data-action="enhance-custom">强化到 +N</button></div>`)}
+            ${card('🎯', '给予装备', equipmentDropdown())}
+            ${card('📦', '一键套装', `<div class="gm-btn-row"><button class="gm-btn" data-action="set" data-value="0">全套 Base</button><button class="gm-btn" data-action="set" data-value="1">全套 T1</button></div>`)}
+            ${card('🔨', '强化', `<div class="gm-btn-row"><button class="gm-btn" data-action="enhance" data-value="10">当前武器 → +10</button></div><div class="gm-input-row"><input class="gm-input" id="gm-enhance" type="number" value="5" min="0" max="10"><button class="gm-btn" data-action="enhance-custom">强化到 +N</button></div>`)}
           </div>
           <div class="gm-pane" data-pane="item">
-            ${card('💎', '石头生成器', `<div class="gm-stack"><label>石头<select id="gm-stone">${stoneOptions()}</select></label><label>数量<input id="gm-stone-count" type="number" value="10" min="1" max="99"></label><button data-action="give-stone">生成</button></div>`)}
-            ${card('🌿', '药剂快捷（+99）', `<div class="gm-buttons">${['hp_potion_grade1','hp_potion_grade2','hp_potion_grade3','mp_potion_grade1','mp_potion_grade2','mp_potion_grade3'].map(key => `<button data-action="quick-item" data-value="${key}">${esc(itemMeta(key).name)}</button>`).join('')}</div>`)}
-            ${card('📦', '盒子快捷（+10）', `<div class="gm-buttons">${(config().boxes || []).map(box => `<button data-action="quick-box" data-value="${esc(box.key)}">${esc(box.name || box.key)}</button>`).join('')}</div>`)}
+            ${card('💎', '石头生成器', stoneGenerator())}
+            ${card('🌿', '药剂快捷（+99）', `<div class="gm-btn-row">${['hp_potion_grade1','hp_potion_grade2','hp_potion_grade3','mp_potion_grade1','mp_potion_grade2','mp_potion_grade3'].map(key => `<button class="gm-btn" data-action="quick-item" data-value="${key}">${esc(itemMeta(key).name)}</button>`).join('')}</div>`)}
+            ${card('📦', '盒子快捷（+10）', `<div class="gm-btn-row">${(config().boxes || []).map(box => `<button class="gm-btn" data-action="quick-box" data-value="${esc(box.key)}">${esc(box.name || box.key)}</button>`).join('')}</div>`)}
           </div>
           <div class="gm-pane" data-pane="status">
-            ${card('⚖', '派系', `<div class="gm-buttons"><button data-action="faction" data-value="positive">☀ 正派</button><button data-action="faction" data-value="negative">🌙 邪派</button><button data-action="faction" data-value="neutral">⚪ 中立</button></div>`)}
-            ${card('🎭', '职业切换', `<div class="gm-stack"><select id="gm-career">${careerOptions()}</select><button data-action="career">应用职业</button></div>`)}
-            ${card('🔮', '气功操作', `<div class="gm-buttons"><button data-action="qigong-full">一键满气功</button><button data-action="qigong-reset">气功重置</button></div>`)}
-            ${card('💾', '维护', `<div class="gm-buttons"><button data-action="refresh">刷新 UI</button><button data-action="save">立即存档</button></div>`)}
+            ${card('⚖', '派系', `<div class="gm-btn-row"><button class="gm-btn" data-action="faction" data-value="positive">☀ 正派</button><button class="gm-btn" data-action="faction" data-value="negative">🌙 邪派</button><button class="gm-btn" data-action="faction" data-value="neutral">⚪ 中立</button></div>`)}
+            ${card('🎭', '职业切换', `${careerDropdown()}<div class="gm-btn-row spaced"><button class="gm-btn" data-action="career">应用职业</button></div>`)}
+            ${card('🔮', '气功操作', `<div class="gm-btn-row"><button class="gm-btn" data-action="qigong-full">一键满气功</button><button class="gm-btn" data-action="qigong-reset">气功重置</button></div>`)}
           </div>
           <div class="gm-pane" data-pane="teleport">${zoneGroups()}</div>
           <div class="gm-pane" data-pane="danger">
-            ${card('⚠', '危险操作（二次确认）', `<div class="gm-buttons"><button class="danger" data-danger="clear-bag">清空背包</button><button class="danger" data-danger="clear-warehouse">清空仓库</button><button class="danger" data-danger="export-save">导出存档</button><button class="danger" data-danger="import-save">导入存档</button><button class="danger" data-danger="nuke">清空 localStorage + 刷新</button></div>`, true)}
+            ${card('⚠', '危险操作（二次确认）', `<div class="gm-btn-row"><button class="gm-btn danger" data-danger="clear-bag">清空背包</button><button class="gm-btn danger" data-danger="clear-warehouse">清空仓库</button></div><div class="gm-btn-row spaced"><button class="gm-btn danger" data-danger="export-save">导出存档</button><button class="gm-btn danger" data-danger="import-save">导入存档</button></div><div class="gm-btn-row spaced"><button class="gm-btn danger" data-danger="nuke">清空 localStorage + 刷新</button></div>`, true)}
           </div>
         </main>
         <div class="gm-confirm" id="gm-confirm">
@@ -146,6 +197,8 @@
       </div>`;
     document.body.appendChild(panel);
     bindPanel(panel);
+    updateEquipmentList();
+    updateStoneAttributes();
     syncPanel();
   }
 
@@ -154,10 +207,94 @@
     const level = document.getElementById('gm-level');
     const career = document.getElementById('gm-career');
     if (level && current) level.value = current.level || 1;
-    if (career && current) career.value = current.career || '';
+    if (career && current) selectDropdownValue(career, current.career);
+  }
+
+  function selectDropdownValue(dropdownEl, nextValue) {
+    if (!dropdownEl) return;
+    const item = [...dropdownEl.querySelectorAll('.dd-item')].find(entry => entry.dataset.value === nextValue);
+    if (!item) return;
+    dropdownEl.dataset.value = nextValue;
+    dropdownEl.querySelectorAll('.dd-item').forEach(entry => entry.classList.toggle('selected', entry === item));
+    dropdownEl.querySelector('.dd-trigger').textContent = item.dataset.label || item.textContent.trim();
+  }
+
+  function updateEquipmentList() {
+    const slot = selected('gm-equip-slot') || 'weapon';
+    const family = selected('gm-equip-family') || 'blade';
+    const familyRow = document.getElementById('gm-equip-family-row');
+    const careerSlot = slot === 'weapon' || slot === 'chest';
+    if (familyRow) familyRow.hidden = !careerSlot;
+    const equipments = (config().equipments || []).filter(item => {
+      if (item.slot !== slot) return false;
+      if (!careerSlot) return true;
+      return !item.required_career?.length || item.required_career.includes(family);
+    });
+    const items = equipments.map(item => ({
+      value: item.key,
+      label: item.name || item.key,
+      html: `<div class="eq-info"><div class="eq-name-line">${esc(item.name || item.key)} ${optionTag(item)}</div><div class="eq-stats">${esc(equipmentStats(item))} · ${esc(item.key)}</div></div>`,
+    }));
+    const wrap = document.getElementById('gm-equip-name-wrap');
+    if (wrap) wrap.innerHTML = dropdown('gm-equipment', items, items[0]?.value, true);
+    updateEquipmentResult();
+  }
+
+  function updateEquipmentResult() {
+    const key = selected('gm-equipment');
+    const item = (config().equipments || []).find(entry => entry.key === key);
+    const qty = Math.max(1, value('gm-equip-count', 1));
+    const result = document.getElementById('gm-equip-result');
+    if (result) result.textContent = item ? `${item.key} (${item.name}) ×${qty}` : '(未选择)';
+  }
+
+  function findStone(key) {
+    return Object.values(config().stones || {}).flatMap(group => Array.isArray(group) ? group : []).find(stone => stone.key === key);
+  }
+
+  function updateStoneAttributes() {
+    const stone = findStone(selected('gm-stone'));
+    const pool = stone?.attribute?.pool || [];
+    const attrRow = document.getElementById('gm-stone-attr-row');
+    const valueRow = document.getElementById('gm-stone-value-row');
+    if (attrRow) attrRow.hidden = pool.length === 0;
+    if (valueRow) valueRow.hidden = pool.length === 0;
+    const items = pool.map(attr => ({ value: attr.key, label: attr.name, range: attr.value_range || [1, 1] }));
+    const wrap = document.getElementById('gm-stone-attr-wrap');
+    if (wrap) {
+      wrap.innerHTML = pool.length ? dropdown('gm-stone-attr', items, items[0]?.value) : '';
+      const options = wrap.querySelectorAll('.dd-item');
+      options.forEach((option, index) => { option.dataset.range = items[index].range.join(','); });
+    }
+    updateStoneValueRange();
+  }
+
+  function updateStoneValueRange() {
+    const attr = document.querySelector('#gm-stone-attr .dd-item.selected');
+    const range = (attr?.dataset.range || '1,1').split(',').map(Number);
+    const input = document.getElementById('gm-stone-value');
+    if (input) {
+      input.min = range[0];
+      input.max = range[1];
+      input.step = Number.isInteger(range[0]) && Number.isInteger(range[1]) ? 1 : 0.01;
+      input.value = range[0];
+    }
+    updateStoneResult();
+  }
+
+  function generatedStoneKey() {
+    const baseKey = selected('gm-stone');
+    const attr = selected('gm-stone-attr');
+    return attr ? `${baseKey}--${attr}--${value('gm-stone-value', 1)}` : baseKey;
+  }
+
+  function updateStoneResult() {
+    const result = document.getElementById('gm-stone-result');
+    if (result) result.textContent = `key: ${generatedStoneKey()} ×${Math.max(1, value('gm-stone-count', 1))}`;
   }
 
   function setLevel(current, nextLevel) {
+    nextLevel = Math.min(Number(window.currentLevelCap || 60), Math.max(1, Number(nextLevel) || 1));
     const career = (config().careers || []).find(c => c.key === current.career);
     const grow = career?.attrGrow || {};
     const diff = nextLevel - (current.level || 1);
@@ -243,7 +380,7 @@
       return finish(`当前武器已强化到 +${instance.enhance_level}`);
     }
     if (action === 'give-stone' || action === 'quick-item' || action === 'quick-box') {
-      const key = action === 'give-stone' ? selected('gm-stone') : dataValue;
+      const key = action === 'give-stone' ? generatedStoneKey() : dataValue;
       const count = action === 'give-stone' ? Math.max(1, value('gm-stone-count', 1)) : action === 'quick-box' ? 10 : 99;
       const result = giveItem(key, count);
       return finish(`${itemMeta(key).name} +${result?.added || 0}`, { recompute: false });
@@ -258,6 +395,7 @@
       if (!career) return toast('职业不存在', 'error');
       current.career = key;
       current.career_family = career.career_family;
+      current.faction = career.faction || current.faction;
       current.career_history = [...new Set([...(current.career_history || []), key])];
       return finish(`职业已切换为 ${career.name || key}`);
     }
@@ -292,18 +430,21 @@
       return finish('仓库已清空', { recompute: false });
     }
     if (action === 'export-save') {
-      const text = JSON.stringify({ player: current, localStorage: { ...localStorage } });
+      const text = window.game?.exportSave
+        ? window.game.exportSave({ include_all_characters: true })
+        : btoa(unescape(encodeURIComponent(JSON.stringify({ player: current, localStorage: { ...localStorage } }))));
       await navigator.clipboard?.writeText?.(text);
-      return toast('存档已复制到剪贴板', 'success');
+      return toast('存档 Base64 已复制到剪贴板', 'success');
     }
     if (action === 'import-save') {
-      const text = prompt('粘贴此前导出的 GM 存档 JSON');
+      const text = prompt('粘贴此前导出的存档 Base64');
       if (!text) return;
       try {
-        const parsed = JSON.parse(text);
+        if (window.game?.importSave) return window.game.importSave(text);
+        const parsed = JSON.parse(decodeURIComponent(escape(atob(text))));
         for (const [key, val] of Object.entries(parsed.localStorage || {})) localStorage.setItem(key, val);
         location.reload();
-      } catch { toast('导入内容不是有效 JSON', 'error'); }
+      } catch { toast('导入内容不是有效存档', 'error'); }
     }
     if (action === 'nuke') {
       localStorage.clear();
@@ -312,7 +453,16 @@
   }
 
   function bindPanel(panel) {
+    panel.addEventListener('input', event => {
+      if (event.target.id === 'gm-equip-count') updateEquipmentResult();
+      if (event.target.id === 'gm-stone-count' || event.target.id === 'gm-stone-value') updateStoneResult();
+    });
     panel.addEventListener('click', event => {
+      if (event.target.id === 'gm-confirm') {
+        pendingDanger = null;
+        panel.querySelector('#gm-confirm').classList.remove('open');
+        return;
+      }
       const tab = event.target.closest('.gm-tab');
       if (tab) {
         panel.querySelectorAll('.gm-tab').forEach(item => item.classList.toggle('active', item === tab));
@@ -321,6 +471,24 @@
         return;
       }
       if (event.target.closest('[data-gm-close]')) return toggle(false);
+      const trigger = event.target.closest('.dd-trigger');
+      if (trigger) {
+        const dropdownEl = trigger.closest('.gm-dropdown');
+        panel.querySelectorAll('.gm-dropdown.open').forEach(entry => { if (entry !== dropdownEl) entry.classList.remove('open'); });
+        dropdownEl.classList.toggle('open');
+        return;
+      }
+      const dropdownItem = event.target.closest('.dd-item');
+      if (dropdownItem) {
+        const dropdownEl = dropdownItem.closest('.gm-dropdown');
+        selectDropdownValue(dropdownEl, dropdownItem.dataset.value);
+        dropdownEl.classList.remove('open');
+        if (dropdownEl.id === 'gm-equip-slot' || dropdownEl.id === 'gm-equip-family') updateEquipmentList();
+        else if (dropdownEl.id === 'gm-equipment') updateEquipmentResult();
+        else if (dropdownEl.id === 'gm-stone') updateStoneAttributes();
+        else if (dropdownEl.id === 'gm-stone-attr') updateStoneValueRange();
+        return;
+      }
       const action = event.target.closest('[data-action]');
       if (action) return runAction(action.dataset.action, action.dataset.value);
       const teleport = event.target.closest('[data-zone]');
