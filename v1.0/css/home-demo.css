@@ -1162,14 +1162,27 @@ body {
 }
 .shop-sell-scroll { flex: 1; min-height: 0; overflow-y: auto; }
 .shop-sell-pane .bag-grid {
-  grid-template-columns: repeat(6, 1fr);
+  width: 100%;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 0.4rem;
   min-height: 0;
   max-height: none;
   margin-bottom: 0;
-  overflow: visible;
+  overflow-x: hidden;
 }
-.shop-sell-pane .bag-tile { width: 100%; font-family: inherit; }
+.shop-sell-pane .bag-tile {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  font-family: inherit;
+}
+.shop-sell-pane .bag-tile .bt-name {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .shop-sell-pane .bag-tile.nosell { opacity: 0.45; cursor: not-allowed; }
 
 /* === 强化 / 合成 工作台：上=操作区，下=背包，拖拽放入槽位 === */
