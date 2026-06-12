@@ -360,32 +360,23 @@ runStartupSequence({
     window._currentGlobalSave = gs;
     window._careersData = careersData;
     buildMainScreen();
-    showCharacterCreationUI(gs, null);
+    showMultiSaveUI(gs, [], careersData);
   },
 
-  onNoCharacter: async () => {
+  onNoCharacter: () => {
     currentGlobalSave = SaveManager.restoreGlobalState() || { ...globalSaveInit };
     window._currentGlobalSave = currentGlobalSave;
     window._careersData = careersData;
     buildMainScreen();
-    showCharacterCreationUI(currentGlobalSave, null);
+    showMultiSaveUI(currentGlobalSave, [], careersData);
   },
 
-  onShowMultiSaveList: async ({ globalSave, characters }) => {
+  onShowMultiSaveList: ({ globalSave, characters }) => {
     currentGlobalSave = globalSave;
     window._currentGlobalSave = globalSave;
     window._careersData = careersData;
     buildMainScreen();
-
-    // 自动恢复上次角色
-    const lastSlot = globalSave.character_slots?.last_used_slot;
-    if (lastSlot && characters.find(c => c.slotIndex === lastSlot)) {
-      await enterCharacter(lastSlot);
-    } else if (characters.length > 0) {
-      await enterCharacter(characters[0].slotIndex);
-    } else {
-      showMultiSaveUI(globalSave, characters, careersData);
-    }
+    showMultiSaveUI(globalSave, characters, careersData);
   }
 });
 
