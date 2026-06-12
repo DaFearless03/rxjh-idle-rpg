@@ -633,6 +633,18 @@ window._closeModal = () => {
   UIManager.popModal();
 };
 
+window._confirmOfflineReward = () => {
+  UIManager.popModal();
+  const player = window.game?.player;
+  const shouldResumeCombat = !!player?.auto_play?.is_auto_play
+    && !!player?.location?.current_sub_zone_key;
+  UIManager.openPanel(shouldResumeCombat ? 'combat' : 'home');
+  if (shouldResumeCombat) {
+    window.game?.battle?.ensureInitialSpawn?.();
+  }
+  UIManager._refreshAll?.();
+};
+
 let _settingsExportScope = 'all';
 
 window._settingsSetExportScope = (scope) => {

@@ -124,6 +124,7 @@ class UIManagerClass {
 
   _closeTopModal() {
     if (this._modals.length > 0) {
+      if (this._modals[this._modals.length - 1]?.id === 'modal-offline') return;
       this.popModal();
     }
   }

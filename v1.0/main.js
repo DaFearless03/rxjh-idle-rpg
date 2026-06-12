@@ -536,12 +536,13 @@ async function enterCharacter(slotIndex) {
   const simSeconds = elapsed / 1000;
   const wasAutoPlaying = save.auto_play?.is_auto_play && save.location?.current_sub_zone_key;
   const offlineHours = simSeconds / 3600;
+  let offlineSummary = null;
 
   // 离线模拟（若上次在挂机且离线超过1分钟）
   if (wasAutoPlaying && offlineHours > (1 / 60)) {
     console.log(`[离线] 检测到 ${offlineHours.toFixed(1)} 小时离线收益，开始结算...`);
     showOfflineRewardLoading(0);
-    const summary = await OfflineSimulator.settle_offline_rewards({
+    offlineSummary = await OfflineSimulator.settle_offline_rewards({
       ...save,
       _slotIndex: slotIndex,
       _attrSys: attrSys,
@@ -559,19 +560,19 @@ async function enterCharacter(slotIndex) {
       onProgress: (p) => {
         if (p % 20 === 0) console.log(`[离线结算] ${p}%`);
         updateOfflineRewardProgress(p);
-      },
-      onSummary: (summary) => {
-        showOfflineRewardUI(summary);
       }
     });
-    if (summary) {
-      Object.assign(player, summary._player || {});
+    if (offlineSummary) {
+      Object.assign(player, offlineSummary._player || {});
     } else {
       hideOfflineRewardLoading();
     }
   }
 
   await initGameForPlayer(player, slotIndex);
+  if (offlineSummary) {
+    showOfflineRewardUI(offlineSummary);
+  }
 }
 
 /**

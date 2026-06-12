@@ -670,11 +670,10 @@ export function buildMainScreenUI(container) {
         <div class="modal-box save-modal-box offline-modal-box">
           <div class="modal-title">
             <span>🌙 离线收益</span>
-            <button class="sheet-close" onclick="window._closeModal()">×</button>
           </div>
           <div class="modal-body" id="offline-summary"></div>
           <div class="modal-footer">
-            <button class="btn primary" onclick="window._closeModal()">领取并继续</button>
+            <button class="btn primary" onclick="window._confirmOfflineReward()">领取并继续</button>
           </div>
         </div>
       </div>
