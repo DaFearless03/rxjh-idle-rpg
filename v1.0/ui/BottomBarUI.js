@@ -682,12 +682,22 @@ window._settingsImportSave = () => {
   UIManager.toast('正在导入存档...', 'info');
 };
 
+let _returningToSaveList = false;
 window._returnToSaveList = async () => {
-  window.game?.saveNow?.();
-  const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260612-2');
-  const characters = window.game?.listCharacters?.() || [];
-  UIManager.closePanel();
-  showMultiSaveUI(window._currentGlobalSave, characters, window._careersData || []);
+  if (_returningToSaveList) return;
+  _returningToSaveList = true;
+  try {
+    const characters = await window.game?.returnToSaveList?.();
+    const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260612-2');
+    UIManager.closeAllModals();
+    UIManager.closePanel();
+    showMultiSaveUI(window._currentGlobalSave, characters || [], window._careersData || []);
+  } catch (err) {
+    console.warn('[角色列表] 返回失败:', err);
+    UIManager.toast('返回角色列表失败，请稍后重试', 'error');
+  } finally {
+    _returningToSaveList = false;
+  }
 };
 
 function renderPanelContent(panelId) {

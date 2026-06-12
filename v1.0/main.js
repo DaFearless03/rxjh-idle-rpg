@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260612-2';
-import './ui/BottomBarUI.js?v=release-20260612-2';
+import './ui/BottomBarUI.js?v=release-20260612-3';
 
 // ========================
 // 数据加载
@@ -767,6 +767,14 @@ window.game = {
 
   async switchCharacter(slotIndex) {
     await enterCharacter(slotIndex);
+  },
+
+  async returnToSaveList() {
+    if (game?.player?.auto_play?.is_auto_play) {
+      AutoPlaySystem.stop(game.player, 'return_to_save_list');
+    }
+    await cleanupCurrentRuntime({ save: true });
+    return loadAllCharacters();
   },
 
   deleteCharacter(slotIndex) {
