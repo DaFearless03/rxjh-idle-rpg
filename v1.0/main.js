@@ -49,7 +49,7 @@ import './ui/BottomBarUI.js?v=release-20260612-3';
 // ========================
 // 数据加载
 // ========================
-const DATA_VERSION = 'release-20260612-2';
+const DATA_VERSION = 'release-20260612-5';
 const fetchData = (path) => fetch(`${path}?v=${DATA_VERSION}`, { cache: 'no-store' });
 
 const [configRes, careersRes, monstersRes, equipmentsRes, stonesRes, subZonesRes,

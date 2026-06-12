@@ -98,7 +98,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "boar_leg"
+          "item_key": "boar_leg",
+          "droprate": 0.05
         }
       ],
       "critR": 0.25,
@@ -123,7 +124,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "wolf_bone"
+          "item_key": "wolf_bone",
+          "droprate": 0.05
         }
       ],
       "critR": 0.28,
@@ -147,7 +149,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "red_bear_skin"
+          "item_key": "red_bear_skin",
+          "droprate": 0.05
         }
       ],
       "critR": 0.3,
@@ -171,7 +174,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "forest_tiger_skin"
+          "item_key": "forest_tiger_skin",
+          "droprate": 0.05
         }
       ],
       "critR": 0.3,
@@ -195,7 +199,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "white_tiger_skin"
+          "item_key": "white_tiger_skin",
+          "droprate": 0.05
         }
       ],
       "critR": 0.32,
@@ -219,16 +224,20 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "blood_wolf_skin"
+          "item_key": "blood_wolf_skin",
+          "droprate": 0.05
         },
         {
-          "item_key": "blood_wolf_claw"
+          "item_key": "blood_wolf_claw",
+          "droprate": 0.05
         },
         {
-          "item_key": "blood_wolf_tail"
+          "item_key": "blood_wolf_tail",
+          "droprate": 0.05
         },
         {
-          "item_key": "blood_wolf_blood"
+          "item_key": "blood_wolf_blood",
+          "droprate": 0.05
         }
       ],
       "critR": 0.35,
@@ -532,7 +541,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "bamboo_leaf"
+          "item_key": "bamboo_leaf",
+          "droprate": 0.05
         }
       ],
       "critR": 0.4,
@@ -556,7 +566,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "bamboo_strip"
+          "item_key": "bamboo_strip",
+          "droprate": 0.05
         }
       ],
       "critR": 0.4,
@@ -580,7 +591,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "bamboo_leaf"
+          "item_key": "bamboo_leaf",
+          "droprate": 0.05
         }
       ],
       "critR": 0.41,
@@ -644,7 +656,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "saber_tiger_skin"
+          "item_key": "saber_tiger_skin",
+          "droprate": 0.05
         }
       ],
       "critR": 0.44,
@@ -668,7 +681,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "saber_tiger_skin"
+          "item_key": "saber_tiger_skin",
+          "droprate": 0.05
         }
       ],
       "critR": 0.45,
@@ -732,7 +746,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "magnet_stone"
+          "item_key": "magnet_stone",
+          "droprate": 0.05
         }
       ],
       "critR": 0.44,
@@ -756,7 +771,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "magnet_stone"
+          "item_key": "magnet_stone",
+          "droprate": 0.05
         }
       ],
       "critR": 0.44,
@@ -1060,7 +1076,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "red_cloud_tiger_skin"
+          "item_key": "red_cloud_tiger_skin",
+          "droprate": 0.05
         }
       ],
       "critR": 0.43,
@@ -1084,7 +1101,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "red_cloud_tiger_skin"
+          "item_key": "red_cloud_tiger_skin",
+          "droprate": 0.05
         }
       ],
       "critR": 0.43,
@@ -1128,7 +1146,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "gold_bell_snake_scale"
+          "item_key": "gold_bell_snake_scale",
+          "droprate": 0.05
         }
       ],
       "critR": 0.43,
@@ -1152,7 +1171,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "gold_bell_snake_scale"
+          "item_key": "gold_bell_snake_scale",
+          "droprate": 0.05
         }
       ],
       "critR": 0.43,
@@ -1176,7 +1196,8 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "coral_snake_scale"
+          "item_key": "coral_snake_scale",
+          "droprate": 0.05
         }
       ],
       "critR": 0.44,
@@ -1200,16 +1221,20 @@
       "skills": [],
       "drop_items": [
         {
-          "item_key": "green_head_snake_scale"
+          "item_key": "green_head_snake_scale",
+          "droprate": 0.05
         },
         {
-          "item_key": "green_head_snake_fang"
+          "item_key": "green_head_snake_fang",
+          "droprate": 0.05
         },
         {
-          "item_key": "qingxuan_wine"
+          "item_key": "qingxuan_wine",
+          "droprate": 0.05
         },
         {
-          "item_key": "green_head_snake_venom"
+          "item_key": "green_head_snake_venom",
+          "droprate": 0.05
         }
       ],
       "critR": 0.45,
