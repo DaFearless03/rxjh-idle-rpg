@@ -6,7 +6,7 @@
 import { Game } from './core/Game.js';
 import { GameLoop } from './core/GameLoop.js';
 import { eventBus } from './core/EventBus.js';
-import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260612-2';
+import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260613-2';
 import { BattleSystem } from './systems/BattleSystem.js?v=release-20260612-2';
 import { InventorySystem } from './systems/InventorySystem.js';
 import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260612-2';
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260612-2';
-import './ui/BottomBarUI.js?v=release-20260613-1';
+import './ui/BottomBarUI.js?v=release-20260613-2';
 
 // ========================
 // 数据加载

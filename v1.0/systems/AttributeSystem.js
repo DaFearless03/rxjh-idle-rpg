@@ -205,9 +205,23 @@ export class AttributeSystem {
   }
 
   _parseStoneAttribute(stoneKey) {
-    const [, hook, rawValue] = String(stoneKey || '').split('--');
+    const key = String(stoneKey || '');
+    let hook;
+    let rawValue;
+    if (key.includes('--')) {
+      [, hook, rawValue] = key.split('--');
+    } else {
+      const legacy = key.match(/^[^_]+_\d+_(.+)_(-?\d+(?:\.\d+)?)$/);
+      if (legacy) [, hook, rawValue] = legacy;
+    }
     const value = Number(rawValue);
     if (!hook || !Number.isFinite(value) || hook === 'skill_level_up') return null;
-    return { hook, value };
+    const aliases = {
+      atkAdd: 'atkSelfAdd',
+      defSelfAdd: 'defAdd',
+      maxHpSelfAdd: 'maxHpAdd',
+      hitSelfAdd: 'hitAdd',
+    };
+    return { hook: aliases[hook] || hook, value };
   }
 }

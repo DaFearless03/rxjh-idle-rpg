@@ -81,9 +81,26 @@ const STAT_LABELS = {
 };
 
 function parseSynthesisStone(stoneKey) {
-  const [baseKey, hook, rawValue] = String(stoneKey || '').split('--');
+  const key = String(stoneKey || '');
+  let baseKey;
+  let hook;
+  let rawValue;
+  if (key.includes('--')) {
+    [baseKey, hook, rawValue] = key.split('--');
+  } else {
+    const legacy = key.match(/^([^_]+_\d+)_(.+)_(-?\d+(?:\.\d+)?)$/);
+    if (legacy) [, baseKey, hook, rawValue] = legacy;
+    else baseKey = key;
+  }
   const value = Number(rawValue);
   if (hook && Number.isFinite(value)) {
+    const aliases = {
+      atkAdd: 'atkSelfAdd',
+      defSelfAdd: 'defAdd',
+      maxHpSelfAdd: 'maxHpAdd',
+      hitSelfAdd: 'hitAdd',
+    };
+    hook = aliases[hook] || hook;
     return { baseKey, hook, value, label: `${STAT_LABELS[hook] || hook} +${value}` };
   }
   if (baseKey?.startsWith('vajra')) return { baseKey, bonuses: { atkMin: 5, atkMax: 8 }, label: '最小攻击力 +5 · 最大攻击力 +8' };
@@ -96,7 +113,12 @@ function synthesisBonuses(stones) {
   const totals = {};
   for (const stoneKey of stones) {
     const stone = parseSynthesisStone(stoneKey);
-    if (stone.hook) totals[stone.hook] = (totals[stone.hook] || 0) + stone.value;
+    if (stone.hook === 'atkSelfAdd') {
+      totals.atkMin = (totals.atkMin || 0) + stone.value;
+      totals.atkMax = (totals.atkMax || 0) + stone.value;
+    } else if (stone.hook) {
+      totals[stone.hook] = (totals[stone.hook] || 0) + stone.value;
+    }
     for (const [key, value] of Object.entries(stone.bonuses || {})) totals[key] = (totals[key] || 0) + value;
   }
   return totals;
