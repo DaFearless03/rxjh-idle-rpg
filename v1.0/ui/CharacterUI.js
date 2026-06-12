@@ -53,6 +53,8 @@ function renderInfoPanel(player) {
     ['命中', player.hit || 0],
     ['闪避', player.missing || 0],
   ];
+  if (player.weaponSkillBonus) stats.push(['武功攻击加成', player.weaponSkillBonus]);
+  if (player.weaponExtraDamage) stats.push(['追加伤害', player.weaponExtraDamage]);
   const faction = player.faction === 'positive' ? '正派' : player.faction === 'negative' ? '邪派' : '中立';
   const transferCount = Math.max(0, (player.career_history?.length || 1) - 1);
 

@@ -58,6 +58,50 @@ function formatStats(stats = {}) {
     .join(' · ');
 }
 
+const STAT_LABELS = {
+  atkMin: '最小攻击力',
+  atkMax: '最大攻击力',
+  atkSelfAdd: '攻击力',
+  def: '防御力',
+  defAdd: '防御力',
+  maxHp: '生命值',
+  maxHpAdd: '生命值',
+  maxMp: '内力值',
+  maxMpAdd: '内力值',
+  hit: '命中',
+  hitAdd: '命中',
+  missing: '闪避',
+  missingAdd: '闪避',
+  matk: '武功攻击力',
+  mdef: '武功防御力',
+  weaponSkillBonusAdd: '武功攻击加成',
+  weaponExtraDamageAdd: '追加伤害',
+  enhanceSuccessRateAdd: '合成强化成功率',
+  goldDropBonusAdd: '金币爆率',
+};
+
+function parseSynthesisStone(stoneKey) {
+  const [baseKey, hook, rawValue] = String(stoneKey || '').split('--');
+  const value = Number(rawValue);
+  if (hook && Number.isFinite(value)) {
+    return { baseKey, hook, value, label: `${STAT_LABELS[hook] || hook} +${value}` };
+  }
+  if (baseKey?.startsWith('vajra')) return { baseKey, bonuses: { atkMin: 5, atkMax: 8 }, label: '最小攻击力 +5 · 最大攻击力 +8' };
+  if (baseKey?.startsWith('cold_jade')) return { baseKey, bonuses: { def: 3, maxHp: 20 }, label: '防御力 +3 · 生命值 +20' };
+  if (baseKey?.startsWith('hot_blood')) return { baseKey, bonuses: { atkMin: 2 }, label: '最小攻击力 +2 · 暴击率 +1%' };
+  return { baseKey, bonuses: {}, label: stoneKey };
+}
+
+function synthesisBonuses(stones) {
+  const totals = {};
+  for (const stoneKey of stones) {
+    const stone = parseSynthesisStone(stoneKey);
+    if (stone.hook) totals[stone.hook] = (totals[stone.hook] || 0) + stone.value;
+    for (const [key, value] of Object.entries(stone.bonuses || {})) totals[key] = (totals[key] || 0) + value;
+  }
+  return totals;
+}
+
 function renderSlot(player, slotKey, options = {}) {
   const { index = 0, className = '' } = options;
   const meta = SLOT_META[slotKey] || { label: slotKey, icon: '□', pos: '' };
@@ -119,6 +163,8 @@ export function renderStatPanel(player) {
     ['命中', player?.hit || 0],
     ['闪避', player?.missing || 0],
   ];
+  if (player?.weaponSkillBonus) rows.push(['武功攻击加成', player.weaponSkillBonus]);
+  if (player?.weaponExtraDamage) rows.push(['追加伤害', player.weaponExtraDamage]);
   return `<div class="stat-panel demo-stat-panel">
     <div class="stat-sec">战斗属性</div>
     <div class="stat-list">
@@ -142,22 +188,15 @@ export function renderEquipmentDetail(player, instanceId) {
   const stones = inst.synthesis_slots || [];
   const capacities = { weapon: 4, chest: 4, gloves: 4, boots: 4, inner_armor: 2, cape: 4 };
   const capacity = capacities[tpl.slot] || 0;
-  const statLabels = {
-    atkMin: '最小攻击力',
-    atkMax: '最大攻击力',
-    def: '防御力',
-    maxHp: '生命值',
-    maxMp: '内力值',
-    hit: '命中',
-    missing: '闪避',
-    matk: '武功攻击力',
-    mdef: '武功防御力',
-  };
+  const statLabels = STAT_LABELS;
   const baseRows = Object.entries(stats).map(([key, value]) =>
     `<div class="ed-stat-row"><span>${escapeHtml(statLabels[key] || key)}</span><b>${value}</b></div>`).join('');
   const enhance = Number(inst.enhance_level || 0);
   const enhanceValue = tpl.slot === 'weapon' ? enhance * 6 : enhance * 3;
-  const totalRows = Object.entries(stats).map(([key, value]) => {
+  const totals = { ...stats };
+  const stoneTotals = synthesisBonuses(stones);
+  for (const [key, value] of Object.entries(stoneTotals)) totals[key] = (totals[key] || 0) + value;
+  const totalRows = Object.entries(totals).map(([key, value]) => {
     const extra = tpl.slot === 'weapon' && (key === 'atkMin' || key === 'atkMax')
       ? enhanceValue
       : key === 'def' && tpl.slot !== 'weapon'
@@ -178,7 +217,7 @@ export function renderEquipmentDetail(player, instanceId) {
       <div class="ed-sec-title">合成孔 <span>${stones.filter(Boolean).length} / ${capacity}</span></div>
       <div class="ed-sockets">
         ${Array.from({ length: capacity }, (_, i) => stones[i]
-          ? `<span class="ed-socket filled">${escapeHtml(stones[i])}</span>`
+          ? `<span class="ed-socket filled" title="${escapeHtml(stones[i])}">${escapeHtml(parseSynthesisStone(stones[i]).label)}</span>`
           : '<span class="ed-socket empty">＋</span>').join('')}
       </div>
     </div>` : ''}

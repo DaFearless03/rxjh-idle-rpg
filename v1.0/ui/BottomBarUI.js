@@ -9,15 +9,15 @@ import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-2026061
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260612-2';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260612-2';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260612-2';
-import { mountCharacterPanel } from './CharacterUI.js?v=release-20260612-2';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260612-2';
-import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260612-2';
+import { mountCharacterPanel } from './CharacterUI.js?v=release-20260613-1';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260613-1';
+import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260613-1';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260612-2';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260612-2';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260612-2';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260612-2';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260612-2';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-1';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-1';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -348,6 +348,8 @@ window._djxDoCraft = (type) => {
     else r = EnhanceSystem.enhance(p, slots.equip);
     window._djxClearAll(type);
     if (r?.success !== false) {
+      window._attrSys?.recompute?.(p);
+      window.UIManager?._refreshAll?.();
       if (resultEl) resultEl.innerHTML = type === 'synth' ? '✅ 合成完成！' : '✅ 强化成功！';
       window._showToast(type === 'synth' ? '合成完成！' : '强化完成！');
     } else {
