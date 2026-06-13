@@ -19,11 +19,15 @@ export const EnhanceSystem = {
   /**
    * 强化装备
    * @param {Object} player
-   * @param {string} slotKey "weapon" | "chest" | ...
+   * @param {string} instanceId 背包中的装备实例 ID
    * @returns {{ success: boolean, message: string }}
    */
-  enhance(player, slotKey) {
-    const { baseSlot, index, equipped } = this._resolveSlot(player, slotKey);
+  enhance(player, instanceId) {
+    const { instance: ei, template, slot: bagSlot } = this._getBagEquipment(player, instanceId);
+    if (!bagSlot || !ei || !template) {
+      return { success: false, message: '装备必须先卸下并放入背包' };
+    }
+    const baseSlot = template.slot;
     // 检查槽位是否可强化
     if (this.FORBIDDEN_SLOTS.includes(baseSlot)) {
       return { success: false, message: `槽位 ${baseSlot} 不可强化` };
@@ -32,28 +36,12 @@ export const EnhanceSystem = {
       return { success: false, message: `未知槽位 ${baseSlot}` };
     }
 
-    // 获取已装备的实例
-    const instanceId = equipped?.instance_id;
-    if (!instanceId) {
-      return { success: false, message: `${baseSlot} 槽位没有装备` };
-    }
-
-    const ei = player.inventory?.equipment_instances?.[instanceId];
-    if (!ei) {
-      return { success: false, message: `装备实例不存在` };
-    }
-
     const currentLevel = ei.enhance_level || 0;
     if (currentLevel >= 10) {
       return { success: false, message: `强化等级已达上限 +10` };
     }
 
     // 获取装备模板（找 required_level 算强化费用）
-    const template = this._getEquipmentTemplate(player, slotKey);
-    if (!template) {
-      return { success: false, message: `装备模板未找到` };
-    }
-
     // 计算强化费用
     const cost = template.required_level * 1000;
     if ((player.resources?.gold || 0) < cost) {
@@ -83,7 +71,7 @@ export const EnhanceSystem = {
       return { success: true, message: `强化成功！+${ei.enhance_level}` };
     } else {
       // 失败摧毁装备（含已合成石头）
-      this._destroyEquipment(player, slotKey, instanceId);
+      this._destroyEquipment(player, instanceId);
       return { success: false, message: `强化失败，装备已碎裂！` };
     }
   },
@@ -91,12 +79,7 @@ export const EnhanceSystem = {
   /**
    * 销毁装备（失败时调用）
    */
-  _destroyEquipment(player, slotKey, instanceId) {
-    const { baseSlot, index } = this._resolveSlot(player, slotKey);
-    // 从 equipped 清除
-    if (index == null) player.equipped[baseSlot] = null;
-    else player.equipped[baseSlot][index] = null;
-
+  _destroyEquipment(player, instanceId) {
     // 从 inventory.slots 移除（通过 instance_id 找槽位）
     const slots = player.inventory?.slots || [];
     for (const slot of slots) {
@@ -143,23 +126,13 @@ export const EnhanceSystem = {
   /**
    * 获取装备模板（用于读 required_level 算费用）
    */
-  _getEquipmentTemplate(player, slotKey) {
-    const instanceId = this._resolveSlot(player, slotKey).equipped?.instance_id;
-    if (!instanceId) return null;
-    const ei = player.inventory?.equipment_instances?.[instanceId];
-    if (!ei) return null;
-    // 需要传入外部装备模板，这里简化处理：直接从 player._equipTemplates 查
-    return player._equipTemplates?.find(t => t.key === ei.item_key) || null;
-  },
-
-  _resolveSlot(player, slotRef) {
-    const [baseSlot, rawIndex] = String(slotRef || '').split(':');
-    const index = rawIndex === undefined ? null : Number(rawIndex);
-    const value = player.equipped?.[baseSlot];
-    return {
-      baseSlot,
-      index,
-      equipped: index == null ? value : value?.[index],
-    };
+  _getBagEquipment(player, instanceId) {
+    const equippedIds = Object.values(player.equipped || {}).flat().filter(Boolean)
+      .map(entry => typeof entry === 'string' ? entry : entry.instance_id);
+    if (equippedIds.includes(instanceId)) return {};
+    const slot = (player.inventory?.slots || []).find(entry => entry?.instance_id === instanceId && (entry.count || 0) > 0);
+    const instance = player.inventory?.equipment_instances?.[instanceId];
+    const template = player._equipTemplates?.find(item => item.key === instance?.item_key);
+    return { slot, instance, template };
   }
 };

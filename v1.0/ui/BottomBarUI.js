@@ -6,8 +6,8 @@ import { UIManager } from './UIManager.js?v=release-20260612-2';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260612-2';
 import { InventorySystem } from '../systems/InventorySystem.js';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260612-2';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260612-2';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260612-2';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260613-11';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260613-11';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260612-2';
 import { mountCharacterPanel } from './CharacterUI.js?v=release-20260613-2';
 import { mountInventoryPanel } from './InventoryUI.js?v=release-20260613-2';
@@ -16,8 +16,8 @@ import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260612-2';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260612-2';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-7';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-2';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-2';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-11';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-11';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -217,7 +217,7 @@ window._djxClearSlot = (slotType, type) => {
     targetZone.classList.remove('filled');
     const hint = slotType === 'stone'
       ? (type === 'synth' ? '拖入<br>合成石' : '强化石<br>自动消耗')
-      : '选择已穿戴装备';
+      : '选择背包装备';
     targetZone.innerHTML = `<div class="dz-plus">＋</div><div class="dz-hint">${hint}</div>`;
   }
   updateDjxCraftButton(type);

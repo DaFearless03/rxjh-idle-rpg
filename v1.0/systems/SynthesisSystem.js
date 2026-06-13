@@ -35,12 +35,16 @@ export const SynthesisSystem = {
   /**
    * 合成石头到装备
    * @param {Object} player
-   * @param {string} slotKey "weapon" | "chest" | ...
+   * @param {string} instanceId 背包中的装备实例 ID
    * @param {string} stoneItemKey 石头 item_key（来自背包 slots 的 item_key）
    * @returns {{ success: boolean, message: string }}
    */
-  synthesize(player, slotKey, stoneItemKey) {
-    const { baseSlot, equipped } = this._resolveSlot(player, slotKey);
+  synthesize(player, instanceId, stoneItemKey) {
+    const { instance: ei, template, slot: bagSlot } = this._getBagEquipment(player, instanceId);
+    if (!bagSlot || !ei || !template) {
+      return { success: false, message: '装备必须先卸下并放入背包' };
+    }
+    const baseSlot = template.slot;
     if (this.FORBIDDEN_SLOTS.includes(baseSlot)) {
       return { success: false, message: `槽位 ${baseSlot} 不可合成` };
     }
@@ -48,16 +52,6 @@ export const SynthesisSystem = {
     const capacity = this.SLOT_CAPACITY[baseSlot] || 0;
     if (capacity === 0) {
       return { success: false, message: `槽位 ${baseSlot} 无孔位` };
-    }
-
-    // 获取装备实例
-    const equipInstanceId = equipped?.instance_id;
-    if (!equipInstanceId) {
-      return { success: false, message: `${baseSlot} 槽位没有装备` };
-    }
-    const ei = player.inventory?.equipment_instances?.[equipInstanceId];
-    if (!ei) {
-      return { success: false, message: `装备实例不存在` };
     }
 
     // 检查孔位是否已满
@@ -87,7 +81,6 @@ export const SynthesisSystem = {
     }
 
     // 获取装备模板（算费用）
-    const template = this._getEquipmentTemplate(player, slotKey);
     const cost = (template?.required_level || 1) * 1000;
     if ((player.resources?.gold || 0) < cost) {
       return { success: false, message: `金币不足，需要 ${cost} 金币` };
@@ -106,7 +99,7 @@ export const SynthesisSystem = {
     ei.synthesis_slots = ei.synthesis_slots || [];
     ei.synthesis_slots.push(stoneItemKey);
 
-    return { success: true, message: `合成成功！孔位 ${currentStones.length + 1}/${capacity}` };
+    return { success: true, message: `合成成功！孔位 ${ei.synthesis_slots.length}/${capacity}` };
   },
 
   _getStoneCategory(stoneItemKey) {
@@ -117,22 +110,13 @@ export const SynthesisSystem = {
     return null;
   },
 
-  _getEquipmentTemplate(player, slotKey) {
-    const instanceId = this._resolveSlot(player, slotKey).equipped?.instance_id;
-    if (!instanceId) return null;
-    const ei = player.inventory?.equipment_instances?.[instanceId];
-    if (!ei) return null;
-    return player._equipTemplates?.find(t => t.key === ei.item_key) || null;
-  },
-
-  _resolveSlot(player, slotRef) {
-    const [baseSlot, rawIndex] = String(slotRef || '').split(':');
-    const index = rawIndex === undefined ? null : Number(rawIndex);
-    const value = player.equipped?.[baseSlot];
-    return {
-      baseSlot,
-      index,
-      equipped: index == null ? value : value?.[index],
-    };
+  _getBagEquipment(player, instanceId) {
+    const equippedIds = Object.values(player.equipped || {}).flat().filter(Boolean)
+      .map(entry => typeof entry === 'string' ? entry : entry.instance_id);
+    if (equippedIds.includes(instanceId)) return {};
+    const slot = (player.inventory?.slots || []).find(entry => entry?.instance_id === instanceId && (entry.count || 0) > 0);
+    const instance = player.inventory?.equipment_instances?.[instanceId];
+    const template = player._equipTemplates?.find(item => item.key === instance?.item_key);
+    return { slot, instance, template };
   }
 };

@@ -22,22 +22,21 @@ function renderEmptyTiles(count) {
   return Array(Math.max(0, count)).fill('<div class="bag-tile empty"></div>').join('');
 }
 
-function getEquippedChoices(player) {
-  return ENHANCEABLE_SLOTS.flatMap(slotKey => {
-    const equipped = player?.equipped?.[slotKey];
-    const entries = Array.isArray(equipped) ? equipped : [equipped];
-    return entries.map((entry, index) => {
-      const instanceId = entry?.instance_id;
-      const inst = instanceId ? player?.inventory?.equipment_instances?.[instanceId] : null;
-      const tpl = getEquipmentTemplate(player, inst);
-      if (!inst) return null;
-      return {
-        key: Array.isArray(equipped) ? `${slotKey}:${index}` : slotKey,
-        name: tpl?.name || inst.item_key,
-        sub: `${SLOT_LABEL[slotKey] || slotKey}${Array.isArray(equipped) ? ` ${index + 1}` : ''} · +${inst.enhance_level || 0}`,
-        icon: SLOT_ICON[slotKey] || '⚔️',
-      };
-    }).filter(Boolean);
+function getBagEquipmentChoices(player) {
+  const equippedIds = new Set(Object.values(player?.equipped || {}).flat().filter(Boolean)
+    .map(entry => typeof entry === 'string' ? entry : entry.instance_id));
+  return (player?.inventory?.slots || []).map(slot => {
+    const instanceId = slot?.instance_id;
+    if (!instanceId || equippedIds.has(instanceId)) return null;
+    const inst = instanceId ? player?.inventory?.equipment_instances?.[instanceId] : null;
+    const tpl = getEquipmentTemplate(player, inst);
+    if (!inst || !tpl || !ENHANCEABLE_SLOTS.includes(tpl.slot)) return null;
+    return {
+      key: instanceId,
+      name: tpl.name || inst.item_key,
+      sub: `${SLOT_LABEL[tpl.slot] || tpl.slot} · +${inst.enhance_level || 0}`,
+      icon: SLOT_ICON[tpl.slot] || '⚔️',
+    };
   }).filter(Boolean);
 }
 
@@ -62,7 +61,7 @@ function renderChoiceTile(item, kind) {
 }
 
 export function renderEnhanceWorkbench(player) {
-  const equips = getEquippedChoices(player);
+  const equips = getBagEquipmentChoices(player);
   const stones = getEnhanceStones(player);
   const equipGrid = equips.map(item => renderChoiceTile(item, 'equip')).join('') + renderEmptyTiles(12 - equips.length);
   const stoneGrid = stones.map(item => renderChoiceTile(item, 'stone')).join('') + renderEmptyTiles(12 - stones.length);
@@ -86,7 +85,7 @@ export function renderEnhanceWorkbench(player) {
       </div>
     </div>
     <div class="craft-bag">
-      <div class="bag-label">🎒 可强化装备（已穿戴）</div>
+      <div class="bag-label">🎒 可强化装备（背包）</div>
       <div class="bag-grid" id="djx-enhance-equip-grid">${equipGrid || renderEmptyTiles(12)}</div>
       <div class="bag-label">💎 强化石库存</div>
       <div class="bag-grid" id="djx-enhance-stone-grid">${stoneGrid || renderEmptyTiles(12)}</div>
