@@ -2952,6 +2952,25 @@ body {
   line-height: 1.6;
 }
 .page-settings #settings-autoplay-content .sec-panel { margin-bottom: 0.9rem; }
+.autoplay-toggle {
+  min-width: 4.2rem;
+  border: 0.2rem solid var(--border-outer);
+  border-radius: 0.45rem;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0.55rem 0.8rem;
+  box-shadow: 0 0.25rem 0 var(--border-shadow);
+  cursor: pointer;
+}
+.autoplay-toggle.on { background: var(--menu-green); }
+.autoplay-toggle.off { background: var(--menu-accent); }
+.autoplay-toggle:active {
+  transform: translateY(0.2rem);
+  box-shadow: 0 0.05rem 0 var(--border-shadow);
+}
 
 /* === 主页城镇 / 野外双状态 === */
 .home-state-content {

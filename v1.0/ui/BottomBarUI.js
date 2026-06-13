@@ -969,7 +969,7 @@ function renderAutoplayPanel(player) {
   };
 
   const toggleBtn = (kind, enabled, action) =>
-    '<button class="btn-3d' + (enabled ? ' blue' : '') + '" style="padding:0.4rem 0.9rem;font-size:0.75rem;min-width:3.8rem" onclick="' + action + '">' + (enabled ? 'ON' : 'OFF') + '</button>';
+    '<button class="autoplay-toggle ' + (enabled ? 'on' : 'off') + '" onclick="' + action + '">' + (enabled ? 'ON' : 'OFF') + '</button>';
 
   const potionSelect = (kind, selected, enabled, handler = '_setAutoPotionItem') => {
     const keys = kind === 'hp' ? ['hp_potion_grade1','hp_potion_grade2','hp_potion_grade3'] : ['mp_potion_grade1','mp_potion_grade2','mp_potion_grade3'];
