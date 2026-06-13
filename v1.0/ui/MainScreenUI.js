@@ -465,8 +465,9 @@ export function buildMainScreenUI(container) {
           <div class="wh-body">
             <div class="wh-pane top">
               <div class="wh-pane-head">
-                <span class="wh-title">🏛 仓库</span>
-                <span class="wh-count push" id="whWarehouseCount">0 / 50</span>
+                <span class="wh-title">仓库</span>
+                <span class="wh-count" id="whWarehouseCount">0 / 50</span>
+                <span class="push"></span>
                 <button class="wh-sort" data-sort="warehouse">整理</button>
               </div>
               <div class="wh-scroll">
@@ -488,9 +489,9 @@ export function buildMainScreenUI(container) {
             </div>
             <div class="wh-pane bottom">
               <div class="wh-pane-head">
-                <span class="wh-title">🎒 背包</span>
-                <span class="wh-gold push">🪙 <span id="whPlayerGold">0</span></span>
+                <span class="wh-title">背包</span>
                 <span class="wh-count" id="whBagCount">0 / 50</span>
+                <span class="wh-gold push">🪙 <span id="whPlayerGold">0</span></span>
                 <button class="wh-sort" data-sort="bag">整理</button>
               </div>
               <div class="wh-scroll">
