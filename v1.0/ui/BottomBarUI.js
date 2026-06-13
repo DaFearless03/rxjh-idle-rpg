@@ -16,8 +16,8 @@ import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260613-13';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260613-16';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-13';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-11';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-17';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-18';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-18';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -282,6 +282,11 @@ function updateSynthesisWorkbench() {
 }
 
 window._djxSelectItem = (key, type) => {
+  const tile = document.querySelector(`#djx-${type}-content .bag-tile[data-key="${CSS.escape(key)}"]`);
+  if (tile?.dataset.craftValid !== '1') {
+    window._showToast(type === 'synth' ? '该物品不可用于合成' : '该物品不可用于强化');
+    return;
+  }
   const stoneKey = isCraftStoneKey(key);
   const dataKey = stoneKey ? 'stone' : 'equip';
   if (type === 'synth' && stoneKey && window._djxSlots.synth.equip) {

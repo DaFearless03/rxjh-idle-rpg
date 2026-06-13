@@ -5,6 +5,7 @@
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260613-11';
+import { renderCraftBagPanel } from './InventoryUI.js?v=release-20260613-18';
 
 const SYNTH_SLOTS = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor', 'cape'];
 const SLOT_LABEL = { weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲', cape: '披风' };
@@ -83,11 +84,12 @@ function renderChoiceTile(item, kind) {
 }
 
 export function renderSynthesisWorkbench(player) {
-  const equips = getBagEquipmentChoices(player);
-  const equipGrid = equips.map(item => renderChoiceTile(item, 'equip')).join('') + renderEmptyTiles(12 - equips.length);
-  const renderStoneGrid = category => {
-    const stones = getSynthesisStones(player, category);
-    return stones.map(item => renderChoiceTile(item, 'stone')).join('') + renderEmptyTiles(12 - stones.length);
+  const equipmentMeta = new Map(getBagEquipmentChoices(player).map(item => [item.key, item]));
+  const extraData = slot => {
+    const item = equipmentMeta.get(slot.instance_id);
+    if (item) return `data-craft-valid="1" data-cap="${item.capacity}" data-used="${item.used}" data-cost="${item.cost}" data-stone-category="${item.stoneCategory}" data-filled="${escapeHtml(item.filled.join('|'))}"`;
+    const category = SynthesisSystem._getStoneCategory(slot.item_key);
+    return ['vajra', 'cold_jade', 'hot_blood'].includes(category) ? `data-craft-valid="1" data-stone-category="${category}"` : '';
   };
 
   return `<div class="craft-body">
@@ -106,15 +108,6 @@ export function renderSynthesisWorkbench(player) {
         <button class="craft-reset hidden" data-reset onclick="window._djxClearAll('synth')">清空</button>
       </div>
     </div>
-    <div class="craft-bag">
-      <div class="bag-label">🎒 可合成装备（武器→金刚石 / 防具→寒玉石）</div>
-      <div class="bag-grid" id="djx-synth-equip-grid">${equipGrid || renderEmptyTiles(12)}</div>
-      <div class="bag-label">💎 金刚石（镶武器）</div>
-      <div class="bag-grid">${renderStoneGrid('vajra')}</div>
-      <div class="bag-label">🔷 寒玉石（镶防具）</div>
-      <div class="bag-grid">${renderStoneGrid('cold_jade')}</div>
-      <div class="bag-label">❤️ 热血石（镶披风）</div>
-      <div class="bag-grid">${renderStoneGrid('hot_blood')}</div>
-    </div>
+    <div class="craft-bag">${renderCraftBagPanel(player, 'synth', extraData)}</div>
   </div>`;
 }

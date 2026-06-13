@@ -1280,6 +1280,8 @@ body {
 .craft-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .craft-work { flex-shrink: 0; padding: 0.8rem 1rem 1rem; border-bottom: 0.2rem solid var(--border-inner); }
 .craft-bag { flex: 1; min-height: 0; overflow-y: auto; padding: 0.8rem 1rem 1.2rem; background: rgba(0,0,0,0.035); }
+.craft-bag:has(.craft-inventory-pane) { padding: 0; overflow: hidden; }
+.craft-inventory-pane { height: 100%; }
 
 /* 槽位行（装备槽 + 强化石槽）*/
 .craft-slots { display: flex; align-items: center; justify-content: center; gap: 0.8rem; margin: 0.2rem 0 0.9rem; }

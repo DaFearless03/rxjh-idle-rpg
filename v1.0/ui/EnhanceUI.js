@@ -4,6 +4,7 @@
  */
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
+import { renderCraftBagPanel } from './InventoryUI.js?v=release-20260613-18';
 
 const ENHANCEABLE_SLOTS = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor'];
 const SLOT_LABEL = { weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲' };
@@ -84,11 +85,9 @@ export function renderEnhanceWorkbench(player) {
         <button class="craft-reset" data-reset onclick="window._djxClearAll('enhance')">清空</button>
       </div>
     </div>
-    <div class="craft-bag">
-      <div class="bag-label">🎒 可强化装备（背包）</div>
-      <div class="bag-grid" id="djx-enhance-equip-grid">${equipGrid || renderEmptyTiles(12)}</div>
-      <div class="bag-label">💎 强化石库存</div>
-      <div class="bag-grid" id="djx-enhance-stone-grid">${stoneGrid || renderEmptyTiles(12)}</div>
-    </div>
+    <div class="craft-bag">${renderCraftBagPanel(player, 'enhance', slot => {
+      if (slot.item_key === 'enhance_stone_01') return 'data-craft-valid="1"';
+      return equips.some(item => item.key === slot.instance_id) ? 'data-craft-valid="1"' : '';
+    })}</div>
   </div>`;
 }

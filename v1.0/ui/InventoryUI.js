@@ -158,6 +158,11 @@ export function renderBagTile(slot, player, options = {}) {
   const isQuest = display.itemClass === 'quest_items' || slot.quest;
   const equipped = slot.instance_id ? isInstanceEquipped(player, slot.instance_id) : false;
   const equipFail = slot.instance_id ? getEquipFailReason(player, slot.instance_id) : '';
+  const craftKey = options.craftType && slot.instance_id ? slot.instance_id : display.key;
+  const craftKind = slot.instance_id ? 'equip' : /^(enhance_stone|vajra|cold_jade|hot_blood)_/.test(display.key) ? 'stone' : 'item';
+  const craftAttrs = options.craftType
+    ? `draggable="true" ondragstart="window._djxDragItem(event,'${escapeHtml(craftKey)}','${escapeHtml(options.craftType)}')" data-kind="${craftKind}" data-craft-type="${escapeHtml(options.craftType)}" ${options.extraData || ''}`
+    : '';
   const classes = [
     'bag-tile',
     display.itemClass === 'equipment' ? 'equip' : 'stack',
@@ -167,12 +172,28 @@ export function renderBagTile(slot, player, options = {}) {
     equipFail && !equipped ? 'locked' : '',
   ].filter(Boolean).join(' ');
 
-  return `<div class="${classes}" data-key="${escapeHtml(display.key)}" data-icon="${escapeHtml(display.icon)}" data-name="${escapeHtml(display.name)}" data-class="${display.itemClass}" data-count="${count}" ${Number.isInteger(options.bagIndex) ? `data-bag-index="${options.bagIndex}"` : ''} ${isQuest ? 'data-quest="1"' : ''} ${slot.instance_id ? `data-instance-id="${escapeHtml(slot.instance_id)}"` : ''}>
+  return `<div class="${classes}" data-key="${escapeHtml(craftKey)}" data-icon="${escapeHtml(display.icon)}" data-name="${escapeHtml(display.name)}" data-class="${display.itemClass}" data-count="${count}" ${Number.isInteger(options.bagIndex) ? `data-bag-index="${options.bagIndex}"` : ''} ${isQuest ? 'data-quest="1"' : ''} ${slot.instance_id ? `data-instance-id="${escapeHtml(slot.instance_id)}"` : ''} ${craftAttrs}>
     <div class="bt-icon">${display.icon}</div>
     <div class="bt-name">${escapeHtml(display.name)}</div>
     <div class="bt-sub">${escapeHtml(equipped ? '已穿戴' : equipFail || display.sub || '')}</div>
     ${display.enhance > 0 ? `<div class="bt-enh">+${display.enhance}</div>` : ''}
     ${equipped ? '<div class="bt-badge">装</div>' : `${isQuest ? '<div class="bt-badge cross quest">任务</div>' : ''}${count > 1 ? `<div class="bt-badge">×${count}</div>` : ''}`}
+  </div>`;
+}
+
+export function renderCraftBagPanel(player, craftType, getExtraData = () => '') {
+  const slots = player?.inventory?.slots || [];
+  const equippedIds = new Set(Object.values(player?.equipped || {}).flat().filter(Boolean)
+    .map(entry => typeof entry === 'string' ? entry : entry.instance_id));
+  const bagSlots = slots.filter(slot => slot?.item_key && (slot.count || 0) > 0 && !equippedIds.has(slot.instance_id));
+  const tiles = bagSlots.map(slot => renderBagTile(slot, player, {
+    craftType,
+    extraData: getExtraData(slot),
+  }));
+  while (tiles.length < (player?.inventory?.capacity || 50)) tiles.push('<div class="bag-tile empty"></div>');
+  return `<div class="shop-sell-pane craft-inventory-pane">
+    <div class="wh-pane-head"><span class="wh-title">背包</span><span class="wh-count">${bagSlots.length} / ${player?.inventory?.capacity || 50}</span><span class="wh-gold push">🪙 ${(player?.resources?.gold || 0).toLocaleString()}</span><button class="wh-sort" onclick="window._sortShopInventory()">整理</button></div>
+    <div class="shop-sell-scroll"><div class="bag-grid">${tiles.join('')}</div></div>
   </div>`;
 }
 
