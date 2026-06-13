@@ -3,6 +3,8 @@
  * @desc 背包系统：count / add / remove / addEquipmentInstance
  * @ref 11_inventory.md InventorySystem 标准函数
  */
+import { eventBus } from '../core/EventBus.js';
+
 export const InventorySystem = {
   _itemClasses: {
     equipment: new Set(),
@@ -101,12 +103,14 @@ export const InventorySystem = {
       // 任务物品特例：step 3 不丢弃，改为 success=False
       const itemClass = this._getItemClass(itemKey, player);
       if (itemClass === 'quest_items') {
+        this._emitChanged(player, itemKey, added, 'add');
         return { success: false, added: 0, discarded: count };
       }
       discarded = remaining;
       remaining = 0;
     }
 
+    this._emitChanged(player, itemKey, added, 'add');
     return { success: discarded === 0, added, discarded };
   },
 
@@ -143,6 +147,7 @@ export const InventorySystem = {
     ei[eid] = newInstance;
     player.inventory.equipment_instances = ei;
 
+    this._emitChanged(player, newInstance.item_key, 1, 'add');
     return { success: true, added: 1, discarded: 0 };
   },
 
@@ -165,7 +170,19 @@ export const InventorySystem = {
       if (slot.count === 0) slot.item_key = null;
       if (remaining === 0) break;
     }
+    this._emitChanged(player, itemKey, count, 'remove');
     return true;
+  },
+
+  _emitChanged(player, itemKey, changedCount, action) {
+    if (changedCount <= 0) return;
+    eventBus.emit('inventory.changed', {
+      player,
+      item_key: itemKey,
+      action,
+      changed_count: changedCount,
+      count: this.count(player, itemKey),
+    });
   },
 
   addToContainer(container, itemKey, count) {

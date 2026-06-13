@@ -29,9 +29,16 @@ class UIManagerClass {
     eventBus.on('player.level_up', () => this._refreshAll());
     eventBus.on('player.death', () => this._refreshAll());
     eventBus.on('player.career_transfer', () => this._refreshAll());
-    eventBus.on('quest.accepted', () => this._refreshAll());
-    eventBus.on('quest.completed', () => this._refreshAll());
-    eventBus.on('quest.stage_advance', () => this._refreshAll());
+    const refreshQuestState = () => {
+      this._refreshAll();
+      window._refreshActiveQuestPanel?.();
+    };
+    eventBus.on('quest.accepted', refreshQuestState);
+    eventBus.on('quest.completed', refreshQuestState);
+    eventBus.on('quest.stage_advance', refreshQuestState);
+    eventBus.on('inventory.changed', ({ player } = {}) => {
+      if (!player || player === window.game?.player) window._refreshActiveQuestPanel?.();
+    });
     eventBus.on('battle.monsters_changed', () => this._refreshMonsterList());
     eventBus.on('battle.player_status_changed', () => this._refreshAll());
     eventBus.on('monster.death', (data) => {

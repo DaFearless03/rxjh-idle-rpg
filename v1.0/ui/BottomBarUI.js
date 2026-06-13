@@ -2,9 +2,9 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260612-2';
+import { UIManager } from './UIManager.js?v=release-20260613-12';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260612-2';
-import { InventorySystem } from '../systems/InventorySystem.js';
+import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260613-12';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260612-2';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260613-11';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260613-11';
@@ -916,6 +916,12 @@ function renderQuestPanel(player) {
   if (!p) return;
   mountQuestPanel(el, p, window._questActiveSeg || 'accepted');
 }
+
+window._refreshActiveQuestPanel = () => {
+  if (document.getElementById('page-quest')?.classList.contains('active')) {
+    renderQuestPanel(window.game?.player);
+  }
+};
 
 let _pendingRoleAction = null;
 

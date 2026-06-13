@@ -8,11 +8,11 @@ import { GameLoop } from './core/GameLoop.js';
 import { eventBus } from './core/EventBus.js';
 import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260613-2';
 import { BattleSystem } from './systems/BattleSystem.js?v=release-20260612-2';
-import { InventorySystem } from './systems/InventorySystem.js';
+import { InventorySystem } from './systems/InventorySystem.js?v=release-20260613-12';
 import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260612-2';
 import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260613-11';
 import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260613-11';
-import { DropSystem } from './systems/DropSystem.js?v=release-20260612-2';
+import { DropSystem } from './systems/DropSystem.js?v=release-20260613-12';
 import { BoxSystem } from './systems/BoxSystem.js';
 import { NPCSystem, UIState } from './systems/NPCSystem.js';
 import { ShopSystem } from './systems/ShopSystem.js?v=release-20260612-2';
@@ -32,7 +32,7 @@ import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260612-2
 import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260612-2';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260612-2';
-import { UIManager } from './ui/UIManager.js?v=release-20260612-2';
+import { UIManager } from './ui/UIManager.js?v=release-20260613-12';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260613-9';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260612-2';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260612-2';
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260612-2';
-import './ui/BottomBarUI.js?v=release-20260613-11';
+import './ui/BottomBarUI.js?v=release-20260613-12';
 
 // ========================
 // 数据加载
