@@ -63,6 +63,9 @@ class UIManagerClass {
       this._refreshAll();
     });
     eventBus.on('autoplay.stop', () => this._refreshAll());
+    eventBus.on('autoplay.auto_sell', summary => {
+      this.toast(`自动出售 ${summary.sold} 个石头，获得 ${summary.gold_earned} 金币`, 'success');
+    });
     ['drop.equipment', 'drop.stone', 'drop.box', 'drop.potion'].forEach(eventName => {
       eventBus.on(eventName, () => {
         if (this._homeSession.startedAt) this._homeSession.drops += 1;

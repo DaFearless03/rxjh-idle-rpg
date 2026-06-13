@@ -6,6 +6,7 @@
 import { eventBus } from '../core/EventBus.js';
 import { forceCloseDialog } from './NPCSystem.js';
 import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260612-2';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260613-30';
 
 export const TeleportSystem = {
   /**
@@ -40,6 +41,10 @@ export const TeleportSystem = {
 
     // 关闭 NPC 对话
     forceCloseDialog();
+
+    if (prev && !subZoneKey) {
+      AutoSellSystem.sellConfiguredStones(player);
+    }
 
     eventBus.emit('teleport.done', { from: prev, to: subZoneKey, source });
     return true;

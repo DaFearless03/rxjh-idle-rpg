@@ -10,6 +10,19 @@ import { eventBus } from '../core/EventBus.js';
 export const ShopSystem = {
   FORBIDDEN_SELL_TYPES: ['quest_items', 'boxes'],
 
+  getSellPrice(itemKey, npcData = null) {
+    const baseKey = String(itemKey || '').split('--')[0];
+    const itemEntry = (npcData?.items || []).find(i => i.item_key === baseKey);
+    const fixedPrices = {
+      hp_potion_grade1: 1, mp_potion_grade1: 1,
+      hp_potion_grade2: 5, mp_potion_grade2: 5,
+      hp_potion_grade3: 12, mp_potion_grade3: 12,
+      enhance_stone_01: 15, cold_jade_01: 20, vajra_01: 20, hot_blood_01: 25,
+      enhance_stone_02: 15, cold_jade_02: 20, vajra_02: 20, hot_blood_02: 25,
+    };
+    return fixedPrices[baseKey] ?? (itemEntry?.buy_price ? Math.max(1, Math.floor(itemEntry.buy_price * 0.5)) : 1);
+  },
+
   /**
    * 向 NPC 购买物品
    * @param {Object} player
@@ -89,14 +102,7 @@ export const ShopSystem = {
     }
 
     // 找商店物品条目（算 sell_price）
-    const itemEntry = (npcData.items || []).find(i => i.item_key === itemKey);
-    const fixedPrices = {
-      hp_potion_grade1: 1, mp_potion_grade1: 1,
-      hp_potion_grade2: 5, mp_potion_grade2: 5,
-      hp_potion_grade3: 12, mp_potion_grade3: 12,
-      enhance_stone_01: 15, cold_jade_01: 20, vajra_01: 20, hot_blood_01: 25,
-    };
-    const sellPrice = fixedPrices[itemKey] ?? (itemEntry?.buy_price ? Math.max(1, Math.floor(itemEntry.buy_price * 0.5)) : 1);
+    const sellPrice = this.getSellPrice(itemKey, npcData);
     const totalPrice = sellPrice * count;
 
     InventorySystem.remove(player, itemKey, count);

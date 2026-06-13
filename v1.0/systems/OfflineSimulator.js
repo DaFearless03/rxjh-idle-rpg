@@ -7,6 +7,7 @@ import { SaveManager } from '../core/SaveManager.js';
 import { AttributeSystem } from './AttributeSystem.js?v=release-20260612-2';
 import { BattleSystem } from './BattleSystem.js?v=release-20260613-14';
 import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260612-2';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260613-30';
 import { eventBus } from '../core/EventBus.js';
 import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260612-2';
 
@@ -208,6 +209,9 @@ export const OfflineSimulator = {
     battle._mainTargetKey = null;
     battle._currentSubZone = subZonesData?.find(s => s.key === subZoneKey) || null;
     battle._initialSpawned = false;
+    if (prev && !subZoneKey) {
+      AutoSellSystem.sellConfiguredStones(player, { silent: true });
+    }
   },
 
   _restorePlayerFromSave(save) {

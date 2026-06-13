@@ -88,6 +88,10 @@ export function runCharacterCreationFlow(opts) {
               mp: { enabled: false, selected_potion: null, target_quantity: 10 },
             },
           },
+          auto_sell: {
+            enabled: false,
+            categories: {},
+          },
         },
         offline: { last_save_timestamp: now },
         statistics: { total_kills: 0, total_playtime_ms: 0, total_gold_earned: 0, total_deaths: 0 },

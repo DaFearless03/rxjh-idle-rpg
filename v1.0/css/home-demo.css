@@ -2995,6 +2995,51 @@ body {
   transform: translateY(0.2rem);
   box-shadow: 0 0.05rem 0 var(--border-shadow);
 }
+.auto-sell-panel .panel-title { align-items: center; }
+.auto-sell-group {
+  margin-top: 0.8rem;
+  border: 0.2rem solid var(--border-inner);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--bg-window-2);
+}
+.auto-sell-group-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.45rem 0.55rem;
+  border-bottom: 0.15rem solid var(--border-inner);
+  background: var(--highlight);
+  color: var(--text-main);
+  font-size: 0.62rem;
+  font-weight: bold;
+}
+.auto-sell-group-title span:last-child { color: var(--text-dim); font-size: 0.52rem; }
+.auto-sell-rule {
+  display: grid;
+  grid-template-columns: auto 1fr auto 5rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  border-bottom: 0.1rem dashed #d8cba8;
+  color: var(--text-main);
+  font-size: 0.65rem;
+}
+.auto-sell-rule:last-child { border-bottom: 0; }
+.auto-sell-rule input[type="checkbox"] { accent-color: var(--menu-green); }
+.auto-sell-rule-op { color: var(--menu-accent); font-weight: bold; }
+.auto-sell-value {
+  width: 100%;
+  border: 0.15rem solid var(--border-inner);
+  border-radius: 0.35rem;
+  background: var(--bg-window);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.62rem;
+  padding: 0.3rem;
+  text-align: center;
+}
+.auto-sell-disabled { opacity: 0.5; }
 
 /* === 主页城镇 / 野外双状态 === */
 .home-state-content {

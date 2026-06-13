@@ -943,6 +943,7 @@ function renderAutoplayPanel(player) {
   const mpResupply = ap.auto_resupply?.trigger_rules?.mp || {};
   const hpBuy = ap.auto_resupply?.purchase_rules?.hp || {};
   const mpBuy = ap.auto_resupply?.purchase_rules?.mp || {};
+  const autoSell = ap.auto_sell || {};
   const potionName = {
     hp_potion_grade1: '金创药（小）', hp_potion_grade2: '金创药（中）', hp_potion_grade3: '金创药（大）',
     mp_potion_grade1: '人参', mp_potion_grade2: '野山参', mp_potion_grade3: '雪原参',
@@ -964,6 +965,28 @@ function renderAutoplayPanel(player) {
     '<div style="flex:1;margin:0 0.5rem;"><div class="gba-bar" style="height:0.55rem;margin:0.1rem 0"><div class="gba-bar-fill fill-exp" style="width:' + Math.round((value - min) / (max - min) * 100) + '%"></div></div>' +
     '<input type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + value + '" style="width:100%" oninput="' + action + '"></div>' +
     '<span class="sl-v" id="' + id + '" style="min-width:2.5rem;text-align:right;font-size:0.75rem">' + value + '</span></div>';
+
+  const autoSellGroup = (category, title, icon) => {
+    const groupKey = category === 'vajra' ? 'vajra_stones' : 'cold_jade_stones';
+    const definitions = window._stonesData?.[groupKey] || [];
+    const attributes = new Map();
+    definitions.forEach(stone => (stone.attribute?.pool || []).forEach(attribute => {
+      const current = attributes.get(attribute.key);
+      const max = Math.max(...(attribute.value_range || [0]));
+      if (!current || max > current.max) attributes.set(attribute.key, { key: attribute.key, name: attribute.name, max });
+    }));
+    const rules = autoSell.categories?.[category]?.rules || {};
+    const rows = [...attributes.values()].map(attribute => {
+      const rule = rules[attribute.key] || {};
+      return `<label class="auto-sell-rule">
+        <input type="checkbox"${rule.enabled ? ' checked' : ''} onchange="window._setAutoSellRule('${category}','${attribute.key}','enabled',this.checked)">
+        <span class="auto-sell-rule-name">${attribute.name}</span>
+        <span class="auto-sell-rule-op">≤</span>
+        <input class="auto-sell-value" type="number" min="0" max="${attribute.max}" step="1" value="${Number(rule.max_value ?? 0)}" onchange="window._setAutoSellRule('${category}','${attribute.key}','max_value',this.value)">
+      </label>`;
+    }).join('');
+    return `<div class="auto-sell-group"><div class="auto-sell-group-title"><span>${icon} ${title}</span><span>出售属性值 ≤ X</span></div>${rows}</div>`;
+  };
 
   el.innerHTML = `
     <div class="sec-panel">
@@ -1001,6 +1024,15 @@ function renderAutoplayPanel(player) {
       ${potionSelect('mp', mpBuy.selected_potion, mpResupply.enabled, '_setAutoResupplyItem')}
       ${sliderRow('触发', mpResupply.trigger_threshold ?? 10, 2, 50, 1, "window._setAutoResupplyTrigger('mp', this.value)", 'rs-mp-trigger-label')}
       ${sliderRow('买至', mpBuy.target_quantity ?? 50, 5, 100, 5, "window._setAutoResupplyTarget('mp', this.value)", 'rs-mp-target-label')}
+    </div>
+
+    <div class="sec-panel auto-sell-panel">
+      <div class="panel-title"><span>💰 自动出售</span>${toggleBtn('auto-sell', autoSell.enabled, 'window._toggleAutoSell()')}</div>
+      <p class="hang-settings-note">回城后在平十指商店自动出售命中规则的石头，再执行自动补给。</p>
+      <div class="${autoSell.enabled ? '' : 'auto-sell-disabled'}">
+        ${autoSellGroup('vajra', '金刚石', '💠')}
+        ${autoSellGroup('cold_jade', '寒玉石', '🔷')}
+      </div>
     </div>
 
     <div style="margin-top:0.9rem">
@@ -1050,6 +1082,31 @@ window._setAutoPotionItem = (kind, itemKey) => {
 window._setAutoPotionThreshold = (kind, value) => {
   const threshold = Math.max(5, Math.min(95, Number(value) || 30));
   updateAutoPotion(kind, config => { config.threshold = threshold / 100; });
+};
+
+function updateAutoSell(update) {
+  const player = window.game?.player;
+  if (!player) return;
+  player.auto_play = player.auto_play || {};
+  player.auto_play.auto_sell = player.auto_play.auto_sell || { enabled: false, categories: {} };
+  player.auto_play.auto_sell.categories = player.auto_play.auto_sell.categories || {};
+  update(player.auto_play.auto_sell);
+  window.game?.saveNow?.();
+  renderAutoplayPanel(player);
+}
+
+window._toggleAutoSell = () => {
+  updateAutoSell(config => { config.enabled = !config.enabled; });
+};
+
+window._setAutoSellRule = (category, attributeKey, field, value) => {
+  updateAutoSell(config => {
+    config.categories[category] = config.categories[category] || { rules: {} };
+    const rules = config.categories[category].rules = config.categories[category].rules || {};
+    const rule = rules[attributeKey] = rules[attributeKey] || { enabled: false, max_value: 0 };
+    if (field === 'enabled') rule.enabled = !!value;
+    if (field === 'max_value') rule.max_value = Math.max(0, Number(value) || 0);
+  });
 };
 
 function renderQuestPanel(player) {

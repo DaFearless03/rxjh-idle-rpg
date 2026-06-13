@@ -28,11 +28,11 @@ import { runCharacterCreationFlow, getBaseCareers } from './flows/character_crea
 import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260612-2';
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js';
 import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260613-22';
-import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260612-2';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260613-14';
+import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260613-30';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260613-30';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260612-2';
-import { UIManager } from './ui/UIManager.js?v=release-20260613-28';
+import { UIManager } from './ui/UIManager.js?v=release-20260613-30';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260613-28';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260612-2';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260613-16';
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260612-2';
-import './ui/BottomBarUI.js?v=release-20260613-28';
+import './ui/BottomBarUI.js?v=release-20260613-30';
 
 // ========================
 // 数据加载
@@ -120,6 +120,7 @@ window._questTemplates = questsData.quest_templates;
 window._careersData = careersData;
 window._equipTemplates = equipmentsData;
 window._subZonesData = subZonesData;
+window._stonesData = stonesData;
 BuffSystem.setTemplates(buffsData);
 QigongSystem.setTemplates(qigongsData);
 BoxSystem.setTemplates({ boxes: boxesData, equipmentTemplates: equipmentsData });
