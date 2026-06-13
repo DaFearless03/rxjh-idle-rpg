@@ -5,6 +5,7 @@
  */
 import { InventorySystem } from './InventorySystem.js';
 import { createEquipmentInstance } from '../entities/EquipmentInstance.js';
+import { eventBus } from '../core/EventBus.js';
 
 export const ShopSystem = {
   FORBIDDEN_SELL_TYPES: ['quest_items', 'boxes'],
@@ -58,6 +59,7 @@ export const ShopSystem = {
     }
 
     player.resources.gold -= price;
+    eventBus.emit('resources.changed', { player, resource: 'gold', amount: price, action: 'remove' });
     console.log(`[商店] 购买 ${itemEntry.name || itemKey} x${count}，花费 ${price} 金币`);
     return { success: true, message: `购买成功` };
   },
@@ -99,6 +101,7 @@ export const ShopSystem = {
 
     InventorySystem.remove(player, itemKey, count);
     player.resources.gold += totalPrice;
+    eventBus.emit('resources.changed', { player, resource: 'gold', amount: totalPrice, action: 'add' });
     console.log(`[商店] 出售 ${itemKey} x${count}，获得 ${totalPrice} 金币`);
     return { success: true, message: `出售成功，获得 ${totalPrice} 金币` };
   },
@@ -114,6 +117,8 @@ export const ShopSystem = {
     slot.count = 0;
     delete player.inventory.equipment_instances[instanceId];
     player.resources.gold += Math.max(0, Number(sellPrice) || 0);
+    eventBus.emit('inventory.changed', { player, item_key: instance.item_key, action: 'remove', changed_count: 1, count: 0 });
+    eventBus.emit('resources.changed', { player, resource: 'gold', amount: sellPrice, action: 'add' });
     return { success: true, message: `出售成功，获得 ${sellPrice} 金币` };
   }
 };

@@ -209,6 +209,7 @@ export const QigongSystem = {
 
     const refunded = Object.values(player.qigong?.invested || {}).reduce((s, v) => s + v, 0);
     player.resources.gold -= cost;
+    eventBus.emit('resources.changed', { player, resource: 'gold', amount: cost, action: 'remove' });
     player.qigong.invested = {};
     player.qigong.available_points += refunded;
     player.qigong.attribute_reset_count = (player.qigong.attribute_reset_count || 0) + 1;

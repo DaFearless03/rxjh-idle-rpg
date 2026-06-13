@@ -234,6 +234,7 @@ export const AutoPlaySystem = {
 
       const spent = bought * unitPrice;
       player.resources.gold -= spent;
+      eventBus.emit('resources.changed', { player, resource: 'gold', amount: spent, action: 'remove' });
       summary.bought[rule.selected_potion] = (summary.bought[rule.selected_potion] || 0) + bought;
       summary.gold_spent += spent;
     }

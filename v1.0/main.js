@@ -7,17 +7,17 @@ import { Game } from './core/Game.js';
 import { GameLoop } from './core/GameLoop.js';
 import { eventBus } from './core/EventBus.js';
 import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260613-2';
-import { BattleSystem } from './systems/BattleSystem.js?v=release-20260613-14';
+import { BattleSystem } from './systems/BattleSystem.js?v=release-20260613-22';
 import { InventorySystem } from './systems/InventorySystem.js?v=release-20260613-12';
-import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260612-2';
-import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260613-11';
-import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260613-11';
-import { DropSystem } from './systems/DropSystem.js?v=release-20260613-12';
+import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260613-22';
+import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260613-22';
+import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260613-22';
+import { DropSystem } from './systems/DropSystem.js?v=release-20260613-22';
 import { BoxSystem } from './systems/BoxSystem.js';
 import { NPCSystem, UIState } from './systems/NPCSystem.js';
-import { ShopSystem } from './systems/ShopSystem.js?v=release-20260612-2';
+import { ShopSystem } from './systems/ShopSystem.js?v=release-20260613-22';
 import { TaskSystem } from './systems/TaskSystem.js';
-import { QigongSystem } from './systems/QigongSystem.js?v=release-20260612-2';
+import { QigongSystem } from './systems/QigongSystem.js?v=release-20260613-22';
 import { BuffSystem } from './systems/BuffSystem.js';
 import { Player } from './entities/Player.js?v=release-20260612-2';
 import { createEquipmentInstance } from './entities/EquipmentInstance.js';
@@ -27,12 +27,12 @@ import { assertValidGameConfig } from './core/ConfigValidator.js';
 import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260612-2';
 import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260612-2';
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js';
-import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260612-2';
+import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260613-22';
 import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260612-2';
 import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260613-14';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260612-2';
-import { UIManager } from './ui/UIManager.js?v=release-20260613-12';
+import { UIManager } from './ui/UIManager.js?v=release-20260613-22';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260613-9';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260612-2';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260613-16';
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260612-2';
-import './ui/BottomBarUI.js?v=release-20260613-21';
+import './ui/BottomBarUI.js?v=release-20260613-22';
 
 // ========================
 // 数据加载
@@ -194,6 +194,7 @@ window._martialArtsData = martialArtsData;
 
 function refreshActivePanelAfterGM() {
   UIManager._refreshAll?.();
+  window._refreshOpenInventorySurfaces?.();
 
   const activePanel = document.querySelector('.page-panel.active');
   const activePanelId = activePanel?.id?.replace(/^page-/, '');
@@ -843,6 +844,7 @@ window.game = {
       return { success: false, message: `金币不足（需要 ${cost}）` };
     }
     game.player.resources.gold -= cost;
+    eventBus.emit('resources.changed', { player: game.player, resource: 'gold', amount: cost, action: 'remove' });
     currentGlobalSave.character_slots.unlocked_count = slotIndex;
     await SaveManager.saveGlobalState(currentGlobalSave);
     await SaveManager.savePlayerState(game.player, currentSlotIndex);
@@ -1148,6 +1150,7 @@ window.game = {
   },
   addGold: (amount) => {
     game.player.resources.gold = (game.player.resources.gold || 0) + amount;
+    eventBus.emit('resources.changed', { player: game.player, resource: 'gold', amount, action: 'add' });
     console.log(`[金币] 当前: ${game.player.resources.gold}`);
   },
   setBattleLog: (enabled) => {

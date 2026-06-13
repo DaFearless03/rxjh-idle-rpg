@@ -2,13 +2,13 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260613-12';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260612-2';
+import { UIManager } from './UIManager.js?v=release-20260613-22';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260613-22';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260613-12';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260612-2';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260613-11';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260613-11';
-import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260612-2';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260613-22';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260613-22';
+import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260613-22';
 import { mountCharacterPanel } from './CharacterUI.js?v=release-20260613-2';
 import { mountInventoryPanel } from './InventoryUI.js?v=release-20260613-13';
 import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260613-2';
@@ -141,6 +141,29 @@ window._renderDjxSynth = (type) => {
     });
   });
   bindCraftPointerDrag(el, type);
+};
+
+let _inventorySurfaceRefreshFrame = null;
+window._refreshOpenInventorySurfaces = () => {
+  if (_inventorySurfaceRefreshFrame) return;
+  _inventorySurfaceRefreshFrame = requestAnimationFrame(() => {
+    _inventorySurfaceRefreshFrame = null;
+    const player = window.game?.player;
+    if (!player) return;
+    if (document.getElementById('page-inventory')?.classList.contains('active')) renderInventoryPanel(player);
+    if (document.getElementById('warehouseBackdrop')?.classList.contains('open')) _renderWarehouse();
+    if (document.getElementById('yjlShopBackdrop')?.classList.contains('open')) window._renderYjlShop();
+    if (document.getElementById('pszShopBackdrop')?.classList.contains('open')) window._renderPszShop();
+    if (document.getElementById('djxShopBackdrop')?.classList.contains('open')) {
+      const savedSlots = { ...(window._djxSlots[_djxCurrentTab] || {}) };
+      window._renderDjxShop();
+      if (_djxCurrentTab === 'synth' || _djxCurrentTab === 'enhance') {
+        window._djxSlots[_djxCurrentTab] = {};
+        if (savedSlots.equip) window._djxSelectItem(savedSlots.equip, _djxCurrentTab);
+        if (savedSlots.stone) window._djxSelectItem(savedSlots.stone, _djxCurrentTab);
+      }
+    }
+  });
 };
 
 function bindCraftPointerDrag(container, type) {

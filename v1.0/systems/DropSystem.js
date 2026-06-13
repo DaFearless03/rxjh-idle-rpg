@@ -111,6 +111,7 @@ export class DropSystem {
   _dropGold(player, amount) {
     player.resources = player.resources || { gold: 0, training: 0, merit: 0 };
     player.resources.gold += amount;
+    eventBus.emit('resources.changed', { player, resource: 'gold', amount, action: 'add' });
     console.log(`[掉落] 金币 +${amount}`);
   }
 

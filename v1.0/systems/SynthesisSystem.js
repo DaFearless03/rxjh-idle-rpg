@@ -4,6 +4,7 @@
  * @ref 05_equipment.md 5.5.10 synthesis_system
  */
 import { InventorySystem } from './InventorySystem.js';
+import { eventBus } from '../core/EventBus.js';
 
 export const SynthesisSystem = {
   // 各装备槽位孔数
@@ -98,6 +99,8 @@ export const SynthesisSystem = {
     // 石头 key 追加到装备 synthesis_slots
     ei.synthesis_slots = ei.synthesis_slots || [];
     ei.synthesis_slots.push(stoneItemKey);
+    eventBus.emit('inventory.changed', { player, item_key: stoneItemKey, action: 'remove', changed_count: 1, count: InventorySystem.count(player, stoneItemKey) });
+    eventBus.emit('resources.changed', { player, resource: 'gold', amount: cost, action: 'remove' });
 
     return { success: true, message: `合成成功！孔位 ${ei.synthesis_slots.length}/${capacity}` };
   },

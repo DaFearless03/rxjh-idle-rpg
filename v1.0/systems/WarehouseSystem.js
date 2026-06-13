@@ -4,6 +4,7 @@
  * @ref 11_inventory.md warehouse_operation_limit / forbidden_types
  */
 import { InventorySystem } from './InventorySystem.js';
+import { eventBus } from '../core/EventBus.js';
 
 export const WarehouseSystem = {
   FORBIDDEN_TYPES: ['quest_items'],
@@ -67,6 +68,7 @@ export const WarehouseSystem = {
       }
       this._putInstanceSlot(player.warehouse, instance);
       this._removeInstanceSlot(player.inventory, instanceId);
+      eventBus.emit('inventory.changed', { player, item_key: itemKey, action: 'warehouse_deposit', changed_count: 1, count: 0 });
       return { success: true, deposited: 1 };
     }
 
@@ -104,6 +106,7 @@ export const WarehouseSystem = {
       }
       this._putInstanceSlot(player.inventory, instance);
       this._removeInstanceSlot(player.warehouse, instanceId);
+      eventBus.emit('inventory.changed', { player, item_key: itemKey, action: 'warehouse_withdraw', changed_count: 1, count: 1 });
       return { success: true, withdrawn: 1 };
     }
 
@@ -137,6 +140,7 @@ export const WarehouseSystem = {
     }
 
     player.inventory.slots = candidateInventory.slots;
+    eventBus.emit('inventory.changed', { player, item_key: itemKey, action: 'warehouse_withdraw', changed_count: normalizedCount, count: InventorySystem.count(player, itemKey) });
     return { success: true, withdrawn: normalizedCount };
   },
 

@@ -293,6 +293,7 @@ export class BattleSystem {
       // 无 DropSystem 时直接给少量金币（Phase 1 兼容）
       this._player.resources = this._player.resources || { gold: 0, training: 0, merit: 0 };
       this._player.resources.gold += 5;
+      eventBus.emit('resources.changed', { player: this._player, resource: 'gold', amount: 5, action: 'add' });
       this._player.resources.training = (this._player.resources.training || 0) + 1;
       dropSummary = { gold: 5, training: 1 };
     }

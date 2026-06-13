@@ -37,7 +37,13 @@ class UIManagerClass {
     eventBus.on('quest.completed', refreshQuestState);
     eventBus.on('quest.stage_advance', refreshQuestState);
     eventBus.on('inventory.changed', ({ player } = {}) => {
-      if (!player || player === window.game?.player) window._refreshActiveQuestPanel?.();
+      if (!player || player === window.game?.player) {
+        window._refreshActiveQuestPanel?.();
+        window._refreshOpenInventorySurfaces?.();
+      }
+    });
+    eventBus.on('resources.changed', ({ player } = {}) => {
+      if (!player || player === window.game?.player) window._refreshOpenInventorySurfaces?.();
     });
     eventBus.on('battle.monsters_changed', () => this._refreshMonsterList());
     eventBus.on('battle.player_status_changed', () => this._refreshAll());
@@ -48,6 +54,7 @@ class UIManagerClass {
         this._homeSession.gold += Number(data?.gold || 0);
       }
       this._refreshAll();
+      window._refreshOpenInventorySurfaces?.();
     });
     eventBus.on('buff.applied', () => this._refreshAll());
     eventBus.on('buff.expired', () => this._refreshAll());
