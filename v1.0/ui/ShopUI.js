@@ -162,7 +162,7 @@ function renderSellInventory(player) {
   });
   while (cells.length < 50) cells.push('<div class="bag-tile empty"></div>');
   return `<div class="shop-sell-pane">
-    <div class="wh-pane-head"><span class="wh-title">🎒 出售 · 背包</span><span class="wh-gold push">🪙 ${(player?.resources?.gold || 0).toLocaleString()}</span><span class="wh-count">${slots.length} / ${player?.inventory?.capacity || 50}</span></div>
+    <div class="wh-pane-head"><span class="wh-title">背包</span><span class="wh-count">${slots.length} / ${player?.inventory?.capacity || 50}</span><span class="wh-gold push">🪙 ${(player?.resources?.gold || 0).toLocaleString()}</span></div>
     <div class="shop-sell-scroll"><div class="bag-grid">${cells.join('')}</div></div>
   </div>`;
 }
