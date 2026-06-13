@@ -1157,8 +1157,12 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0.7rem 1rem 0.9rem;
+  padding: 0 1rem 0.9rem;
   background: rgba(0,0,0,0.035);
+}
+.shop-sell-pane > .wh-pane-head {
+  margin: 0 -1rem;
+  padding: 0.8rem 1rem 0.6rem;
 }
 .shop-sell-scroll { flex: 1; min-height: 0; overflow-y: auto; }
 .shop-sell-pane .bag-grid {
