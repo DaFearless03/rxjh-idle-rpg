@@ -7,7 +7,7 @@ import { Game } from './core/Game.js';
 import { GameLoop } from './core/GameLoop.js';
 import { eventBus } from './core/EventBus.js';
 import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260613-2';
-import { BattleSystem } from './systems/BattleSystem.js?v=release-20260612-2';
+import { BattleSystem } from './systems/BattleSystem.js?v=release-20260613-14';
 import { InventorySystem } from './systems/InventorySystem.js?v=release-20260613-12';
 import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260612-2';
 import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260613-11';
@@ -29,7 +29,7 @@ import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flow
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js';
 import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260612-2';
 import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260612-2';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260612-2';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260613-14';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260612-2';
 import { UIManager } from './ui/UIManager.js?v=release-20260613-12';

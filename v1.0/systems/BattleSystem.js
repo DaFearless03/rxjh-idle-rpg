@@ -70,12 +70,32 @@ export class BattleSystem {
     if (!this._currentSubZone) return null;
     const zoneMonsterKeys = this._currentSubZone?.monsters || [];
     if (zoneMonsterKeys.length === 0) return null;
-    const candidates = this._monstersData.filter(m => zoneMonsterKeys.includes(m.key));
-    const normalMonsters = candidates.filter(m => m.monster_type === 'normal');
-    const spawnPool = normalMonsters.length > 0 ? normalMonsters : candidates;
-    if (spawnPool.length === 0) return null;
-    const idx = Math.floor(Math.random() * spawnPool.length);
-    return spawnPool[idx];
+    const candidates = this._monstersData.filter(m => zoneMonsterKeys.includes(m.key) && m.monster_type !== 'boss');
+    const normalMonsters = candidates.filter(m => (m.monster_type || 'normal') === 'normal');
+    const eliteCap = this._config.battle_flow.battle_model.elite_cap_per_zone ?? 1;
+    const activeEliteCount = this.monsters.filter(m => m.isAlive() && m.monster_type === 'elite').length;
+    const eliteMonsters = activeEliteCount < eliteCap
+      ? candidates.filter(m => m.monster_type === 'elite')
+      : [];
+    const ratio = String(this._config.battle_flow.battle_model.monster_spawn.spawn_weight?.elite_vs_normal || '1:50')
+      .split(':')
+      .map(Number);
+    const eliteWeight = Number.isFinite(ratio[0]) && ratio[0] > 0 ? ratio[0] : 1;
+    const normalWeight = Number.isFinite(ratio[1]) && ratio[1] > 0 ? ratio[1] : 50;
+
+    const weightedPool = [
+      ...normalMonsters.map(monster => ({ monster, weight: normalWeight })),
+      ...eliteMonsters.map(monster => ({ monster, weight: eliteWeight })),
+    ];
+    const totalWeight = weightedPool.reduce((sum, entry) => sum + entry.weight, 0);
+    if (totalWeight <= 0) return null;
+
+    let roll = Math.random() * totalWeight;
+    for (const entry of weightedPool) {
+      roll -= entry.weight;
+      if (roll < 0) return entry.monster;
+    }
+    return weightedPool[weightedPool.length - 1].monster;
   }
 
   /** 尝试生成一只怪物 */
