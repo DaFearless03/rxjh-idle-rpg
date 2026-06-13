@@ -15,7 +15,7 @@ import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=rele
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260612-2';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260612-2';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-6';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-7';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-2';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-2';
 
@@ -390,6 +390,21 @@ window._renderPszShop = () => {
   const el = document.getElementById('psz-weapon-content');
   if (!el) return;
   el.innerHTML = renderPotionShop(window.game?.player);
+};
+
+window._sortShopInventory = () => {
+  const player = window.game?.player;
+  const slots = player?.inventory?.slots;
+  if (!Array.isArray(slots)) return;
+  const filled = slots.filter(slot => slot?.item_key && (slot.count || 0) > 0);
+  const empty = slots.filter(slot => !slot?.item_key || (slot.count || 0) <= 0);
+  filled.sort((a, b) => String(a.item_key).localeCompare(String(b.item_key)));
+  player.inventory.slots = [...filled, ...empty];
+  window.game?.saveNow?.();
+  window._renderDjxShop?.();
+  window._renderYjlShop?.();
+  window._renderPszShop?.();
+  window._showToast('背包已整理');
 };
 
 window._openWarehouse = () => {
