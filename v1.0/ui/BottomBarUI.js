@@ -96,7 +96,7 @@ function updateDjxShell(tab) {
   const tabs = document.querySelector('#djxShopBackdrop .shop-tabs');
   const outerGold = document.querySelector('#djxShopBackdrop .djx-shop-gold');
   if (title) title.textContent = synthesisOnly ? '💎 合成 · 镶嵌' : tab === 'enhance' ? '⚒ 强化' : '🛒 武器商店';
-  if (tabs) tabs.style.display = synthesisOnly ? 'none' : '';
+  if (tabs) tabs.style.display = '';
   if (outerGold) outerGold.style.display = synthesisOnly ? 'none' : '';
 }
 
