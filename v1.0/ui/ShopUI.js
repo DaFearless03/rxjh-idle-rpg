@@ -96,7 +96,7 @@ function getStoneAttributeLabel(itemKey) {
     defAdd: '防御', defSelfAdd: '防御', maxHpAdd: '生命', maxHpSelfAdd: '生命',
     missingAdd: '闪避', enhanceSuccessRateAdd: '合成成功率', goldDropBonusAdd: '金币爆率',
   };
-  return labels[hook] && value != null ? `${labels[hook]} +${value}` : '';
+  return labels[hook] && value != null ? `${labels[hook]}+${value}` : '';
 }
 
 function renderGold(player) {

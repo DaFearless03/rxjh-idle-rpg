@@ -15,7 +15,7 @@ import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=rele
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260612-2';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260612-2';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-4';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-5';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-2';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-2';
 
