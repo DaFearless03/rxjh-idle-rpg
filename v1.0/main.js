@@ -50,11 +50,24 @@ import './ui/BottomBarUI.js?v=release-20260613-33';
 // 数据加载
 // ========================
 const DATA_VERSION = 'release-20260612-5';
-const fetchData = (path) => fetch(`${path}?v=${DATA_VERSION}`, { cache: 'no-store' });
+const fetchData = async (path) => {
+  const response = await fetch(`${path}?v=${DATA_VERSION}`, { cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error(`数据加载失败：${path}（HTTP ${response.status} ${response.statusText}）`);
+  }
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    const contentType = response.headers.get('content-type') || '未知类型';
+    const preview = text.trim().slice(0, 80).replace(/\s+/g, ' ');
+    throw new Error(`数据解析失败：${path} 返回的不是有效 JSON（${contentType}）\n响应开头：${preview || '(空响应)'}`);
+  }
+};
 
-const [configRes, careersRes, monstersRes, equipmentsRes, stonesRes, subZonesRes,
-       npcsRes, questsRes, qigongsRes, buffsRes, martialArtsRes,
-       dropsRes, boxesRes, globalSaveInitRes] = await Promise.all([
+const [config, careersPayload, monstersPayload, equipmentsPayload, stonesData, subZonesPayload,
+       npcsPayload, questsData, qigongsPayload, buffsPayload, martialArtsPayload,
+       dropsPayload, boxesPayload, globalSaveInit] = await Promise.all([
   fetchData('./data/config.json'),
   fetchData('./data/careers.json'),
   fetchData('./data/monsters.json'),
@@ -70,24 +83,17 @@ const [configRes, careersRes, monstersRes, equipmentsRes, stonesRes, subZonesRes
   fetchData('./data/boxes.json'),
   fetchData('./data/global_save_init.json')
 ]);
-const config = await configRes.json();
-const careersData = (await careersRes.json()).careers;
-const monstersData = (await monstersRes.json()).monsters;
-const equipmentsData = (await equipmentsRes.json()).equipments;
-const stonesData = await stonesRes.json();
-const subZonesPayload = await subZonesRes.json();
+const careersData = careersPayload.careers;
+const monstersData = monstersPayload.monsters;
+const equipmentsData = equipmentsPayload.equipments;
 const subZonesData = subZonesPayload.sub_zones;
-const boxesPayload = await boxesRes.json();
 const boxesData = boxesPayload.boxes || subZonesPayload.boxes || [];
 const monsterDropBoxData = boxesPayload.monster_drop_box || subZonesPayload.monster_drop_box || null;
-const dropsPayload = await dropsRes.json();
 const subZoneDropsData = dropsPayload.sub_zone_drops || subZonesPayload.sub_zone_drops || [];
-const npcsData = (await npcsRes.json()).npcs;
-const questsData = await questsRes.json();
-const qigongsData = (await qigongsRes.json()).qigongs;
-const buffsData = (await buffsRes.json()).buffs;
-const martialArtsData = (await martialArtsRes.json()).martial_arts;
-const globalSaveInit = await globalSaveInitRes.json();
+const npcsData = npcsPayload.npcs;
+const qigongsData = qigongsPayload.qigongs;
+const buffsData = buffsPayload.buffs;
+const martialArtsData = martialArtsPayload.martial_arts;
 
 const stoneKeys = Object.values(stonesData)
   .flatMap(group => Array.isArray(group) ? group : [])
