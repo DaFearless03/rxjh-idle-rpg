@@ -108,15 +108,21 @@ function renderTownLeaderQuestDialog(tab = 'accept') {
 
   const fr = document.getElementById('npcFuncRow');
   fr.style.display = 'block';
-  const rows = tab === "submit" ? ready : available;
   fr.innerHTML = `
     <div class="mz-tabs">
       <button class="mz-tab${tab === 'accept' ? ' active' : ''}" onclick="window._leaderSwitchTab('accept')">接取</button>
       <button class="mz-tab${tab === 'submit' ? ' active' : ''}" onclick="window._leaderSwitchTab('submit')">提交</button>
     </div>
-    <div class="npc-dialog-line" style="margin-bottom:0.6rem">「${tab === 'submit' ? '带回来了？让我看看你这趟的成色。' : npc.line}」</div>
-    <div class="mz-group-label">可${tab === 'submit' ? '提交' : '接取'}</div>
-    ${renderRows(rows, tab === 'submit' ? 'submit' : 'accept')}
+    <div class="mz-pane" data-pane="accept"${tab === 'accept' ? '' : ' style="display:none;"'}>
+      <div class="npc-dialog-line">「${npc.line}」</div>
+      <div class="mz-group-label">可接取</div>
+      ${renderRows(available, 'accept')}
+    </div>
+    <div class="mz-pane" data-pane="submit"${tab === 'submit' ? '' : ' style="display:none;"'}>
+      <div class="npc-dialog-line">「带回来了？让我看看你这趟的成色。」</div>
+      <div class="mz-group-label">可提交</div>
+      ${renderRows(ready, 'submit')}
+    </div>
     <div class="mz-confirm-backdrop" id="leaderQuestConfirm">
       <div class="mz-confirm" onclick="event.stopPropagation()">
         <div class="mz-confirm-text" id="leaderQuestConfirmText">确定接取任务？</div>
@@ -129,7 +135,14 @@ function renderTownLeaderQuestDialog(tab = 'accept') {
 }
 
 
-window._leaderSwitchTab = (tab) => renderTownLeaderQuestDialog(tab);
+window._leaderSwitchTab = (tab) => {
+  document.querySelectorAll('#npcFuncRow .mz-tab').forEach((button, index) => {
+    button.classList.toggle('active', index === (tab === 'submit' ? 1 : 0));
+  });
+  document.querySelectorAll('#npcFuncRow .mz-pane').forEach(pane => {
+    pane.style.display = pane.dataset.pane === tab ? '' : 'none';
+  });
+};
 window._leaderConfirmAccept = (questKey) => {
   const template = window._questTemplates?.find(quest => quest.key === questKey);
   if (!template) return;
