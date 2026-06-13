@@ -28,7 +28,17 @@ const TOWN_NPC_DATA = {
     ],
     funcs: [],
   },
-  djx: { name: '刀剑笑', tag: '武器商 / 强化', avatar: '👤', line: '客官，来看看我的神兵利器！', funcs: ['武器商店', '强化', '合成'] },
+  djx: {
+    name: '刀剑笑',
+    tag: '武器 · 强化 · 合成',
+    avatar: '⚔',
+    line: '「刀客，要趁手的新兵器，还是把旧刀磨得更利？想镶石头，我这儿也成。」',
+    funcs: [
+      { key: '武器商店', label: '购买', icon: '🛒' },
+      { key: '强化', label: '强化', icon: '⚒' },
+      { key: '合成', label: '合成', icon: '💎' },
+    ],
+  },
   yjl: { name: '银娇龙', tag: '防具商', avatar: '👤', line: '本店的护具品质一流，童叟无欺！', funcs: ['防具商店'] },
   psz: { name: '平十指', tag: '药剂商', avatar: '👤', line: '平价药剂，童叟无欺！', funcs: ['药水商店'] },
   wdb: { name: '韦大宝', tag: '仓库', avatar: '👤', line: '存什么东西都行，找我就对了！', funcs: ['打开仓库'] },
@@ -62,10 +72,11 @@ export function openTownNPCDialog(npcKey) {
   } else {
     document.getElementById("npcDialogHead").style.display = "flex";
     document.getElementById('npcDialogLine').style.display = 'block';
-    document.getElementById('npcDialogClose').textContent = '关 闭';
-    document.getElementById('npcFuncRow').innerHTML = npc.funcs.map(func =>
-      `<button class="npc-func-btn" data-npc="${npcKey}" data-func="${func}">${func}</button>`
-    ).join('');
+    document.getElementById('npcDialogClose').textContent = npcKey === 'djx' ? '离开' : '关 闭';
+    document.getElementById('npcFuncRow').innerHTML = npc.funcs.map(func => {
+      const item = typeof func === 'string' ? { key: func, label: func, icon: '' } : func;
+      return `<button class="npc-func-btn" data-npc="${npcKey}" data-func="${item.key}">${item.icon ? `<span class="f-icon">${item.icon}</span>` : ''}${item.label}</button>`;
+    }).join('');
   }
   backdrop.classList.add('open');
 }
