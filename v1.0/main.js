@@ -24,14 +24,14 @@ import { createEquipmentInstance } from './entities/EquipmentInstance.js';
 import { SaveManager } from './core/SaveManager.js';
 import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js';
 import { assertValidGameConfig } from './core/ConfigValidator.js';
-import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260612-2';
+import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260613-32';
 import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260612-2';
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js';
-import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260613-31';
-import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260613-31';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260613-31';
+import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260613-32';
+import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260613-32';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260613-32';
 import { storage } from './utils/storage.js';
-import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260612-2';
+import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260613-32';
 import { UIManager } from './ui/UIManager.js?v=release-20260613-30';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260613-28';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260612-2';
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260612-2';
-import './ui/BottomBarUI.js?v=release-20260613-31';
+import './ui/BottomBarUI.js?v=release-20260613-32';
 
 // ========================
 // 数据加载

@@ -44,7 +44,7 @@ export function restoreRuntimePlayerFromSave(save, opts = {}) {
     warehouse: save.warehouse || { capacity: 50, slots: [], equipment_instances: {} },
     quests: save.quests || { accepted: [], completed: [] },
     location: save.location || { current_map_key: 'town_xuanbo', current_sub_zone_key: null, last_wilderness_sub_zone: null },
-    auto_play: save.auto_play || { is_auto_play: false, auto_consume: {}, auto_heal_skill: {}, auto_resupply: {}, auto_sell: { enabled: false, categories: {} } },
+    auto_play: save.auto_play || { is_auto_play: false, auto_consume: {}, auto_heal_skill: {}, auto_resupply: {}, auto_sell: { enabled: false, categories: {}, equipment: { enabled: false, item_keys: [] } } },
     offline: save.offline || { last_save_timestamp: Date.now() },
     statistics: save.statistics || { total_kills: 0, total_playtime_ms: 0, total_gold_earned: 0, total_deaths: 0 },
     _equipTemplates: equipmentsData,

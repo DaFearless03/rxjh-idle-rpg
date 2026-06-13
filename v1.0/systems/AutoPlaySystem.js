@@ -5,7 +5,7 @@
  */
 import { InventorySystem } from './InventorySystem.js';
 import { ConsumableSystem } from './ConsumableSystem.js';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260613-31';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260613-32';
 import { eventBus } from '../core/EventBus.js';
 
 function createCooldownState() {
@@ -211,7 +211,7 @@ export const AutoPlaySystem = {
     const slots = player.inventory?.slots || [];
     const capacity = player.inventory?.capacity || 50;
     const used = slots.filter(slot => slot?.item_key && (slot.count || 0) > 0).length;
-    return used >= capacity && AutoSellSystem.hasSellableConfiguredStones(player);
+    return used >= capacity && AutoSellSystem.hasSellableConfiguredItems(player);
   },
 
   _willTriggerResupply(player) {

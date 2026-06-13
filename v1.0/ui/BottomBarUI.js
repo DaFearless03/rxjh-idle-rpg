@@ -944,13 +944,17 @@ function renderAutoplayPanel(player) {
   const hpBuy = ap.auto_resupply?.purchase_rules?.hp || {};
   const mpBuy = ap.auto_resupply?.purchase_rules?.mp || {};
   const autoSell = ap.auto_sell || {};
+  const equipmentFilter = autoSell.equipment || {};
+  const escapeSettingText = value => String(value ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   const potionName = {
     hp_potion_grade1: '金创药（小）', hp_potion_grade2: '金创药（中）', hp_potion_grade3: '金创药（大）',
     mp_potion_grade1: '人参', mp_potion_grade2: '野山参', mp_potion_grade3: '雪原参',
   };
 
-  const toggleBtn = (kind, enabled, action) =>
-    '<button class="autoplay-toggle ' + (enabled ? 'on' : 'off') + '" onclick="' + action + '">' + (enabled ? 'ON' : 'OFF') + '</button>';
+  const toggleBtn = (kind, enabled, action, disabled = false) =>
+    '<button class="autoplay-toggle ' + (enabled ? 'on' : 'off') + '" onclick="' + action + '"' + (disabled ? ' disabled' : '') + '>' + (enabled ? 'ON' : 'OFF') + '</button>';
 
   const potionSelect = (kind, selected, enabled, handler = '_setAutoPotionItem') => {
     const keys = kind === 'hp' ? ['hp_potion_grade1','hp_potion_grade2','hp_potion_grade3'] : ['mp_potion_grade1','mp_potion_grade2','mp_potion_grade3'];
@@ -986,6 +990,49 @@ function renderAutoplayPanel(player) {
       </label>`;
     }).join('');
     return `<div class="auto-sell-group"><div class="auto-sell-group-title"><span>${icon} ${title}</span><span>出售属性值 ≤ X</span></div>${rows}</div>`;
+  };
+
+  const equipmentFilterGroup = () => {
+    const slotLabels = {
+      weapon: '武器', chest: '胸甲', gloves: '手套', boots: '鞋子', inner_armor: '内甲',
+      ring: '戒指', earring: '耳环', amulet: '项链', cape: '披风',
+    };
+    const careerLabels = { blade: '刀客', sword: '剑客', spear: '枪客', staff: '医师' };
+    const templates = window._equipTemplates || [];
+    const selection = window._autoSellEquipmentSelection || {};
+    const slot = slotLabels[selection.slot] ? selection.slot : 'weapon';
+    const career = careerLabels[selection.career] ? selection.career : 'blade';
+    const careerSlot = slot === 'weapon' || slot === 'chest';
+    const candidates = templates.filter(item =>
+      item.slot === slot
+      && (!careerSlot || !item.required_career?.length || item.required_career.includes(career))
+    );
+    const selectedKey = candidates.some(item => item.key === selection.itemKey)
+      ? selection.itemKey
+      : candidates[0]?.key || '';
+    window._autoSellEquipmentSelection = { slot, career, itemKey: selectedKey };
+    const optionTags = (items, selected, labelOf) => items.map(item =>
+      `<option value="${escapeSettingText(item)}"${item === selected ? ' selected' : ''}>${escapeSettingText(labelOf(item))}</option>`
+    ).join('');
+    const configuredKeys = equipmentFilter.item_keys || [];
+    const configuredNames = configuredKeys.map(key => templates.find(item => item.key === key)?.name || key).join('；');
+    const controlsDisabled = !autoSell.enabled;
+    return `<div class="auto-sell-group auto-sell-equipment">
+      <div class="auto-sell-group-title">
+        <span>⚔ 装备出售过滤清单</span>
+        ${toggleBtn('auto-sell-equipment', autoSell.enabled && equipmentFilter.enabled, 'window._toggleAutoSellEquipment()', controlsDisabled)}
+      </div>
+      <div class="auto-sell-equipment-controls${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}">
+        <label><span>装备类型</span><select class="select" onchange="window._setAutoSellEquipmentSelection('slot',this.value)"${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>${optionTags(Object.keys(slotLabels), slot, key => slotLabels[key])}</select></label>
+        <label><span>职业</span><select class="select" onchange="window._setAutoSellEquipmentSelection('career',this.value)"${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>${optionTags(Object.keys(careerLabels), career, key => careerLabels[key])}</select></label>
+        <label><span>装备名字</span><select class="select" onchange="window._setAutoSellEquipmentSelection('itemKey',this.value)"${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>${optionTags(candidates.map(item => item.key), selectedKey, key => templates.find(item => item.key === key)?.name || key)}</select></label>
+        <div class="auto-sell-equipment-actions">
+          <button class="btn-3d green" onclick="window._addAutoSellEquipmentFilter()"${!selectedKey || controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>添加出售过滤</button>
+          <button class="btn-3d red" onclick="window._clearAutoSellEquipmentFilter()"${!configuredKeys.length || controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>清空过滤清单</button>
+        </div>
+        <label class="auto-sell-equipment-list"><span>当前出售过滤清单</span><textarea readonly placeholder="暂未添加装备">${escapeSettingText(configuredNames)}</textarea></label>
+      </div>
+    </div>`;
   };
 
   el.innerHTML = `
@@ -1032,6 +1079,7 @@ function renderAutoplayPanel(player) {
       <div class="${autoSell.enabled ? '' : 'auto-sell-disabled'}">
         ${autoSellGroup('vajra', '金刚石', '💠')}
         ${autoSellGroup('cold_jade', '寒玉石', '🔷')}
+        ${equipmentFilterGroup()}
       </div>
     </div>
 
@@ -1088,15 +1136,20 @@ function updateAutoSell(update) {
   const player = window.game?.player;
   if (!player) return;
   player.auto_play = player.auto_play || {};
-  player.auto_play.auto_sell = player.auto_play.auto_sell || { enabled: false, categories: {} };
+  player.auto_play.auto_sell = player.auto_play.auto_sell || { enabled: false, categories: {}, equipment: { enabled: false, item_keys: [] } };
   player.auto_play.auto_sell.categories = player.auto_play.auto_sell.categories || {};
+  player.auto_play.auto_sell.equipment = player.auto_play.auto_sell.equipment || { enabled: false, item_keys: [] };
+  player.auto_play.auto_sell.equipment.item_keys = player.auto_play.auto_sell.equipment.item_keys || [];
   update(player.auto_play.auto_sell);
   window.game?.saveNow?.();
   renderAutoplayPanel(player);
 }
 
 window._toggleAutoSell = () => {
-  updateAutoSell(config => { config.enabled = !config.enabled; });
+  updateAutoSell(config => {
+    config.enabled = !config.enabled;
+    if (!config.enabled) config.equipment.enabled = false;
+  });
 };
 
 window._setAutoSellRule = (category, attributeKey, field, value) => {
@@ -1106,6 +1159,37 @@ window._setAutoSellRule = (category, attributeKey, field, value) => {
     const rule = rules[attributeKey] = rules[attributeKey] || { enabled: false, max_value: 0 };
     if (field === 'enabled') rule.enabled = !!value;
     if (field === 'max_value') rule.max_value = Math.max(0, Number(value) || 0);
+  });
+};
+
+window._toggleAutoSellEquipment = () => {
+  updateAutoSell(config => {
+    config.equipment.enabled = config.enabled ? !config.equipment.enabled : false;
+  });
+};
+
+window._setAutoSellEquipmentSelection = (field, value) => {
+  window._autoSellEquipmentSelection = {
+    ...(window._autoSellEquipmentSelection || {}),
+    [field]: value,
+  };
+  if (field !== 'itemKey') window._autoSellEquipmentSelection.itemKey = '';
+  renderAutoplayPanel(window.game?.player);
+};
+
+window._addAutoSellEquipmentFilter = () => {
+  const itemKey = window._autoSellEquipmentSelection?.itemKey;
+  if (!itemKey || !window._equipTemplates?.some(item => item.key === itemKey)) return;
+  updateAutoSell(config => {
+    if (!config.enabled || !config.equipment.enabled) return;
+    if (!config.equipment.item_keys.includes(itemKey)) config.equipment.item_keys.push(itemKey);
+  });
+};
+
+window._clearAutoSellEquipmentFilter = () => {
+  updateAutoSell(config => {
+    if (!config.enabled || !config.equipment.enabled) return;
+    config.equipment.item_keys = [];
   });
 };
 

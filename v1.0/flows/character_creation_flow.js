@@ -91,6 +91,7 @@ export function runCharacterCreationFlow(opts) {
           auto_sell: {
             enabled: false,
             categories: {},
+            equipment: { enabled: false, item_keys: [] },
           },
         },
         offline: { last_save_timestamp: now },

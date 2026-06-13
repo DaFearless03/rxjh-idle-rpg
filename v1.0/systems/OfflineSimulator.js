@@ -6,8 +6,8 @@
 import { SaveManager } from '../core/SaveManager.js';
 import { AttributeSystem } from './AttributeSystem.js?v=release-20260612-2';
 import { BattleSystem } from './BattleSystem.js?v=release-20260613-14';
-import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260613-31';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260613-31';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260613-32';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260613-32';
 import { eventBus } from '../core/EventBus.js';
 import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260612-2';
 
