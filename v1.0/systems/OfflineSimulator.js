@@ -6,8 +6,8 @@
 import { SaveManager } from '../core/SaveManager.js';
 import { AttributeSystem } from './AttributeSystem.js?v=release-20260612-2';
 import { BattleSystem } from './BattleSystem.js?v=release-20260613-14';
-import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260612-2';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260613-30';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260613-31';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260613-31';
 import { eventBus } from '../core/EventBus.js';
 import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260612-2';
 
@@ -133,7 +133,7 @@ export const OfflineSimulator = {
         battle.tick(TICK_MS);
         const goldBeforeAutoPlay = player.resources?.gold || 0;
         AutoPlaySystem.tick(player, TICK_MS, (source, zone) => {
-          this._teleportOffline(player, battle, subZonesData, zone);
+          this._teleportOffline(player, battle, subZonesData, zone, source);
           if (source === 'auto_resupply' && zone === null) {
             summary.resupply_trips += 1;
           }
@@ -197,7 +197,7 @@ export const OfflineSimulator = {
     return summary;
   },
 
-  _teleportOffline(player, battle, subZonesData, subZoneKey) {
+  _teleportOffline(player, battle, subZonesData, subZoneKey, source) {
     const prev = player.location?.current_sub_zone_key || null;
     player.location = player.location || {};
     if (prev) {
@@ -209,7 +209,8 @@ export const OfflineSimulator = {
     battle._mainTargetKey = null;
     battle._currentSubZone = subZonesData?.find(s => s.key === subZoneKey) || null;
     battle._initialSpawned = false;
-    if (prev && !subZoneKey) {
+    const isAutomatedTownReturn = source === 'auto_resupply' || source === 'auto_sell';
+    if (prev && !subZoneKey && isAutomatedTownReturn) {
       AutoSellSystem.sellConfiguredStones(player, { silent: true });
     }
   },

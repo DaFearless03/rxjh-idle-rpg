@@ -5,14 +5,14 @@
  */
 import { eventBus } from '../core/EventBus.js';
 import { forceCloseDialog } from './NPCSystem.js';
-import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260612-2';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260613-30';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260613-31';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260613-31';
 
 export const TeleportSystem = {
   /**
    * 传送玩家到指定 sub_zone
    * @param {string} subZoneKey 目标 sub_zone key
-   * @param {string} source 触发来源：'player_click' | 'auto_resupply' | 'player_death' | 'gm'
+   * @param {string} source 触发来源：'player_click' | 'auto_resupply' | 'auto_sell' | 'player_death' | 'gm'
    * @param {Object} player
    * @param {Object} game BattleSystem 引用（用于重置战斗现场）
    */
@@ -42,7 +42,8 @@ export const TeleportSystem = {
     // 关闭 NPC 对话
     forceCloseDialog();
 
-    if (prev && !subZoneKey) {
+    const isAutomatedTownReturn = source === 'auto_resupply' || source === 'auto_sell';
+    if (prev && !subZoneKey && isAutomatedTownReturn) {
       AutoSellSystem.sellConfiguredStones(player);
     }
 

@@ -27,9 +27,9 @@ import { assertValidGameConfig } from './core/ConfigValidator.js';
 import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260612-2';
 import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260612-2';
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js';
-import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260613-22';
-import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260613-30';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260613-30';
+import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260613-31';
+import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260613-31';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260613-31';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260612-2';
 import { UIManager } from './ui/UIManager.js?v=release-20260613-30';
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260612-2';
-import './ui/BottomBarUI.js?v=release-20260613-30';
+import './ui/BottomBarUI.js?v=release-20260613-31';
 
 // ========================
 // 数据加载

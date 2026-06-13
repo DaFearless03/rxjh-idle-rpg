@@ -1028,7 +1028,7 @@ function renderAutoplayPanel(player) {
 
     <div class="sec-panel auto-sell-panel">
       <div class="panel-title"><span>💰 自动出售</span>${toggleBtn('auto-sell', autoSell.enabled, 'window._toggleAutoSell()')}</div>
-      <p class="hang-settings-note">回城后在平十指商店自动出售命中规则的石头，再执行自动补给。</p>
+      <p class="hang-settings-note">包满自动回城，自动出售后再自动补给</p>
       <div class="${autoSell.enabled ? '' : 'auto-sell-disabled'}">
         ${autoSellGroup('vajra', '金刚石', '💠')}
         ${autoSellGroup('cold_jade', '寒玉石', '🔷')}

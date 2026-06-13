@@ -16,8 +16,25 @@ function parseStoneKey(itemKey) {
   return { baseKey, category, attributeKey: match[2], value: Number(match[3]) };
 }
 
+function matchesConfiguredRule(player, itemKey) {
+  const config = player?.auto_play?.auto_sell;
+  if (!config?.enabled) return false;
+  const stone = parseStoneKey(itemKey);
+  if (!stone) return false;
+  const rule = config.categories?.[stone.category]?.rules?.[stone.attributeKey];
+  return !!rule?.enabled && stone.value <= Number(rule.max_value ?? 0);
+}
+
 export const AutoSellSystem = {
   parseStoneKey,
+
+  hasSellableConfiguredStones(player) {
+    return (player?.inventory?.slots || []).some(slot =>
+      slot?.item_key
+      && (slot.count || 0) > 0
+      && matchesConfiguredRule(player, slot.item_key)
+    );
+  },
 
   sellConfiguredStones(player, { silent = false } = {}) {
     const config = player?.auto_play?.auto_sell;
@@ -27,10 +44,7 @@ export const AutoSellSystem = {
     const slots = [...(player.inventory?.slots || [])];
     for (const slot of slots) {
       if (!slot?.item_key || (slot.count || 0) <= 0) continue;
-      const stone = parseStoneKey(slot.item_key);
-      if (!stone) continue;
-      const rule = config.categories?.[stone.category]?.rules?.[stone.attributeKey];
-      if (!rule?.enabled || stone.value > Number(rule.max_value ?? 0)) continue;
+      if (!matchesConfiguredRule(player, slot.item_key)) continue;
 
       const itemKey = slot.item_key;
       const count = slot.count;
