@@ -1323,6 +1323,12 @@ body {
 .synth-slot.empty.selected { border-style: solid; border-color: var(--menu-green); background: rgba(76,160,80,0.12); color: var(--menu-green); }
 .synth-slot.empty.dragover { border-style: solid; border-color: var(--menu-green); background: rgba(76,160,80,0.22); transform: scale(1.06); }
 .synth-slot.empty.reject { border-color: var(--menu-accent); animation: shake .3s; }
+.synth-slot.empty.inactive {
+  opacity: 0.32;
+  background: rgba(0,0,0,0.08);
+  border-style: solid;
+  cursor: not-allowed;
+}
 .synth-hint { font-size: 0.75rem; color: var(--text-dim); text-align: center; margin-bottom: 0.8rem; }
 .synth-hint.hidden { display: none; }
 .synth-hint b { color: var(--menu-blue); }

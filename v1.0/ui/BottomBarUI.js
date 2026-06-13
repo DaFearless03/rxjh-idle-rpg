@@ -17,7 +17,7 @@ import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260613-13';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260613-16';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-13';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-18';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-18';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-20';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -158,7 +158,7 @@ function bindCraftPointerDrag(container, type) {
         ghost.style.left = `${e.clientX}px`;
         ghost.style.top = `${e.clientY}px`;
         document.querySelectorAll(`#djx-${type}-content .dragover`).forEach(el => el.classList.remove('dragover'));
-        const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.craft-dropzone, .synth-slot.empty');
+        const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.craft-dropzone, .synth-slot.empty:not(.inactive)');
         target?.classList.add('dragover');
       };
       const up = e => {
@@ -167,7 +167,7 @@ function bindCraftPointerDrag(container, type) {
         tile.removeEventListener('pointercancel', up);
         document.querySelectorAll(`#djx-${type}-content .dragover`).forEach(el => el.classList.remove('dragover'));
         ghost.remove();
-        const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.craft-dropzone, .synth-slot.empty');
+        const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.craft-dropzone, .synth-slot.empty:not(.inactive)');
         const isStone = tile.dataset.kind === 'stone';
         const valid = isStone ? target?.classList.contains('synth-slot') || target?.dataset.zone?.endsWith('-stone') : target?.dataset.zone === 'equip';
         if (valid) window._djxSelectItem(tile.dataset.key, type);
@@ -246,8 +246,7 @@ function updateSynthesisWorkbench() {
 
   content.querySelectorAll('.bag-tile.used').forEach(tile => tile.classList.remove('used'));
   if (!equipTile) {
-    grid.classList.add('hidden');
-    grid.innerHTML = '';
+    grid.innerHTML = Array(4).fill('<div class="synth-slot empty inactive">＋</div>').join('');
     hint.classList.add('hidden');
     result?.classList.add('hidden');
     reset?.classList.add('hidden');
@@ -259,13 +258,13 @@ function updateSynthesisWorkbench() {
   const filled = String(equipTile.dataset.filled || '').split('|').filter(Boolean);
   const stoneCategory = equipTile.dataset.stoneCategory;
   const categoryName = stoneCategory === 'vajra' ? '金刚石' : stoneCategory === 'hot_blood' ? '热血石' : '寒玉石';
-  grid.innerHTML = Array.from({ length: capacity }, (_, index) => {
+  grid.innerHTML = Array.from({ length: 4 }, (_, index) => {
+    if (index >= capacity) return '<div class="synth-slot empty inactive">＋</div>';
     const stone = filled[index];
     if (stone) return `<div class="synth-slot filled">💠<span class="slot-val">${stone}</span></div>`;
     const staged = index === filled.length && slots.stone;
     return `<div class="synth-slot ${staged ? 'filled staged' : 'empty'}" data-idx="${index}" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'stone','synth')">${staged ? '💎<span class="slot-val">待镶嵌</span>' : '＋'}</div>`;
   }).join('');
-  grid.classList.remove('hidden');
   hint.innerHTML = `该装备孔位仅可镶 <b>${categoryName}</b>　从下方拖石头到空孔`;
   hint.classList.remove('hidden');
   if (result) {
