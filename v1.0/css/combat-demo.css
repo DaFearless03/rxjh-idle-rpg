@@ -87,21 +87,38 @@
 #page-combat .player-bar .career { color: var(--text-link); font-weight: bold; }
 
 /* === HP/MP/EXP 三条紧凑显示 === */
+#page-combat .stat-bars-area {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+#page-combat .header-avatar {
+  width: 2.6rem;
+  height: 3.8rem;
+  flex-shrink: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
 #page-combat .stat-bars-compact {
   display: flex;
+  flex: 1;
+  min-width: 0;
   flex-direction: column;
   gap: 0.3rem !important;
 }
 #page-combat .stat-row {
   display: grid;
-  grid-template-columns: 3.6rem 1fr 7rem;
+  grid-template-columns: 3.2rem 1fr 7.5rem;
   align-items: center;
-  gap: 0.4rem !important;
+  gap: 0.3rem !important;
   font-size: 0.8rem;
 }
 #page-combat .stat-label {
   font-weight: bold;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
 }
 #page-combat .stat-label.hp { color: var(--hp-green); }
 #page-combat .stat-label.mp { color: var(--menu-blue); }
@@ -149,9 +166,11 @@
 #page-combat .fill-mp { background: linear-gradient(to bottom, #6898e8, var(--menu-blue)); }
 #page-combat .fill-exp { background: linear-gradient(to bottom, #f8d858, var(--menu-yellow)); }
 #page-combat .stat-num {
+  min-width: 7.5rem;
   text-align: right;
-  font-size: 0.8rem;
+  font-size: 0.68rem;
   color: var(--text-main);
+  white-space: nowrap;
 }
 
 /* === Zone 选择条（横向 tab）=== */

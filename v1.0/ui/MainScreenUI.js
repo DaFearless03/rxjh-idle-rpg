@@ -189,16 +189,19 @@ export function buildMainScreenUI(container) {
         <div class="char-header">
           <div class="top-row-1">
             <div class="player-bar">
-              <span class="name" id="char-player-name">—</span><span class="sep">·</span>
-              <span class="level" id="char-player-level">Lv.1</span><span class="sep">·</span>
-              <span class="faction neutral" id="char-player-faction">中立</span><span class="sep">·</span>
-              <span class="career" id="char-player-career">—</span>
+              <span class="name" id="char-name">—</span><span class="sep">·</span>
+              <span class="level" id="char-level">Lv.1</span><span class="sep">·</span>
+              <span class="faction neutral" id="char-faction">中立</span><span class="sep">·</span>
+              <span class="career" id="char-class">—</span>
             </div>
           </div>
-          <div class="stat-bars-compact">
-            <div class="stat-row"><span class="stat-label hp">生命值</span><div class="gba-bar"><div class="gba-bar-fill fill-hp" id="char-hp-fill"></div><span class="gba-bar-pct" id="char-hp-pct">100%</span></div><span class="stat-num" id="char-hp-num">0/0</span></div>
-            <div class="stat-row"><span class="stat-label mp">内功值</span><div class="gba-bar"><div class="gba-bar-fill fill-mp" id="char-mp-fill"></div><span class="gba-bar-pct" id="char-mp-pct">100%</span></div><span class="stat-num" id="char-mp-num">0/0</span></div>
-            <div class="stat-row"><span class="stat-label exp">经验值</span><div class="gba-bar"><div class="gba-bar-fill fill-exp" id="char-exp-fill"></div><span class="gba-bar-pct" id="char-exp-pct">0%</span></div><span class="stat-num" id="char-exp-num">0/0</span></div>
+          <div class="stat-bars-area">
+            <div class="header-avatar" id="char-avatar" aria-hidden="true"></div>
+            <div class="stat-bars-compact">
+              <div class="stat-row"><span class="stat-label hp">生命值</span><div class="gba-bar"><div class="gba-bar-fill fill-hp" id="char-hp-fill"></div><span class="gba-bar-pct" id="char-hp-pct">100%</span></div><span class="stat-num" id="char-hp-text">0/0</span></div>
+              <div class="stat-row"><span class="stat-label mp">内功值</span><div class="gba-bar"><div class="gba-bar-fill fill-mp" id="char-mp-fill"></div><span class="gba-bar-pct" id="char-mp-pct">100%</span></div><span class="stat-num" id="char-mp-text">0/0</span></div>
+              <div class="stat-row"><span class="stat-label exp">经验值</span><div class="gba-bar"><div class="gba-bar-fill fill-exp" id="char-exp-fill"></div><span class="gba-bar-pct" id="char-exp-pct">0%</span></div><span class="stat-num" id="char-exp-text">0/0</span></div>
+            </div>
           </div>
         </div>
         <div class="main-scroll">
@@ -365,21 +368,24 @@ export function buildMainScreenUI(container) {
               <span class="career" id="combat-class">—</span>
             </div>
           </div>
-          <div class="stat-bars-compact">
-            <div class="stat-row">
-              <span class="stat-label hp">生命值</span>
-              <div class="gba-bar"><div class="gba-bar-fill fill-hp" id="role-hp-fill" style="width:100%"></div><span class="gba-bar-pct" id="role-hp-pct">100%</span></div>
-              <span class="stat-num" id="role-hp-text">—/—</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label mp">内功值</span>
-              <div class="gba-bar"><div class="gba-bar-fill fill-mp" id="role-mp-fill" style="width:100%"></div><span class="gba-bar-pct" id="role-mp-pct">100%</span></div>
-              <span class="stat-num" id="role-mp-text">—/—</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label exp">经验值</span>
-              <div class="gba-bar"><div class="gba-bar-fill fill-exp" id="role-exp-fill" style="width:0%"></div><span class="gba-bar-pct" id="role-exp-pct">0%</span></div>
-              <span class="stat-num" id="role-exp-text">—/—</span>
+          <div class="stat-bars-area">
+            <div class="header-avatar" id="combat-avatar" aria-hidden="true"></div>
+            <div class="stat-bars-compact">
+              <div class="stat-row">
+                <span class="stat-label hp">生命值</span>
+                <div class="gba-bar"><div class="gba-bar-fill fill-hp" id="combat-hp-fill" style="width:100%"></div><span class="gba-bar-pct" id="combat-hp-pct">100%</span></div>
+                <span class="stat-num" id="combat-hp-text">—/—</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label mp">内功值</span>
+                <div class="gba-bar"><div class="gba-bar-fill fill-mp" id="combat-mp-fill" style="width:100%"></div><span class="gba-bar-pct" id="combat-mp-pct">100%</span></div>
+                <span class="stat-num" id="combat-mp-text">—/—</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label exp">经验值</span>
+                <div class="gba-bar"><div class="gba-bar-fill fill-exp" id="combat-exp-fill" style="width:0%"></div><span class="gba-bar-pct" id="combat-exp-pct">0%</span></div>
+                <span class="stat-num" id="combat-exp-text">—/—</span>
+              </div>
             </div>
           </div>
         </div>

@@ -5,22 +5,13 @@
 import { eventBus } from '../core/EventBus.js';
 import { storage } from '../utils/storage.js';
 import { refreshMonsterList } from './MonsterListUI.js?v=release-20260612-2';
-import { refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-27';
+import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
 import { appendCombatLog, formatCombatLog, renderCombatLog } from './CombatLogUI.js';
 import { appendRewardLog, formatRewardLog, renderRewardLog } from './RewardLogUI.js';
 import { TaskSystem } from '../systems/TaskSystem.js';
 
 function getCareerDisplayName(player) {
   return window._careersData?.find(career => career.key === player?.career)?.name || player?.career || '—';
-}
-
-function refreshHomeAvatar(player) {
-  const avatar = document.getElementById('home-avatar');
-  if (!avatar) return;
-  const career = window._careersData?.find(item => item.key === player?.career);
-  const family = career?.career_family;
-  avatar.style.backgroundImage = family === 'blade' ? 'url("icons/avatar_blade.png")' : '';
-  avatar.classList.toggle('empty', family !== 'blade');
 }
 
 class UIManagerClass {
@@ -212,7 +203,7 @@ class UIManagerClass {
       factionEl.textContent = p.faction === 'negative' ? '邪派' : p.faction === 'positive' ? '正派' : '中立';
       factionEl.className = `faction ${p.faction || 'neutral'}`;
     }
-    refreshHomeAvatar(p);
+    refreshPlayerAvatar(p, { prefix: 'home' });
     refreshPlayerStatusBar(p, { prefix: 'home' });
     this._refreshHomeLocationState(p);
     this._refreshQuestNotice(p);
@@ -361,7 +352,11 @@ class UIManagerClass {
     const p = window.game?.player;
     if (!p) return;
     refreshPlayerIdentity(p, { prefix: 'combat' });
-    refreshPlayerStatusBar(p, { prefix: 'role' });
+    refreshPlayerAvatar(p, { prefix: 'combat' });
+    refreshPlayerStatusBar(p, { prefix: 'combat' });
+    refreshPlayerIdentity(p, { prefix: 'char' });
+    refreshPlayerAvatar(p, { prefix: 'char' });
+    refreshPlayerStatusBar(p, { prefix: 'char' });
   }
 
   _refreshMonsterList() {

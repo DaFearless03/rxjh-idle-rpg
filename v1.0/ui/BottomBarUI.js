@@ -2,7 +2,7 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260613-22';
+import { UIManager } from './UIManager.js?v=release-20260613-28';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260613-22';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260613-12';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
@@ -18,6 +18,7 @@ import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260613-16';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-13';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-18';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-21';
+import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -905,30 +906,9 @@ function renderCharacterPanel(player) {
 }
 
 function syncCharacterHeader(player) {
-  const expToNext = window.expToNext?.[player.level] || 0;
-  const hpPct = player.maxHp > 0 ? Math.round(player.hp / player.maxHp * 100) : 0;
-  const mpPct = player.maxMp > 0 ? Math.round(player.mp / player.maxMp * 100) : 0;
-  const expPct = expToNext > 0 ? Math.round((player.exp || 0) / expToNext * 100) : 100;
-  const faction = player.faction === 'positive' ? '正派' : player.faction === 'negative' ? '邪派' : '中立';
-  const setText = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
-  const setWidth = (id, pct) => { const el = document.getElementById(id); if (el) el.style.width = `${Math.max(0, Math.min(100, pct))}%`; };
-
-  setText('char-player-name', player.name || '—');
-  setText('char-player-level', `Lv.${player.level || 1}`);
-  const careerName = window._careersData?.find(career => career.key === player.career)?.name || player.career || '—';
-  setText('char-player-career', careerName);
-  setText('char-player-faction', faction);
-  const factionEl = document.getElementById('char-player-faction');
-  if (factionEl) factionEl.className = `faction ${player.faction || 'neutral'}`;
-  setText('char-hp-pct', `${hpPct}%`);
-  setText('char-hp-num', `${player.hp || 0}/${player.maxHp || 0}`);
-  setWidth('char-hp-fill', hpPct);
-  setText('char-mp-pct', `${mpPct}%`);
-  setText('char-mp-num', `${player.mp || 0}/${player.maxMp || 0}`);
-  setWidth('char-mp-fill', mpPct);
-  setText('char-exp-pct', `${expPct}%`);
-  setText('char-exp-num', `${player.exp || 0}/${expToNext}`);
-  setWidth('char-exp-fill', expPct);
+  refreshPlayerIdentity(player, { prefix: 'char' });
+  refreshPlayerAvatar(player, { prefix: 'char' });
+  refreshPlayerStatusBar(player, { prefix: 'char' });
 }
 
 function renderQigongGrid(player) {

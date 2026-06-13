@@ -78,3 +78,14 @@ export function refreshPlayerIdentity(player, options = {}) {
     factionEl.className = `faction ${player.faction || 'neutral'}`;
   }
 }
+
+export function refreshPlayerAvatar(player, options = {}) {
+  if (!player) return;
+  const { prefix = 'home' } = options;
+  const avatar = document.getElementById(`${prefix}-avatar`);
+  if (!avatar) return;
+  const career = window._careersData?.find(item => item.key === player.career);
+  const family = career?.career_family;
+  avatar.style.backgroundImage = family === 'blade' ? 'url("icons/avatar_blade.png")' : '';
+  avatar.classList.toggle('empty', family !== 'blade');
+}
