@@ -398,6 +398,7 @@ export function buildMainScreenUI(container) {
             <span class="dropdown">▼</span>
           </div>
           <div class="idle-indicator" id="idle-indicator">挂机中</div>
+          <button class="zone-autoplay-button start" id="zone-autoplay-button" onclick="window._toggleZoneAutoplay()">开始挂机</button>
         </div>
 
         <!-- 主滚动区 -->

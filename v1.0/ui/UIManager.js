@@ -373,9 +373,13 @@ class UIManagerClass {
 
   _refreshIdleIndicator() {
     const el = document.getElementById('idle-indicator');
-    if (!el) return;
     const isAutoplay = window.game?.player?.auto_play?.is_auto_play;
-    el.style.display = isAutoplay ? 'flex' : 'none';
+    if (el) el.style.display = isAutoplay ? 'flex' : 'none';
+    const button = document.getElementById('zone-autoplay-button');
+    if (!button) return;
+    button.textContent = isAutoplay ? '暂停挂机' : '开始挂机';
+    button.classList.toggle('pause', !!isAutoplay);
+    button.classList.toggle('start', !isAutoplay);
   }
 
   // ========================

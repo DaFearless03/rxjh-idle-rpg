@@ -185,6 +185,7 @@
 }
 #page-combat .zone-current {
   flex: 1;
+  min-width: 0;
   background: var(--bg-window);
   border: 0.2rem solid var(--menu-accent);
   border-radius: 0.4rem;
@@ -211,6 +212,26 @@
 #page-combat .idle-indicator::before {
   content: '●';
   animation: pulse 1.5s ease-in-out infinite;
+}
+#page-combat .zone-autoplay-button {
+  flex: 0 0 auto;
+  min-width: 7.2rem;
+  border: 0.2rem solid var(--border-outer);
+  border-radius: 0.45rem;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: bold;
+  padding: 0.58rem 0.75rem;
+  box-shadow: 0 0.2rem 0 var(--border-shadow);
+  cursor: pointer;
+  white-space: nowrap;
+}
+#page-combat .zone-autoplay-button.start { background: var(--menu-green); }
+#page-combat .zone-autoplay-button.pause { background: var(--menu-accent); }
+#page-combat .zone-autoplay-button:active {
+  transform: translateY(0.15rem);
+  box-shadow: 0 0.05rem 0 var(--border-shadow);
 }
 @keyframes pulse { 50% { opacity: 0.3; } }
 

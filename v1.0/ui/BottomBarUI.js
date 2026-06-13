@@ -1084,11 +1084,7 @@ function renderAutoplayPanel(player) {
     </div>
 
     <div style="margin-top:0.9rem">
-      ${ap.is_auto_play ? `
-        <button class="btn-3d red" style="width:100%;padding:0.9rem;font-size:0.95rem" onclick="window._stopAutoplay()">⏹ 停止挂机</button>
-      ` : `
-        <button class="btn-3d green" style="width:100%;padding:0.9rem;font-size:0.95rem" onclick="window._startAutoplay()">▶ 开始挂机</button>
-      `}
+      <button class="btn-3d green" style="width:100%;padding:0.9rem;font-size:0.95rem" onclick="window._saveAutoplaySettings()">保存设置</button>
     </div>
   `;
 }
@@ -1191,6 +1187,11 @@ window._clearAutoSellEquipmentFilter = () => {
     if (!config.enabled || !config.equipment.enabled) return;
     config.equipment.item_keys = [];
   });
+};
+
+window._saveAutoplaySettings = () => {
+  window.game?.saveNow?.();
+  UIManager.toast('挂机设置已保存', 'success');
 };
 
 function renderQuestPanel(player) {
@@ -1339,6 +1340,15 @@ window._startAutoplay = () => {
   UIManager._refreshAll?.();
 };
 window._stopAutoplay = () => { window.game?.stopAutoPlay(); UIManager.closePanel(); };
+window._toggleZoneAutoplay = () => {
+  if (window.game?.player?.auto_play?.is_auto_play) {
+    window.game?.stopAutoPlay();
+  } else {
+    window._startAutoplay();
+    return;
+  }
+  UIManager._refreshAll?.();
+};
 window._toggleWildAutoplay = () => {
   if (window.game?.player?.auto_play?.is_auto_play) {
     window._stopAutoplay();
