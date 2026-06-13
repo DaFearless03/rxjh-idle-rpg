@@ -2707,7 +2707,7 @@ body {
 }
 .page-character .role-page,
 .page-quest .quest-page,
-.page-settings .settings-shell {
+.page-settings .settings-page {
   height: 100%;
   gap: 0;
 }
@@ -2853,8 +2853,65 @@ body {
 .page-quest .qc-foot-note { color: var(--text-dim); font-size: 0.55rem; line-height: 1.5; margin-top: 0.45rem; text-align: center; }
 .page-quest .qc-done-mark { color: var(--menu-green); font-size: 0.72rem; font-weight: bold; }
 
-.page-settings .settings-shell { display: block; }
-.page-settings .set-card { margin-bottom: 0.9rem; border-radius: 0.6rem; padding: 0.9rem 0.85rem 0.85rem; }
+.page-settings .settings-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.page-settings .settings-tab-bar {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem 0.6rem;
+  background: var(--bg-window);
+  border-bottom: 0.3rem solid var(--border-outer);
+}
+.page-settings .settings-tab-btn {
+  border: 0.2rem solid var(--border-inner);
+  border-radius: 0.45rem;
+  background: var(--bg-window-2);
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: bold;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+.page-settings .settings-tab-btn.active {
+  border-color: var(--menu-accent);
+  background: var(--highlight);
+  color: var(--menu-accent);
+}
+.page-settings .settings-tab-body {
+  flex: 1;
+  min-height: 0;
+  background: var(--bg-base);
+}
+.page-settings .settings-tab-pane {
+  display: none;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.9rem 0.9rem 1.2rem;
+}
+.page-settings .settings-tab-pane.active { display: block; }
+.page-settings .settings-shell {
+  display: block;
+  height: auto;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+}
+.page-settings .set-card {
+  margin-bottom: 0.9rem;
+  border: 0.3rem solid var(--border-outer);
+  border-radius: 0.6rem;
+  background: var(--bg-window);
+  box-shadow: inset 0 0 0 0.2rem var(--bg-window), inset 0 0 0 0.35rem var(--border-inner);
+  padding: 0.9rem 0.85rem 0.85rem;
+}
+.page-settings .set-card:last-child { margin-bottom: 0; }
 .page-settings .sc-head { align-items: baseline; margin-bottom: 0; }
 .page-settings .sc-ico { width: auto; height: auto; background: none; font-size: 1.1rem; }
 .page-settings .sc-radio {
@@ -2871,6 +2928,30 @@ body {
 .page-settings .rd-sub { color: var(--text-dim); display: block; font-size: 0.55rem; font-weight: normal; }
 .page-settings .sc-actions { display: block; margin-top: 0; }
 .page-settings .sc-btn { width: 100%; margin-top: 0.7rem; }
+.page-settings .sc-note { font-size: 0.6rem; line-height: 1.6; margin-top: 0.55rem; }
+.page-settings .sc-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.8rem;
+  font-size: 0.72rem;
+  padding: 0.4rem 0;
+  border-bottom: 0.15rem dashed var(--border-inner);
+}
+.page-settings .sc-info-row:last-of-type { border-bottom: none; }
+.page-settings .sc-info-k { color: var(--text-dim); white-space: nowrap; }
+.page-settings .sc-info-v { color: var(--text-main); font-size: 0.66rem; font-weight: bold; text-align: right; }
+.page-settings .sc-disabled-note {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border: 0.15rem solid var(--border-inner);
+  border-radius: 0.4rem;
+  background: var(--bg-window-2);
+  color: var(--text-dim);
+  font-size: 0.6rem;
+  line-height: 1.6;
+}
+.page-settings #settings-autoplay-content .sec-panel { margin-bottom: 0.9rem; }
 
 /* === 主页城镇 / 野外双状态 === */
 .home-state-content {

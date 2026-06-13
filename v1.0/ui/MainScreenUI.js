@@ -270,60 +270,70 @@ export function buildMainScreenUI(container) {
       <div class="page-panel page-settings" id="page-settings">
         <div class="eq-header">
           <div class="eq-title">设置</div>
-          <div class="eq-subtitle">存档导入导出 · 角色管理 · 游戏信息</div>
+          <div class="eq-subtitle">系统管理 · 挂机设置</div>
         </div>
         <div class="main-scroll">
           <div class="panel-content">
-            <div class="settings-shell">
-              <div class="set-card">
-                <div class="sc-head">
-                  <span class="sc-ico">📤</span>
-                  <div>
-                    <div class="sc-name">导出存档</div>
-                    <div class="sc-desc">生成 base64 文本，可复制到其他设备。</div>
-                  </div>
-                </div>
-                <button class="sc-radio on" id="exportScopeAll" onclick="window._settingsSetExportScope('all')"><span class="rd-dot"></span><span class="rd-text">全部角色<span class="rd-sub">包含全局配置和所有已创建角色</span></span></button>
-                <button class="sc-radio" id="exportScopeCurrent" onclick="window._settingsSetExportScope('current')"><span class="rd-dot"></span><span class="rd-text">当前角色<span class="rd-sub">仅导出正在游玩的角色</span></span></button>
-                <textarea class="sc-textarea" id="settingsExportText" readonly placeholder="点击导出后显示存档文本"></textarea>
-                <div class="sc-actions">
-                  <button class="sc-btn green" onclick="window._settingsExportSave()">导出并复制</button>
-                  <button class="sc-btn ghost" onclick="window._settingsCopyExport()">复制文本</button>
-                </div>
+            <div class="settings-page">
+              <div class="settings-tab-bar">
+                <button class="settings-tab-btn active" id="settingsTabSystem" onclick="window._switchSettingsTab('system')">系统</button>
+                <button class="settings-tab-btn" id="settingsTabAutoplay" onclick="window._switchSettingsTab('autoplay')">挂机</button>
               </div>
-              <div class="set-card">
-                <div class="sc-head">
-                  <span class="sc-ico">📥</span>
-                  <div>
-                    <div class="sc-name">导入存档</div>
-                    <div class="sc-desc">支持全量导入或单角色导入，导入成功后会刷新页面。</div>
+              <div class="settings-tab-body">
+                <div class="settings-tab-pane active" id="settingsPaneSystem">
+                  <div class="settings-shell">
+                    <div class="set-card">
+                      <div class="sc-head">
+                        <span class="sc-ico">📤</span>
+                        <div>
+                          <div class="sc-name">导出存档</div>
+                          <div class="sc-desc">生成 base64 文本，可复制到其他设备。</div>
+                        </div>
+                      </div>
+                      <button class="sc-radio on" id="exportScopeAll" onclick="window._settingsSetExportScope('all')"><span class="rd-dot"></span><span class="rd-text">全部角色 + 全局存档<span class="rd-sub">包含全局配置和所有已创建角色</span></span></button>
+                      <button class="sc-radio" id="exportScopeCurrent" onclick="window._settingsSetExportScope('current')"><span class="rd-dot"></span><span class="rd-text">仅当前角色<span class="rd-sub">仅导出正在游玩的角色，不含全局存档</span></span></button>
+                      <textarea class="sc-textarea" id="settingsExportText" readonly placeholder="点击导出后显示存档文本"></textarea>
+                      <button class="sc-btn green" onclick="window._settingsExportSave()">导出并复制</button>
+                      <button class="sc-btn ghost" onclick="window._settingsCopyExport()">复制文本</button>
+                      <div class="sc-note">导出为 base64 字符串（schema_version 1.0）。</div>
+                    </div>
+                    <div class="set-card">
+                      <div class="sc-head">
+                        <span class="sc-ico">📥</span>
+                        <div>
+                          <div class="sc-name">导入存档</div>
+                          <div class="sc-desc">粘贴此前导出的 base64 文本进行恢复。</div>
+                        </div>
+                      </div>
+                      <textarea class="sc-textarea import" id="settingsImportText" placeholder="粘贴 base64 存档文本"></textarea>
+                      <button class="sc-btn blue" onclick="window._settingsImportSave()">导入存档</button>
+                      <div class="sc-note"><b>注意：</b>全量导入会替换全部角色；单角色导入仅替换对应槽位。</div>
+                    </div>
+                    <div class="set-card">
+                      <div class="sc-head">
+                        <span class="sc-ico">👥</span>
+                        <div>
+                          <div class="sc-name">角色管理</div>
+                          <div class="sc-desc">停止挂机、保存当前进度并返回角色列表。</div>
+                        </div>
+                      </div>
+                      <button class="sc-btn ghost" onclick="window._returnToSaveList()">← 返回角色列表</button>
+                    </div>
+                    <div class="set-card">
+                      <div class="sc-head">
+                        <span class="sc-ico">ℹ️</span>
+                        <div class="sc-name">关于</div>
+                      </div>
+                      <div class="sc-info-row"><span class="sc-info-k">游戏</span><span class="sc-info-v">文字类自动挂机 RPG</span></div>
+                      <div class="sc-info-row"><span class="sc-info-k">版本</span><span class="sc-info-v">v1.0</span></div>
+                      <div class="sc-info-row"><span class="sc-info-k">存档结构</span><span class="sc-info-v">schema_version 1.0</span></div>
+                      <div class="sc-disabled-note">v1.0 暂无音量 / 语言 / 主题设置。</div>
+                    </div>
                   </div>
                 </div>
-                <textarea class="sc-textarea import" id="settingsImportText" placeholder="粘贴 base64 存档文本"></textarea>
-                <div class="sc-note"><b>注意：</b>全量导入会替换当前全部角色存档。</div>
-                <button class="sc-btn blue" onclick="window._settingsImportSave()">导入存档</button>
-              </div>
-              <div class="set-card">
-                <div class="sc-head">
-                  <span class="sc-ico">👥</span>
-                  <div>
-                    <div class="sc-name">角色管理</div>
-                    <div class="sc-desc">保存当前进度并返回角色列表，进行切换、创建或删除。</div>
-                  </div>
+                <div class="settings-tab-pane" id="settingsPaneAutoplay">
+                  <div id="settings-autoplay-content"></div>
                 </div>
-                <button class="sc-btn green" onclick="window._returnToSaveList()">返回角色列表</button>
-              </div>
-              <div class="set-card">
-                <div class="sc-head">
-                  <span class="sc-ico">ℹ️</span>
-                  <div>
-                    <div class="sc-name">关于</div>
-                    <div class="sc-desc">v1.0 挂机文字 RPG · schema_version 1.0</div>
-                  </div>
-                </div>
-                <div class="sc-info-row"><span class="sc-info-k">版本</span><span class="sc-info-v">v1.0</span></div>
-                <div class="sc-info-row"><span class="sc-info-k">存档结构</span><span class="sc-info-v">1.0</span></div>
-                <div class="sc-disabled-note">音量 / 语言 / 主题偏好在 v1.0 暂不开放。</div>
               </div>
             </div>
           </div>

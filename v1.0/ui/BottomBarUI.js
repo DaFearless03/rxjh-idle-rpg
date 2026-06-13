@@ -810,6 +810,16 @@ window._confirmOfflineReward = () => {
 };
 
 let _settingsExportScope = 'all';
+let _settingsActiveTab = 'system';
+
+window._switchSettingsTab = (tab) => {
+  _settingsActiveTab = tab === 'autoplay' ? 'autoplay' : 'system';
+  document.getElementById('settingsTabSystem')?.classList.toggle('active', _settingsActiveTab === 'system');
+  document.getElementById('settingsTabAutoplay')?.classList.toggle('active', _settingsActiveTab === 'autoplay');
+  document.getElementById('settingsPaneSystem')?.classList.toggle('active', _settingsActiveTab === 'system');
+  document.getElementById('settingsPaneAutoplay')?.classList.toggle('active', _settingsActiveTab === 'autoplay');
+  if (_settingsActiveTab === 'autoplay') renderAutoplayPanel(window.game?.player);
+};
 
 window._settingsSetExportScope = (scope) => {
   _settingsExportScope = scope === 'current' ? 'current' : 'all';
@@ -879,6 +889,9 @@ function renderPanelContent(panelId) {
     case 'quest':
       renderQuestPanel(p);
       break;
+    case 'settings':
+      window._switchSettingsTab(_settingsActiveTab);
+      break;
   }
 }
 
@@ -936,7 +949,10 @@ function renderInventoryPanel(player) {
 }
 
 function renderAutoplayPanel(player) {
-  const el = document.getElementById('autoplay-panel-content');
+  const settingsPane = document.getElementById('settingsPaneAutoplay');
+  const el = settingsPane?.classList.contains('active')
+    ? document.getElementById('settings-autoplay-content')
+    : document.getElementById('autoplay-panel-content');
   if (!el) return;
   const p = player || window.game?.player;
   if (!p) return;

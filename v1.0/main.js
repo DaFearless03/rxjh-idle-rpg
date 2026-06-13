@@ -33,7 +33,7 @@ import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-202606
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260612-2';
 import { UIManager } from './ui/UIManager.js?v=release-20260613-22';
-import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260613-9';
+import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260613-10';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260612-2';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260613-16';
 import {
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260612-2';
-import './ui/BottomBarUI.js?v=release-20260613-22';
+import './ui/BottomBarUI.js?v=release-20260613-24';
 
 // ========================
 // 数据加载
