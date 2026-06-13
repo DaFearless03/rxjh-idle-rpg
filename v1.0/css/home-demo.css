@@ -1320,6 +1320,8 @@ body {
 }
 .synth-slot.filled { border-style: solid; border-color: var(--menu-blue); background: rgba(64,104,184,0.1); color: var(--text-main); }
 .synth-slot .slot-val { font-size: 0.6rem; color: var(--menu-blue); font-weight: bold; margin-top: 0.2rem; text-align: center; line-height: 1.2; }
+.synth-slot.filled.staged { border-color: var(--menu-yellow); background: rgba(224,176,48,0.18); }
+.synth-slot.filled.staged .slot-val { color: #9a7000; }
 .synth-slot.empty.selected { border-style: solid; border-color: var(--menu-green); background: rgba(76,160,80,0.12); color: var(--menu-green); }
 .synth-slot.empty.dragover { border-style: solid; border-color: var(--menu-green); background: rgba(76,160,80,0.22); transform: scale(1.06); }
 .synth-slot.empty.reject { border-color: var(--menu-accent); animation: shake .3s; }

@@ -17,7 +17,7 @@ import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260613-13';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260613-16';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-13';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-18';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-20';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-21';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -231,6 +231,17 @@ function updateDjxCraftButton(type) {
   confirmBtn.disabled = type === 'synth' ? !(slots.equip && slots.stone) : !slots.equip;
 }
 
+function getSynthesisStoneAttribute(key) {
+  const [, attr = '', value = ''] = String(key || '').split('--');
+  const labels = {
+    atkSelfAdd: '攻击', atkAdd: '攻击', hitAdd: '命中', hitSelfAdd: '命中',
+    defAdd: '防御', defSelfAdd: '防御', maxHpAdd: '生命', maxHpSelfAdd: '生命',
+    missingAdd: '闪避', weaponSkillBonusAdd: '武功攻击', weaponExtraDamageAdd: '追加伤害',
+    skill_level_up: '技能等级', enhanceSuccessRateAdd: '合成成功率', goldDropBonusAdd: '金币爆率',
+  };
+  return labels[attr] && value ? `${labels[attr]}+${value}` : key;
+}
+
 function updateSynthesisWorkbench() {
   const slots = window._djxSlots.synth || {};
   const content = document.getElementById('djx-synth-content');
@@ -238,16 +249,14 @@ function updateSynthesisWorkbench() {
     ? content?.querySelector(`.bag-tile[data-key="${CSS.escape(slots.equip)}"]`)
     : null;
   const grid = document.getElementById('djx-synth-slot-grid');
-  const hint = document.getElementById('djx-synth-hint');
   const result = document.getElementById('djx-synth-result');
   const confirm = content?.querySelector('.craft-confirm');
   const reset = content?.querySelector('.craft-reset');
-  if (!grid || !hint) return;
+  if (!grid) return;
 
   content.querySelectorAll('.bag-tile.used').forEach(tile => tile.classList.remove('used'));
   if (!equipTile) {
     grid.innerHTML = Array(4).fill('<div class="synth-slot empty inactive">＋</div>').join('');
-    hint.classList.add('hidden');
     result?.classList.add('hidden');
     reset?.classList.add('hidden');
     return;
@@ -256,17 +265,13 @@ function updateSynthesisWorkbench() {
   equipTile.classList.add('used');
   const capacity = Number(equipTile.dataset.cap || 0);
   const filled = String(equipTile.dataset.filled || '').split('|').filter(Boolean);
-  const stoneCategory = equipTile.dataset.stoneCategory;
-  const categoryName = stoneCategory === 'vajra' ? '金刚石' : stoneCategory === 'hot_blood' ? '热血石' : '寒玉石';
   grid.innerHTML = Array.from({ length: 4 }, (_, index) => {
     if (index >= capacity) return '<div class="synth-slot empty inactive">＋</div>';
     const stone = filled[index];
-    if (stone) return `<div class="synth-slot filled">💠<span class="slot-val">${stone}</span></div>`;
+    if (stone) return `<div class="synth-slot filled">💠<span class="slot-val">${getSynthesisStoneAttribute(stone)}</span></div>`;
     const staged = index === filled.length && slots.stone;
-    return `<div class="synth-slot ${staged ? 'filled staged' : 'empty'}" data-idx="${index}" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'stone','synth')">${staged ? '💎<span class="slot-val">待镶嵌</span>' : '＋'}</div>`;
+    return `<div class="synth-slot ${staged ? 'filled staged' : 'empty'}" data-idx="${index}" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'stone','synth')">${staged ? `💎<span class="slot-val">${getSynthesisStoneAttribute(slots.stone)}</span>` : '＋'}</div>`;
   }).join('');
-  hint.innerHTML = `该装备孔位仅可镶 <b>${categoryName}</b>　从下方拖石头到空孔`;
-  hint.classList.remove('hidden');
   if (result) {
     result.innerHTML = `<div class="cr-row"><span class="l">合成费用</span><span class="v cost">💰 ${Number(equipTile.dataset.cost || 0).toLocaleString()}</span></div>`;
     result.classList.remove('hidden');

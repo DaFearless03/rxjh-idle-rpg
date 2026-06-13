@@ -100,7 +100,6 @@ export function renderSynthesisWorkbench(player) {
           <div class="dz-plus">＋</div><div class="dz-hint">拖入装备</div>
         </div>
       </div>
-      <div class="synth-hint hidden" id="djx-synth-hint"></div>
       <div class="slot-grid" id="djx-synth-slot-grid">
         ${Array(4).fill('<div class="synth-slot empty inactive">＋</div>').join('')}
       </div>
