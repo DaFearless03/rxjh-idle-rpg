@@ -172,7 +172,7 @@ export function renderBagTile(slot, player, options = {}) {
     <div class="bt-name">${escapeHtml(display.name)}</div>
     <div class="bt-sub">${escapeHtml(equipped ? '已穿戴' : equipFail || display.sub || '')}</div>
     ${display.enhance > 0 ? `<div class="bt-enh">+${display.enhance}</div>` : ''}
-    ${equipped ? '<div class="bt-badge">装</div>' : isQuest ? '<div class="bt-badge cross">任务</div>' : count > 1 ? `<div class="bt-badge">×${count}</div>` : ''}
+    ${equipped ? '<div class="bt-badge">装</div>' : `${isQuest ? '<div class="bt-badge cross quest">任务</div>' : ''}${count > 1 ? `<div class="bt-badge">×${count}</div>` : ''}`}
   </div>`;
 }
 

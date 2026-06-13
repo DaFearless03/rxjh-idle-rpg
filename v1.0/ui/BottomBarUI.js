@@ -10,12 +10,12 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-2026061
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260613-11';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260612-2';
 import { mountCharacterPanel } from './CharacterUI.js?v=release-20260613-2';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260613-2';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260613-13';
 import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260613-2';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
-import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260612-2';
+import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260613-13';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260612-2';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-7';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-13';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-11';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-11';
 
@@ -421,8 +421,8 @@ const WH_CAPACITY = 50;
 function _whRenderTile(t) {
   const c = parseInt(t.dataset.count, 10);
   let h = '<div class="bt-icon">' + t.dataset.icon + '</div><div class="bt-name">' + t.dataset.name + '</div>';
-  if (t.dataset.quest) h += '<div class="bt-badge cross">任务</div>';
-  else if (c > 1) h += '<div class="bt-badge">×' + c + '</div>';
+  if (t.dataset.quest) h += '<div class="bt-badge cross quest">任务</div>';
+  if (c > 1) h += '<div class="bt-badge">×' + c + '</div>';
   t.innerHTML = h;
 }
 
@@ -437,8 +437,8 @@ function _whMakeTile(d) {
   if (d.quest) t.dataset.quest = '1';
   const c = parseInt(d.count, 10);
   let h = '<div class="bt-icon">' + (d.icon || '📦') + '</div><div class="bt-name">' + (d.name || d.key) + '</div>';
-  if (d.quest) h += '<div class="bt-badge cross">任务</div>';
-  else if (c > 1) h += '<div class="bt-badge">×' + c + '</div>';
+  if (d.quest) h += '<div class="bt-badge cross quest">任务</div>';
+  if (c > 1) h += '<div class="bt-badge">×' + c + '</div>';
   t.innerHTML = h;
   return t;
 }

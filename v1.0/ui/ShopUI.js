@@ -152,8 +152,10 @@ function renderSellInventory(player) {
     const name = meta.name || itemKey;
     const icon = meta.icon || (slot.instance_id ? '⚔️' : '📦');
     const sub = itemClass === 'stones' ? getStoneAttributeLabel(itemKey) : '';
-    const badge = noSell ? `<div class="bt-badge cross">${itemClass === 'boxes' ? '盒子' : '任务'}</div>`
-      : (slot.count > 1 ? `<div class="bt-badge">×${slot.count}</div>` : '');
+    const badge = itemClass === 'quest_items'
+      ? `<div class="bt-badge cross quest">任务</div>${slot.count > 1 ? `<div class="bt-badge">×${slot.count}</div>` : ''}`
+      : noSell ? '<div class="bt-badge cross">盒子</div>'
+        : (slot.count > 1 ? `<div class="bt-badge">×${slot.count}</div>` : '');
     const action = noSell ? `window._showToast('该物品不可出售')`
       : `window._openShopQuantity('sell','${escapeHtml(itemKey)}',${price},'${escapeHtml(name)}','${icon}',${slot.count || 1},'${escapeHtml(slot.instance_id || '')}')`;
     return `<button class="bag-tile${noSell ? ' nosell' : ''}${itemClass === 'quest_items' ? ' cross' : ''}" onclick="${action}" title="${escapeHtml(name)} · ${noSell ? '不可出售' : `出售 ${price} 金币`}">

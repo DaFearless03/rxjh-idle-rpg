@@ -1388,6 +1388,7 @@ body {
   border-radius: 0.8rem; padding: 0.1rem 0.4rem; line-height: 1.3;
 }
 .bag-tile .bt-badge.cross { background: var(--menu-yellow); color: #5a4500; }
+.bag-tile .bt-badge.quest { left: -0.4rem; right: auto; }
 
 /* 拖拽浮层 + toast */
 .drag-ghost {
