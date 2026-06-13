@@ -14,6 +14,15 @@ function getCareerDisplayName(player) {
   return window._careersData?.find(career => career.key === player?.career)?.name || player?.career || '—';
 }
 
+function refreshHomeAvatar(player) {
+  const avatar = document.getElementById('home-avatar');
+  if (!avatar) return;
+  const career = window._careersData?.find(item => item.key === player?.career);
+  const family = career?.career_family;
+  avatar.style.backgroundImage = family === 'blade' ? 'url("icons/avatar_blade.png")' : '';
+  avatar.classList.toggle('empty', family !== 'blade');
+}
+
 class UIManagerClass {
   constructor() {
     this._modals = [];        // modal 栈
@@ -203,6 +212,7 @@ class UIManagerClass {
       factionEl.textContent = p.faction === 'negative' ? '邪派' : p.faction === 'positive' ? '正派' : '中立';
       factionEl.className = `faction ${p.faction || 'neutral'}`;
     }
+    refreshHomeAvatar(p);
     refreshPlayerStatusBar(p, { prefix: 'home' });
     this._refreshHomeLocationState(p);
     this._refreshQuestNotice(p);

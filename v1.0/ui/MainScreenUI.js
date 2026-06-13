@@ -28,21 +28,24 @@ export function buildMainScreenUI(container) {
               <span class="career" id="top-class">—</span>
             </div>
           </div>
-          <div class="stat-bars-compact">
-            <div class="stat-row">
-              <span class="stat-label hp">生命值</span>
-              <div class="gba-bar"><div class="gba-bar-fill fill-hp" id="home-hp-fill" style="width:100%"></div><div class="gba-bar-pct" id="home-hp-pct">100%</div></div>
-              <span class="stat-num" id="home-hp-text">—/—</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label mp">内功值</span>
-              <div class="gba-bar"><div class="gba-bar-fill fill-mp" id="home-mp-fill" style="width:100%"></div><div class="gba-bar-pct" id="home-mp-pct">100%</div></div>
-              <span class="stat-num" id="home-mp-text">—/—</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label exp">经验值</span>
-              <div class="gba-bar"><div class="gba-bar-fill fill-exp" id="home-exp-fill" style="width:0%"></div><div class="gba-bar-pct" id="home-exp-pct">0%</div></div>
-              <span class="stat-num" id="home-exp-text">—/—</span>
+          <div class="stat-bars-area">
+            <div class="header-avatar" id="home-avatar" aria-hidden="true"></div>
+            <div class="stat-bars-compact">
+              <div class="stat-row">
+                <span class="stat-label hp">生命值</span>
+                <div class="gba-bar"><div class="gba-bar-fill fill-hp" id="home-hp-fill" style="width:100%"></div><div class="gba-bar-pct" id="home-hp-pct">100%</div></div>
+                <span class="stat-num" id="home-hp-text">—/—</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label mp">内功值</span>
+                <div class="gba-bar"><div class="gba-bar-fill fill-mp" id="home-mp-fill" style="width:100%"></div><div class="gba-bar-pct" id="home-mp-pct">100%</div></div>
+                <span class="stat-num" id="home-mp-text">—/—</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label exp">经验值</span>
+                <div class="gba-bar"><div class="gba-bar-fill fill-exp" id="home-exp-fill" style="width:0%"></div><div class="gba-bar-pct" id="home-exp-pct">0%</div></div>
+                <span class="stat-num" id="home-exp-text">—/—</span>
+              </div>
             </div>
           </div>
         </div>

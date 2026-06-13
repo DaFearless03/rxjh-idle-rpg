@@ -166,6 +166,22 @@ body {
 .player-bar .career { color: var(--text-link); font-weight: bold; }
 
 /* === HP/MP/EXP 三条 === */
+.stat-bars-area {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.header-avatar {
+  width: 2.6rem;
+  height: 3.8rem;
+  flex-shrink: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.header-avatar.empty { display: none; }
 .stat-bars-compact { display: flex; flex-direction: column; gap: 0.3rem; }
 .stat-row {
   display: grid;
