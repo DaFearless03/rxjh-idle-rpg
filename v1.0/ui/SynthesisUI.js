@@ -4,6 +4,7 @@
  */
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260613-11';
 
 const SYNTH_SLOTS = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor', 'cape'];
 const SLOT_LABEL = { weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲', cape: '披风' };
@@ -32,29 +33,48 @@ function getBagEquipmentChoices(player) {
     const tpl = getEquipmentTemplate(player, inst);
     if (!inst || !tpl || !SYNTH_SLOTS.includes(tpl.slot)) return null;
     const used = (inst.synthesis_slots || []).filter(Boolean).length;
-    const capacity = tpl.slot === 'inner_armor' ? 2 : 4;
+    const capacity = SynthesisSystem.SLOT_CAPACITY[tpl.slot] || 0;
+    const stoneCategory = SynthesisSystem.SLOT_STONE_MAPPING[tpl.slot] || '';
     return {
       key: instanceId,
       name: tpl.name || inst.item_key,
-      sub: `${SLOT_LABEL[tpl.slot] || tpl.slot} · 孔位 ${used}/${capacity}`,
+      sub: `${stoneCategory === 'vajra' ? '金刚石' : stoneCategory === 'hot_blood' ? '热血石' : '寒玉石'}孔`,
       icon: SLOT_ICON[tpl.slot] || '⚔️',
+      capacity,
+      used,
+      stoneCategory,
+      filled: inst.synthesis_slots || [],
+      cost: (tpl.required_level || 1) * 1000,
     };
   }).filter(Boolean);
 }
 
-function getSynthesisStones(player) {
+function getSynthesisStones(player, category) {
   return (player?.inventory?.slots || [])
-    .filter(slot => /^(vajra|cold_jade|hot_blood)_/.test(slot.item_key || '') && (slot.count || 0) > 0)
+    .filter(slot => (slot.item_key || '').startsWith(category) && (slot.count || 0) > 0)
     .map(slot => ({
       key: slot.item_key,
-      name: slot.item_key?.startsWith('vajra') ? '金刚石' : slot.item_key?.startsWith('hot_blood') ? '热血石' : '寒玉石',
+      name: category === 'vajra' ? '金刚石' : category === 'hot_blood' ? '热血石' : '寒玉石',
       count: slot.count || 1,
-      icon: slot.item_key?.startsWith('vajra') ? '💠' : slot.item_key?.startsWith('hot_blood') ? '❤️' : '💎',
+      icon: category === 'vajra' ? '💠' : category === 'hot_blood' ? '❤️' : '🔷',
+      category,
+      sub: getStoneAttributeLabel(slot.item_key),
     }));
 }
 
+function getStoneAttributeLabel(key) {
+  const [, attr = '', value = ''] = String(key || '').split('--');
+  const labels = {
+    atkSelfAdd: '攻击', atkAdd: '攻击', hitAdd: '命中', hitSelfAdd: '命中',
+    defAdd: '防御', defSelfAdd: '防御', maxHpAdd: '生命', maxHpSelfAdd: '生命',
+    missingAdd: '闪避', weaponSkillBonusAdd: '武功攻击', weaponExtraDamageAdd: '追加伤害',
+  };
+  return labels[attr] && value ? `${labels[attr]}+${value}` : '';
+}
+
 function renderChoiceTile(item, kind) {
-  return `<div class="bag-tile ${kind === 'equip' ? 'equip' : 'stack'}" draggable="true" ondragstart="window._djxDragItem(event,'${escapeHtml(item.key)}','synth')" data-kind="${kind}" data-key="${escapeHtml(item.key)}" data-icon="${escapeHtml(item.icon)}" data-name="${escapeHtml(item.name)}">
+  return `<div class="bag-tile ${kind === 'equip' ? 'equip' : 'stack'}" draggable="true" ondragstart="window._djxDragItem(event,'${escapeHtml(item.key)}','synth')" data-kind="${kind}" data-key="${escapeHtml(item.key)}" data-icon="${escapeHtml(item.icon)}" data-name="${escapeHtml(item.name)}" data-cap="${item.capacity || ''}" data-used="${item.used || 0}" data-cost="${item.cost || ''}" data-stone-category="${item.stoneCategory || item.category || ''}" data-filled="${escapeHtml((item.filled || []).join('|'))}">
+    ${kind === 'equip' ? `<div class="bt-badge">${item.used}/${item.capacity}孔</div>` : ''}
     <div class="bt-icon">${item.icon}</div>
     <div class="bt-name">${escapeHtml(item.name)}</div>
     ${item.sub ? `<div class="bt-sub">${escapeHtml(item.sub)}</div>` : ''}
@@ -64,33 +84,37 @@ function renderChoiceTile(item, kind) {
 
 export function renderSynthesisWorkbench(player) {
   const equips = getBagEquipmentChoices(player);
-  const stones = getSynthesisStones(player);
   const equipGrid = equips.map(item => renderChoiceTile(item, 'equip')).join('') + renderEmptyTiles(12 - equips.length);
-  const stoneGrid = stones.map(item => renderChoiceTile(item, 'stone')).join('') + renderEmptyTiles(12 - stones.length);
+  const renderStoneGrid = category => {
+    const stones = getSynthesisStones(player, category);
+    return stones.map(item => renderChoiceTile(item, 'stone')).join('') + renderEmptyTiles(12 - stones.length);
+  };
 
   return `<div class="craft-body">
     <div class="craft-work">
+      <div class="sheet-gold-bar">持有金币 <b>💰 ${(player?.resources?.gold || 0).toLocaleString()}</b></div>
       <div class="craft-slots">
         <div class="craft-dropzone equip-slot" data-zone="equip" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'equip','synth')">
           <div class="dz-plus">＋</div><div class="dz-hint">拖入装备</div>
         </div>
-        <div class="craft-arrow">＋</div>
-        <div class="craft-dropzone stone-slot" data-zone="synth-stone" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'stone','synth')">
-          <div class="dz-plus">＋</div><div class="dz-hint">拖入<br>合成石</div>
-        </div>
       </div>
+      <div class="synth-hint hidden" id="djx-synth-hint"></div>
+      <div class="slot-grid hidden" id="djx-synth-slot-grid"></div>
       <div class="craft-result hidden" id="djx-synth-result"></div>
-      <div class="craft-warn hidden" id="djx-synth-warn"></div>
       <div class="craft-actions">
-        <button class="craft-confirm" disabled onclick="window._djxDoCraft('synth')">合成</button>
-        <button class="craft-reset" data-reset onclick="window._djxClearAll('synth')">清空</button>
+        <button class="craft-confirm" disabled onclick="window._djxDoCraft('synth')">镶嵌</button>
+        <button class="craft-reset hidden" data-reset onclick="window._djxClearAll('synth')">清空</button>
       </div>
     </div>
     <div class="craft-bag">
-      <div class="bag-label">🎒 可合成装备（背包）</div>
+      <div class="bag-label">🎒 可合成装备（武器→金刚石 / 防具→寒玉石）</div>
       <div class="bag-grid" id="djx-synth-equip-grid">${equipGrid || renderEmptyTiles(12)}</div>
-      <div class="bag-label">💎 合成石</div>
-      <div class="bag-grid" id="djx-synth-stone-grid">${stoneGrid || renderEmptyTiles(12)}</div>
+      <div class="bag-label">💎 金刚石（镶武器）</div>
+      <div class="bag-grid">${renderStoneGrid('vajra')}</div>
+      <div class="bag-label">🔷 寒玉石（镶防具）</div>
+      <div class="bag-grid">${renderStoneGrid('cold_jade')}</div>
+      <div class="bag-label">❤️ 热血石（镶披风）</div>
+      <div class="bag-grid">${renderStoneGrid('hot_blood')}</div>
     </div>
   </div>`;
 }

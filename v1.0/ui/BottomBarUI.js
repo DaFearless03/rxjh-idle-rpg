@@ -17,7 +17,7 @@ import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260613-13';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260613-16';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-13';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-11';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-11';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-17';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -75,6 +75,7 @@ window._openDjxShop = (tab) => {
   document.getElementById('djxShopGold').textContent = (window.game?.player?.resources?.gold || 0).toLocaleString();
   document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + _djxCurrentTab)?.classList.add('active');
+  updateDjxShell(_djxCurrentTab);
   setActiveDjxTabContent(_djxCurrentTab);
   backdrop.classList.add('open');
   window._renderDjxShop();
@@ -84,9 +85,20 @@ window._switchDjxTab = (tab) => {
   _djxCurrentTab = tab;
   document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + tab)?.classList.add('active');
+  updateDjxShell(tab);
   setActiveDjxTabContent(tab);
   window._renderDjxShop();
 };
+
+function updateDjxShell(tab) {
+  const synthesisOnly = tab === 'synth';
+  const title = document.getElementById('djxShopTitle');
+  const tabs = document.querySelector('#djxShopBackdrop .shop-tabs');
+  const outerGold = document.querySelector('#djxShopBackdrop .djx-shop-gold');
+  if (title) title.textContent = synthesisOnly ? '💎 合成 · 镶嵌' : tab === 'enhance' ? '⚒ 强化' : '🛒 武器商店';
+  if (tabs) tabs.style.display = synthesisOnly ? 'none' : '';
+  if (outerGold) outerGold.style.display = synthesisOnly ? 'none' : '';
+}
 
 function setActiveDjxTabContent(tab) {
   document.querySelectorAll('.djx-tab-content').forEach(content => {
@@ -128,7 +140,48 @@ window._renderDjxSynth = (type) => {
       window._djxSelectItem(key, type);
     });
   });
+  bindCraftPointerDrag(el, type);
 };
+
+function bindCraftPointerDrag(container, type) {
+  container.querySelectorAll('.bag-tile[data-key]').forEach(tile => {
+    tile.addEventListener('pointerdown', event => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      const ghost = tile.cloneNode(true);
+      ghost.classList.add('drag-ghost');
+      ghost.style.left = `${event.clientX}px`;
+      ghost.style.top = `${event.clientY}px`;
+      document.body.appendChild(ghost);
+      tile.setPointerCapture?.(event.pointerId);
+
+      const move = e => {
+        ghost.style.left = `${e.clientX}px`;
+        ghost.style.top = `${e.clientY}px`;
+        document.querySelectorAll(`#djx-${type}-content .dragover`).forEach(el => el.classList.remove('dragover'));
+        const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.craft-dropzone, .synth-slot.empty');
+        target?.classList.add('dragover');
+      };
+      const up = e => {
+        tile.removeEventListener('pointermove', move);
+        tile.removeEventListener('pointerup', up);
+        tile.removeEventListener('pointercancel', up);
+        document.querySelectorAll(`#djx-${type}-content .dragover`).forEach(el => el.classList.remove('dragover'));
+        ghost.remove();
+        const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.craft-dropzone, .synth-slot.empty');
+        const isStone = tile.dataset.kind === 'stone';
+        const valid = isStone ? target?.classList.contains('synth-slot') || target?.dataset.zone?.endsWith('-stone') : target?.dataset.zone === 'equip';
+        if (valid) window._djxSelectItem(tile.dataset.key, type);
+        else if (target) {
+          target.classList.add('reject');
+          setTimeout(() => target.classList.remove('reject'), 300);
+        }
+      };
+      tile.addEventListener('pointermove', move);
+      tile.addEventListener('pointerup', up);
+      tile.addEventListener('pointercancel', up);
+    });
+  });
+}
 
 window._djxDragItem = (e, itemKey, type) => {
   e.dataTransfer.setData('text/plain', itemKey + '|' + type);
@@ -178,9 +231,68 @@ function updateDjxCraftButton(type) {
   confirmBtn.disabled = type === 'synth' ? !(slots.equip && slots.stone) : !slots.equip;
 }
 
+function updateSynthesisWorkbench() {
+  const slots = window._djxSlots.synth || {};
+  const content = document.getElementById('djx-synth-content');
+  const equipTile = slots.equip
+    ? content?.querySelector(`.bag-tile[data-key="${CSS.escape(slots.equip)}"]`)
+    : null;
+  const grid = document.getElementById('djx-synth-slot-grid');
+  const hint = document.getElementById('djx-synth-hint');
+  const result = document.getElementById('djx-synth-result');
+  const confirm = content?.querySelector('.craft-confirm');
+  const reset = content?.querySelector('.craft-reset');
+  if (!grid || !hint) return;
+
+  content.querySelectorAll('.bag-tile.used').forEach(tile => tile.classList.remove('used'));
+  if (!equipTile) {
+    grid.classList.add('hidden');
+    grid.innerHTML = '';
+    hint.classList.add('hidden');
+    result?.classList.add('hidden');
+    reset?.classList.add('hidden');
+    return;
+  }
+
+  equipTile.classList.add('used');
+  const capacity = Number(equipTile.dataset.cap || 0);
+  const filled = String(equipTile.dataset.filled || '').split('|').filter(Boolean);
+  const stoneCategory = equipTile.dataset.stoneCategory;
+  const categoryName = stoneCategory === 'vajra' ? '金刚石' : stoneCategory === 'hot_blood' ? '热血石' : '寒玉石';
+  grid.innerHTML = Array.from({ length: capacity }, (_, index) => {
+    const stone = filled[index];
+    if (stone) return `<div class="synth-slot filled">💠<span class="slot-val">${stone}</span></div>`;
+    const staged = index === filled.length && slots.stone;
+    return `<div class="synth-slot ${staged ? 'filled staged' : 'empty'}" data-idx="${index}" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'stone','synth')">${staged ? '💎<span class="slot-val">待镶嵌</span>' : '＋'}</div>`;
+  }).join('');
+  grid.classList.remove('hidden');
+  hint.innerHTML = `该装备孔位仅可镶 <b>${categoryName}</b>　从下方拖石头到空孔`;
+  hint.classList.remove('hidden');
+  if (result) {
+    result.innerHTML = `<div class="cr-row"><span class="l">合成费用</span><span class="v cost">💰 ${Number(equipTile.dataset.cost || 0).toLocaleString()}</span></div>`;
+    result.classList.remove('hidden');
+  }
+  if (confirm && filled.length >= capacity) {
+    confirm.disabled = true;
+    confirm.textContent = '已满';
+  } else if (confirm) {
+    confirm.textContent = '镶嵌';
+  }
+  reset?.classList.remove('hidden');
+}
+
 window._djxSelectItem = (key, type) => {
   const stoneKey = isCraftStoneKey(key);
   const dataKey = stoneKey ? 'stone' : 'equip';
+  if (type === 'synth' && stoneKey && window._djxSlots.synth.equip) {
+    const equipTile = document.querySelector(`#djx-synth-content .bag-tile[data-key="${CSS.escape(window._djxSlots.synth.equip)}"]`);
+    const stoneTile = document.querySelector(`#djx-synth-content .bag-tile[data-key="${CSS.escape(key)}"]`);
+    if (equipTile?.dataset.stoneCategory && equipTile.dataset.stoneCategory !== stoneTile?.dataset.stoneCategory) {
+      window._showToast(`石头类型不符，需要${equipTile.dataset.stoneCategory === 'vajra' ? '金刚石' : equipTile.dataset.stoneCategory === 'hot_blood' ? '热血石' : '寒玉石'}`);
+      return;
+    }
+  }
+  if (type === 'synth' && !stoneKey) window._djxSlots.synth.stone = null;
   window._djxSlots[type][dataKey] = key;
   const meta = getCraftTileMeta(key, type);
 
@@ -202,6 +314,7 @@ window._djxSelectItem = (key, type) => {
       window._djxClearSlot(dataKey, type);
     });
   }
+  if (type === 'synth') updateSynthesisWorkbench();
   updateDjxCraftButton(type);
 };
 
@@ -220,6 +333,7 @@ window._djxClearSlot = (slotType, type) => {
       : '选择背包装备';
     targetZone.innerHTML = `<div class="dz-plus">＋</div><div class="dz-hint">${hint}</div>`;
   }
+  if (type === 'synth') updateSynthesisWorkbench();
   updateDjxCraftButton(type);
 };
 
@@ -230,6 +344,7 @@ window._djxClearAll = (type) => {
   const warnEl = document.getElementById('djx-' + type + '-warn');
   if (resultEl) { resultEl.innerHTML = ''; resultEl.classList.add('hidden'); }
   if (warnEl) { warnEl.innerHTML = ''; warnEl.classList.add('hidden'); }
+  if (type === 'synth') updateSynthesisWorkbench();
 };
 
 window._djxBuy = (itemKey, price) => {
@@ -1274,7 +1389,10 @@ document.addEventListener('click', (e) => {
   if (e.target.id === 'npcDialogClose') window._closeNPCDialog();
   if (e.target.id === 'npcDialogBackdrop') window._closeNPCDialog();
   // Shop sheet close
-  if (e.target.id === 'djxShopBack') document.getElementById('djxShopBackdrop')?.classList.remove('open');
+  if (e.target.id === 'djxShopBack') {
+    document.getElementById('djxShopBackdrop')?.classList.remove('open');
+    if (_djxCurrentTab === 'synth') openTownNPCDialog('djx');
+  }
   if (e.target.id === 'djxShopBackdrop') document.getElementById('djxShopBackdrop')?.classList.remove('open');
   // 银娇龙/平十指 shop 关闭
   if (e.target.id === 'yjlShopBack' || e.target.id === 'yjlShopBackdrop') document.getElementById('yjlShopBackdrop')?.classList.remove('open');
