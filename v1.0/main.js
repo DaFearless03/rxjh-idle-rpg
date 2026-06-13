@@ -149,6 +149,10 @@ window._itemMetaByKey = {
   ),
   ...Object.fromEntries(boxesData.map(box => [box.key, { name: box.name, icon: '🎁' }])),
   ...Object.fromEntries(
+    Object.entries(questsData.quest_items || {})
+      .map(([key, item]) => [key, { name: item.name || key, icon: '📜' }])
+  ),
+  ...Object.fromEntries(
     Object.values(stonesData)
       .flatMap(group => Array.isArray(group) ? group : [])
       .map(stone => [stone.key, { name: stone.name || stone.key, icon: '💎' }])
