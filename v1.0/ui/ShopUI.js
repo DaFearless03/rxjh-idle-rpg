@@ -73,6 +73,32 @@ function sectionLabel(label) {
   return `<div class="shop-section-label">${escapeHtml(label)}</div>`;
 }
 
+function getStoneBaseKey(itemKey) {
+  const key = String(itemKey || '');
+  if (key.includes('--')) return key.split('--')[0];
+  const legacy = key.match(/^((?:cold_jade|vajra|hot_blood)_\d+)_/);
+  return legacy?.[1] || key;
+}
+
+function getStoneAttributeLabel(itemKey) {
+  const key = String(itemKey || '');
+  let hook;
+  let value;
+  if (key.includes('--')) {
+    [, hook, value] = key.split('--');
+  } else {
+    const legacy = key.match(/^(?:cold_jade|vajra|hot_blood)_\d+_(.+)_(-?\d+(?:\.\d+)?)$/);
+    if (legacy) [, hook, value] = legacy;
+  }
+  const labels = {
+    atkSelfAdd: '攻击力', atkAdd: '攻击力', weaponSkillBonusAdd: '武功攻击',
+    weaponExtraDamageAdd: '追加伤害', hitAdd: '命中', hitSelfAdd: '命中',
+    defAdd: '防御', defSelfAdd: '防御', maxHpAdd: '生命', maxHpSelfAdd: '生命',
+    missingAdd: '闪避', enhanceSuccessRateAdd: '合成成功率', goldDropBonusAdd: '金币爆率',
+  };
+  return labels[hook] && value != null ? `${labels[hook]} +${value}` : '';
+}
+
 function renderGold(player) {
   return `💰 金币: <b>${(player?.resources?.gold || 0).toLocaleString()}</b>`;
 }
@@ -118,18 +144,20 @@ function renderSellInventory(player) {
   const slots = (player?.inventory?.slots || []).filter(slot => slot?.item_key && (slot.count || 0) > 0);
   const cells = slots.map(slot => {
     const itemKey = slot.item_key;
-    const meta = window._itemMetaByKey?.[itemKey] || {};
     const itemClass = window.InventorySystem?._getItemClass?.(itemKey, player) || 'unknown';
+    const baseKey = itemClass === 'stones' ? getStoneBaseKey(itemKey) : itemKey;
+    const meta = window._itemMetaByKey?.[baseKey] || {};
     const price = getShopSellPrice(itemKey, player);
     const noSell = price <= 0 || itemClass === 'boxes' || itemClass === 'quest_items';
     const name = meta.name || itemKey;
     const icon = meta.icon || (slot.instance_id ? '⚔️' : '📦');
+    const sub = itemClass === 'stones' ? getStoneAttributeLabel(itemKey) : '';
     const badge = noSell ? `<div class="bt-badge cross">${itemClass === 'boxes' ? '盒子' : '任务'}</div>`
       : (slot.count > 1 ? `<div class="bt-badge">×${slot.count}</div>` : '');
     const action = noSell ? `window._showToast('该物品不可出售')`
       : `window._openShopQuantity('sell','${escapeHtml(itemKey)}',${price},'${escapeHtml(name)}','${icon}',${slot.count || 1},'${escapeHtml(slot.instance_id || '')}')`;
     return `<button class="bag-tile${noSell ? ' nosell' : ''}${itemClass === 'quest_items' ? ' cross' : ''}" onclick="${action}" title="${escapeHtml(name)} · ${noSell ? '不可出售' : `出售 ${price} 金币`}">
-      <div class="bt-icon">${icon}</div><div class="bt-name">${escapeHtml(name)}</div>${badge}
+      <div class="bt-icon">${icon}</div><div class="bt-name">${escapeHtml(name)}</div>${sub ? `<div class="bt-sub">${escapeHtml(sub)}</div>` : ''}${badge}
     </button>`;
   });
   while (cells.length < 50) cells.push('<div class="bag-tile empty"></div>');
