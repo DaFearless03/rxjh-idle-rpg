@@ -62,6 +62,18 @@ export const QigongSystem = {
     return match ? parseInt(match[1]) : 0;
   },
 
+  _getCareerFamily(player) {
+    const family = player?.career_family;
+    if (['blade', 'sword', 'spear', 'staff'].includes(family)) return family;
+
+    const career = player?.career || '';
+    if (career.startsWith('warrior_blade')) return 'blade';
+    if (career.startsWith('warrior_sword')) return 'sword';
+    if (career.startsWith('warrior_spear')) return 'spear';
+    if (career.startsWith('healer')) return 'staff';
+    return family || '';
+  },
+
   /**
    * 计算玩家气功点上限（历史累计）
    */
@@ -87,7 +99,7 @@ export const QigongSystem = {
    */
   listAvailableQigongs(player) {
     const transferCount = this._getTransferCount(player);
-    const careerFamily = player.career_family;
+    const careerFamily = this._getCareerFamily(player);
 
     return this._qigongTemplates.filter(q => {
       // 职业系过滤
@@ -127,7 +139,7 @@ export const QigongSystem = {
    */
   listAllCareerQigongs(player) {
     const transferCount = this._getTransferCount(player);
-    const careerFamily = player.career_family;
+    const careerFamily = this._getCareerFamily(player);
 
     return this._qigongTemplates.filter(q => {
       const cf = Array.isArray(q.career_family) ? q.career_family : [q.career_family];

@@ -17,7 +17,7 @@ import { BoxSystem } from './systems/BoxSystem.js';
 import { NPCSystem, UIState } from './systems/NPCSystem.js';
 import { ShopSystem } from './systems/ShopSystem.js?v=release-20260613-22';
 import { TaskSystem } from './systems/TaskSystem.js';
-import { QigongSystem } from './systems/QigongSystem.js?v=release-20260613-22';
+import { QigongSystem } from './systems/QigongSystem.js?v=release-20260614-6';
 import { BuffSystem } from './systems/BuffSystem.js';
 import { Player } from './entities/Player.js?v=release-20260612-2';
 import { createEquipmentInstance } from './entities/EquipmentInstance.js';
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260614-5';
-import './ui/BottomBarUI.js?v=release-20260614-5';
+import './ui/BottomBarUI.js?v=release-20260614-6';
 
 // ========================
 // 数据加载
