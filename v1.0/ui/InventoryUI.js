@@ -286,16 +286,18 @@ export function renderInventoryPanel(player) {
 
 export function mountInventoryPanel(container, player) {
   if (!container) return;
-  normalizeLegacyEquipmentSlots(player);
-  if (migrateEquippedItemsOutOfBag(player)) window.game?.saveNow?.();
+  const normalized = normalizeLegacyEquipmentSlots(player);
+  const migrated = migrateEquippedItemsOutOfBag(player);
+  if (normalized || migrated) window.game?.saveNow?.();
   container.innerHTML = renderInventoryPanel(player);
   bindInventoryInteractions(container, player);
 }
 
-function normalizeLegacyEquipmentSlots(player) {
+export function normalizeLegacyEquipmentSlots(player) {
   const slots = player?.inventory?.slots || [];
-  if (!player?.inventory) return;
+  if (!player?.inventory) return false;
   if (!player.inventory.equipment_instances) player.inventory.equipment_instances = {};
+  let changed = false;
 
   slots.forEach((slot, index) => {
     const itemKey = slot?.item_key || slot?.key;
@@ -309,7 +311,9 @@ function normalizeLegacyEquipmentSlots(player) {
     };
     slot.instance_id = instanceId;
     slot.count = 1;
+    changed = true;
   });
+  return changed;
 }
 
 function migrateEquippedItemsOutOfBag(player) {

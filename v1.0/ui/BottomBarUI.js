@@ -10,14 +10,14 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-2026061
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260613-22';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260614-6';
 import { mountCharacterPanel } from './CharacterUI.js?v=release-20260614-6';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260614-2';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260614-15';
 import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260613-2';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260614-5';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260614-2';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260614-2';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260614-2';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260614-15';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260614-15';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
 
 window._openPanel = (panelId) => {

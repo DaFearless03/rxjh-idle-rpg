@@ -5,7 +5,7 @@
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260613-11';
-import { renderCraftBagPanel } from './InventoryUI.js?v=release-20260614-2';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260614-15';
 
 const SYNTH_SLOTS = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor', 'cape'];
 const SLOT_LABEL = { weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲', cape: '披风' };
@@ -84,6 +84,7 @@ function renderChoiceTile(item, kind) {
 }
 
 export function renderSynthesisWorkbench(player) {
+  if (normalizeLegacyEquipmentSlots(player)) window.game?.saveNow?.();
   const equipmentMeta = new Map(getBagEquipmentChoices(player).map(item => [item.key, item]));
   const extraData = slot => {
     const item = equipmentMeta.get(slot.instance_id);

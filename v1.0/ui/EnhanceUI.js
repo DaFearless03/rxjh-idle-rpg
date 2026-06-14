@@ -4,7 +4,7 @@
  */
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
-import { renderCraftBagPanel } from './InventoryUI.js?v=release-20260614-2';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260614-15';
 
 const ENHANCEABLE_SLOTS = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor'];
 const SLOT_LABEL = { weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲' };
@@ -62,6 +62,7 @@ function renderChoiceTile(item, kind) {
 }
 
 export function renderEnhanceWorkbench(player) {
+  if (normalizeLegacyEquipmentSlots(player)) window.game?.saveNow?.();
   const equips = getBagEquipmentChoices(player);
   const stones = getEnhanceStones(player);
   const equipGrid = equips.map(item => renderChoiceTile(item, 'equip')).join('') + renderEmptyTiles(12 - equips.length);
