@@ -345,6 +345,21 @@ function updateEnhanceWorkbench() {
   const equipTile = slots.equip
     ? content?.querySelector(`.bag-tile[data-key="${CSS.escape(slots.equip)}"]`)
     : null;
+  const equipInstance = slots.equip
+    ? window.game?.player?.inventory?.equipment_instances?.[slots.equip]
+    : null;
+  const synthesisCount = equipInstance?.synthesis_slots?.length || 0;
+  const stonesNeeded = synthesisCount >= 4 ? 3 : synthesisCount >= 1 ? 2 : 1;
+  const stoneZone = content?.querySelector('.craft-dropzone[data-zone="enhance-stone"]');
+  if (stoneZone?.classList.contains('filled')) {
+    let countLabel = stoneZone.querySelector('.dz-count-label');
+    if (!countLabel) {
+      countLabel = document.createElement('div');
+      countLabel.className = 'dz-count-label';
+      stoneZone.querySelector('.dz-name')?.insertAdjacentElement('afterend', countLabel);
+    }
+    countLabel.textContent = `使用数量 ×${stonesNeeded}`;
+  }
   const costValue = document.querySelector('#djx-enhance-cost .v.cost');
   if (costValue) {
     costValue.textContent = equipTile
