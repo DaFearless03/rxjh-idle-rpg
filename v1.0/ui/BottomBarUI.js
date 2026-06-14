@@ -145,12 +145,40 @@ window._renderDjxSynth = (type) => {
 };
 
 let _inventorySurfaceRefreshFrame = null;
+
+const INVENTORY_SCROLL_SELECTORS = [
+  '#inventoryBagScroll',
+  '#warehouseBackdrop .wh-scroll',
+  '#yjlShopBackdrop .shop-sell-scroll',
+  '#pszShopBackdrop .shop-sell-scroll',
+  '#djxShopBackdrop .shop-sell-scroll',
+  '#djxShopBackdrop .craft-bag',
+];
+
+function captureInventoryScrollPositions() {
+  return INVENTORY_SCROLL_SELECTORS.flatMap(selector =>
+    Array.from(document.querySelectorAll(selector)).map((element, index) => ({
+      selector,
+      index,
+      scrollTop: element.scrollTop,
+    }))
+  );
+}
+
+function restoreInventoryScrollPositions(positions) {
+  positions.forEach(({ selector, index, scrollTop }) => {
+    const element = document.querySelectorAll(selector)[index];
+    if (element) element.scrollTop = scrollTop;
+  });
+}
+
 window._refreshOpenInventorySurfaces = () => {
   if (_inventorySurfaceRefreshFrame) return;
   _inventorySurfaceRefreshFrame = requestAnimationFrame(() => {
     _inventorySurfaceRefreshFrame = null;
     const player = window.game?.player;
     if (!player) return;
+    const scrollPositions = captureInventoryScrollPositions();
     if (document.getElementById('page-inventory')?.classList.contains('active')) renderInventoryPanel(player);
     if (document.getElementById('warehouseBackdrop')?.classList.contains('open')) _renderWarehouse();
     if (document.getElementById('yjlShopBackdrop')?.classList.contains('open')) window._renderYjlShop();
@@ -164,6 +192,7 @@ window._refreshOpenInventorySurfaces = () => {
         if (savedSlots.stone) window._djxSelectItem(savedSlots.stone, _djxCurrentTab);
       }
     }
+    restoreInventoryScrollPositions(scrollPositions);
   });
 };
 
