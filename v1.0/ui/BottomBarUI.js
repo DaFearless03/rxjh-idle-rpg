@@ -573,21 +573,137 @@ window._sortShopInventory = () => {
   const player = window.game?.player;
   const slots = player?.inventory?.slots;
   if (!Array.isArray(slots)) return;
-  player.inventory.slots = sortContainerSlots(slots);
+  player.inventory.slots = sortInventorySlots(slots, player);
   window.game?.saveNow?.();
   window._refreshOpenInventorySurfaces?.();
-  window._renderDjxShop?.();
-  window._renderYjlShop?.();
-  window._renderPszShop?.();
-  _renderWarehouse();
   window._showToast('背包已整理');
 };
 
-function sortContainerSlots(slots) {
-  const filled = slots.filter(slot => slot?.item_key && (slot.count || 0) > 0);
+window._sortInventory = window._sortShopInventory;
+
+const SORT_CATEGORY_ORDER = { stones: 0, equipment: 1, consumables: 2, quest_items: 3, boxes: 4, unknown: 5 };
+const SORT_STONE_ORDER = { enhance: 0, vajra: 1, cold_jade: 2, hot_blood: 3, other: 4 };
+const SORT_EQUIP_SLOT_ORDER = {
+  weapon: 0, chest: 1, gloves: 2, boots: 3, inner_armor: 4,
+  cape: 5, amulet: 6, earring: 7, ring: 8,
+};
+const SORT_CAREER_ORDER = { blade: 0, sword: 1, spear: 2, staff: 3, common: 4 };
+const SORT_FACTION_ORDER = { neutral: 0, positive: 1, negative: 2 };
+const SORT_STONE_ATTR_LABELS = {
+  atkSelfAdd: '攻击力', atkAdd: '攻击力', weaponSkillBonusAdd: '武功攻击力',
+  weaponExtraDamageAdd: '追加伤害', hitAdd: '命中率', hitSelfAdd: '命中率',
+  defAdd: '防御力', defSelfAdd: '防御力', maxHpAdd: '生命值', maxHpSelfAdd: '生命值',
+  missingAdd: '闪避率', skill_level_up: '技能等级',
+  enhanceSuccessRateAdd: '合成强化成功率', goldDropBonusAdd: '金币爆率',
+};
+
+function compareText(a, b) {
+  return String(a || '').localeCompare(String(b || ''), 'zh-CN');
+}
+
+function parseStoneSortInfo(itemKey) {
+  const key = String(itemKey || '');
+  const baseKey = key.includes('--') ? key.split('--')[0] : (key.match(/^((?:cold_jade|vajra|hot_blood)_\d+)_/)?.[1] || key);
+  let hook = '';
+  let value = 0;
+  if (key.includes('--')) {
+    [, hook, value] = key.split('--');
+  } else {
+    const legacy = key.match(/^(?:cold_jade|vajra|hot_blood)_\d+_(.+)_(-?\d+(?:\.\d+)?)$/);
+    if (legacy) [, hook, value] = legacy;
+  }
+  const subtype = baseKey.startsWith('enhance_stone') ? 'enhance'
+    : baseKey.startsWith('vajra') ? 'vajra'
+      : baseKey.startsWith('cold_jade') ? 'cold_jade'
+        : baseKey.startsWith('hot_blood') ? 'hot_blood'
+          : 'other';
+  const meta = window._itemMetaByKey?.[baseKey] || {};
+  return {
+    subtype,
+    subtypeOrder: SORT_STONE_ORDER[subtype],
+    attrLabel: SORT_STONE_ATTR_LABELS[hook] || hook,
+    value: Number(value) || 0,
+    name: meta.name || baseKey,
+  };
+}
+
+function getEquipmentSortInfo(slot, player, equipmentInstances) {
+  const instance = slot.instance_id ? equipmentInstances?.[slot.instance_id] : null;
+  const itemKey = instance?.item_key || slot.item_key;
+  const template = (player?._equipTemplates || window._equipTemplates || []).find(item => item.key === itemKey) || {};
+  const careers = Array.isArray(template.required_career) ? template.required_career : [template.required_career].filter(Boolean);
+  const career = careers[0] || 'common';
+  const currentCareer = player?.career_family || '';
+  const faction = template.faction || 'neutral';
+  const currentFaction = player?.faction || '';
+  return {
+    slotOrder: SORT_EQUIP_SLOT_ORDER[template.slot] ?? 99,
+    careerOrder: career === currentCareer ? -1 : (SORT_CAREER_ORDER[career] ?? 99),
+    factionOrder: faction === currentFaction ? -1 : (SORT_FACTION_ORDER[faction] ?? 99),
+    level: Number(template.required_level || 0),
+    enhance: Number(instance?.enhance_level || 0),
+    name: template.name || itemKey,
+    instanceId: slot.instance_id || '',
+  };
+}
+
+function getInventorySortInfo(slot, player, equipmentInstances, index) {
+  const itemKey = slot.item_key || '';
+  const itemClass = slot.instance_id
+    ? 'equipment'
+    : (InventorySystem._getItemClass?.(itemKey, player) || 'unknown');
+  const info = { itemKey, itemClass, categoryOrder: SORT_CATEGORY_ORDER[itemClass] ?? SORT_CATEGORY_ORDER.unknown, index };
+  if (itemClass === 'stones') info.stone = parseStoneSortInfo(itemKey);
+  if (itemClass === 'equipment') info.equipment = getEquipmentSortInfo(slot, player, equipmentInstances);
+  if (itemClass === 'consumables') {
+    info.consumable = {
+      typeOrder: itemKey.startsWith('hp_') ? 0 : itemKey.startsWith('mp_') ? 1 : 2,
+      grade: Number(itemKey.match(/grade(\d+)/)?.[1] || 0),
+    };
+  }
+  info.name = window._itemMetaByKey?.[itemKey]?.name || itemKey;
+  return info;
+}
+
+function sortInventorySlots(slots, player, equipmentInstances = player?.inventory?.equipment_instances) {
+  const filled = slots
+    .map((slot, index) => ({ slot, info: getInventorySortInfo(slot, player, equipmentInstances, index) }))
+    .filter(entry => entry.slot?.item_key && (entry.slot.count || 0) > 0);
   const empty = slots.filter(slot => !slot?.item_key || (slot.count || 0) <= 0);
-  filled.sort((a, b) => String(a.item_key).localeCompare(String(b.item_key)));
-  return [...filled, ...empty];
+
+  filled.sort((a, b) => {
+    const ai = a.info;
+    const bi = b.info;
+    if (ai.categoryOrder !== bi.categoryOrder) return ai.categoryOrder - bi.categoryOrder;
+    if (ai.stone && bi.stone) {
+      if (ai.stone.subtypeOrder !== bi.stone.subtypeOrder) return ai.stone.subtypeOrder - bi.stone.subtypeOrder;
+      const attrCompare = compareText(ai.stone.attrLabel, bi.stone.attrLabel);
+      if (attrCompare) return attrCompare;
+      if (ai.stone.value !== bi.stone.value) return bi.stone.value - ai.stone.value;
+      const stoneNameCompare = compareText(ai.stone.name, bi.stone.name);
+      if (stoneNameCompare) return stoneNameCompare;
+    }
+    if (ai.equipment && bi.equipment) {
+      for (const key of ['slotOrder', 'careerOrder', 'factionOrder']) {
+        if (ai.equipment[key] !== bi.equipment[key]) return ai.equipment[key] - bi.equipment[key];
+      }
+      if (ai.equipment.level !== bi.equipment.level) return bi.equipment.level - ai.equipment.level;
+      if (ai.equipment.enhance !== bi.equipment.enhance) return bi.equipment.enhance - ai.equipment.enhance;
+      const equipNameCompare = compareText(ai.equipment.name, bi.equipment.name);
+      if (equipNameCompare) return equipNameCompare;
+      const instanceCompare = compareText(ai.equipment.instanceId, bi.equipment.instanceId);
+      if (instanceCompare) return instanceCompare;
+    }
+    if (ai.consumable && bi.consumable) {
+      if (ai.consumable.typeOrder !== bi.consumable.typeOrder) return ai.consumable.typeOrder - bi.consumable.typeOrder;
+      if (ai.consumable.grade !== bi.consumable.grade) return bi.consumable.grade - ai.consumable.grade;
+    }
+    const nameCompare = compareText(ai.name, bi.name);
+    if (nameCompare) return nameCompare;
+    const keyCompare = compareText(ai.itemKey, bi.itemKey);
+    return keyCompare || ai.index - bi.index;
+  });
+  return [...filled.map(entry => entry.slot), ...empty];
 }
 
 window._openWarehouse = () => {
@@ -808,7 +924,11 @@ function _setupWarehousePopup() {
       const player = window.game?.player;
       if (!player) return;
       if (b.dataset.sort === 'warehouse') {
-        player.warehouse.slots = sortContainerSlots(player.warehouse?.slots || []);
+        player.warehouse.slots = sortInventorySlots(
+          player.warehouse?.slots || [],
+          player,
+          player.warehouse?.equipment_instances || {}
+        );
         window.game?.saveNow?.();
         _renderWarehouse();
         window._showToast('仓库已整理');

@@ -216,6 +216,7 @@ function renderBagGrid(player) {
       <span class="bh-title">背包</span>
       <span class="bh-count">已用 <b>${used}</b>/${capacity}</span>
       <span class="bh-gold" title="当前角色金币">💰 ${gold.toLocaleString()}</span>
+      <button class="wh-sort" onclick="window._sortInventory()">整理</button>
     </div>
     <div class="bag-scroll" id="inventoryBagScroll">
       <div class="bag-grid inventory-bag-grid" id="inventoryBagGrid">${tiles.join('')}</div>
