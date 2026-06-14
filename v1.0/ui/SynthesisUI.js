@@ -105,7 +105,9 @@ export function renderSynthesisWorkbench(player) {
       <div class="slot-grid" id="djx-synth-slot-grid">
         ${Array(4).fill('<div class="synth-slot empty inactive">＋</div>').join('')}
       </div>
-      <div class="craft-result hidden" id="djx-synth-result"></div>
+      <div class="craft-result" id="djx-synth-result">
+        <div class="cr-row"><span class="l">合成费用</span><span class="v cost">--</span></div>
+      </div>
       <div class="craft-actions">
         <button class="craft-confirm" disabled onclick="window._djxDoCraft('synth')">镶嵌</button>
         <button class="craft-reset hidden" data-reset onclick="window._djxClearAll('synth')">清空</button>

@@ -17,7 +17,7 @@ import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260614-5';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260614-2';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260614-16';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260614-16';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260614-17';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
 
 window._openPanel = (panelId) => {
@@ -310,7 +310,8 @@ function updateSynthesisWorkbench() {
   content.querySelectorAll('.bag-tile.used').forEach(tile => tile.classList.remove('used'));
   if (!equipTile) {
     grid.innerHTML = Array(4).fill('<div class="synth-slot empty inactive">＋</div>').join('');
-    result?.classList.add('hidden');
+    const costValue = result?.querySelector('.v.cost');
+    if (costValue) costValue.textContent = '--';
     reset?.classList.add('hidden');
     return;
   }
@@ -326,8 +327,8 @@ function updateSynthesisWorkbench() {
     return `<div class="synth-slot ${staged ? 'filled staged' : 'empty'}" data-idx="${index}" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'stone','synth')">${staged ? `💎<span class="slot-val">${getSynthesisStoneAttribute(slots.stone)}</span>` : '＋'}</div>`;
   }).join('');
   if (result) {
-    result.innerHTML = `<div class="cr-row"><span class="l">合成费用</span><span class="v cost">💰 ${Number(equipTile.dataset.cost || 0).toLocaleString()}</span></div>`;
-    result.classList.remove('hidden');
+    const costValue = result.querySelector('.v.cost');
+    if (costValue) costValue.textContent = `💰 ${Number(equipTile.dataset.cost || 0).toLocaleString()}`;
   }
   if (confirm && filled.length >= capacity) {
     confirm.disabled = true;
@@ -404,7 +405,7 @@ window._djxClearAll = (type) => {
   ['equip', 'stone'].forEach(s => window._djxClearSlot(s, type));
   const resultEl = document.getElementById('djx-' + type + '-result');
   const warnEl = document.getElementById('djx-' + type + '-warn');
-  if (resultEl) { resultEl.innerHTML = ''; resultEl.classList.add('hidden'); }
+  if (resultEl && type !== 'synth') { resultEl.innerHTML = ''; resultEl.classList.add('hidden'); }
   if (warnEl) { warnEl.innerHTML = ''; warnEl.classList.add('hidden'); }
   if (type === 'synth') updateSynthesisWorkbench();
 };
