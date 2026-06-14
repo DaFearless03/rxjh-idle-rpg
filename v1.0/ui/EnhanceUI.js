@@ -42,6 +42,7 @@ function getBagEquipmentChoices(player) {
       name: tpl.name || inst.item_key,
       sub: `${SLOT_LABEL[tpl.slot] || tpl.slot} · +${inst.enhance_level || 0}`,
       icon: SLOT_ICON[tpl.slot] || '⚔️',
+      cost: (tpl.required_level || 1) * 1000,
     };
   }).filter(Boolean);
 }
@@ -84,6 +85,9 @@ export function renderEnhanceWorkbench(player) {
           <div class="dz-plus">＋</div><div class="dz-hint">拖入<br>强化石</div>
         </div>
       </div>
+      <div class="craft-result" id="djx-enhance-cost">
+        <div class="cr-row"><span class="l">强化费用</span><span class="v cost">--</span></div>
+      </div>
       <div class="craft-result hidden" id="djx-enhance-result"></div>
       <div class="craft-warn hidden" id="djx-enhance-warn"></div>
       <div class="craft-actions">
@@ -93,7 +97,8 @@ export function renderEnhanceWorkbench(player) {
     </div>
     <div class="craft-bag">${renderCraftBagPanel(player, 'enhance', slot => {
       if (slot.item_key === 'enhance_stone_01') return 'data-craft-valid="1"';
-      return equips.some(item => item.key === slot.instance_id) ? 'data-craft-valid="1"' : '';
+      const item = equips.find(equip => equip.key === slot.instance_id);
+      return item ? `data-craft-valid="1" data-cost="${item.cost}"` : '';
     })}</div>
   </div>`;
 }

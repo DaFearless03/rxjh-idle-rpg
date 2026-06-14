@@ -16,7 +16,7 @@ import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260614-5';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260614-2';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260614-16';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260614-18';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260614-17';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
 
@@ -339,6 +339,20 @@ function updateSynthesisWorkbench() {
   reset?.classList.remove('hidden');
 }
 
+function updateEnhanceWorkbench() {
+  const slots = window._djxSlots.enhance || {};
+  const content = document.getElementById('djx-enhance-content');
+  const equipTile = slots.equip
+    ? content?.querySelector(`.bag-tile[data-key="${CSS.escape(slots.equip)}"]`)
+    : null;
+  const costValue = document.querySelector('#djx-enhance-cost .v.cost');
+  if (costValue) {
+    costValue.textContent = equipTile
+      ? `💰 ${Number(equipTile.dataset.cost || 0).toLocaleString()}`
+      : '--';
+  }
+}
+
 window._djxSelectItem = (key, type) => {
   const tile = document.querySelector(`#djx-${type}-content .bag-tile[data-key="${CSS.escape(key)}"]`);
   if (tile?.dataset.craftValid !== '1') {
@@ -378,6 +392,7 @@ window._djxSelectItem = (key, type) => {
     });
   }
   if (type === 'synth') updateSynthesisWorkbench();
+  if (type === 'enhance') updateEnhanceWorkbench();
   updateDjxCraftButton(type);
 };
 
@@ -397,6 +412,7 @@ window._djxClearSlot = (slotType, type) => {
     targetZone.innerHTML = `<div class="dz-plus">＋</div><div class="dz-hint">${hint}</div>`;
   }
   if (type === 'synth') updateSynthesisWorkbench();
+  if (type === 'enhance') updateEnhanceWorkbench();
   updateDjxCraftButton(type);
 };
 
@@ -408,6 +424,7 @@ window._djxClearAll = (type) => {
   if (resultEl && type !== 'synth') { resultEl.innerHTML = ''; resultEl.classList.add('hidden'); }
   if (warnEl) { warnEl.innerHTML = ''; warnEl.classList.add('hidden'); }
   if (type === 'synth') updateSynthesisWorkbench();
+  if (type === 'enhance') updateEnhanceWorkbench();
 };
 
 window._djxBuy = (itemKey, price) => {
