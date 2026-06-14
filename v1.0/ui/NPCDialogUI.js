@@ -10,6 +10,7 @@ import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260612-2'
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260612-2';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260612-2';
 import { NPCSystem, UIState } from '../systems/NPCSystem.js';
+import { getBagSlotsInOrder } from './InventoryUI.js?v=release-20260614-2';
 
 const TOWN_NPC_DATA = {
   leader: {
@@ -267,7 +268,7 @@ function buildShopDialog(npcData, player) {
     <div>
       <p class="text-dim mb-4">背包物品（点击出售）</p>
       <div class="item-grid">
-        ${(player.inventory?.slots || []).filter(s => s.count > 0 && s.item_key).map(s => {
+        ${getBagSlotsInOrder(player).map(s => {
           const isQuestItem = InventorySystem._getItemClass(s.item_key, player) === 'quest_items';
           const basePrice = getSellPrice(s.item_key);
           const sellPrice = Math.floor(basePrice * 0.5);
@@ -352,14 +353,14 @@ function buildSynthesisDialog(npcData, player) {
 }
 
 function buildWarehouseDialog(npcData, player) {
-  const inv = player.inventory?.slots || [];
+  const inv = getBagSlotsInOrder(player);
   const wh = player.warehouse?.slots || [];
   return `
     <div style="display:flex;gap:12px">
       <div style="flex:1">
         <div class="text-dim mb-4">背包</div>
         <div class="item-grid" style="grid-template-columns:repeat(4,42px)">
-          ${inv.filter(s=>s.count>0).map(s => `
+          ${inv.map(s => `
             <div class="item-cell" onclick="window._depositItem('${s.item_key}', 1)">
               <div style="font-size:14px">${getItemEmoji(s.item_key)}</div>
               <span class="count">${s.count}</span>

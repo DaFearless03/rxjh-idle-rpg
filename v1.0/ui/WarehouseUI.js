@@ -3,7 +3,7 @@
  * @desc 仓库双区渲染 helper。交互仍由 BottomBarUI 的存取流程托管。
  */
 
-import { renderBagTile } from './InventoryUI.js?v=release-20260613-13';
+import { getBagSlotsInOrder, renderBagTile } from './InventoryUI.js?v=release-20260614-2';
 
 const WH_CAPACITY = 50;
 
@@ -27,14 +27,6 @@ function renderWarehouseTiles(slots, player) {
   return tiles.join('');
 }
 
-function isEquipped(player, instanceId) {
-  if (!instanceId) return false;
-  return Object.values(player.equipped || {}).some(value => {
-    const entries = Array.isArray(value) ? value : [value];
-    return entries.some(entry => (typeof entry === 'string' ? entry : entry?.instance_id) === instanceId);
-  });
-}
-
 export function mountWarehouseGrids(player, options = {}) {
   const {
     warehouseGridId = 'whWarehouseGrid',
@@ -51,7 +43,7 @@ export function mountWarehouseGrids(player, options = {}) {
   const bagCount = document.getElementById(bagCountId);
   const gold = document.getElementById(goldId);
   const warehouseSlots = player.warehouse?.slots || [];
-  const bagSlots = (player.inventory?.slots || []).filter(slot => !isEquipped(player, slot.instance_id));
+  const bagSlots = getBagSlotsInOrder(player);
   const warehouseUsed = warehouseSlots.filter(s => (s.count || 0) > 0).length;
   const bagUsed = bagSlots.filter(s => (s.count || 0) > 0).length;
   const warehouseCapacity = player.warehouse?.capacity || WH_CAPACITY;

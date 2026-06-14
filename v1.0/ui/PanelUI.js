@@ -7,9 +7,10 @@ import { InventorySystem } from '../systems/InventorySystem.js';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260612-2';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260612-2';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260612-2';
+import { getBagSlotsInOrder } from './InventoryUI.js?v=release-20260614-2';
 
 export function showInventoryUI(player) {
-  const slots = player.inventory?.slots || [];
+  const slots = getBagSlotsInOrder(player);
   const equipped = player.equipped || {};
   const html = `
     <div style="display:flex;gap:16px">

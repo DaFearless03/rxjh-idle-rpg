@@ -5,7 +5,7 @@
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260613-11';
-import { renderCraftBagPanel } from './InventoryUI.js?v=release-20260613-18';
+import { renderCraftBagPanel } from './InventoryUI.js?v=release-20260614-2';
 
 const SYNTH_SLOTS = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor', 'cape'];
 const SLOT_LABEL = { weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲', cape: '披风' };

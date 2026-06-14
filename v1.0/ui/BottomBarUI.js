@@ -10,14 +10,14 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-2026061
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260613-22';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260613-22';
 import { mountCharacterPanel } from './CharacterUI.js?v=release-20260613-2';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260613-13';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260614-2';
 import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260613-2';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
-import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260613-13';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260613-16';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260613-13';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260613-18';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260613-21';
+import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260614-2';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260614-2';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260614-2';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260614-2';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
 
 window._openPanel = (panelId) => {
@@ -544,16 +544,22 @@ window._sortShopInventory = () => {
   const player = window.game?.player;
   const slots = player?.inventory?.slots;
   if (!Array.isArray(slots)) return;
-  const filled = slots.filter(slot => slot?.item_key && (slot.count || 0) > 0);
-  const empty = slots.filter(slot => !slot?.item_key || (slot.count || 0) <= 0);
-  filled.sort((a, b) => String(a.item_key).localeCompare(String(b.item_key)));
-  player.inventory.slots = [...filled, ...empty];
+  player.inventory.slots = sortContainerSlots(slots);
   window.game?.saveNow?.();
+  window._refreshOpenInventorySurfaces?.();
   window._renderDjxShop?.();
   window._renderYjlShop?.();
   window._renderPszShop?.();
+  _renderWarehouse();
   window._showToast('背包已整理');
 };
+
+function sortContainerSlots(slots) {
+  const filled = slots.filter(slot => slot?.item_key && (slot.count || 0) > 0);
+  const empty = slots.filter(slot => !slot?.item_key || (slot.count || 0) <= 0);
+  filled.sort((a, b) => String(a.item_key).localeCompare(String(b.item_key)));
+  return [...filled, ...empty];
+}
 
 window._openWarehouse = () => {
   _setupWarehousePopup();
@@ -716,18 +722,6 @@ function _whDoTransfer() {
   popup.classList.remove('open');
 }
 
-function _whSortGrid(grid) {
-  const tiles = [...grid.querySelectorAll('.bag-tile:not(.empty)')];
-  tiles.sort((a, b) => a.dataset.key.localeCompare(b.dataset.key));
-  grid.innerHTML = '';
-  tiles.forEach(t => grid.appendChild(t));
-  while (grid.querySelectorAll('.bag-tile').length < WH_CAPACITY) {
-    const empty = document.createElement('div');
-    empty.className = 'bag-tile empty';
-    grid.appendChild(empty);
-  }
-}
-
 // Setup warehouse popup events (called once)
 function _setupWarehousePopup() {
   if (_warehousePopupEventsBound) return;
@@ -780,11 +774,18 @@ function _setupWarehousePopup() {
   });
 
   // Sort buttons
-  document.querySelectorAll('.wh-sort').forEach(b => {
+  document.querySelectorAll('#warehouseBackdrop .wh-sort').forEach(b => {
     b.addEventListener('click', () => {
-      _whSortGrid(b.dataset.sort === 'warehouse'
-        ? document.getElementById('whWarehouseGrid')
-        : document.getElementById('whBagGrid'));
+      const player = window.game?.player;
+      if (!player) return;
+      if (b.dataset.sort === 'warehouse') {
+        player.warehouse.slots = sortContainerSlots(player.warehouse?.slots || []);
+        window.game?.saveNow?.();
+        _renderWarehouse();
+        window._showToast('仓库已整理');
+      } else {
+        window._sortShopInventory();
+      }
     });
   });
 }

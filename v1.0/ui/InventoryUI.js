@@ -128,7 +128,7 @@ function getEquipmentSlotLabel(slot) {
   return map[slot] || '';
 }
 
-function isInstanceEquipped(player, instanceId) {
+export function isInstanceEquipped(player, instanceId) {
   if (!instanceId) return false;
   const equipped = player?.equipped || {};
   return Object.values(equipped).some(value => {
@@ -138,6 +138,14 @@ function isInstanceEquipped(player, instanceId) {
       return id === instanceId;
     });
   });
+}
+
+export function getBagSlotsInOrder(player) {
+  return (player?.inventory?.slots || []).filter(slot =>
+    slot?.item_key
+    && (slot.count || 0) > 0
+    && !isInstanceEquipped(player, slot.instance_id)
+  );
 }
 
 function getItemIcon(key, itemClass) {
@@ -182,10 +190,7 @@ export function renderBagTile(slot, player, options = {}) {
 }
 
 export function renderCraftBagPanel(player, craftType, getExtraData = () => '') {
-  const slots = player?.inventory?.slots || [];
-  const equippedIds = new Set(Object.values(player?.equipped || {}).flat().filter(Boolean)
-    .map(entry => typeof entry === 'string' ? entry : entry.instance_id));
-  const bagSlots = slots.filter(slot => slot?.item_key && (slot.count || 0) > 0 && !equippedIds.has(slot.instance_id));
+  const bagSlots = getBagSlotsInOrder(player);
   const tiles = bagSlots.map(slot => renderBagTile(slot, player, {
     craftType,
     extraData: getExtraData(slot),
@@ -201,7 +206,7 @@ function renderBagGrid(player) {
   const slots = player?.inventory?.slots || [];
   const capacity = player?.inventory?.capacity || 50;
   const gold = Number(player?.resources?.gold || 0);
-  const bagSlots = slots.filter(slot => (slot?.count || 0) > 0 && !isInstanceEquipped(player, slot.instance_id));
+  const bagSlots = getBagSlotsInOrder(player);
   const used = bagSlots.length;
   const tiles = bagSlots.map((slot) => renderBagTile(slot, player, { bagIndex: slots.indexOf(slot) }));
   while (tiles.length < Math.min(capacity, 50)) tiles.push('<div class="bag-tile empty"></div>');

@@ -2,6 +2,7 @@
  * @file ui/ShopUI.js
  * @desc 城镇商店列表渲染：武器、防具、药店。
  */
+import { getBagSlotsInOrder } from './InventoryUI.js?v=release-20260614-2';
 
 const CAREER_NAME = { blade: '刀客', sword: '剑客', staff: '医师', spear: '枪客' };
 const CAREER_ICON = { blade: '🗡️', sword: '⚔️', staff: '🪄', spear: '🔱' };
@@ -141,7 +142,7 @@ export function getShopSellPrice(itemKey, player) {
 }
 
 function renderSellInventory(player) {
-  const slots = (player?.inventory?.slots || []).filter(slot => slot?.item_key && (slot.count || 0) > 0);
+  const slots = getBagSlotsInOrder(player);
   const cells = slots.map(slot => {
     const itemKey = slot.item_key;
     const itemClass = window.InventorySystem?._getItemClass?.(itemKey, player) || 'unknown';
