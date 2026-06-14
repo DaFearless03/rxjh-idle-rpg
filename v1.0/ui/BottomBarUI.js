@@ -1032,8 +1032,12 @@ window._startOfflineAutoplay = async () => {
     UIManager.toast('当前角色没有进行中的野外挂机', 'info');
     return;
   }
-  if (!window.confirm('当前角色将保持挂机状态并返回角色列表。再次进入角色时会结算离线收益。')) return;
+  UIManager.pushModal(document.getElementById('modal-offline-autoplay-confirm'));
+};
 
+window._confirmStartOfflineAutoplay = async () => {
+  if (_returningToSaveList) return;
+  UIManager.closeModal(document.getElementById('modal-offline-autoplay-confirm'));
   _returningToSaveList = true;
   try {
     const result = await window.game?.startOfflineAutoplay?.();

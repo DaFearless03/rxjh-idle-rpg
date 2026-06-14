@@ -687,6 +687,18 @@ export function buildMainScreenUI(container) {
           </div>
         </div>
       </div>
+      <div class="modal-overlay save-modal-overlay" id="modal-offline-autoplay-confirm">
+        <div class="modal-box delete-modal-box">
+          <div class="modal-title">🌙 开始离线挂机</div>
+          <div class="modal-body">
+            <div class="del-body">当前角色将保持挂机状态并返回角色列表。再次进入角色时会结算离线收益。</div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn" onclick="window._closeModal()">取消</button>
+            <button class="btn primary" onclick="window._confirmStartOfflineAutoplay()">确认开始</button>
+          </div>
+        </div>
+      </div>
       <div class="modal-overlay save-modal-overlay" id="modal-offline">
         <div class="modal-box save-modal-box offline-modal-box">
           <div class="modal-title">
