@@ -16,7 +16,7 @@ import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260614-5';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260614-2';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260614-18';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260614-19';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260614-17';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
 
@@ -543,33 +543,41 @@ function _confirmShopQuantity() {
 
 window._djxDoCraft = (type) => {
   const slots = window._djxSlots[type];
-  const resultEl = document.getElementById('djx-' + type + '-result');
-  const warnEl = document.getElementById('djx-' + type + '-warn');
-  const confirmBtn = document.querySelector(`#djx-${type}-content .craft-confirm`);
-  if (!slots.equip) { if (resultEl) resultEl.innerHTML = '请放入装备'; return; }
-  if (type === 'synth' && !slots.stone) { if (resultEl) resultEl.innerHTML = '请放入合成石'; return; }
-  if (resultEl) resultEl.innerHTML = (type === 'synth' ? '合成中...' : '强化中...');
-  if (resultEl) resultEl.classList.remove('hidden');
-  if (warnEl) warnEl.classList.add('hidden');
+  if (!slots.equip) { showCraftResultToast(type, '请放入装备', false); return; }
+  if (type === 'synth' && !slots.stone) { showCraftResultToast(type, '请放入合成石', false); return; }
   const p = window.game?.player;
-  setTimeout(() => {
-    let r;
-    if (type === 'synth') r = SynthesisSystem.synthesize(p, slots.equip, slots.stone);
-    else r = EnhanceSystem.enhance(p, slots.equip);
-    window._djxClearAll(type);
-    if (r?.success !== false) {
-      window._attrSys?.recompute?.(p);
-      window.UIManager?._refreshAll?.();
-      if (resultEl) resultEl.innerHTML = type === 'synth' ? '✅ 合成完成！' : '✅ 强化成功！';
-      window._showToast(type === 'synth' ? '合成完成！' : '强化完成！');
-    } else {
-      if (type === 'enhance' && warnEl) { warnEl.innerHTML = '⚠️ 强化失败 → 装备碎裂'; warnEl.classList.remove('hidden'); }
-      if (resultEl) resultEl.innerHTML = r?.message || (type === 'synth' ? '合成失败' : '强化失败');
-      window._showToast(r?.message || (type === 'synth' ? '合成失败' : '强化失败'));
-    }
-    window._renderDjxShop();
-  }, 500);
+  const result = type === 'synth'
+    ? SynthesisSystem.synthesize(p, slots.equip, slots.stone)
+    : EnhanceSystem.enhance(p, slots.equip);
+  window._djxClearAll(type);
+  if (result?.success !== false) {
+    window._attrSys?.recompute?.(p);
+    window.UIManager?._refreshAll?.();
+  }
+  window._renderDjxShop();
+  showCraftResultToast(
+    type,
+    result?.message || (type === 'synth' ? '合成完成！' : '强化完成！'),
+    result?.success !== false
+  );
 };
+
+function showCraftResultToast(type, message, success) {
+  const content = document.getElementById(`djx-${type}-content`);
+  const sheet = content?.closest('.djx-shop');
+  if (!content || !sheet) return;
+  sheet.querySelector('.craft-result-toast')?.remove();
+  const toast = document.createElement('div');
+  toast.className = `craft-toast craft-result-toast ${success ? 'success' : 'error'}`;
+  toast.textContent = message;
+  toast.style.top = `${content.offsetTop + content.clientHeight / 2}px`;
+  sheet.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 200);
+  }, 3000);
+}
 
 window._showToast = (msg) => {
   if (window.UIManager?.toast) window.UIManager.toast(msg, 'info');

@@ -88,8 +88,6 @@ export function renderEnhanceWorkbench(player) {
       <div class="craft-result" id="djx-enhance-cost">
         <div class="cr-row"><span class="l">强化费用</span><span class="v cost">--</span></div>
       </div>
-      <div class="craft-result hidden" id="djx-enhance-result"></div>
-      <div class="craft-warn hidden" id="djx-enhance-warn"></div>
       <div class="craft-actions">
         <button class="craft-confirm" disabled onclick="window._djxDoCraft('enhance')">强化</button>
         <button class="craft-reset" data-reset onclick="window._djxClearAll('enhance')">清空</button>
