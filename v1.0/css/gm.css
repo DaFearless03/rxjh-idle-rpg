@@ -8,7 +8,7 @@
   display: none;
   justify-content: center;
   background: rgba(20, 20, 35, .72);
-  font-family: 'Press Start 2P', 'PingFang SC', monospace;
+  font-family: var(--pixel-font);
   color: var(--text-main, #303030);
 }
 #gm-panel.visible { display: flex; }

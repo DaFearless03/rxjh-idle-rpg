@@ -4,11 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>挂机文字 RPG</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=release-20260614-19" />
   <link rel="stylesheet" href="css/combat-demo.css?v=release-20260614-3" />
-  <link rel="stylesheet" href="css/home-demo.css?v=release-20260614-14" />
-  <link rel="stylesheet" href="css/gm.css?v=release-20260612-4" />
+  <link rel="stylesheet" href="css/home-demo.css?v=release-20260614-19" />
+  <link rel="stylesheet" href="css/gm.css?v=release-20260614-19" />
 </head>
 <body>
   <div id="ui-root"></div>
@@ -18,7 +17,7 @@
       function showBootError(title, detail) {
         var root = document.getElementById('ui-root');
         if (!root) return;
-        root.innerHTML = '<div style="margin:24px;padding:16px;border:2px solid #b34;background:#fff8f3;color:#4a1f12;font-family:monospace;white-space:pre-wrap;">'
+        root.innerHTML = '<div style="margin:24px;padding:16px;border:2px solid #b34;background:#fff8f3;color:#4a1f12;font-family:var(--pixel-font);white-space:pre-wrap;">'
           + '<b>' + title + '</b>\n\n' + String(detail || 'Unknown error')
           + '</div>';
       }
