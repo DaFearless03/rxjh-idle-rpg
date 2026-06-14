@@ -44,7 +44,7 @@ export function restoreRuntimePlayerFromSave(save, opts = {}) {
     warehouse: save.warehouse || { capacity: 50, slots: [], equipment_instances: {} },
     quests: save.quests || { accepted: [], completed: [] },
     location: save.location || { current_map_key: 'town_xuanbo', current_sub_zone_key: null, last_wilderness_sub_zone: null },
-    auto_play: save.auto_play || { is_auto_play: false, auto_consume: {}, auto_heal_skill: {}, auto_resupply: {}, auto_sell: { enabled: false, categories: {}, equipment: { enabled: false, item_keys: [] } } },
+    auto_play: normalizeAutoPlay(save.auto_play),
     offline: save.offline || { last_save_timestamp: Date.now() },
     statistics: save.statistics || { total_kills: 0, total_playtime_ms: 0, total_gold_earned: 0, total_deaths: 0 },
     _equipTemplates: equipmentsData,
@@ -66,6 +66,43 @@ export function restoreRuntimePlayerFromSave(save, opts = {}) {
   player._baseLevel = player.level;
 
   return player;
+}
+
+function normalizeAutoPlay(autoPlay) {
+  const copy = JSON.parse(JSON.stringify(autoPlay || {}));
+  return {
+    ...copy,
+    is_auto_play: copy.is_auto_play ?? false,
+    auto_consume: {
+      ...copy.auto_consume,
+      hp_potion: { enabled: true, selected_item_key: null, threshold: 0.30, ...(copy.auto_consume?.hp_potion || {}) },
+      mp_potion: { enabled: true, selected_item_key: null, threshold: 0.30, ...(copy.auto_consume?.mp_potion || {}) },
+    },
+    auto_heal_skill: { enabled: false, selected_skill_key: null, ...(copy.auto_heal_skill || {}) },
+    auto_resupply: {
+      ...copy.auto_resupply,
+      trigger_rules: {
+        ...copy.auto_resupply?.trigger_rules,
+        hp: { enabled: false, selected_potion: null, trigger_threshold: 5, ...(copy.auto_resupply?.trigger_rules?.hp || {}) },
+        mp: { enabled: false, selected_potion: null, trigger_threshold: 5, ...(copy.auto_resupply?.trigger_rules?.mp || {}) },
+      },
+      purchase_rules: {
+        ...copy.auto_resupply?.purchase_rules,
+        hp: { enabled: false, selected_potion: null, target_quantity: 10, ...(copy.auto_resupply?.purchase_rules?.hp || {}) },
+        mp: { enabled: false, selected_potion: null, target_quantity: 10, ...(copy.auto_resupply?.purchase_rules?.mp || {}) },
+      },
+    },
+    auto_sell: {
+      ...copy.auto_sell,
+      enabled: copy.auto_sell?.enabled ?? false,
+      categories: copy.auto_sell?.categories || {},
+      equipment: {
+        ...copy.auto_sell?.equipment,
+        enabled: copy.auto_sell?.equipment?.enabled ?? false,
+        item_keys: copy.auto_sell?.equipment?.item_keys || [],
+      },
+    },
+  };
 }
 
 function normalizeEquipped(equipped) {

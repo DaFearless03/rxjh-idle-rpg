@@ -5,7 +5,7 @@
  */
 import { storage } from '../utils/storage.js';
 import { base64Encode, base64Decode, computeChecksum } from '../utils/crypto.js';
-import { SaveManager } from '../core/SaveManager.js';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260614-1';
 
 const SAVE_VERSION = '1.0';
 const PLAYER_KEY_RE = /^player-\d+$/;

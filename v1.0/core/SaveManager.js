@@ -140,35 +140,7 @@ export const SaveManager = {
         current_sub_zone_key: player.location?.current_sub_zone_key || null,
         last_wilderness_sub_zone: player.location?.last_wilderness_sub_zone || null,
       },
-      auto_play: {
-        is_auto_play: player.auto_play?.is_auto_play ?? false,
-        auto_consume: {
-          hp_potion: {
-            enabled: player.auto_play?.auto_consume?.hp_potion?.enabled ?? true,
-            selected_item_key: player.auto_play?.auto_consume?.hp_potion?.selected_item_key ?? null,
-            threshold: player.auto_play?.auto_consume?.hp_potion?.threshold ?? 0.30,
-          },
-          mp_potion: {
-            enabled: player.auto_play?.auto_consume?.mp_potion?.enabled ?? true,
-            selected_item_key: player.auto_play?.auto_consume?.mp_potion?.selected_item_key ?? null,
-            threshold: player.auto_play?.auto_consume?.mp_potion?.threshold ?? 0.30,
-          },
-        },
-        auto_heal_skill: {
-          enabled: player.auto_play?.auto_heal_skill?.enabled ?? false,
-          selected_skill_key: player.auto_play?.auto_heal_skill?.selected_skill_key ?? null,
-        },
-        auto_resupply: {
-          trigger_rules: {
-            hp: player.auto_play?.auto_resupply?.trigger_rules?.hp ?? { enabled: false, selected_potion: null, trigger_threshold: 5 },
-            mp: player.auto_play?.auto_resupply?.trigger_rules?.mp ?? { enabled: false, selected_potion: null, trigger_threshold: 5 },
-          },
-          purchase_rules: {
-            hp: player.auto_play?.auto_resupply?.purchase_rules?.hp ?? { enabled: false, selected_potion: null, target_quantity: 10 },
-            mp: player.auto_play?.auto_resupply?.purchase_rules?.mp ?? { enabled: false, selected_potion: null, target_quantity: 10 },
-          },
-        },
-      },
+      auto_play: this._copyAutoPlay(player.auto_play),
       offline: {
         last_save_timestamp: savedAt,
       },
@@ -203,6 +175,57 @@ export const SaveManager = {
       capacity: inv?.capacity ?? 50,
       slots: JSON.parse(JSON.stringify(inv?.slots ?? [])),
       equipment_instances: JSON.parse(JSON.stringify(inv?.equipment_instances ?? {})),
+    };
+  },
+
+  _copyAutoPlay(autoPlay) {
+    const copy = JSON.parse(JSON.stringify(autoPlay || {}));
+    return {
+      ...copy,
+      is_auto_play: copy.is_auto_play ?? false,
+      auto_consume: {
+        ...copy.auto_consume,
+        hp_potion: {
+          enabled: true,
+          selected_item_key: null,
+          threshold: 0.30,
+          ...(copy.auto_consume?.hp_potion || {}),
+        },
+        mp_potion: {
+          enabled: true,
+          selected_item_key: null,
+          threshold: 0.30,
+          ...(copy.auto_consume?.mp_potion || {}),
+        },
+      },
+      auto_heal_skill: {
+        enabled: false,
+        selected_skill_key: null,
+        ...(copy.auto_heal_skill || {}),
+      },
+      auto_resupply: {
+        ...copy.auto_resupply,
+        trigger_rules: {
+          ...copy.auto_resupply?.trigger_rules,
+          hp: { enabled: false, selected_potion: null, trigger_threshold: 5, ...(copy.auto_resupply?.trigger_rules?.hp || {}) },
+          mp: { enabled: false, selected_potion: null, trigger_threshold: 5, ...(copy.auto_resupply?.trigger_rules?.mp || {}) },
+        },
+        purchase_rules: {
+          ...copy.auto_resupply?.purchase_rules,
+          hp: { enabled: false, selected_potion: null, target_quantity: 10, ...(copy.auto_resupply?.purchase_rules?.hp || {}) },
+          mp: { enabled: false, selected_potion: null, target_quantity: 10, ...(copy.auto_resupply?.purchase_rules?.mp || {}) },
+        },
+      },
+      auto_sell: {
+        ...copy.auto_sell,
+        enabled: copy.auto_sell?.enabled ?? false,
+        categories: copy.auto_sell?.categories || {},
+        equipment: {
+          ...copy.auto_sell?.equipment,
+          enabled: copy.auto_sell?.equipment?.enabled ?? false,
+          item_keys: copy.auto_sell?.equipment?.item_keys || [],
+        },
+      },
     };
   },
 

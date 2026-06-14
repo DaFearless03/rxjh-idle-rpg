@@ -4,7 +4,7 @@
  * @ref 13_save.character_deletion_flow
  */
 import { storage } from '../utils/storage.js';
-import { SaveManager } from '../core/SaveManager.js';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260614-1';
 import { eventBus } from '../core/EventBus.js';
 
 /**
