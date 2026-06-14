@@ -76,7 +76,6 @@ class UIManagerClass {
     eventBus.on('autoplay.consume_mp', (d) => this._addCombatLog('auto_consume_mp', d));
     eventBus.on('teleport.done', () => this._refreshAll());
 
-    // idle-indicator 显示/隐藏
     this._refreshIdleIndicator();
     eventBus.on('autoplay.start', () => this._refreshIdleIndicator());
     eventBus.on('autoplay.stop', () => this._refreshIdleIndicator());
@@ -251,9 +250,9 @@ class UIManagerClass {
     setText('home-wild-desc', `江湖野外 · ${zone?.monsters?.length || 0} 种怪物`);
     const isAutoPlaying = !!player.auto_play?.is_auto_play;
     setText('home-wild-idle', isAutoPlaying ? '挂机中' : '已暂停');
-    setText('home-wild-autoplay-icon', isAutoPlaying ? '⏸' : '▶');
-    setText('home-wild-autoplay-label', isAutoPlaying ? '停止挂机' : '开始挂机');
-    setText('home-wild-autoplay-sub', isAutoPlaying ? '保留当前位置' : '当前区域');
+    setText('home-wild-autoplay-icon', isAutoPlaying ? '⏸' : '⚔');
+    setText('home-wild-autoplay-label', isAutoPlaying ? '暂停挂机' : '前往战斗');
+    setText('home-wild-autoplay-sub', isAutoPlaying ? '保留当前位置' : '在战斗页开始挂机');
     const autoplayAction = document.getElementById('home-wild-autoplay-action');
     if (autoplayAction) {
       autoplayAction.classList.toggle('danger', isAutoPlaying);
@@ -372,9 +371,7 @@ class UIManagerClass {
   }
 
   _refreshIdleIndicator() {
-    const el = document.getElementById('idle-indicator');
     const isAutoplay = window.game?.player?.auto_play?.is_auto_play;
-    if (el) el.style.display = isAutoplay ? 'flex' : 'none';
     const button = document.getElementById('zone-autoplay-button');
     if (!button) return;
     button.textContent = isAutoplay ? '暂停挂机' : '开始挂机';

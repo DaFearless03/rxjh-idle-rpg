@@ -184,7 +184,7 @@ window._openEquip = () => { UIManager.popModal(); showEquipUI(window.game?.playe
 window._openWarehouse = () => { UIManager.popModal(); UIManager.pushModal(document.getElementById('modal-warehouse')); };
 window._openQigong = () => { UIManager.popModal(); showQigongUI(window.game?.player); };
 window._openTask = () => { UIManager.popModal(); showTaskUI(window.game?.player); };
-window._openAutoPlay = () => { UIManager.popModal(); import('../ui/AutoPlayPanelUI.js?v=release-20260612-2').then(m => m.showAutoPlayPanel(window.game?.player)); };
+window._openAutoPlay = () => { UIManager.popModal(); import('../ui/AutoPlayPanelUI.js?v=release-20260614-3').then(m => m.showAutoPlayPanel(window.game?.player)); };
 window._sortInventory = () => { UIManager.toast('整理背包', 'info'); };
 window._unequip = (slot, instanceId) => {
   if (window.game?.player) window.game.player.equipped[slot] = null;

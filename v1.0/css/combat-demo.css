@@ -199,20 +199,6 @@
 #page-combat .zone-current .label { color: var(--menu-accent); font-weight: bold; }
 #page-combat .zone-current .name { color: var(--text-link); font-weight: bold; }
 #page-combat .zone-current .dropdown { color: var(--text-dim); font-size: 1.1rem; }
-#page-combat .idle-indicator {
-  background: var(--menu-green);
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 1rem;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-#page-combat .idle-indicator::before {
-  content: '●';
-  animation: pulse 1.5s ease-in-out infinite;
-}
 #page-combat .zone-autoplay-button {
   flex: 0 0 auto;
   min-width: 7.2rem;

@@ -32,8 +32,8 @@ import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260613-3
 import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260613-32';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260614-1';
-import { UIManager } from './ui/UIManager.js?v=release-20260613-33';
-import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260613-33';
+import { UIManager } from './ui/UIManager.js?v=release-20260614-3';
+import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260614-3';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260612-2';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260614-2';
 import {
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260612-2';
-import './ui/BottomBarUI.js?v=release-20260614-2';
+import './ui/BottomBarUI.js?v=release-20260614-3';
 
 // ========================
 // 数据加载
@@ -722,7 +722,7 @@ function showOfflineSummary(summary) {
 
 function showGameCommands() {
   console.log('可用命令: game.listCharacters(), game.switchCharacter(slot), game.createCharacter(career, name), game.deleteCharacter(slot)');
-  console.log('挂机: game.startAutoPlay(), game.stopAutoPlay(), game.setAutoConsumeHP(item, threshold), game.setAutoConsumeMP(item, threshold)');
+  console.log('挂机: 仅可通过战斗页按钮开始；game.stopAutoPlay() 可停止挂机');
   console.log('传送: game.teleport(subZoneKey), game.town()');
   console.log('存档: game.exportSave({include_all_characters:true/false}), game.importSave(base64)');
   console.log('状态: game.showStatus(), game.showPlayer()');
@@ -861,11 +861,20 @@ window.game = {
   },
 
   // ---------- 挂机 ----------
-  startAutoPlay() {
+  startAutoPlay(source) {
     if (!currentSlotIndex) return console.log('[错误] 无当前角色（请先创建或切换角色）');
     if (!game?.player) return console.log('[错误] 无当前角色');
+    if (source !== 'combat_button') {
+      console.warn('[挂机] 仅可通过战斗页面的开始挂机按钮开启');
+      return false;
+    }
+    if (!game.player.location?.current_sub_zone_key) {
+      console.warn('[挂机] 当前不在战斗区域，无法开启挂机');
+      return false;
+    }
     AutoPlaySystem.start(game.player);
     console.log('[挂机] 已开始');
+    return true;
   },
 
   stopAutoPlay() {

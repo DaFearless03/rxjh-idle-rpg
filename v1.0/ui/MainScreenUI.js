@@ -145,7 +145,7 @@ export function buildMainScreenUI(container) {
             <div class="panel">
               <div class="panel-title"><span>⚡ 快速行动</span></div>
               <div class="quick-action-row wild-actions">
-                <div class="action-card danger" id="home-wild-autoplay-action" onclick="window._toggleWildAutoplay()"><span class="ac-icon" id="home-wild-autoplay-icon">⏸</span><div class="ac-body"><div class="ac-label" id="home-wild-autoplay-label">停止挂机</div><div class="ac-sub" id="home-wild-autoplay-sub">保留当前位置</div></div></div>
+                <div class="action-card danger" id="home-wild-autoplay-action" onclick="window._toggleWildAutoplay()"><span class="ac-icon" id="home-wild-autoplay-icon">⏸</span><div class="ac-body"><div class="ac-label" id="home-wild-autoplay-label">暂停挂机</div><div class="ac-sub" id="home-wild-autoplay-sub">保留当前位置</div></div></div>
                 <div class="action-card info" onclick="window._returnToTown()"><span class="ac-icon">🏯</span><div class="ac-body"><div class="ac-label">回城补给</div><div class="ac-sub">泫渤派</div></div></div>
                 <div class="action-card" onclick="window._openMapSheet()"><span class="ac-icon">⌂</span><div class="ac-body"><div class="ac-label">换地图</div><div class="ac-sub">选择区域</div></div></div>
               </div>
@@ -397,7 +397,6 @@ export function buildMainScreenUI(container) {
             <span class="name" id="zone-name">泫渤派郊外</span>
             <span class="dropdown">▼</span>
           </div>
-          <div class="idle-indicator" id="idle-indicator">挂机中</div>
           <button class="zone-autoplay-button start" id="zone-autoplay-button" onclick="window._toggleZoneAutoplay()">开始挂机</button>
         </div>
 

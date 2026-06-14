@@ -3,16 +3,7 @@
  * @desc 挂机面板（阈值滑块 / 药剂选择 / 自动补给规则）
  * @ref 10_consumables.auto_consume / auto_resupply
  */
-import { UIManager } from './UIManager.js?v=release-20260612-2';
-
-function getCurrentSubZoneKey() {
-  const battleSubZone = window.game?.battle?._currentSubZone;
-  if (typeof battleSubZone === 'string') return battleSubZone;
-  if (battleSubZone?.key) return battleSubZone.key;
-  return window.game?.player?.location?.current_sub_zone_key
-    || window.game?.currentSubZoneKey
-    || null;
-}
+import { UIManager } from './UIManager.js?v=release-20260614-3';
 
 export function showAutoPlayPanel(player) {
   const ap = player.auto_play || {};
@@ -86,7 +77,7 @@ export function showAutoPlayPanel(player) {
         ${player.auto_play?.is_auto_play ? `
           <button class="btn danger" style="width:100%" onclick="window._stopAutoplay()">⏹ 停止挂机</button>
         ` : `
-          <button class="btn primary" style="width:100%" onclick="window._startAutoplay()">▶ 开始挂机</button>
+          <button class="btn primary" style="width:100%" disabled>请在战斗页面开始挂机</button>
         `}
       </div>
     </div>
@@ -150,21 +141,6 @@ window._setMPThreshold = (pct) => {
   p.auto_play.auto_consume.mp_potion = p.auto_play.auto_consume.mp_potion || {};
   p.auto_play.auto_consume.mp_potion.threshold = parseInt(pct, 10) / 100;
   showAutoPlayPanel(p);
-};
-window._startAutoplay = () => {
-  const subZoneKey = getCurrentSubZoneKey();
-  if (!subZoneKey) {
-    UIManager.toast('请先选择一个野外区域', 'info');
-    UIManager.popModal();
-    window._startAutoplayAfterMap = true;
-    window._openMapSheet?.();
-    return;
-  }
-  window._startAutoplayAfterMap = false;
-  window.game?.startAutoPlay();
-  UIManager.popModal();
-  UIManager.openPanel('combat');
-  UIManager._refreshAll?.();
 };
 window._stopAutoplay = () => {
   window.game?.stopAutoPlay();

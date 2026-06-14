@@ -1327,26 +1327,12 @@ window._questAcceptHint = () => {
   UIManager.toast('请到泫渤派门主处接取任务', 'info');
 };
 
-window._startAutoplay = () => {
-  const subZoneKey = getCurrentSubZoneKey();
-  if (!subZoneKey) {
-    UIManager.toast('请先选择一个野外区域', 'info');
-    window._startAutoplayAfterMap = true;
-    window._openMapSheet?.();
-    return;
-  }
-  window._startAutoplayAfterMap = false;
-  window.game?.startAutoPlay();
-  UIManager.openPanel('combat');
-  UIManager._refreshAll?.();
-};
 window._stopAutoplay = () => { window.game?.stopAutoPlay(); UIManager.closePanel(); };
 window._toggleZoneAutoplay = () => {
   if (window.game?.player?.auto_play?.is_auto_play) {
     window.game?.stopAutoPlay();
   } else {
-    window._startAutoplay();
-    return;
+    window.game?.startAutoPlay('combat_button');
   }
   UIManager._refreshAll?.();
 };
@@ -1356,7 +1342,8 @@ window._toggleWildAutoplay = () => {
     UIManager._refreshAll?.();
     return;
   }
-  window._startAutoplay();
+  UIManager.openPanel('combat');
+  UIManager._refreshAll?.();
 };
 
 // 地图选择 sheet
@@ -1500,16 +1487,9 @@ window._mapSheetSelect = (key, name) => {
   }
   // 城镇直接返回，empty 不响应，其他触发传送
   if (item?.classList.contains('town')) {
-    window._startAutoplayAfterMap = false;
     window.game?.town();
   } else if (!item?.classList.contains('empty')) {
     window.game?.teleport(key);
-    if (window._startAutoplayAfterMap) {
-      window._startAutoplayAfterMap = false;
-      window.game?.startAutoPlay();
-      UIManager.openPanel('combat');
-      UIManager._refreshAll?.();
-    }
   }
   window._closeMapSheet();
 };
