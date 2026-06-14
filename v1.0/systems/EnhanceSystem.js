@@ -12,12 +12,6 @@ export const EnhanceSystem = {
     6: 0.10, 7: 0.05, 8: 0.01, 9: 0.001, 10: 0.0001
   },
 
-  // 可强化槽位
-  ENHANCEABLE_SLOTS: ['weapon', 'chest', 'gloves', 'boots', 'inner_armor'],
-
-  // 不可强化槽位
-  FORBIDDEN_SLOTS: ['amulet', 'ring', 'earring', 'cape'],
-
   /**
    * 强化装备
    * @param {Object} player
@@ -29,15 +23,6 @@ export const EnhanceSystem = {
     if (!bagSlot || !ei || !template) {
       return { success: false, message: '装备必须先卸下并放入背包' };
     }
-    const baseSlot = template.slot;
-    // 检查槽位是否可强化
-    if (this.FORBIDDEN_SLOTS.includes(baseSlot)) {
-      return { success: false, message: `槽位 ${baseSlot} 不可强化` };
-    }
-    if (!this.ENHANCEABLE_SLOTS.includes(baseSlot)) {
-      return { success: false, message: `未知槽位 ${baseSlot}` };
-    }
-
     const currentLevel = ei.enhance_level || 0;
     if (currentLevel >= 10) {
       return { success: false, message: `强化等级已达上限 +10` };

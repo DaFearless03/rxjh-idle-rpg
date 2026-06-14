@@ -14,9 +14,9 @@ export const SynthesisSystem = {
     gloves: 4,
     boots: 4,
     inner_armor: 2,
-    ring: 0,
-    amulet: 0,
-    earring: 0,
+    ring: 4,
+    amulet: 4,
+    earring: 4,
     cape: 4
   },
 
@@ -27,11 +27,11 @@ export const SynthesisSystem = {
     gloves: 'cold_jade',
     boots: 'cold_jade',
     inner_armor: 'cold_jade',
+    ring: 'cold_jade',
+    amulet: 'cold_jade',
+    earring: 'cold_jade',
     cape: 'hot_blood'
   },
-
-  // 不可合成槽位
-  FORBIDDEN_SLOTS: ['ring', 'amulet', 'earring'],
 
   /**
    * 合成石头到装备
@@ -46,10 +46,6 @@ export const SynthesisSystem = {
       return { success: false, message: '装备必须先卸下并放入背包' };
     }
     const baseSlot = template.slot;
-    if (this.FORBIDDEN_SLOTS.includes(baseSlot)) {
-      return { success: false, message: `槽位 ${baseSlot} 不可合成` };
-    }
-
     const capacity = this.SLOT_CAPACITY[baseSlot] || 0;
     if (capacity === 0) {
       return { success: false, message: `槽位 ${baseSlot} 无孔位` };

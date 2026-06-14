@@ -165,7 +165,7 @@ export function renderBagTile(slot, player, options = {}) {
   const count = slot.count || 1;
   const isQuest = display.itemClass === 'quest_items' || slot.quest;
   const equipped = slot.instance_id ? isInstanceEquipped(player, slot.instance_id) : false;
-  const equipFail = slot.instance_id ? getEquipFailReason(player, slot.instance_id) : '';
+  const equipFail = !options.craftType && slot.instance_id ? getEquipFailReason(player, slot.instance_id) : '';
   const craftKey = options.craftType && slot.instance_id ? slot.instance_id : display.key;
   const craftKind = slot.instance_id ? 'equip' : /^(enhance_stone|vajra|cold_jade|hot_blood)_/.test(display.key) ? 'stone' : 'item';
   const craftAttrs = options.craftType

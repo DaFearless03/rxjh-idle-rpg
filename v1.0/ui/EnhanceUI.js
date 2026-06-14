@@ -4,11 +4,16 @@
  */
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
-import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260614-15';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260614-16';
 
-const ENHANCEABLE_SLOTS = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor'];
-const SLOT_LABEL = { weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲' };
-const SLOT_ICON = { weapon: '⚔️', chest: '👕', gloves: '🧤', boots: '👟', inner_armor: '🛡️' };
+const SLOT_LABEL = {
+  weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲',
+  ring: '戒指', amulet: '项链', earring: '耳环', cape: '披风',
+};
+const SLOT_ICON = {
+  weapon: '⚔️', chest: '👕', gloves: '🧤', boots: '👟', inner_armor: '🛡️',
+  ring: '💍', amulet: '📿', earring: '💎', cape: '🧣',
+};
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -31,7 +36,7 @@ function getBagEquipmentChoices(player) {
     if (!instanceId || equippedIds.has(instanceId)) return null;
     const inst = instanceId ? player?.inventory?.equipment_instances?.[instanceId] : null;
     const tpl = getEquipmentTemplate(player, inst);
-    if (!inst || !tpl || !ENHANCEABLE_SLOTS.includes(tpl.slot)) return null;
+    if (!inst || !tpl) return null;
     return {
       key: instanceId,
       name: tpl.name || inst.item_key,
