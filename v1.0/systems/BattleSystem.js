@@ -8,6 +8,8 @@ import { Monster } from '../entities/Monster.js';
 import { DamageSystem } from './DamageSystem.js';
 import { grantExp, onLevelUp, applyDeathExpLoss } from '../utils/formulas.js';
 
+const ELITE_CAP_PER_ZONE = 1;
+
 export class BattleSystem {
   /**
    * @param {Object} opts
@@ -72,9 +74,8 @@ export class BattleSystem {
     if (zoneMonsterKeys.length === 0) return null;
     const candidates = this._monstersData.filter(m => zoneMonsterKeys.includes(m.key) && m.monster_type !== 'boss');
     const normalMonsters = candidates.filter(m => (m.monster_type || 'normal') === 'normal');
-    const eliteCap = this._config.battle_flow.battle_model.elite_cap_per_zone ?? 1;
-    const activeEliteCount = this.monsters.filter(m => m.isAlive() && m.monster_type === 'elite').length;
-    const eliteMonsters = activeEliteCount < eliteCap
+    const activeEliteCount = this._getActiveEliteCount();
+    const eliteMonsters = activeEliteCount < ELITE_CAP_PER_ZONE
       ? candidates.filter(m => m.monster_type === 'elite')
       : [];
     const ratio = String(this._config.battle_flow.battle_model.monster_spawn.spawn_weight?.elite_vs_normal || '1:50')
@@ -98,6 +99,22 @@ export class BattleSystem {
     return weightedPool[weightedPool.length - 1].monster;
   }
 
+  _getActiveEliteCount() {
+    return this.monsters.filter(monster => monster.isAlive() && monster.monster_type === 'elite').length;
+  }
+
+  _spawnMonster(template) {
+    if (!template) return null;
+    if (template.monster_type === 'elite' && this._getActiveEliteCount() >= ELITE_CAP_PER_ZONE) {
+      return null;
+    }
+
+    const monster = new Monster(template);
+    monster.map_key = this._currentSubZone?.parent_map_key || this._currentSubZone?.key || null;
+    this.monsters.push(monster);
+    return monster;
+  }
+
   /** 尝试生成一只怪物 */
   _trySpawn() {
     const cap = this._config.battle_flow.battle_model.monster_spawn.same_zone_monster_cap ?? 8;
@@ -106,10 +123,8 @@ export class BattleSystem {
     const template = this._pickRandomMonster();
     if (!template) return;
 
-    const monster = new Monster(template);
-    // 注入 map_key（用于掉落判定）
-    monster.map_key = this._currentSubZone?.parent_map_key || this._currentSubZone?.key || null;
-    this.monsters.push(monster);
+    const monster = this._spawnMonster(template);
+    if (!monster) return;
     this._pushEvent(`[刷怪] ${monster.name} 出现（预热2秒）`);
     eventBus.emit('battle.monsters_changed', {
       reason: 'spawn',
@@ -121,13 +136,10 @@ export class BattleSystem {
   /** 初始刷怪 */
   _doInitialSpawn() {
     const count = this._config.battle_flow.battle_model.monster_spawn.initial_spawn_count ?? 1;
-    for (let i = 0; i < count; i++) {
+    const cap = this._config.battle_flow.battle_model.monster_spawn.same_zone_monster_cap ?? 8;
+    for (let i = 0; i < count && this.monsters.length < cap; i++) {
       const template = this._pickRandomMonster();
-      if (template) {
-        const monster = new Monster(template);
-        monster.map_key = this._currentSubZone?.parent_map_key || this._currentSubZone?.key || null;
-        this.monsters.push(monster);
-      }
+      this._spawnMonster(template);
     }
     this._initialSpawned = true;
     this._pushEvent(`[战场] Lv${this._player.level} ${this._player.career} 进入测试zone，${this.monsters.length} 只怪物等待中`);
