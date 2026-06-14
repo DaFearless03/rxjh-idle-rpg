@@ -145,7 +145,7 @@ export function buildMainScreenUI(container) {
             <div class="panel">
               <div class="panel-title"><span>⚡ 快速行动</span></div>
               <div class="quick-action-row wild-actions">
-                <div class="action-card danger" id="home-wild-autoplay-action" onclick="window._toggleWildAutoplay()"><span class="ac-icon" id="home-wild-autoplay-icon">⏸</span><div class="ac-body"><div class="ac-label" id="home-wild-autoplay-label">暂停挂机</div><div class="ac-sub" id="home-wild-autoplay-sub">保留当前位置</div></div></div>
+                <div class="action-card success" id="home-wild-combat-action" onclick="window._returnToActiveCombat()"><span class="ac-icon">⚔</span><div class="ac-body"><div class="ac-label">返回战斗</div><div class="ac-sub">查看当前挂机区域</div></div></div>
                 <div class="action-card info" onclick="window._returnToTown()"><span class="ac-icon">🏯</span><div class="ac-body"><div class="ac-label">回城补给</div><div class="ac-sub">泫渤派</div></div></div>
                 <div class="action-card" onclick="window._openMapSheet()"><span class="ac-icon">⌂</span><div class="ac-body"><div class="ac-label">换地图</div><div class="ac-sub">选择区域</div></div></div>
               </div>

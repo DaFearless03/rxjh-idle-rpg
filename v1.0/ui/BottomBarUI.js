@@ -2,7 +2,7 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260613-28';
+import { UIManager } from './UIManager.js?v=release-20260614-4';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260613-22';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260613-12';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
@@ -1336,14 +1336,17 @@ window._toggleZoneAutoplay = () => {
   }
   UIManager._refreshAll?.();
 };
-window._toggleWildAutoplay = () => {
-  if (window.game?.player?.auto_play?.is_auto_play) {
-    window._stopAutoplay();
-    UIManager._refreshAll?.();
+window._returnToActiveCombat = () => {
+  const player = window.game?.player;
+  const battle = window.game?.battle;
+  const battleZoneKey = typeof battle?._currentSubZone === 'string'
+    ? battle._currentSubZone
+    : battle?._currentSubZone?.key;
+  if (!player?.auto_play?.is_auto_play || !battleZoneKey) {
+    UIManager.toast('当前没有进行中的挂机战斗', 'info');
     return;
   }
   UIManager.openPanel('combat');
-  UIManager._refreshAll?.();
 };
 
 // 地图选择 sheet
