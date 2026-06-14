@@ -5,27 +5,18 @@
  */
 
 @font-face {
-  font-family: 'Fusion Pixel';
-  src: url('../fonts/fusion-pixel-8px-proportional-zh_hans.ttf.woff2') format('woff2');
+  font-family: 'Cubic 11';
+  src: url('../fonts/Cubic_11.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
-}
-
-@font-face {
-  font-family: 'Fusion Pixel';
-  src: url('../fonts/fusion-pixel-8px-proportional-latin.ttf.woff2') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+0000-024F;
 }
 
 /* ========================
    变量
    ======================== */
 :root {
-  --pixel-font: 'Fusion Pixel', 'Apple Color Emoji', 'Segoe UI Emoji', monospace;
+  --pixel-font: 'Cubic 11', 'Apple Color Emoji', 'Segoe UI Emoji', monospace;
   --bg: #C8E8C8;
   --panel: #F8F8F0;
   --panel-alt: #E8F0D8;
