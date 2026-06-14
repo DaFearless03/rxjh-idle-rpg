@@ -31,6 +31,32 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+function getItemBaseKey(itemKey) {
+  const key = String(itemKey || '');
+  if (key.includes('--')) return key.split('--')[0];
+  return key.match(/^((?:cold_jade|vajra|hot_blood)_\d+)_/)?.[1] || key;
+}
+
+function getItemDisplayName(itemKeyOrName) {
+  const value = String(itemKeyOrName || '');
+  const baseKey = getItemBaseKey(value);
+  return window._itemMetaByKey?.[value]?.name
+    || window._itemMetaByKey?.[baseKey]?.name
+    || value
+    || '未知物品';
+}
+
+function formatItemSummary(items) {
+  const counts = new Map();
+  items.forEach(item => {
+    const name = getItemDisplayName(item);
+    counts.set(name, (counts.get(name) || 0) + 1);
+  });
+  return Array.from(counts.entries())
+    .map(([name, count]) => `${name}×${count}`)
+    .join('、');
+}
+
 function getCareerMeta(careerKey, careersData) {
   const fromData = careersData?.find(c => c.key === careerKey);
   const local = CAREER_INFO[careerKey] || {};
@@ -339,14 +365,16 @@ export function showOfflineRewardUI(summary) {
       inventory_full_quest_item: '背包满，任务物品无法保存',
       player_stopped: '手动停止',
       auto_resupply_gold_insufficient: '金币不足停止',
+      zone_change: '切换区域后停止',
+      return_to_save_list: '返回角色列表后停止',
     };
     html += `<div class="alert-box">
-      <div class="ab-title">⚠️ ${reasons[summary.stopped_reason] || summary.stopped_reason}</div>
+      <div class="ab-title">⚠️ ${reasons[summary.stopped_reason] || '挂机已停止'}</div>
     </div>`;
     if (summary.quest_item_lost) {
       const lost = summary.quest_item_lost;
       html += `<div class="alert-box detail">
-        <div class="ab-text">任务物品「<b>${escapeHtml(lost.item_name || lost.item_key || '未知物品')}</b>」无法保存，
+        <div class="ab-text">任务物品「<b>${escapeHtml(getItemDisplayName(lost.item_name || lost.item_key))}</b>」无法保存，
         当前进度 <b>${escapeHtml(lost.current_count || 0)}/${escapeHtml(lost.required_count || '?')}</b>。</div>
       </div>`;
     }
@@ -364,14 +392,16 @@ export function showOfflineRewardUI(summary) {
   html += row('🪙', '金币', `+${summary.gold_gained || 0}`, 'gold');
 
   if (summary.potions_consumed && Object.keys(summary.potions_consumed).length > 0) {
-    const potions = Object.entries(summary.potions_consumed).map(([k, v]) => `${k}×${v}`).join('、');
+    const potions = Object.entries(summary.potions_consumed)
+      .map(([key, count]) => `${getItemDisplayName(key)}×${count}`)
+      .join('、');
     html += row('🍶', '消耗药剂', escapeHtml(potions));
   }
   if (summary.gold_spent_on_potions > 0) {
     html += row('💸', '买药花费', `-${summary.gold_spent_on_potions}`, 'minus');
   }
   if (summary.items_obtained?.length > 0) {
-    html += row('🎁', '获得物品', `${summary.items_obtained.length} 件`);
+    html += row('🎁', '获得物品', `${summary.items_obtained.length} 件<span class="rr-detail">${escapeHtml(formatItemSummary(summary.items_obtained))}</span>`);
   }
   if (summary.boxes_obtained > 0) {
     html += row('📦', '获得盒子', `${summary.boxes_obtained} 个`);

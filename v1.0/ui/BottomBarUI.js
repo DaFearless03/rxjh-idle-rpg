@@ -1013,7 +1013,7 @@ window._returnToSaveList = async () => {
   _returningToSaveList = true;
   try {
     const characters = await window.game?.returnToSaveList?.();
-    const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260614-5');
+    const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260614-11');
     UIManager.closeAllModals();
     UIManager.closePanel();
     showMultiSaveUI(window._currentGlobalSave, characters || [], window._careersData || []);
@@ -1041,7 +1041,7 @@ window._startOfflineAutoplay = async () => {
       UIManager.toast(result?.message || '开始离线挂机失败', 'error');
       return;
     }
-    const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260614-5');
+    const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260614-11');
     UIManager.closeAllModals();
     UIManager.closePanel();
     showMultiSaveUI(window._currentGlobalSave, result.characters || [], window._careersData || []);
