@@ -1468,11 +1468,41 @@ body {
 .craft-result-toast {
   position: absolute; left: 50%; top: 50%; bottom: auto;
   transform: translate(-50%, -50%);
-  max-width: calc(100% - 2rem); text-align: center; white-space: normal;
-  border: 0.15rem solid var(--menu-blue);
+  width: max-content; min-width: 15rem; max-width: calc(100% - 3.2rem);
+  background: var(--bg-base); color: var(--text-main);
+  border: 0.3rem solid var(--border-outer); border-radius: 0.8rem;
+  box-shadow:
+    inset 0 0 0 0.2rem var(--bg-window),
+    inset 0 0 0 0.4rem var(--border-inner),
+    0.35rem 0.45rem 0 var(--border-shadow);
+  padding: 1.1rem 1.4rem 1.1rem 3.8rem;
+  font-size: 0.9rem; font-weight: bold; line-height: 1.5;
+  text-align: left; white-space: normal;
+  opacity: 0;
+  transition: opacity .15s, transform .15s;
 }
-.craft-result-toast.success { border-color: var(--menu-green); }
-.craft-result-toast.error { border-color: var(--menu-accent); }
+.craft-result-toast::before {
+  content: '!';
+  position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%);
+  width: 1.8rem; height: 1.8rem;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--menu-blue); color: #fff;
+  border: 0.2rem solid var(--border-outer); border-radius: 0.3rem;
+  box-shadow: inset 0 0 0 0.1rem rgba(255,255,255,0.65);
+  font-size: 1rem;
+}
+.craft-result-toast.show {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+.craft-result-toast.success::before {
+  content: '✓';
+  background: var(--menu-green);
+}
+.craft-result-toast.error::before {
+  content: '×';
+  background: var(--menu-accent);
+}
 
 /* === 刀剑笑商店 === */
 .djx-shop { position: relative; max-height: 85%; display: flex; flex-direction: column; }
