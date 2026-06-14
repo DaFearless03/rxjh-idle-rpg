@@ -3133,10 +3133,11 @@ body {
 .idle-badge::before { content: '● '; }
 .wild-actions {
   display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr 1.35fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
   gap: 0.6rem;
 }
-.wild-actions .action-card { padding: 0.8rem 0.6rem; gap: 0.45rem; }
+.wild-actions .action-card { min-height: 4.2rem; padding: 0.8rem 0.6rem; gap: 0.45rem; }
 .wild-actions .action-card.danger { background: linear-gradient(to bottom, #ffd0d0, #f8b0b0); border-color: var(--menu-accent); }
 .wild-actions .action-card.success { background: linear-gradient(to bottom, #e2f0d4, #c4dcae); border-color: var(--menu-green); }
 .wild-actions .action-card.info { background: linear-gradient(to bottom, #d8e8f8, #b8d0f0); border-color: var(--menu-blue); }
