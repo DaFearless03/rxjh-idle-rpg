@@ -6,7 +6,7 @@
 import { storage } from '../utils/storage.js';
 import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260612-2';
 import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260612-2';
-import { UIManager } from './UIManager.js?v=release-20260612-2';
+import { UIManager } from './UIManager.js?v=release-20260614-5';
 
 const CAREER_EMOJI = {
   warrior_blade: '⚔️',

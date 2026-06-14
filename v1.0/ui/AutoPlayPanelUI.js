@@ -3,7 +3,7 @@
  * @desc 挂机面板（阈值滑块 / 药剂选择 / 自动补给规则）
  * @ref 10_consumables.auto_consume / auto_resupply
  */
-import { UIManager } from './UIManager.js?v=release-20260614-3';
+import { UIManager } from './UIManager.js?v=release-20260614-5';
 
 export function showAutoPlayPanel(player) {
   const ap = player.auto_play || {};

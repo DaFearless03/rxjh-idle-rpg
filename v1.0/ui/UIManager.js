@@ -121,6 +121,8 @@ class UIManagerClass {
   // Modal 管理
   // ========================
   pushModal(modalEl) {
+    if (!modalEl) return;
+    this._modals = this._modals.filter(modal => modal !== modalEl);
     if (this._modals.length > 0) {
       this._modals[this._modals.length - 1].classList.remove('active');
     }
@@ -133,6 +135,15 @@ class UIManagerClass {
     if (top) {
       top.classList.remove('active');
     }
+    if (this._modals.length > 0) {
+      this._modals[this._modals.length - 1].classList.add('active');
+    }
+  }
+
+  closeModal(modalEl) {
+    if (!modalEl) return;
+    this._modals = this._modals.filter(modal => modal !== modalEl);
+    modalEl.classList.remove('active');
     if (this._modals.length > 0) {
       this._modals[this._modals.length - 1].classList.add('active');
     }

@@ -2,7 +2,7 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260614-4';
+import { UIManager } from './UIManager.js?v=release-20260614-5';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260613-22';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260613-12';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
@@ -14,7 +14,7 @@ import { mountInventoryPanel } from './InventoryUI.js?v=release-20260614-2';
 import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260613-2';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260614-2';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260614-5';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260614-2';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260614-2';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260614-2';
@@ -800,7 +800,7 @@ window._closeModal = () => {
 };
 
 window._confirmOfflineReward = () => {
-  UIManager.popModal();
+  UIManager.closeModal(document.getElementById('modal-offline'));
   const player = window.game?.player;
   const shouldResumeCombat = !!player?.auto_play?.is_auto_play
     && !!player?.location?.current_sub_zone_key;
@@ -864,7 +864,7 @@ window._returnToSaveList = async () => {
   _returningToSaveList = true;
   try {
     const characters = await window.game?.returnToSaveList?.();
-    const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260612-2');
+    const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260614-5');
     UIManager.closeAllModals();
     UIManager.closePanel();
     showMultiSaveUI(window._currentGlobalSave, characters || [], window._careersData || []);

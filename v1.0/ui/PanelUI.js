@@ -2,7 +2,7 @@
  * @file ui/InventoryUI.js / EquipUI.js / QigongUI.js / TaskUI.js / ShopEnhanceUI.js
  * @desc 背包/装备/气功/任务/商店强化 等UI
  */
-import { UIManager } from './UIManager.js?v=release-20260612-2';
+import { UIManager } from './UIManager.js?v=release-20260614-5';
 import { InventorySystem } from '../systems/InventorySystem.js';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260612-2';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260612-2';
@@ -184,7 +184,7 @@ window._openEquip = () => { UIManager.popModal(); showEquipUI(window.game?.playe
 window._openWarehouse = () => { UIManager.popModal(); UIManager.pushModal(document.getElementById('modal-warehouse')); };
 window._openQigong = () => { UIManager.popModal(); showQigongUI(window.game?.player); };
 window._openTask = () => { UIManager.popModal(); showTaskUI(window.game?.player); };
-window._openAutoPlay = () => { UIManager.popModal(); import('../ui/AutoPlayPanelUI.js?v=release-20260614-3').then(m => m.showAutoPlayPanel(window.game?.player)); };
+window._openAutoPlay = () => { UIManager.popModal(); import('../ui/AutoPlayPanelUI.js?v=release-20260614-5').then(m => m.showAutoPlayPanel(window.game?.player)); };
 window._sortInventory = () => { UIManager.toast('整理背包', 'info'); };
 window._unequip = (slot, instanceId) => {
   if (window.game?.player) window.game.player.equipped[slot] = null;

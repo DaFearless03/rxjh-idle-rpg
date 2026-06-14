@@ -2,7 +2,7 @@
  * @file ui/MapListPanelUI.js
  * @desc 地图列表（demo 风格）
  */
-import { UIManager } from './UIManager.js?v=release-20260612-2';
+import { UIManager } from './UIManager.js?v=release-20260614-5';
 
 // 按 demo 的地图结构
 const MAPS = [
