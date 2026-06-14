@@ -1119,6 +1119,7 @@ function renderAutoplayPanel(player) {
   const p = player || window.game?.player;
   if (!p) return;
   const ap = p.auto_play || {};
+  const attackCfg = ap.auto_attack || {};
   const hpCfg = ap.auto_consume?.hp_potion || {};
   const mpCfg = ap.auto_consume?.mp_potion || {};
   const hpResupply = ap.auto_resupply?.trigger_rules?.hp || {};
@@ -1137,6 +1138,19 @@ function renderAutoplayPanel(player) {
 
   const toggleBtn = (kind, enabled, action, disabled = false) =>
     '<button class="autoplay-toggle ' + (enabled ? 'on' : 'off') + '" onclick="' + action + '"' + (disabled ? ' disabled' : '') + '>' + (enabled ? 'ON' : 'OFF') + '</button>';
+
+  const learnedSkills = (window._martialArtsData || []).filter(skill =>
+    skill.type === 'damage' && p.learned_martial_arts?.includes(skill.key)
+  );
+  const selectedAttackSkill = learnedSkills.some(skill => skill.key === attackCfg.selected_skill_key)
+    ? attackCfg.selected_skill_key
+    : learnedSkills[0]?.key || '';
+  const useSkillAttack = attackCfg.attack_type === 'skill';
+  const skillOptions = learnedSkills.length
+    ? learnedSkills.map(skill =>
+      `<option value="${escapeSettingText(skill.key)}"${selectedAttackSkill === skill.key ? ' selected' : ''}>${escapeSettingText(skill.name)}（内功 ${skill.cost?.mp ?? 0} / 伤害 ${skill.effect?.value ?? 0}）</option>`
+    ).join('')
+    : '<option value="">暂无已学习的伤害武功</option>';
 
   const potionSelect = (kind, selected, enabled, handler = '_setAutoPotionItem') => {
     const keys = kind === 'hp' ? ['hp_potion_grade1','hp_potion_grade2','hp_potion_grade3'] : ['mp_potion_grade1','mp_potion_grade2','mp_potion_grade3'];
@@ -1219,6 +1233,20 @@ function renderAutoplayPanel(player) {
 
   el.innerHTML = `
     <div class="sec-panel">
+      <div class="panel-title"><span>⚔ 自动打怪</span></div>
+      <div class="stat-line"><span class="sl-k">攻击方式</span>
+        <div class="auto-attack-methods">
+          <button class="btn-3d ${useSkillAttack ? '' : 'green'}" onclick="window._setAutoAttackType('normal')">普通攻击</button>
+          <button class="btn-3d ${useSkillAttack ? 'green' : ''}" onclick="window._setAutoAttackType('skill')"${learnedSkills.length ? '' : ' disabled'}>技能攻击</button>
+        </div>
+      </div>
+      <label class="auto-attack-skill-row">
+        <span>使用武功</span>
+        <select class="select" onchange="window._setAutoAttackSkill(this.value)"${useSkillAttack && learnedSkills.length ? '' : ' disabled'}>${skillOptions}</select>
+      </label>
+    </div>
+
+    <div class="sec-panel">
       <div class="panel-title"><span>💊 自动喝药</span></div>
       <!-- HP -->
       <div class="stat-line"><span class="sl-k">生命药剂</span>
@@ -1270,6 +1298,35 @@ function renderAutoplayPanel(player) {
     </div>
   `;
 }
+
+function updateAutoAttack(update) {
+  const player = window.game?.player;
+  if (!player) return;
+  player.auto_play = player.auto_play || {};
+  player.auto_play.auto_attack = {
+    attack_type: 'normal',
+    selected_skill_key: null,
+    ...(player.auto_play.auto_attack || {}),
+  };
+  update(player.auto_play.auto_attack);
+  window.game?.saveNow?.();
+  renderAutoplayPanel(player);
+}
+
+window._setAutoAttackType = (attackType) => {
+  updateAutoAttack(config => {
+    config.attack_type = attackType === 'skill' ? 'skill' : 'normal';
+    if (config.attack_type === 'skill' && !config.selected_skill_key) {
+      config.selected_skill_key = (window._martialArtsData || []).find(skill =>
+        skill.type === 'damage' && window.game?.player?.learned_martial_arts?.includes(skill.key)
+      )?.key || null;
+    }
+  });
+};
+
+window._setAutoAttackSkill = (skillKey) => {
+  updateAutoAttack(config => { config.selected_skill_key = skillKey || null; });
+};
 
 function updateAutoPotion(kind, update) {
   const player = window.game?.player;

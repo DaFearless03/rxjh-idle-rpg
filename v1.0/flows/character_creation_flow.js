@@ -73,6 +73,7 @@ export function runCharacterCreationFlow(opts) {
         location: { current_map_key: 'town_xuanbo', current_sub_zone_key: null, last_wilderness_sub_zone: null },
         auto_play: {
           is_auto_play: false,
+          auto_attack: { attack_type: 'normal', selected_skill_key: null },
           auto_consume: {
             hp_potion: { enabled: true, selected_item_key: null, threshold: 0.30 },
             mp_potion: { enabled: true, selected_item_key: null, threshold: 0.30 },

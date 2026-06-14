@@ -183,6 +183,11 @@ export const SaveManager = {
     return {
       ...copy,
       is_auto_play: copy.is_auto_play ?? false,
+      auto_attack: {
+        attack_type: 'normal',
+        selected_skill_key: null,
+        ...(copy.auto_attack || {}),
+      },
       auto_consume: {
         ...copy.auto_consume,
         hp_potion: {

@@ -3,13 +3,13 @@
  * @desc 离线模拟引擎：settle_offline_rewards + is_in_offline_simulation flag
  * @ref 13_save.simulation_flow
  */
-import { SaveManager } from '../core/SaveManager.js?v=release-20260614-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260614-14';
 import { AttributeSystem } from './AttributeSystem.js?v=release-20260612-2';
-import { BattleSystem } from './BattleSystem.js?v=release-20260614-12';
+import { BattleSystem } from './BattleSystem.js?v=release-20260614-14';
 import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260613-32';
 import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260613-32';
 import { eventBus } from '../core/EventBus.js';
-import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260614-1';
+import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260614-14';
 
 export const OfflineSimulator = {
   is_in_offline_simulation: false,
@@ -85,6 +85,7 @@ export const OfflineSimulator = {
       config: save._config,
       player,
       monstersData: save._monstersData || [],
+      martialArtsData: save._martialArtsData || [],
       attrSystemRef: save._attrSys,
       dropSystemRef: save._dropSys,
       subZonesData,

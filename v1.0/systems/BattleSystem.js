@@ -22,6 +22,7 @@ export class BattleSystem {
     this._config = opts.config;
     this._player = opts.player;
     this._monstersData = opts.monstersData;
+    this._martialArtsData = opts.martialArtsData || [];
     this._attrSys = opts.attrSystemRef;
     this._dropSys = opts.dropSystemRef || null;
     this._subZonesData = opts.subZonesData || [];
@@ -184,21 +185,44 @@ export class BattleSystem {
     const target = this._lockMainTarget();
     if (!target || !target.isAlive()) return;
 
-    const result = this._damageSys.attack_resolution_pipeline(this._player, target, 'normal', null);
+    const attackCfg = this._player.auto_play?.auto_attack || {};
+    const skill = attackCfg.attack_type === 'skill'
+      ? this._martialArtsData.find(item =>
+        item.key === attackCfg.selected_skill_key
+        && item.type === 'damage'
+        && this._player.learned_martial_arts?.includes(item.key)
+      )
+      : null;
+    const mpCost = Math.max(0, Math.floor((skill?.cost?.mp || 0) * (1 - (this._player.mpCostReduce || 0))));
+    if (skill && this._player.mp < mpCost) return;
+    if (skill) {
+      this._player.mp = Math.max(0, this._player.mp - mpCost);
+      eventBus.emit('battle.player_status_changed', { reason: 'skill_mp_cost' });
+    }
+    const result = this._damageSys.attack_resolution_pipeline(this._player, target, skill ? 'skill' : 'normal', skill);
     if (!result.isMiss && target.passive) { target._provoked = true; }
 
     if (result.isMiss) {
-      this._pushEvent(`[普攻] 玩家 → ${target.name} MISS`);
-      eventBus.emit('battle.player_miss', { target: target.name });
+      this._pushEvent(`[${skill?.name || '普攻'}] 玩家 → ${target.name} MISS`);
+      eventBus.emit(skill ? 'battle.player_skill' : 'battle.player_miss', {
+        target: target.name,
+        skill_name: skill?.name,
+        damage: '未命中',
+      });
     } else {
-      let parts = [`[普攻] 玩家 → ${target.name} 伤害 ${result.actualDmg}`];
+      let parts = [`[${skill?.name || '普攻'}] 玩家 → ${target.name} 伤害 ${result.actualDmg}`];
       if (result.isCrit) parts.push('暴击');
       if (result.isArmorBroken) parts.push('破甲');
       if (result.isShielded) parts.push('护身');
       if (result.isCountered) parts.push(`反伤(${result.actualDmg})`);
       if (result.isLeech) parts.push('汲取');
       this._pushEvent(parts.join(' '));
-      eventBus.emit('battle.player_hit', { target: target.name, damage: result.actualDmg, crit_suffix: result.isCrit ? ' (暴击!)' : '' });
+      eventBus.emit(skill ? 'battle.player_skill' : 'battle.player_hit', {
+        target: target.name,
+        skill_name: skill?.name,
+        damage: result.actualDmg,
+        crit_suffix: result.isCrit ? ' (暴击!)' : '',
+      });
 
       if (result.isLeech) eventBus.emit('battle.leech', { target: target.name, damage: result.actualDmg, heal: Math.floor(result.actualDmg * 0.3) });
       if (result.isArmorBroken) eventBus.emit('battle.armor_break', { target: target.name, damage: result.actualDmg });

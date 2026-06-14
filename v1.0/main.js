@@ -7,7 +7,7 @@ import { Game } from './core/Game.js';
 import { GameLoop } from './core/GameLoop.js';
 import { eventBus } from './core/EventBus.js';
 import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260613-2';
-import { BattleSystem } from './systems/BattleSystem.js?v=release-20260614-12';
+import { BattleSystem } from './systems/BattleSystem.js?v=release-20260614-14';
 import { InventorySystem } from './systems/InventorySystem.js?v=release-20260613-12';
 import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260613-22';
 import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260613-22';
@@ -21,17 +21,17 @@ import { QigongSystem } from './systems/QigongSystem.js?v=release-20260614-6';
 import { BuffSystem } from './systems/BuffSystem.js';
 import { Player } from './entities/Player.js?v=release-20260612-2';
 import { createEquipmentInstance } from './entities/EquipmentInstance.js';
-import { SaveManager } from './core/SaveManager.js?v=release-20260614-1';
+import { SaveManager } from './core/SaveManager.js?v=release-20260614-14';
 import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js';
 import { assertValidGameConfig } from './core/ConfigValidator.js';
-import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260614-1';
+import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260614-14';
 import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260614-1';
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260614-1';
 import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260613-32';
 import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260613-32';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260613-32';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260614-14';
 import { storage } from './utils/storage.js';
-import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260614-1';
+import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260614-14';
 import { UIManager } from './ui/UIManager.js?v=release-20260614-5';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260614-13';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260614-5';
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260614-11';
-import './ui/BottomBarUI.js?v=release-20260614-13';
+import './ui/BottomBarUI.js?v=release-20260614-14';
 
 // ========================
 // 数据加载
@@ -427,6 +427,7 @@ function bindMainScreenEventListenersOnce() {
 
   eventBus.on('battle.player_hit', (d) => UIManager._addCombatLog('player_normal_attack_hit', d));
   eventBus.on('battle.player_miss', (d) => UIManager._addCombatLog('player_normal_attack_miss', d));
+  eventBus.on('battle.player_skill', (d) => UIManager._addCombatLog('player_skill_release', d));
   eventBus.on('battle.monster_hit', (d) => UIManager._addCombatLog('monster_attack_hit', d));
   eventBus.on('battle.monster_miss', (d) => UIManager._addCombatLog('monster_attack_miss', d));
   eventBus.on('battle.crit', (d) => UIManager._addCombatLog('player_normal_attack_hit', { ...d, crit_suffix: ' (暴击!)' }));
@@ -561,6 +562,7 @@ async function enterCharacter(slotIndex) {
       _dropSys: dropSys,
       _config: config,
       _monstersData: monstersData,
+      _martialArtsData: martialArtsData,
       _subZonesData: subZonesData,
       _subZoneDropsData: subZoneDropsData,
       _buffSys: BuffSystem,
@@ -620,6 +622,7 @@ async function initGameForPlayer(player, slotIndex) {
     config,
     player,
     monstersData,
+    martialArtsData,
     attrSystemRef: attrSys,
     dropSystemRef: dropSys,
     subZonesData,
