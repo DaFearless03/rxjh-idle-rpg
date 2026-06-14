@@ -33,7 +33,7 @@ import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-202606
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260614-1';
 import { UIManager } from './ui/UIManager.js?v=release-20260614-5';
-import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260614-4';
+import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260614-9';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260614-5';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260614-5';
 import {
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260614-5';
-import './ui/BottomBarUI.js?v=release-20260614-8';
+import './ui/BottomBarUI.js?v=release-20260614-9';
 
 // ========================
 // 数据加载
@@ -787,6 +787,14 @@ window.game = {
     }
     await cleanupCurrentRuntime({ save: true });
     return loadAllCharacters();
+  },
+
+  async startOfflineAutoplay() {
+    if (!game?.player?.auto_play?.is_auto_play || !game.player.location?.current_sub_zone_key) {
+      return { success: false, message: '当前角色没有进行中的野外挂机' };
+    }
+    await cleanupCurrentRuntime({ save: true });
+    return { success: true, characters: loadAllCharacters() };
   },
 
   deleteCharacter(slotIndex) {

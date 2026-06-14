@@ -1025,6 +1025,34 @@ window._returnToSaveList = async () => {
   }
 };
 
+window._startOfflineAutoplay = async () => {
+  if (_returningToSaveList) return;
+  const player = window.game?.player;
+  if (!player?.auto_play?.is_auto_play || !player?.location?.current_sub_zone_key) {
+    UIManager.toast('当前角色没有进行中的野外挂机', 'info');
+    return;
+  }
+  if (!window.confirm('当前角色将保持挂机状态并返回角色列表。再次进入角色时会结算离线收益。')) return;
+
+  _returningToSaveList = true;
+  try {
+    const result = await window.game?.startOfflineAutoplay?.();
+    if (!result?.success) {
+      UIManager.toast(result?.message || '开始离线挂机失败', 'error');
+      return;
+    }
+    const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260614-5');
+    UIManager.closeAllModals();
+    UIManager.closePanel();
+    showMultiSaveUI(window._currentGlobalSave, result.characters || [], window._careersData || []);
+  } catch (err) {
+    console.warn('[离线挂机] 返回角色列表失败:', err);
+    UIManager.toast('开始离线挂机失败，请稍后重试', 'error');
+  } finally {
+    _returningToSaveList = false;
+  }
+};
+
 function renderPanelContent(panelId) {
   const p = window.game?.player;
   switch (panelId) {

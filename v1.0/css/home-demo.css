@@ -3133,16 +3133,18 @@ body {
 .idle-badge::before { content: '● '; }
 .wild-actions {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
+  grid-template-columns: 1.3fr 1fr 1fr 1.35fr;
   gap: 0.6rem;
 }
 .wild-actions .action-card { padding: 0.8rem 0.6rem; gap: 0.45rem; }
 .wild-actions .action-card.danger { background: linear-gradient(to bottom, #ffd0d0, #f8b0b0); border-color: var(--menu-accent); }
 .wild-actions .action-card.success { background: linear-gradient(to bottom, #e2f0d4, #c4dcae); border-color: var(--menu-green); }
 .wild-actions .action-card.info { background: linear-gradient(to bottom, #d8e8f8, #b8d0f0); border-color: var(--menu-blue); }
+.wild-actions .action-card.offline { background: linear-gradient(to bottom, #e8e2f4, #cec1e8); border-color: #7560a8; }
 .wild-actions .action-card.danger .ac-label { color: var(--menu-accent); }
 .wild-actions .action-card.success .ac-label { color: #356d38; }
 .wild-actions .action-card.info .ac-label { color: var(--menu-blue); }
+.wild-actions .action-card.offline .ac-label { color: #5e478f; }
 .session-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

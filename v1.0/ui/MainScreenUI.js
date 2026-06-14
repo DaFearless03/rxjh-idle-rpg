@@ -148,6 +148,7 @@ export function buildMainScreenUI(container) {
                 <div class="action-card success" id="home-wild-combat-action" onclick="window._returnToActiveCombat()"><span class="ac-icon">⚔</span><div class="ac-body"><div class="ac-label">返回战斗</div><div class="ac-sub">查看当前挂机区域</div></div></div>
                 <div class="action-card info" onclick="window._returnToTown()"><span class="ac-icon">🏯</span><div class="ac-body"><div class="ac-label">回城补给</div><div class="ac-sub">泫渤派</div></div></div>
                 <div class="action-card" onclick="window._openMapSheet()"><span class="ac-icon">⌂</span><div class="ac-body"><div class="ac-label">换地图</div><div class="ac-sub">选择区域</div></div></div>
+                <div class="action-card offline" onclick="window._startOfflineAutoplay()"><span class="ac-icon">🌙</span><div class="ac-body"><div class="ac-label">开始离线挂机</div><div class="ac-sub">返回角色列表</div></div></div>
               </div>
             </div>
             <div class="panel">
