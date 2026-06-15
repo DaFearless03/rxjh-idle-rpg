@@ -2170,7 +2170,7 @@ body {
   min-height: 0;
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
-  padding: 0.3rem 1.1rem 1.1rem;
+  padding: 0.8rem 1.1rem 1.1rem;
   background: transparent;
   border-radius: 0;
   transition: background 0.12s;
@@ -2222,12 +2222,15 @@ body {
 .inventory-page .bag-tile .bt-icon { font-size: 1.95rem; }
 .inventory-page .bag-tile .bt-name { font-size: 0.7rem; }
 .inventory-page .bag-tile .bt-sub { font-size: 0.6rem; }
-.inventory-page .bag-tile .bt-enh {
+.inventory-page .bag-tile .bt-enh,
+.inventory-page .bag-tile .bt-badge {
   top: -0.4rem;
   right: -0.3rem;
   left: auto;
   border-radius: 0.7rem;
+  z-index: 2;
 }
+.inventory-page .bag-tile .bt-badge.quest { left: -0.3rem; right: auto; }
 .inventory-drag-ghost {
   border-radius: 0.2rem;
   transform: translate(-50%, -55%) rotate(-3deg);
