@@ -2230,7 +2230,10 @@ body {
   border-radius: 0.7rem;
   z-index: 2;
 }
+.inventory-page .bag-tile .bt-badge { background: var(--border-inner); color: #fff; }
+.inventory-page .bag-tile .bt-enh { background: var(--menu-accent); color: #fff; }
 .inventory-page .bag-tile .bt-badge.quest { left: -0.3rem; right: auto; }
+.inventory-page .bag-tile .bt-badge.cross { background: var(--menu-yellow); color: #5a4500; }
 .inventory-drag-ghost {
   border-radius: 0.2rem;
   transform: translate(-50%, -55%) rotate(-3deg);
