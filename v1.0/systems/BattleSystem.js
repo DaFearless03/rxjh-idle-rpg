@@ -403,12 +403,15 @@ export class BattleSystem {
       this._trySpawn();
     }
 
-    // 玩家攻击（每 tick 都尝试普攻；实际上应该有个独立计时器，Phase 1 简化每 1s 一次）
-    // Phase 1: 每 1000ms 玩家普攻一次
-    this._playerAtkCd = (this._playerAtkCd || 0) + deltaMs;
-    if (this._playerAtkCd >= 1000) {
+    // 玩家自动攻击仅在挂机状态开启时执行。
+    if (this._player.auto_play?.is_auto_play) {
+      this._playerAtkCd = (this._playerAtkCd || 0) + deltaMs;
+      if (this._playerAtkCd >= 1000) {
+        this._playerAtkCd = 0;
+        this._playerAttack();
+      }
+    } else {
       this._playerAtkCd = 0;
-      this._playerAttack();
     }
 
     // 怪物攻击（独立 cd）
