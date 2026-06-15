@@ -3266,6 +3266,12 @@ body {
   gap: 0.55rem;
   padding: 0.65rem;
 }
+.auto-sell-equipment-controls > .hang-settings-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.58rem;
+  line-height: 1.4;
+}
 .auto-sell-equipment-controls.disabled { opacity: 0.55; }
 .auto-sell-equipment-controls label {
   display: grid;
