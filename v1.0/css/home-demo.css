@@ -1983,6 +1983,7 @@ body {
 .inventory-page .demo-equip-panel {
   position: relative;
   flex: 0 0 52%;
+  overflow: visible;
 }
 .inventory-page .doll-figure {
   width: 100%;
@@ -2498,6 +2499,7 @@ body {
 .inventory-page .eq-slot.filled {
   cursor: pointer;
   touch-action: auto;
+  overflow: visible;
   border-style: solid;
   border-color: var(--menu-green);
   background: var(--bg-window);
@@ -2505,6 +2507,15 @@ body {
     inset 0.18rem 0.18rem 0 rgba(48,48,72,0.10),
     inset -0.18rem -0.18rem 0 rgba(255,255,255,0.85),
     inset 0 0 0.5rem rgba(76,160,80,0.15);
+}
+.inventory-page .eq-slot .es-enh {
+  top: -0.4rem;
+  right: -0.3rem;
+  padding: 0.08rem 0.4rem;
+  border-radius: 0.7rem;
+  background: var(--menu-accent);
+  color: #fff;
+  z-index: 2;
 }
 .inventory-page .bag-tile.equip { cursor: pointer; touch-action: auto; }
 .inventory-page .stat-sec {
