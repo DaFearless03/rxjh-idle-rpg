@@ -2,7 +2,7 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260614-5';
+import { UIManager } from './UIManager.js?v=release-20260615-1';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260615-1';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260613-12';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
@@ -1260,14 +1260,15 @@ function renderAutoplayPanel(player) {
         ${toggleBtn('auto-sell-equipment', autoSell.enabled && equipmentFilter.enabled, 'window._toggleAutoSellEquipment()', controlsDisabled)}
       </div>
       <div class="auto-sell-equipment-controls${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}">
+        <p class="hang-settings-note">开启后自动出售背包装备；过滤清单中的装备将被保留。</p>
         <label><span>装备类型</span><select class="select" onchange="window._setAutoSellEquipmentSelection('slot',this.value)"${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>${optionTags(Object.keys(slotLabels), slot, key => slotLabels[key])}</select></label>
         <label><span>职业</span><select class="select" onchange="window._setAutoSellEquipmentSelection('career',this.value)"${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>${optionTags(Object.keys(careerLabels), career, key => careerLabels[key])}</select></label>
         <label><span>装备名字</span><select class="select" onchange="window._setAutoSellEquipmentSelection('itemKey',this.value)"${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>${optionTags(candidates.map(item => item.key), selectedKey, key => templates.find(item => item.key === key)?.name || key)}</select></label>
         <div class="auto-sell-equipment-actions">
-          <button class="btn-3d green" onclick="window._addAutoSellEquipmentFilter()"${!selectedKey || controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>添加出售过滤</button>
+          <button class="btn-3d green" onclick="window._addAutoSellEquipmentFilter()"${!selectedKey || controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>添加保护装备</button>
           <button class="btn-3d red" onclick="window._clearAutoSellEquipmentFilter()"${!configuredKeys.length || controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>清空过滤清单</button>
         </div>
-        <label class="auto-sell-equipment-list"><span>当前出售过滤清单</span><textarea readonly placeholder="暂未添加装备">${escapeSettingText(configuredNames)}</textarea></label>
+        <label class="auto-sell-equipment-list"><span>当前保护清单（不会自动出售）</span><textarea readonly placeholder="暂未添加保护装备">${escapeSettingText(configuredNames)}</textarea></label>
       </div>
     </div>`;
   };

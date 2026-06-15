@@ -2,7 +2,7 @@
  * @file ui/NPCDialogUI.js
  * @desc NPC 对话窗口
  */
-import { UIManager } from './UIManager.js?v=release-20260614-5';
+import { UIManager } from './UIManager.js?v=release-20260615-1';
 import { TaskSystem } from '../systems/TaskSystem.js';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260615-1';
 import { InventorySystem } from '../systems/InventorySystem.js';

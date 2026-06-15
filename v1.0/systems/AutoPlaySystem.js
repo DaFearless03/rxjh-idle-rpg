@@ -5,7 +5,7 @@
  */
 import { InventorySystem } from './InventorySystem.js';
 import { ConsumableSystem } from './ConsumableSystem.js';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260613-32';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260615-1';
 import { eventBus } from '../core/EventBus.js';
 
 function createCooldownState() {

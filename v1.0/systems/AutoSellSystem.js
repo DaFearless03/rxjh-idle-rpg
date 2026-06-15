@@ -1,6 +1,6 @@
 /**
  * @file systems/AutoSellSystem.js
- * @desc 回城时按玩家配置自动出售低属性石头与过滤清单中的装备。
+ * @desc 回城时按玩家配置自动出售低属性石头与未被过滤清单保护的装备。
  */
 import { ShopSystem } from './ShopSystem.js';
 import { eventBus } from '../core/EventBus.js';
@@ -25,13 +25,18 @@ function matchesConfiguredRule(player, itemKey) {
   return !!rule?.enabled && stone.value <= Number(rule.max_value ?? 0);
 }
 
-function matchesEquipmentFilter(player, slot) {
+function isProtectedEquipment(player, slot) {
+  const protectedKeys = player?.auto_play?.auto_sell?.equipment?.item_keys || [];
+  return !!slot?.instance_id && protectedKeys.includes(slot.item_key);
+}
+
+function isSellableEquipment(player, slot) {
   const autoSell = player?.auto_play?.auto_sell;
   const equipment = autoSell?.equipment;
   return !!autoSell?.enabled
     && !!equipment?.enabled
     && !!slot?.instance_id
-    && (equipment.item_keys || []).includes(slot.item_key);
+    && !isProtectedEquipment(player, slot);
 }
 
 function getEquipmentSellPrice(player, itemKey) {
@@ -51,7 +56,7 @@ export const AutoSellSystem = {
     return (player?.inventory?.slots || []).some(slot =>
       slot?.item_key
       && (slot.count || 0) > 0
-      && (matchesConfiguredRule(player, slot.item_key) || matchesEquipmentFilter(player, slot))
+      && (matchesConfiguredRule(player, slot.item_key) || isSellableEquipment(player, slot))
     );
   },
 
@@ -61,13 +66,13 @@ export const AutoSellSystem = {
 
   sellConfiguredStones(player, { silent = false } = {}) {
     const config = player?.auto_play?.auto_sell;
-    if (!config?.enabled) return { sold: 0, gold_earned: 0, items: {} };
+    if (!config?.enabled) return { sold: 0, stones_sold: 0, equipment_sold: 0, gold_earned: 0, items: {} };
 
-    const summary = { sold: 0, gold_earned: 0, items: {} };
+    const summary = { sold: 0, stones_sold: 0, equipment_sold: 0, gold_earned: 0, items: {} };
     const slots = [...(player.inventory?.slots || [])];
     for (const slot of slots) {
       if (!slot?.item_key || (slot.count || 0) <= 0) continue;
-      if (matchesEquipmentFilter(player, slot)) {
+      if (isSellableEquipment(player, slot)) {
         const itemKey = slot.item_key;
         const before = player.resources?.gold || 0;
         const result = ShopSystem.sellEquipmentInstance(
@@ -78,6 +83,7 @@ export const AutoSellSystem = {
         if (!result.success) continue;
         const earned = (player.resources?.gold || 0) - before;
         summary.sold += 1;
+        summary.equipment_sold += 1;
         summary.gold_earned += earned;
         summary.items[itemKey] = (summary.items[itemKey] || 0) + 1;
         continue;
@@ -91,6 +97,7 @@ export const AutoSellSystem = {
       if (!result.success) continue;
       const earned = (player.resources?.gold || 0) - before;
       summary.sold += count;
+      summary.stones_sold += count;
       summary.gold_earned += earned;
       summary.items[itemKey] = (summary.items[itemKey] || 0) + count;
     }

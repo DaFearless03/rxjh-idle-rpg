@@ -64,7 +64,10 @@ class UIManagerClass {
     });
     eventBus.on('autoplay.stop', () => this._refreshAll());
     eventBus.on('autoplay.auto_sell', summary => {
-      this.toast(`自动出售 ${summary.sold} 个石头，获得 ${summary.gold_earned} 金币`, 'success');
+      const parts = [];
+      if (summary.stones_sold) parts.push(`${summary.stones_sold} 个石头`);
+      if (summary.equipment_sold) parts.push(`${summary.equipment_sold} 件装备`);
+      this.toast(`自动出售 ${parts.join('、') || `${summary.sold} 个物品`}，获得 ${summary.gold_earned} 金币`, 'success');
     });
     ['drop.equipment', 'drop.stone', 'drop.box', 'drop.potion'].forEach(eventName => {
       eventBus.on(eventName, () => {

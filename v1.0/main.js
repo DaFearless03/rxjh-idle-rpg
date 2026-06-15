@@ -27,12 +27,12 @@ import { assertValidGameConfig } from './core/ConfigValidator.js';
 import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260614-14';
 import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260614-1';
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260614-1';
-import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260613-32';
-import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260613-32';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260614-14';
+import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260615-1';
+import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260615-1';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260615-1';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260614-14';
-import { UIManager } from './ui/UIManager.js?v=release-20260614-5';
+import { UIManager } from './ui/UIManager.js?v=release-20260615-1';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260614-13';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260614-5';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260615-1';
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260614-11';
-import './ui/BottomBarUI.js?v=release-20260615-1';
+import './ui/BottomBarUI.js?v=release-20260615-2';
 
 // ========================
 // 数据加载
