@@ -150,6 +150,7 @@ export class AttributeSystem {
         if (!template?.base_stats) continue;
 
         const stats = template.base_stats;
+        const extraStats = inst.extra || template.extra_affixes || {};
         const enhanceLevel = inst.enhance_level || 0;
         const synthesisSlots = inst.synthesis_slots || [];
 
@@ -180,6 +181,10 @@ export class AttributeSystem {
         }
         if (stats.mdef !== undefined) {
           h.mdefAdd = (h.mdefAdd || 0) + stats.mdef;
+        }
+        for (const [key, value] of Object.entries(extraStats)) {
+          const hook = `${key}Add`;
+          h[hook] = (h[hook] || 0) + Number(value || 0);
         }
 
         // 合成石头加成（按 category 映射）

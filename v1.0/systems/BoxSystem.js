@@ -5,7 +5,7 @@
  */
 import { InventorySystem } from './InventorySystem.js';
 import { eventBus } from '../core/EventBus.js';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260615-1';
 
 function toPositiveInt(value, fallback = 1) {
   return Math.max(1, Math.floor(Number(value) || fallback));

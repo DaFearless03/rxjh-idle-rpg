@@ -6,21 +6,21 @@
 import { Game } from './core/Game.js';
 import { GameLoop } from './core/GameLoop.js';
 import { eventBus } from './core/EventBus.js';
-import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260613-2';
+import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260615-1';
 import { BattleSystem } from './systems/BattleSystem.js?v=release-20260614-14';
 import { InventorySystem } from './systems/InventorySystem.js?v=release-20260613-12';
 import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260613-22';
 import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260613-22';
 import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260613-22';
-import { DropSystem } from './systems/DropSystem.js?v=release-20260613-22';
-import { BoxSystem } from './systems/BoxSystem.js';
+import { DropSystem } from './systems/DropSystem.js?v=release-20260615-1';
+import { BoxSystem } from './systems/BoxSystem.js?v=release-20260615-1';
 import { NPCSystem, UIState } from './systems/NPCSystem.js';
-import { ShopSystem } from './systems/ShopSystem.js?v=release-20260613-22';
+import { ShopSystem } from './systems/ShopSystem.js?v=release-20260615-1';
 import { TaskSystem } from './systems/TaskSystem.js';
 import { QigongSystem } from './systems/QigongSystem.js?v=release-20260614-6';
 import { BuffSystem } from './systems/BuffSystem.js';
 import { Player } from './entities/Player.js?v=release-20260612-2';
-import { createEquipmentInstance } from './entities/EquipmentInstance.js';
+import { createEquipmentInstance } from './entities/EquipmentInstance.js?v=release-20260615-1';
 import { SaveManager } from './core/SaveManager.js?v=release-20260614-14';
 import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js';
 import { assertValidGameConfig } from './core/ConfigValidator.js';
@@ -35,7 +35,7 @@ import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=releas
 import { UIManager } from './ui/UIManager.js?v=release-20260614-5';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260614-13';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260614-5';
-import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260614-5';
+import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260615-1';
 import {
   hideOfflineRewardLoading,
   showMultiSaveUI,
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260614-11';
-import './ui/BottomBarUI.js?v=release-20260614-20';
+import './ui/BottomBarUI.js?v=release-20260615-1';
 
 // ========================
 // 数据加载

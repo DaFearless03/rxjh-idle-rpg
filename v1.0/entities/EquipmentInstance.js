@@ -15,6 +15,8 @@ export function createEquipmentInstance(equipmentTemplate) {
     instance_id: generateUUID(),
     item_key: equipmentTemplate.key,
     enhance_level: 0,
-    synthesis_slots: []
+    synthesis_slots: [],
+    desc: equipmentTemplate.description || '',
+    extra: { ...(equipmentTemplate.extra_affixes || {}) }
   };
 }

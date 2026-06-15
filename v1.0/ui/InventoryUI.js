@@ -3,17 +3,16 @@
  * @desc 背包页渲染：装备摘要 + demo 风格背包格子。
  */
 
-import { BoxSystem } from '../systems/BoxSystem.js';
-import { ConsumableSystem } from '../systems/ConsumableSystem.js';
-import { renderEquipmentDetail, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
+import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260615-1';
+import { buildEquipmentDetailView, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260615-1';
 
 const ITEM_META = {
-  hp_potion_grade1: { icon: '🍶', name: '金创药(小)' },
-  hp_potion_grade2: { icon: '🍶', name: '金创药(中)' },
-  hp_potion_grade3: { icon: '🍶', name: '金创药(大)' },
-  mp_potion_grade1: { icon: '🌿', name: '人参' },
-  mp_potion_grade2: { icon: '🌿', name: '野山参' },
-  mp_potion_grade3: { icon: '🌿', name: '雪原参' },
+  hp_potion_grade1: { icon: '🍶', name: '金创药(小)', desc: '恢复70点生命值' },
+  hp_potion_grade2: { icon: '🍶', name: '金创药(中)', desc: '恢复160点生命值' },
+  hp_potion_grade3: { icon: '🍶', name: '金创药(大)', desc: '恢复300点生命值' },
+  mp_potion_grade1: { icon: '🌿', name: '人参', desc: '恢复70点内功值' },
+  mp_potion_grade2: { icon: '🌿', name: '野山参', desc: '恢复160点内功值' },
+  mp_potion_grade3: { icon: '🌿', name: '雪原参', desc: '恢复320点内功值' },
   enhance_stone_01: { icon: '🪨', name: '强化石' },
 };
 
@@ -93,6 +92,7 @@ function getSlotDisplay(slot, player) {
     name: slot.name || meta.name || baseKey || '未知物品',
     icon: slot.icon || meta.icon || getItemIcon(key, itemClass),
     sub: slot.attr || parseStoneAttr(key),
+    desc: slot.desc || meta.description || meta.desc || '',
     enhance: 0,
     itemClass,
   };
@@ -227,49 +227,53 @@ function renderBagGrid(player) {
 function renderInventoryModals() {
   return `<div class="item-backdrop inventory-item-modal" data-modal="item">
     <div class="item-box">
-      <div class="im-head">
-        <span class="im-ico" data-field="icon">📦</span>
-        <div class="im-meta">
-          <div class="im-name" data-field="name">物品</div>
-          <div class="im-sub" data-field="sub">—</div>
+      <div class="ed-hdr">
+        <div class="ed-ico-frame"><span data-field="icon">📦</span></div>
+        <div class="ed-title-wrap">
+          <div class="ed-title-name" data-field="name">物品</div>
+          <div class="ed-title-tags" data-field="tags"></div>
         </div>
       </div>
-      <div class="im-qty" data-field="qty-wrap">
-        <div class="im-qty-label" data-field="qty-label">丢弃数量</div>
-        <div class="qty-stepper">
-          <button class="qty-step" data-step="-1">−</button>
-          <input class="qty-input" data-field="qty" type="text" inputmode="numeric" value="1">
-          <button class="qty-step" data-step="1">＋</button>
+      <div class="ed-main-bar" data-field="main-bar"></div>
+      <div class="ed-content" data-field="content">
+        <div class="ed-panel" data-field="qty-wrap">
+          <div class="ed-panel-hdr">操作数量</div>
+          <div class="qty-stepper">
+            <button class="qty-step" data-step="-1">−</button>
+            <input class="qty-input" data-field="qty" type="text" inputmode="numeric" value="1">
+            <button class="qty-step" data-step="1">＋</button>
+          </div>
+          <div class="qty-quick">
+            <button data-quick="1">1</button>
+            <button data-quick="10">10</button>
+            <button data-quick="half">半数</button>
+            <button data-quick="all">全部</button>
+          </div>
         </div>
-        <div class="qty-quick">
-          <button data-quick="1">1</button>
-          <button data-quick="10">10</button>
-          <button data-quick="half">半数</button>
-          <button data-quick="all">全部</button>
-        </div>
+        <div class="im-warn" data-field="warn">⚠️ 丢弃后不可恢复</div>
       </div>
-      <div class="im-warn" data-field="warn">⚠️ 丢弃后不可恢复</div>
-      <div class="qty-actions">
-        <button class="qty-cancel" data-action="close">取消</button>
-        <button class="qty-confirm im-use" data-action="use-item">使用 1 个</button>
-        <button class="qty-confirm im-open" data-action="open-box">开盒</button>
-        <button class="qty-confirm im-discard" data-action="discard-item">丢弃</button>
+      <div class="ed-footer">
+        <button class="ed-btn ed-btn-close" data-action="close">关闭</button>
+        <button class="ed-btn ed-btn-equip" data-action="open-box">开盒</button>
+        <button class="ed-btn ed-btn-discard" data-action="discard-item">丢弃</button>
       </div>
     </div>
   </div>
   <div class="item-backdrop inventory-equip-modal" data-modal="equip">
     <div class="item-box">
-      <div class="im-head">
-        <span class="im-ico" data-field="icon">⚔</span>
-        <div class="im-meta">
-          <div class="im-name" data-field="name">装备</div>
-          <div class="im-sub" data-field="sub">—</div>
+      <div class="ed-hdr">
+        <div class="ed-ico-frame" data-field="icon-frame"><span data-field="icon">⚔</span></div>
+        <div class="ed-title-wrap">
+          <div class="ed-title-name" data-field="name">装备</div>
+          <div class="ed-title-tags" data-field="tags"></div>
         </div>
       </div>
+      <div class="ed-main-bar" data-field="main-bar"></div>
       <div data-field="detail"></div>
-      <div class="qty-actions">
-        <button class="qty-cancel" data-action="close">关闭</button>
-        <button class="qty-confirm im-discard" data-action="discard-equip">丢弃</button>
+      <div class="ed-footer">
+        <button class="ed-btn ed-btn-close" data-action="close">关闭</button>
+        <button class="ed-btn ed-btn-equip" data-action="equip-action">装备</button>
+        <button class="ed-btn ed-btn-discard" data-action="discard-equip">丢弃</button>
       </div>
     </div>
   </div>`;
@@ -335,122 +339,39 @@ function migrateEquippedItemsOutOfBag(player) {
 function bindInventoryInteractions(container, player) {
   const signal = createAbortSignal(container);
   let pending = null;
-  let drag = null;
-  let highlighted = null;
   let popupTarget = null;
-  const threshold = 6;
-
-  const clearHighlight = () => {
-    highlighted?.classList.remove('drop-ok', 'drop-no');
-    highlighted = null;
-    container.querySelector('#inventoryBagScroll')?.classList.remove('drop-ok');
-  };
-
-  const cleanup = () => {
-    clearHighlight();
-    drag?.ghost?.remove();
-    drag = null;
-    pending = null;
-  };
-
-  const hitTest = (event) => {
-    if (drag?.ghost) drag.ghost.style.display = 'none';
-    const target = document.elementFromPoint(event.clientX, event.clientY);
-    if (drag?.ghost) drag.ghost.style.display = '';
-    return target;
-  };
-
-  const startDrag = (event, info) => {
-    const inst = player.inventory?.equipment_instances?.[info.instanceId];
-    const tpl = getEquipmentTemplate(player, inst);
-    const ghost = document.createElement('div');
-    ghost.className = 'drag-ghost inventory-drag-ghost';
-    ghost.innerHTML = `<span class="bt-icon">${getEquipmentIcon(tpl?.slot)}</span><span class="bt-name">${escapeHtml(tpl?.name || inst?.item_key || '装备')}</span>`;
-    document.body.appendChild(ghost);
-    drag = { ...info, ghost };
-    moveGhost(event);
-  };
-
-  const moveGhost = (event) => {
-    if (!drag) return;
-    drag.ghost.style.left = `${event.clientX}px`;
-    drag.ghost.style.top = `${event.clientY}px`;
-  };
+  const threshold = 8;
 
   container.addEventListener('pointerdown', (event) => {
     const bagTile = event.target.closest('#inventoryBagGrid .bag-tile.equip[data-instance-id]');
     const equippedSlot = event.target.closest('.eq-slot.filled[data-instance-id]');
-    if (!bagTile && !equippedSlot) return;
-    const info = bagTile
-      ? { source: 'bag', instanceId: bagTile.dataset.instanceId, bagIndex: Number(bagTile.dataset.bagIndex) }
-      : { source: 'equip', instanceId: equippedSlot.dataset.instanceId, slot: equippedSlot.dataset.slot, index: Number(equippedSlot.dataset.index || 0) };
-    pending = { info, startX: event.clientX, startY: event.clientY };
-    event.preventDefault();
-    try { container.setPointerCapture(event.pointerId); } catch (_) {}
+    const stackTile = event.target.closest('#inventoryBagGrid .bag-tile.stack[data-bag-index]');
+    const tap = bagTile
+      ? { type: 'equip', info: { source: 'bag', instanceId: bagTile.dataset.instanceId, bagIndex: Number(bagTile.dataset.bagIndex) } }
+      : equippedSlot
+        ? { type: 'equip', info: { source: 'equip', instanceId: equippedSlot.dataset.instanceId, slot: equippedSlot.dataset.slot, index: Number(equippedSlot.dataset.index || 0) } }
+        : stackTile
+          ? { type: 'stack', bagIndex: Number(stackTile.dataset.bagIndex) }
+          : null;
+    if (tap) pending = { tap, startX: event.clientX, startY: event.clientY, scrolled: false };
   }, { signal });
 
   container.addEventListener('pointermove', (event) => {
-    if (!drag && pending) {
-      const distance = Math.hypot(event.clientX - pending.startX, event.clientY - pending.startY);
-      if (distance >= threshold) {
-        startDrag(event, pending.info);
-        pending = null;
-      }
-    }
-    if (!drag) return;
-    event.preventDefault();
-    moveGhost(event);
-    const target = hitTest(event);
-    clearHighlight();
-    const slotEl = target?.closest('.eq-slot');
-    if (slotEl) {
-      const inst = player.inventory?.equipment_instances?.[drag.instanceId];
-      const tpl = getEquipmentTemplate(player, inst);
-      const ok = tpl?.slot === slotEl.dataset.slot && !getEquipFailReason(player, drag.instanceId);
-      slotEl.classList.add(ok ? 'drop-ok' : 'drop-no');
-      highlighted = slotEl;
-      return;
-    }
-    if (drag.source === 'equip' && target?.closest('#inventoryBagScroll')) {
-      container.querySelector('#inventoryBagScroll')?.classList.add('drop-ok');
-    }
+    if (pending && Math.hypot(event.clientX - pending.startX, event.clientY - pending.startY) >= threshold) pending.scrolled = true;
   }, { signal });
 
-  container.addEventListener('pointerup', (event) => {
-    if (!drag) {
-      if (pending?.info) openEquipmentPopup(container, player, pending.info);
-      pending = null;
-      return;
-    }
-    const target = hitTest(event);
-    const slotEl = target?.closest('.eq-slot');
-    let result = null;
-    if (slotEl) {
-      result = moveEquipmentToSlot(
-        player,
-        drag,
-        slotEl.dataset.slot,
-        Number(slotEl.dataset.index || 0),
-      );
-    } else if (drag.source === 'equip' && target?.closest('#inventoryBagScroll')) {
-      result = moveEquipmentToBag(player, drag);
-    }
-    cleanup();
-    if (result) finishEquipmentAction(container, player, result);
+  container.addEventListener('pointerup', () => {
+    const tap = pending?.scrolled ? null : pending?.tap;
+    pending = null;
+    if (tap?.type === 'equip') openEquipmentPopup(container, player, tap.info);
+    if (tap?.type === 'stack') openItemPopup(container, player, tap.bagIndex, popup => { popupTarget = popup; });
   }, { signal });
 
-  container.addEventListener('pointercancel', cleanup, { signal });
+  container.addEventListener('pointercancel', () => { pending = null; }, { signal });
 
   container.addEventListener('click', (event) => {
-    const tile = event.target.closest('#inventoryBagGrid .bag-tile.stack[data-bag-index]');
     const action = event.target.closest('[data-action]');
     const modalBackdrop = event.target.closest('.item-backdrop');
-    if (tile) {
-      event.preventDefault();
-      event.stopPropagation();
-      openItemPopup(container, player, Number(tile.dataset.bagIndex), popup => { popupTarget = popup; });
-      return;
-    }
     if (action) {
       event.preventDefault();
       event.stopPropagation();
@@ -492,17 +413,27 @@ function openItemPopup(container, player, bagIndex, setTarget) {
   const modal = container.querySelector('.inventory-item-modal');
   const max = Math.max(1, Number(slot.count || 1));
   const isBox = display.itemClass === 'boxes';
+  const isQuest = display.itemClass === 'quest_items';
   setTarget({ type: 'item', bagIndex, max, itemClass: display.itemClass });
   modal.querySelector('[data-field="icon"]').textContent = display.icon;
   modal.querySelector('[data-field="name"]').textContent = display.name;
-  modal.querySelector('[data-field="sub"]').textContent = `${getItemClassLabel(display.itemClass)} · 持有 ${max}`;
-  modal.querySelector('[data-field="qty-wrap"]').style.display = max > 1 ? '' : 'none';
-  modal.querySelector('[data-field="qty-label"]').textContent = isBox ? '开盒数量' : '丢弃数量';
+  modal.querySelector('[data-field="tags"]').innerHTML = `<span class="ed-tag ${getItemClassTag(display.itemClass)}">${getItemClassLabel(display.itemClass)}</span>`;
+  const mainBar = modal.querySelector('[data-field="main-bar"]');
+  if (display.itemClass === 'stones' && display.sub) mainBar.innerHTML = renderItemMainBar(display.sub);
+  else if (display.itemClass === 'consumables') mainBar.innerHTML = `<span class="ed-ml">效果</span><span class="ed-mv item-effect">${escapeHtml(display.desc || '使用后恢复角色状态')}</span>`;
+  else if (isQuest) mainBar.innerHTML = `<span class="ed-ml">持有数量</span><span class="ed-mv">×${max}</span>`;
+  else mainBar.innerHTML = '';
+  mainBar.style.display = isBox ? 'none' : '';
+  modal.querySelector('[data-field="content"]').style.display = isQuest ? 'none' : '';
+  modal.querySelector('[data-field="qty-wrap"]').style.display = !isQuest && max > 1 ? '' : 'none';
   const warn = modal.querySelector('[data-field="warn"]');
   warn.textContent = isBox ? '📦 开盒后物品直接进背包' : '⚠️ 丢弃后不可恢复';
   warn.classList.toggle('neutral', isBox);
   modal.querySelector('[data-action="open-box"]').style.display = isBox ? '' : 'none';
-  modal.querySelector('[data-action="use-item"]').style.display = display.itemClass === 'consumables' ? '' : 'none';
+  const discard = modal.querySelector('[data-action="discard-item"]');
+  discard.disabled = isQuest;
+  discard.className = `ed-btn ${isQuest ? 'ed-btn-disabled' : 'ed-btn-discard'}`;
+  discard.textContent = isQuest ? '不可丢弃' : '丢弃';
   setPopupQty(modal.querySelector('[data-field="qty"]'), max, max);
   modal.classList.add('open');
 }
@@ -519,10 +450,22 @@ function openEquipmentPopup(container, player, target) {
   modal.dataset.slot = target.slot ?? '';
   modal.dataset.index = target.index ?? 0;
   modal.querySelector('[data-field="icon"]').textContent = getEquipmentIcon(tpl.slot);
-  modal.querySelector('[data-field="name"]').textContent = `${tpl.name || inst.item_key}${inst.enhance_level > 0 ? ` +${inst.enhance_level}` : ''}`;
+  modal.querySelector('[data-field="name"]').textContent = tpl.name || inst.item_key;
+  const iconFrame = modal.querySelector('[data-field="icon-frame"]');
+  iconFrame.querySelector('.ed-badge')?.remove();
+  if (inst.enhance_level > 0) iconFrame.insertAdjacentHTML('beforeend', `<span class="ed-badge">+${inst.enhance_level}</span>`);
+  modal.querySelector('[data-field="tags"]').innerHTML = renderEquipmentTags(player, tpl);
+  const detail = buildEquipmentDetailView(player, instanceId);
+  const mainBar = modal.querySelector('[data-field="main-bar"]');
+  mainBar.innerHTML = detail.mainBar || '';
+  mainBar.className = `ed-main-bar ${detail.mainClass || ''}`;
+  mainBar.style.display = detail.mainBar ? '' : 'none';
+  modal.querySelector('[data-field="detail"]').innerHTML = detail.body;
+  const action = modal.querySelector('[data-action="equip-action"]');
   const fail = getEquipFailReason(player, instanceId);
-  modal.querySelector('[data-field="sub"]').textContent = `装备 · ${getEquipmentSlotLabel(tpl.slot)}${fail ? ` · ${fail}` : ''}`;
-  modal.querySelector('[data-field="detail"]').innerHTML = renderEquipmentDetail(player, instanceId);
+  action.disabled = target.source === 'bag' && !!fail;
+  action.className = `ed-btn ${target.source === 'equip' ? 'ed-btn-unequip' : fail ? 'ed-btn-disabled' : 'ed-btn-equip'}`;
+  action.textContent = target.source === 'equip' ? '卸下' : fail ? '不可装备' : '装备';
   modal.classList.add('open');
 }
 
@@ -533,6 +476,7 @@ function handleModalAction(container, player, action, popupTarget, setTarget) {
     return;
   }
   if (action === 'discard-item' && popupTarget?.type === 'item') {
+    if (popupTarget.itemClass === 'quest_items') return;
     const slot = player.inventory?.slots?.[popupTarget.bagIndex];
     if (!slot) return;
     const qty = getPopupQty(container, popupTarget.max);
@@ -556,19 +500,6 @@ function handleModalAction(container, player, action, popupTarget, setTarget) {
     });
     return;
   }
-  if (action === 'use-item' && popupTarget?.type === 'item') {
-    const slot = player.inventory?.slots?.[popupTarget.bagIndex];
-    const result = ConsumableSystem.use(player, slot?.item_key, 1, { source: 'manual' });
-    if (!result?.success) {
-      showToast(container, result?.message || '使用失败');
-      return;
-    }
-    closeInventoryModals(container);
-    setTarget(null);
-    window.UIManager?._refreshTopBar?.();
-    finishEquipmentAction(container, player, result);
-    return;
-  }
   if (action === 'discard-equip') {
     const modal = container.querySelector('.inventory-equip-modal');
     const instanceId = modal.dataset.instanceId;
@@ -579,6 +510,30 @@ function handleModalAction(container, player, action, popupTarget, setTarget) {
     delete player.inventory.equipment_instances[instanceId];
     closeInventoryModals(container);
     finishEquipmentAction(container, player, { success: true, message: `已丢弃「${tpl?.name || inst?.item_key || '装备'}」` });
+    return;
+  }
+  if (action === 'equip-action') {
+    const modal = container.querySelector('.inventory-equip-modal');
+    if (modal.querySelector('[data-action="equip-action"]')?.disabled) return;
+    const target = {
+      source: modal.dataset.source,
+      instanceId: modal.dataset.instanceId,
+      bagIndex: Number(modal.dataset.bagIndex),
+      slot: modal.dataset.slot,
+      index: Number(modal.dataset.index || 0),
+    };
+    const inst = player.inventory?.equipment_instances?.[target.instanceId];
+    const tpl = getEquipmentTemplate(player, inst);
+    let result;
+    if (target.source === 'equip') {
+      result = moveEquipmentToBag(player, target);
+    } else {
+      const equipped = player?.equipped?.[tpl?.slot];
+      const targetIndex = Array.isArray(equipped) ? Math.max(0, equipped.findIndex(value => !getInstanceId(value))) : 0;
+      result = moveEquipmentToSlot(player, target, tpl?.slot, targetIndex);
+    }
+    closeInventoryModals(container);
+    finishEquipmentAction(container, player, result);
   }
 }
 
@@ -602,6 +557,40 @@ function getItemClassLabel(itemClass) {
     quest_items: '任务物品',
     boxes: '盒子',
   }[itemClass] || '物品';
+}
+
+function getItemClassTag(itemClass) {
+  return {
+    stones: 'ed-tag-career',
+    consumables: 'ed-tag-slot',
+    quest_items: 'ed-tag-fail',
+    boxes: 'ed-tag-lv',
+  }[itemClass] || 'ed-tag-slot';
+}
+
+function renderItemMainBar(attr) {
+  const match = String(attr || '').match(/^(.+?)([+-]\d+(?:\.\d+)?)$/);
+  return match
+    ? `<span class="ed-ml">${escapeHtml(match[1])}</span><span class="ed-mv">${escapeHtml(match[2])}</span>`
+    : `<span class="ed-ml">${escapeHtml(attr)}</span>`;
+}
+
+function renderEquipmentTags(player, tpl) {
+  const requiredLevel = Number(tpl.required_level || tpl.level_required || 1);
+  const requiredTransfer = Number(tpl.required_transfer || tpl.transfer_required || 0);
+  const careers = Array.isArray(tpl.required_career) ? tpl.required_career : (tpl.required_career ? [tpl.required_career] : []);
+  const careerNames = { blade: '刀系', sword: '剑系', spear: '枪系', staff: '医系', all: '通用' };
+  const factionNames = { positive: '正派', negative: '邪派', neutral: '中立' };
+  const careerOk = !careers.length || careers.includes('all') || careers.includes(player?.career_family);
+  const factionOk = !tpl.faction || tpl.faction === 'neutral' || tpl.faction === player?.faction;
+  const tags = [
+    `<span class="ed-tag ed-tag-slot">${getEquipmentSlotLabel(tpl.slot)}</span>`,
+    `<span class="ed-tag ${(player?.level || 1) >= requiredLevel ? 'ed-tag-lv' : 'ed-tag-fail'}">Lv.${requiredLevel}</span>`,
+    `<span class="ed-tag ${careerOk ? 'ed-tag-career' : 'ed-tag-fail'}">${careers.length ? careers.map(key => careerNames[key] || key).join('/') : '通用'}</span>`,
+  ];
+  if (requiredTransfer > 0) tags.push(`<span class="ed-tag ${getTransferCount(player) >= requiredTransfer ? 'ed-tag-lv' : 'ed-tag-fail'}">${requiredTransfer}转</span>`);
+  if (tpl.faction && tpl.faction !== 'neutral') tags.push(`<span class="ed-tag ed-tag-faction ${tpl.faction} ${factionOk ? '' : 'ed-tag-fail'}">${factionNames[tpl.faction] || tpl.faction}</span>`);
+  return tags.join('');
 }
 
 function formatBoxResult(result) {

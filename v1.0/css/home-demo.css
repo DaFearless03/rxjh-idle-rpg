@@ -2471,6 +2471,141 @@ body {
   transform: translateY(0);
 }
 
+/* Inventory detail refresh: ui_demo_equip.html / EQUIP_DETAIL_HANDOFF.md */
+.inventory-page .char-sprite {
+  position: absolute;
+  left: 50%; top: 46%;
+  transform: translate(-50%, -50%);
+  width: 9.35rem; height: 22rem;
+  background: url('../icons/inventory_blade_sprite.png') center / contain no-repeat;
+  image-rendering: pixelated;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+.inventory-page .eq-slot.empty {
+  border-style: dashed;
+  border-color: #b0a890;
+  background: var(--bg-base);
+  box-shadow: inset 0.18rem 0.18rem 0 rgba(48,48,72,0.05);
+}
+.inventory-page .eq-slot.filled {
+  cursor: pointer;
+  touch-action: auto;
+  border-style: solid;
+  border-color: var(--menu-green);
+  background: var(--bg-window);
+  box-shadow:
+    inset 0.18rem 0.18rem 0 rgba(48,48,72,0.10),
+    inset -0.18rem -0.18rem 0 rgba(255,255,255,0.85),
+    inset 0 0 0.5rem rgba(76,160,80,0.15);
+}
+.inventory-page .bag-tile.equip { cursor: pointer; touch-action: auto; }
+.inventory-page .stat-sec {
+  color: var(--text-main);
+  background: var(--bg-window-2);
+  border: 0.15rem solid #ddd0b0;
+  border-radius: 0.3rem;
+  padding: 0.3rem 0.45rem;
+  margin: 0 0 0.3rem;
+}
+.inventory-page .sr-v { color: var(--text-link); }
+.page-inventory .inventory-item-modal .item-box,
+.page-inventory .inventory-equip-modal .item-box {
+  padding: 0;
+  overflow: hidden auto;
+}
+.page-inventory .ed-hdr {
+  background: linear-gradient(180deg, var(--bg-window) 0%, var(--bg-base) 100%);
+  padding: 1.2rem 1rem 1rem;
+  display: flex; align-items: center; gap: 0.9rem;
+}
+.page-inventory .ed-ico-frame {
+  width: 5rem; height: 5rem; flex-shrink: 0;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-window);
+  border: 0.25rem solid var(--border-outer); border-radius: 0.4rem;
+  box-shadow: inset 0.18rem 0.18rem 0 rgba(48,48,72,0.12), inset -0.18rem -0.18rem 0 rgba(255,255,255,0.9), 0 0.2rem 0.5rem rgba(0,0,0,0.12);
+  font-size: 2.6rem;
+}
+.page-inventory .ed-badge {
+  position: absolute; top: -0.35rem; right: -0.35rem;
+  padding: 0.06rem 0.32rem; border-radius: 0.35rem;
+  background: var(--menu-green); color: #fff;
+  font-size: 0.6rem; font-weight: bold; line-height: 1.3;
+}
+.page-inventory .ed-title-wrap { flex: 1; min-width: 0; }
+.page-inventory .ed-title-name {
+  overflow: hidden; color: var(--text-main);
+  font-size: 1.05rem; font-weight: bold;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.page-inventory .ed-title-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.4rem; }
+.page-inventory .ed-tag {
+  padding: 0.12rem 0.4rem; border: 0.12rem solid; border-radius: 0.25rem;
+  font-size: 0.58rem; font-weight: bold; line-height: 1.3; white-space: nowrap;
+}
+.page-inventory .ed-tag-slot { background:#e0e8f8; border-color:var(--border-inner); color:var(--text-link); }
+.page-inventory .ed-tag-lv { background:#eaf5e0; border-color:#8cb060; color:#4a6830; }
+.page-inventory .ed-tag-career { background:#fff4e0; border-color:#d0a040; color:#806020; }
+.page-inventory .ed-tag-faction { background:#f0f0f0; border-color:#a0a0a0; color:#606060; }
+.page-inventory .ed-tag-faction.positive { background:#e0f5e8; border-color:var(--menu-green); color:var(--menu-green); }
+.page-inventory .ed-tag-faction.negative,
+.page-inventory .ed-tag-fail { background:#fde8e8; border-color:var(--menu-accent); color:var(--menu-accent); }
+.page-inventory .ed-main-bar {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 0.65rem 1rem;
+  background: var(--bg-window-2);
+  border-top: 0.15rem solid #ddd0b0; border-bottom: 0.2rem solid #ddd0b0;
+}
+.page-inventory .ed-main-bar .ed-ml { color:var(--text-dim); font-size:0.72rem; font-weight:bold; }
+.page-inventory .ed-main-bar .ed-mv { color:var(--text-link); font-size:1.2rem; font-weight:bold; }
+.page-inventory .ed-main-bar .item-effect { max-width: 72%; font-size: 0.88rem; text-align: right; }
+.page-inventory .ed-main-bar.multi { flex-direction:column; align-items:stretch; }
+.page-inventory .ed-attr-row,
+.page-inventory .ed-req-row {
+  display:flex; align-items:baseline; justify-content:space-between; gap:0.5rem;
+  padding:0.25rem 0.2rem; font-size:0.74rem;
+}
+.page-inventory .ed-attr-row { border-bottom:0.1rem dashed #ddd0b0; }
+.page-inventory .ed-attr-row:last-child { border-bottom:0; }
+.page-inventory .ed-rk { color:var(--text-dim); }
+.page-inventory .ed-rv { color:var(--text-main); font-weight:bold; }
+.page-inventory .ed-attr-row .ed-rv { color:var(--text-link); font-size:0.88rem; }
+.page-inventory .ed-description { white-space:normal; line-height:1.5; }
+.page-inventory .ed-content { padding:0.3rem 0; }
+.page-inventory .ed-panel { padding:0.6rem 1rem; }
+.page-inventory .ed-panel + .ed-panel { border-top:0.15rem dashed #ddd0b0; }
+.page-inventory .ed-panel-hdr {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:0.4rem; padding:0.35rem 0.5rem;
+  background:var(--bg-window-2); border:0.15rem solid #ddd0b0; border-radius:0.3rem;
+  color:var(--text-main); font-size:0.72rem; font-weight:bold;
+}
+.page-inventory .ed-pcnt { color:var(--text-link); font-size:0.68rem; }
+.page-inventory .ed-s-detail {
+  display:flex; align-items:center; gap:0.3rem;
+  padding:0.15rem 0.2rem; color:var(--menu-green); font-size:0.7rem; font-weight:bold;
+}
+.page-inventory .ed-s-detail.empty { color:var(--text-dim); font-weight:normal; font-style:italic; opacity:0.6; }
+.page-inventory .ed-enh-display { display:flex; padding:0.15rem 0; }
+.page-inventory .ed-enh-val { color:var(--menu-blue); font-size:0.88rem; font-weight:bold; }
+.page-inventory .ed-footer {
+  display:flex; gap:0.6rem; padding:0.7rem 1rem;
+  border-top:0.2rem solid #ddd0b0; background:var(--bg-base);
+}
+.page-inventory .ed-btn {
+  flex:1; padding:0.7rem; border-radius:0.5rem;
+  font-family:inherit; font-size:0.88rem; font-weight:bold;
+}
+.page-inventory .ed-btn-close { background:var(--bg-window); border:0.2rem solid var(--border-inner); color:var(--text-dim); }
+.page-inventory .ed-btn-equip { background:var(--menu-green); border:0.2rem solid transparent; color:#fff; }
+.page-inventory .ed-btn-unequip { background:var(--menu-blue); border:0.2rem solid transparent; color:#fff; }
+.page-inventory .ed-btn-discard { background:var(--menu-accent); border:0.2rem solid transparent; color:#fff; }
+.page-inventory .ed-btn-disabled { background:#c0b8a8; border:0.2rem solid transparent; color:#8a8478; opacity:0.7; }
+.page-inventory .inventory-item-modal .ed-content .im-warn { margin:0 1rem 0.5rem; }
+
 /* === 角色 / 气功 / 任务页（ui_demo_role + ui_demo_quest 接入版）=== */
 .role-page,
 .quest-page {

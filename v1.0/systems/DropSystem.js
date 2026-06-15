@@ -4,7 +4,7 @@
  * @ref 09_economy_drops.md evaluation_flow / drop_adapters / drop_helpers
  */
 import { InventorySystem } from './InventorySystem.js?v=release-20260613-12';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260615-1';
 import { random } from '../utils/random.js';
 import { eventBus } from '../core/EventBus.js';
 

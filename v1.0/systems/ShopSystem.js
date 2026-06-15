@@ -4,7 +4,7 @@
  * @ref 08_maps_npc_quests shop npc
  */
 import { InventorySystem } from './InventorySystem.js';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260615-1';
 import { eventBus } from '../core/EventBus.js';
 
 export const ShopSystem = {

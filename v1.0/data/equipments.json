@@ -2738,6 +2738,11 @@
       "purchaseable": false,
       "base_stats": {
         "missing": 10
+      },
+      "extra_affixes": {
+        "hit": 10,
+        "maxHp": 20,
+        "maxMp": 20
       }
     },
     {
@@ -2967,6 +2972,7 @@
       "required_level": 0,
       "required_transfer": 0,
       "purchaseable": true,
+      "description": "如钢铁般坚不可摧的铠甲，泛着冷冽金属光泽",
       "base_stats": {},
       "required_career": [
         "blade",
@@ -2983,6 +2989,7 @@
       "required_level": 0,
       "required_transfer": 0,
       "purchaseable": true,
+      "description": "轻巧贴身的连体战衣，灵动如丝",
       "base_stats": {},
       "required_career": [
         "blade",

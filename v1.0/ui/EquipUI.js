@@ -149,14 +149,7 @@ function renderSlot(player, slotKey, options = {}) {
 export function renderEquipmentDoll(player) {
   return `<div class="doll-panel demo-equip-panel">
     <div class="doll-figure" id="inventoryDollFigure">
-      <div class="silhouette">
-        <span class="sil-head"></span>
-        <span class="sil-torso"></span>
-        <span class="sil-arm left"></span>
-        <span class="sil-arm right"></span>
-        <span class="sil-leg left"></span>
-        <span class="sil-leg right"></span>
-      </div>
+      <div class="char-sprite"></div>
       ${renderSlot(player, 'weapon')}
       ${renderSlot(player, 'inner_armor')}
       ${renderSlot(player, 'cape')}
@@ -175,13 +168,13 @@ export function renderEquipmentDoll(player) {
 
 export function renderStatPanel(player) {
   const rows = [
-    ['生命值', player?.maxHp || 0],
-    ['内功值', player?.maxMp || 0],
-    ['最小攻击力', player?.atkMin || 0],
-    ['最大攻击力', player?.atkMax || 0],
-    ['防御力', player?.def || 0],
-    ['武功攻击力', player?.matk || 0],
-    ['武功防御力', player?.mdef || 0],
+    ['生命', player?.maxHp || 0],
+    ['内功', player?.maxMp || 0],
+    ['最小攻击', player?.atkMin || 0],
+    ['最大攻击', player?.atkMax || 0],
+    ['防御', player?.def || 0],
+    ['武功攻击', player?.matk || 0],
+    ['武功防御', player?.mdef || 0],
     ['命中', player?.hit || 0],
     ['闪避', player?.missing || 0],
   ];
@@ -203,49 +196,60 @@ export function renderEquipmentSummary(player) {
 }
 
 export function renderEquipmentDetail(player, instanceId) {
+  return buildEquipmentDetailView(player, instanceId).body;
+}
+
+export function buildEquipmentDetailView(player, instanceId) {
   const inst = player?.inventory?.equipment_instances?.[instanceId];
   const tpl = getEquipmentTemplate(player, inst);
-  if (!inst || !tpl) return '<div class="ed-body">装备不存在</div>';
+  if (!inst || !tpl) return { body: '<div class="ed-content">装备不存在</div>' };
   const stats = tpl.base_stats || {};
   const stones = inst.synthesis_slots || [];
   const capacities = { weapon: 4, chest: 4, gloves: 4, boots: 4, inner_armor: 2, cape: 4 };
+  const stoneNames = { weapon: '金刚石', chest: '寒玉石', gloves: '寒玉石', boots: '寒玉石', inner_armor: '寒玉石', cape: '热血石' };
+  const stoneIcons = { weapon: '💠', chest: '🔷', gloves: '🔷', boots: '🔷', inner_armor: '🔷', cape: '❤️' };
   const capacity = capacities[tpl.slot] || 0;
   const statLabels = STAT_LABELS;
-  const baseRows = Object.entries(stats).map(([key, value]) =>
-    `<div class="ed-stat-row"><span>${escapeHtml(statLabels[key] || key)}</span><b>${value}</b></div>`).join('');
   const enhance = Number(inst.enhance_level || 0);
   const enhanceValue = tpl.slot === 'weapon' ? enhance * 6 : enhance * 3;
-  const totals = { ...stats };
   const stoneTotals = synthesisBonuses(stones);
-  for (const [key, value] of Object.entries(stoneTotals)) totals[key] = (totals[key] || 0) + value;
-  const totalRows = Object.entries(totals).map(([key, value]) => {
-    const extra = tpl.slot === 'weapon' && (key === 'atkMin' || key === 'atkMax')
-      ? enhanceValue
-      : key === 'def' && tpl.slot !== 'weapon'
-        ? enhanceValue
-        : 0;
-    return `<div class="ed-stat-row"><span>${escapeHtml(statLabels[key] || key)}</span><b>+${Number(value) + extra}</b></div>`;
-  }).join('');
-  return `<div class="ed-body">
-    <div class="ed-sec">
-      <div class="ed-sec-title">自身属性</div>
-      ${baseRows || '<div class="ed-empty-note">无基础属性</div>'}
-    </div>
-    ${enhance > 0 ? `<div class="ed-sec">
-      <div class="ed-sec-title">强化加成</div>
-      <div class="ed-stat-row"><span>强化 +${enhance}</span><b>${tpl.slot === 'weapon' ? '攻击' : '防御'} +${enhanceValue}</b></div>
-    </div>` : ''}
-    ${capacity > 0 ? `<div class="ed-sec">
-      <div class="ed-sec-title">合成孔 <span>${stones.filter(Boolean).length} / ${capacity}</span></div>
-      <div class="ed-sockets">
-        ${Array.from({ length: capacity }, (_, i) => stones[i]
-          ? `<span class="ed-socket filled" title="${escapeHtml(stones[i])}">${escapeHtml(parseSynthesisStone(stones[i]).label)}</span>`
-          : '<span class="ed-socket empty">＋</span>').join('')}
-      </div>
-    </div>` : ''}
-    <div class="ed-sec ed-total">
-      <div class="ed-sec-title">合计加成（计入战斗面板）</div>
-      ${totalRows || '<div class="ed-empty-note">无属性加成</div>'}
-    </div>
+  const extraStats = inst.extra || tpl.extra_affixes || {};
+  const isAccessory = ['ring', 'amulet', 'earring'].includes(tpl.slot);
+  const allStats = { ...stats, ...extraStats };
+  const totalAtkMin = Number(stats.atkMin || 0) + Number(stoneTotals.atkMin || 0) + enhanceValue;
+  const totalAtkMax = Number(stats.atkMax || 0) + Number(stoneTotals.atkMax || 0) + enhanceValue;
+  const totalDef = Number(stats.def || 0) + Number(stoneTotals.defAdd || stoneTotals.def || 0) + (tpl.slot === 'weapon' ? 0 : enhanceValue);
+  let mainBar = '';
+  if (isAccessory && Object.keys(allStats).length) {
+    mainBar = Object.entries(allStats).map(([key, value]) =>
+      `<div class="ed-attr-row"><span class="ed-rk">${escapeHtml(statLabels[key] || key)}</span><span class="ed-rv">+${value}</span></div>`).join('');
+  } else if (tpl.slot === 'weapon') {
+    mainBar = `<span class="ed-ml">攻击力</span><span class="ed-mv">${totalAtkMin} ~ ${totalAtkMax}</span>`;
+  } else if (stats.def != null) {
+    mainBar = `<span class="ed-ml">防御力</span><span class="ed-mv">+${totalDef}</span>`;
+  } else if (stats.maxHp != null) {
+    mainBar = `<span class="ed-ml">生命值</span><span class="ed-mv">+${Number(stats.maxHp) + Number(stoneTotals.maxHpAdd || stoneTotals.maxHp || 0)}</span>`;
+  }
+
+  if (isAccessory) return { mainBar, mainClass: 'multi', body: '' };
+
+  const baseRows = Object.entries(stats).map(([key, value]) =>
+    `<div class="ed-req-row"><span class="ed-rk">${escapeHtml(statLabels[key] || key)}</span><span class="ed-rv">${value}</span></div>`).join('');
+  const description = tpl.description || tpl.desc || inst.desc || '暂无装备描述';
+  const basePanel = `<div class="ed-panel">
+    <div class="ed-panel-hdr">${baseRows ? '装备属性' : '装备描述'}</div>
+    ${baseRows || `<div class="ed-req-row"><span class="ed-rk ed-description">${escapeHtml(description)}</span></div>`}
   </div>`;
+  const socketPanel = capacity > 0 ? `<div class="ed-panel">
+    <div class="ed-panel-hdr">合成石 <span class="ed-pcnt">${stones.filter(Boolean).length}/${capacity}</span></div>
+    ${Array.from({ length: capacity }, (_, index) => stones[index]
+      ? `<div class="ed-s-detail"><span class="esd-ico">${stoneIcons[tpl.slot] || '💠'}</span>${stoneNames[tpl.slot] || '石头'} ${escapeHtml(parseSynthesisStone(stones[index]).label)}</div>`
+      : '<div class="ed-s-detail empty"><span class="esd-ico">○</span>空孔位</div>').join('')}
+  </div>` : '';
+  const enhanceable = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor'].includes(tpl.slot);
+  const enhancePanel = enhance > 0 && enhanceable ? `<div class="ed-panel">
+    <div class="ed-panel-hdr">强化 +${enhance}</div>
+    <div class="ed-enh-display"><span class="ed-enh-val">${tpl.slot === 'weapon' ? '攻击力' : '防御力'} +${enhanceValue}</span></div>
+  </div>` : '';
+  return { mainBar, mainClass: '', body: `<div class="ed-content">${basePanel}${socketPanel}${enhancePanel}</div>` };
 }
