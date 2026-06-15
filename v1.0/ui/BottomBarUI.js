@@ -1187,18 +1187,28 @@ function renderAutoplayPanel(player) {
     ? attackCfg.selected_skill_key
     : learnedSkills[0]?.key || '';
   const useSkillAttack = attackCfg.attack_type === 'skill';
+  const customDropdown = (options, selected, handler, { kind = '', enabled = true, compact = false } = {}) => {
+    const active = options.find(option => option.value === selected) || options[0] || { value: '', label: '暂无选项' };
+    return `<div class="autoplay-dropdown${compact ? ' compact' : ''}${enabled ? '' : ' disabled'}" data-handler="${handler}" data-kind="${kind}">
+      <button class="autoplay-dropdown-trigger" type="button" onclick="window._toggleAutoplayDropdown(event)"${enabled ? '' : ' disabled'}>${escapeSettingText(active.label)}</button>
+      <div class="autoplay-dropdown-list">${options.map(option =>
+        `<button class="autoplay-dropdown-item${option.value === active.value ? ' selected' : ''}" type="button" data-value="${escapeSettingText(option.value)}" onclick="window._selectAutoplayDropdown(event)">${escapeSettingText(option.label)}</button>`
+      ).join('')}</div>
+    </div>`;
+  };
   const skillOptions = learnedSkills.length
-    ? learnedSkills.map(skill =>
-      `<option value="${escapeSettingText(skill.key)}"${selectedAttackSkill === skill.key ? ' selected' : ''}>${escapeSettingText(skill.name)}（内功 ${skill.cost?.mp ?? 0} / 伤害 ${skill.effect?.value ?? 0}）</option>`
-    ).join('')
-    : '<option value="">暂无已学习的伤害武功</option>';
+    ? learnedSkills.map(skill => ({
+      value: skill.key,
+      label: `${skill.name}（内功 ${skill.cost?.mp ?? 0} / 伤害 ${skill.effect?.value ?? 0}）`,
+    }))
+    : [{ value: '', label: '暂无已学习的伤害武功' }];
 
   const potionSelect = (kind, selected, enabled, handler = '_setAutoPotionItem') => {
     const keys = kind === 'hp' ? ['hp_potion_grade1','hp_potion_grade2','hp_potion_grade3'] : ['mp_potion_grade1','mp_potion_grade2','mp_potion_grade3'];
-    return '<select class="select" style="width:100%;padding:0.4rem;font-size:0.78rem" onchange="window.' + handler + '(\'' + kind + '\', this.value)"' + (enabled ? '' : ' disabled') + '>' +
-      '<option value="">不使用</option>' +
-      keys.map(k => '<option value="' + k + '"' + (selected === k ? ' selected' : '') + '>' + potionName[k] + '（' + InventorySystem.count(p, k) + '）</option>').join('') +
-      '</select>';
+    return customDropdown([
+      { value: '', label: '不使用' },
+      ...keys.map(key => ({ value: key, label: `${potionName[key]}（${InventorySystem.count(p, key)}）` })),
+    ], selected || '', handler, { kind, enabled });
   };
 
   const sliderRow = (label, value, min, max, step, action, id) =>
@@ -1248,9 +1258,7 @@ function renderAutoplayPanel(player) {
       ? selection.itemKey
       : candidates[0]?.key || '';
     window._autoSellEquipmentSelection = { slot, career, itemKey: selectedKey };
-    const optionTags = (items, selected, labelOf) => items.map(item =>
-      `<option value="${escapeSettingText(item)}"${item === selected ? ' selected' : ''}>${escapeSettingText(labelOf(item))}</option>`
-    ).join('');
+    const dropdownOptions = (items, labelOf) => items.map(item => ({ value: item, label: labelOf(item) }));
     const configuredKeys = equipmentFilter.item_keys || [];
     const configuredNames = configuredKeys.map(key => templates.find(item => item.key === key)?.name || key).join('；');
     const controlsDisabled = !autoSell.enabled;
@@ -1261,9 +1269,9 @@ function renderAutoplayPanel(player) {
       </div>
       <div class="auto-sell-equipment-controls${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}">
         <p class="hang-settings-note">开启后自动出售背包装备；过滤清单中的装备将被保留。</p>
-        <label><span>装备类型</span><select class="select" onchange="window._setAutoSellEquipmentSelection('slot',this.value)"${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>${optionTags(Object.keys(slotLabels), slot, key => slotLabels[key])}</select></label>
-        <label><span>职业</span><select class="select" onchange="window._setAutoSellEquipmentSelection('career',this.value)"${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>${optionTags(Object.keys(careerLabels), career, key => careerLabels[key])}</select></label>
-        <label><span>装备名字</span><select class="select" onchange="window._setAutoSellEquipmentSelection('itemKey',this.value)"${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>${optionTags(candidates.map(item => item.key), selectedKey, key => templates.find(item => item.key === key)?.name || key)}</select></label>
+        <label><span>装备类型</span>${customDropdown(dropdownOptions(Object.keys(slotLabels), key => slotLabels[key]), slot, '_setAutoSellEquipmentSelection', { kind: 'slot', enabled: !controlsDisabled && equipmentFilter.enabled, compact: true })}</label>
+        <label><span>职业</span>${customDropdown(dropdownOptions(Object.keys(careerLabels), key => careerLabels[key]), career, '_setAutoSellEquipmentSelection', { kind: 'career', enabled: !controlsDisabled && equipmentFilter.enabled, compact: true })}</label>
+        <label><span>装备名字</span>${customDropdown(dropdownOptions(candidates.map(item => item.key), key => templates.find(item => item.key === key)?.name || key), selectedKey, '_setAutoSellEquipmentSelection', { kind: 'itemKey', enabled: !controlsDisabled && equipmentFilter.enabled, compact: true })}</label>
         <div class="auto-sell-equipment-actions">
           <button class="btn-3d green" onclick="window._addAutoSellEquipmentFilter()"${!selectedKey || controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>添加保护装备</button>
           <button class="btn-3d red" onclick="window._clearAutoSellEquipmentFilter()"${!configuredKeys.length || controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}>清空过滤清单</button>
@@ -1284,7 +1292,7 @@ function renderAutoplayPanel(player) {
       </div>
       <label class="auto-attack-skill-row">
         <span>使用武功</span>
-        <select class="select" onchange="window._setAutoAttackSkill(this.value)"${useSkillAttack && learnedSkills.length ? '' : ' disabled'}>${skillOptions}</select>
+        ${customDropdown(skillOptions, selectedAttackSkill, '_setAutoAttackSkill', { enabled: useSkillAttack && learnedSkills.length })}
       </label>
     </div>
 
@@ -1473,6 +1481,28 @@ window._clearAutoSellEquipmentFilter = () => {
 window._saveAutoplaySettings = () => {
   window.game?.saveNow?.();
   UIManager.toast('挂机设置已保存', 'success');
+};
+
+window._toggleAutoplayDropdown = (event) => {
+  event.stopPropagation();
+  const dropdown = event.currentTarget?.closest('.autoplay-dropdown');
+  if (!dropdown || dropdown.classList.contains('disabled')) return;
+  document.querySelectorAll('.autoplay-dropdown.open').forEach(entry => {
+    if (entry !== dropdown) entry.classList.remove('open');
+  });
+  dropdown.classList.toggle('open');
+};
+
+window._selectAutoplayDropdown = (event) => {
+  event.stopPropagation();
+  const item = event.currentTarget;
+  const dropdown = item?.closest('.autoplay-dropdown');
+  if (!dropdown || dropdown.classList.contains('disabled')) return;
+  dropdown.classList.remove('open');
+  const handler = window[dropdown.dataset.handler];
+  if (typeof handler !== 'function') return;
+  if (dropdown.dataset.kind) handler(dropdown.dataset.kind, item.dataset.value);
+  else handler(item.dataset.value);
 };
 
 function renderQuestPanel(player) {
@@ -1855,6 +1885,9 @@ document.addEventListener('click', (e) => {
 });
 
 document.addEventListener('click', (e) => {
+  if (!e.target.closest('.autoplay-dropdown')) {
+    document.querySelectorAll('.autoplay-dropdown.open').forEach(entry => entry.classList.remove('open'));
+  }
   const btn = e.target.closest('.menu-btn[data-panel]');
   if (btn) {
     const panel = btn.dataset.panel;

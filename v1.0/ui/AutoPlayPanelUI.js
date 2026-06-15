@@ -22,6 +22,19 @@ export function showAutoPlayPanel(player) {
     { key: 'mp_potion_grade2', name: '野山参' },
     { key: 'mp_potion_grade3', name: '雪原参' },
   ];
+  const escapeText = value => String(value ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  const potionDropdown = (options, selected, handler, emptyLabel) => {
+    const items = [{ key: '', name: emptyLabel }, ...options];
+    const active = items.find(item => item.key === selected) || items[0];
+    return `<div class="autoplay-dropdown" data-handler="${handler}" data-kind="">
+      <button class="autoplay-dropdown-trigger" type="button" onclick="window._toggleAutoplayDropdown(event)">${escapeText(active.name)}</button>
+      <div class="autoplay-dropdown-list">${items.map(item =>
+        `<button class="autoplay-dropdown-item${item.key === active.key ? ' selected' : ''}" type="button" data-value="${escapeText(item.key)}" onclick="window._selectAutoplayDropdown(event)">${escapeText(item.name)}</button>`
+      ).join('')}</div>
+    </div>`;
+  };
 
   const html = `
     <div class="autoplay-panel">
@@ -37,10 +50,7 @@ export function showAutoPlayPanel(player) {
         ${hpCfg.enabled ? `
         <div class="autoplay-row">
           <label>药剂</label>
-          <select class="select flex-1" id="hp-potion-select" onchange="window._setHPPotion(this.value)">
-            <option value="">不喝HP药</option>
-            ${potionOptions.map(o => `<option value="${o.key}"${hpCfg.selected_item_key===o.key?' selected':''}>${o.name}</option>`).join('')}
-          </select>
+          ${potionDropdown(potionOptions, hpCfg.selected_item_key, '_setHPPotion', '不喝HP药')}
         </div>
         <div class="autoplay-row mt-4">
           <label>阈值</label>
@@ -59,10 +69,7 @@ export function showAutoPlayPanel(player) {
         ${mpCfg.enabled ? `
         <div class="autoplay-row">
           <label>药剂</label>
-          <select class="select flex-1" id="mp-potion-select" onchange="window._setMPPotion(this.value)">
-            <option value="">不喝MP药</option>
-            ${mpPotionOptions.map(o => `<option value="${o.key}"${mpCfg.selected_item_key===o.key?' selected':''}>${o.name}</option>`).join('')}
-          </select>
+          ${potionDropdown(mpPotionOptions, mpCfg.selected_item_key, '_setMPPotion', '不喝MP药')}
         </div>
         <div class="autoplay-row mt-4">
           <label>阈值</label>
