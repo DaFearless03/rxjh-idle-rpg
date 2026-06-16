@@ -3394,6 +3394,9 @@ body {
   font-weight: bold;
   padding: 0.56rem 0.65rem;
 }
+.page-settings .set-card > .sc-btn:last-child {
+  margin-bottom: 0.75rem;
+}
 .page-settings .sc-btn:active { transform: translateY(0.16rem); box-shadow: 0 0.06rem 0 var(--border-shadow); }
 .page-settings .sc-btn.green { background: var(--menu-green); border-color: #2f773a; }
 .page-settings .sc-btn.blue { background: var(--menu-blue); border-color: #203f8c; }
