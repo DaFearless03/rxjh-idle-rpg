@@ -1211,11 +1211,11 @@ function renderAutoplayPanel(player) {
     ], selected || '', handler, { kind, enabled });
   };
 
-  const sliderRow = (label, value, min, max, step, action, id) =>
-    '<div class="stat-line"><span class="sl-k">' + label + '</span>' +
+  const sliderRow = (label, value, min, max, step, action, id, suffix = '') =>
+    '<div class="stat-line autoplay-range-row"><span class="sl-k">' + label + '</span>' +
     '<div class="autoplay-range-wrap">' +
     '<input class="autoplay-range" type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + value + '" oninput="' + action + '"></div>' +
-    '<span class="sl-v" id="' + id + '" style="min-width:2.5rem;text-align:right;font-size:0.75rem">' + value + '</span></div>';
+    '<span class="sl-v autoplay-range-value" id="' + id + '">' + value + suffix + '</span></div>';
 
   const autoSellGroup = (category, title, icon) => {
     const groupKey = category === 'vajra' ? 'vajra_stones' : 'cold_jade_stones';
@@ -1303,14 +1303,14 @@ function renderAutoplayPanel(player) {
         ${toggleBtn('hp', hpCfg.enabled, "window._toggleAutoPotion('hp')")}
       </div>
       ${potionSelect('hp', hpCfg.selected_item_key, hpCfg.enabled)}
-      ${sliderRow('HP 阈值', Math.round((hpCfg.threshold ?? 0.3) * 100), 5, 95, 5, "window._setAutoPotionThreshold('hp', this.value)", 'hp-threshold-label')}
+      ${sliderRow('HP 阈值', Math.round((hpCfg.threshold ?? 0.3) * 100), 5, 95, 5, "window._setAutoPotionThreshold('hp', this.value)", 'hp-threshold-label', '%')}
 
       <!-- MP -->
       <div class="stat-line" style="margin-top:0.9rem"><span class="sl-k">内功药剂</span>
         ${toggleBtn('mp', mpCfg.enabled, "window._toggleAutoPotion('mp')")}
       </div>
       ${potionSelect('mp', mpCfg.selected_item_key, mpCfg.enabled)}
-      ${sliderRow('MP 阈值', Math.round((mpCfg.threshold ?? 0.3) * 100), 5, 95, 5, "window._setAutoPotionThreshold('mp', this.value)", 'mp-threshold-label')}
+      ${sliderRow('MP 阈值', Math.round((mpCfg.threshold ?? 0.3) * 100), 5, 95, 5, "window._setAutoPotionThreshold('mp', this.value)", 'mp-threshold-label', '%')}
     </div>
 
     <div class="sec-panel">

@@ -1369,9 +1369,17 @@ body {
 .autoplay-row .autoplay-dropdown {
   flex: 1;
 }
+.autoplay-range-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.autoplay-range-row .sl-k {
+  flex: 0 0 4.2rem;
+}
 .autoplay-range-wrap {
-  flex: 1;
-  margin: 0 0.5rem;
+  flex: 1 1 auto;
+  margin: 0;
   min-width: 0;
 }
 .autoplay-range {
@@ -1419,6 +1427,16 @@ body {
 .autoplay-range:active::-webkit-slider-thumb {
   transform: translateY(0.08rem);
   box-shadow: inset 0 0 0 0.1rem rgba(255,255,255,0.45), 0 0.04rem 0 var(--border-shadow);
+}
+.autoplay-range-value {
+  display: block;
+  flex: 0 0 3.2rem;
+  min-width: 3.2rem;
+  color: var(--menu-accent);
+  font-size: 0.72rem;
+  font-weight: bold;
+  text-align: right;
+  white-space: nowrap;
 }
 
 #whEquipPopup .ed-body {
