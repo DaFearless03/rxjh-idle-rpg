@@ -3380,7 +3380,10 @@ body {
 .page-settings .sc-textarea.import { min-height: 5.8rem; }
 .page-settings .sc-actions { display: block; margin-top: 0; }
 .page-settings .sc-btn {
+  box-sizing: border-box;
+  display: block;
   width: calc(100% - 1.4rem);
+  max-width: calc(100% - 1.4rem);
   margin: 0.6rem 0.7rem 0;
   border: 0.2rem solid var(--border-outer);
   border-radius: 0.45rem;
