@@ -51,7 +51,7 @@ export const OfflineSimulator = {
 
   async _runSimulation(save, sim_seconds, onProgress) {
     const TICK_MS = sim_seconds >= 3600 ? 1000 : 100;
-    const BATCH_SECONDS = sim_seconds >= 3600 ? 300 : 60;
+    const BATCH_SECONDS = sim_seconds >= 3600 ? 3600 : 60;
     const BATCH_TICKS = Math.max(1, Math.floor(BATCH_SECONDS * 1000 / TICK_MS));
     const total_ticks = Math.floor(sim_seconds * 1000 / TICK_MS);
 
@@ -247,13 +247,7 @@ export const OfflineSimulator = {
   },
 
   _yieldToUI() {
-    return new Promise(resolve => {
-      if (window.requestIdleCallback) {
-        window.requestIdleCallback(() => resolve(), { timeout: 50 });
-      } else {
-        setTimeout(resolve, 0);
-      }
-    });
+    return new Promise(resolve => setTimeout(resolve, 0));
   },
 
   /**
