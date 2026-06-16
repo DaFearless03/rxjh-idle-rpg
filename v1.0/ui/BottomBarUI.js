@@ -1213,8 +1213,8 @@ function renderAutoplayPanel(player) {
 
   const sliderRow = (label, value, min, max, step, action, id) =>
     '<div class="stat-line"><span class="sl-k">' + label + '</span>' +
-    '<div style="flex:1;margin:0 0.5rem;"><div class="gba-bar" style="height:0.55rem;margin:0.1rem 0"><div class="gba-bar-fill fill-exp" style="width:' + Math.round((value - min) / (max - min) * 100) + '%"></div></div>' +
-    '<input type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + value + '" style="width:100%" oninput="' + action + '"></div>' +
+    '<div class="autoplay-range-wrap">' +
+    '<input class="autoplay-range" type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + value + '" oninput="' + action + '"></div>' +
     '<span class="sl-v" id="' + id + '" style="min-width:2.5rem;text-align:right;font-size:0.75rem">' + value + '</span></div>';
 
   const autoSellGroup = (category, title, icon) => {
