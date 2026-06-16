@@ -8,7 +8,7 @@ import { Monster } from '../entities/Monster.js';
 import { DamageSystem } from './DamageSystem.js';
 import { grantExp, onLevelUp, applyDeathExpLoss } from '../utils/formulas.js';
 
-const ELITE_CAP_PER_ZONE = 1;
+const DEFAULT_ELITE_CAP_PER_ZONE = 1;
 
 export class BattleSystem {
   /**
@@ -76,7 +76,7 @@ export class BattleSystem {
     const candidates = this._monstersData.filter(m => zoneMonsterKeys.includes(m.key) && m.monster_type !== 'boss');
     const normalMonsters = candidates.filter(m => (m.monster_type || 'normal') === 'normal');
     const activeEliteCount = this._getActiveEliteCount();
-    const eliteMonsters = activeEliteCount < ELITE_CAP_PER_ZONE
+    const eliteMonsters = activeEliteCount < this._getEliteCapPerZone()
       ? candidates.filter(m => m.monster_type === 'elite')
       : [];
     const ratio = String(this._config.battle_flow.battle_model.monster_spawn.spawn_weight?.elite_vs_normal || '1:50')
@@ -104,9 +104,14 @@ export class BattleSystem {
     return this.monsters.filter(monster => monster.isAlive() && monster.monster_type === 'elite').length;
   }
 
+  _getEliteCapPerZone() {
+    const cap = this._config?.battle_flow?.battle_model?.elite_cap_per_zone;
+    return Number.isFinite(cap) && cap >= 0 ? cap : DEFAULT_ELITE_CAP_PER_ZONE;
+  }
+
   _spawnMonster(template) {
     if (!template) return null;
-    if (template.monster_type === 'elite' && this._getActiveEliteCount() >= ELITE_CAP_PER_ZONE) {
+    if (template.monster_type === 'elite' && this._getActiveEliteCount() >= this._getEliteCapPerZone()) {
       return null;
     }
 

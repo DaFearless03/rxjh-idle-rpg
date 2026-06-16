@@ -1626,7 +1626,7 @@
       "exp": 80,
       "passive": false,
       "map_key": "wilderness_xuanbo_suburb",
-      "monster_type": "normal"
+      "monster_type": "elite"
     },
     {
       "key": "bounty_female_assassin",
@@ -2286,7 +2286,7 @@
       "exp": 80,
       "passive": false,
       "map_key": "wilderness_xuanbo_suburb",
-      "monster_type": "normal"
+      "monster_type": "elite"
     }
   ]
 }
