@@ -67,14 +67,7 @@ export function buildMainScreenUI(container) {
           <!-- 快速行动 -->
           <div class="panel">
             <div class="panel-title">快速行动</div>
-            <div class="quick-action-row">
-              <div class="action-card primary clickable" id="ac-hang" onclick="window._openPanel('autoplay')">
-                <div class="ac-icon">⚔️</div>
-                <div class="ac-body">
-                  <div class="ac-label">挂机打怪</div>
-                  <div class="ac-sub">自动战斗</div>
-                </div>
-              </div>
+            <div class="quick-action-row town-actions">
               <div class="action-card clickable" id="ac-map" onclick="window._openMapSheet()">
                 <div class="ac-icon">🗺️</div>
                 <div class="ac-body">

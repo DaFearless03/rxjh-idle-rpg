@@ -492,6 +492,9 @@ body {
   border-color: var(--menu-green);
 }
 .action-card.primary .ac-label { color: var(--menu-green); }
+.town-actions .action-card {
+  flex: 0 0 100%;
+}
 
 /* === 底部固定动作菜单 === */
 .bottom-menu {
