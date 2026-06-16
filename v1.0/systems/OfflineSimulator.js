@@ -50,8 +50,9 @@ export const OfflineSimulator = {
   },
 
   async _runSimulation(save, sim_seconds, onProgress) {
-    const TICK_MS = 100;
-    const BATCH_TICKS = 600; // 60s per batch
+    const TICK_MS = sim_seconds >= 3600 ? 1000 : 100;
+    const BATCH_SECONDS = sim_seconds >= 3600 ? 300 : 60;
+    const BATCH_TICKS = Math.max(1, Math.floor(BATCH_SECONDS * 1000 / TICK_MS));
     const total_ticks = Math.floor(sim_seconds * 1000 / TICK_MS);
 
     const player = this._restorePlayerFromSave(save);
