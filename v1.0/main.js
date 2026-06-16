@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260614-11';
-import './ui/BottomBarUI.js?v=release-20260615-3';
+import './ui/BottomBarUI.js?v=release-20260616-1';
 
 // ========================
 // 数据加载

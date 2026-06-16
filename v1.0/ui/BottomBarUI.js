@@ -1322,7 +1322,7 @@ function renderAutoplayPanel(player) {
       </div>
       ${potionSelect('hp', hpBuy.selected_potion, hpResupply.enabled, '_setAutoResupplyItem')}
       ${sliderRow('触发', hpResupply.trigger_threshold ?? 10, 2, 50, 1, "window._setAutoResupplyTrigger('hp', this.value)", 'rs-hp-trigger-label')}
-      ${sliderRow('买至', hpBuy.target_quantity ?? 50, 5, 100, 5, "window._setAutoResupplyTarget('hp', this.value)", 'rs-hp-target-label')}
+      ${sliderRow('买至', hpBuy.target_quantity ?? 50, 5, 999, 1, "window._setAutoResupplyTarget('hp', this.value)", 'rs-hp-target-label')}
 
       <!-- MP Resupply -->
       <div class="stat-line" style="margin-top:0.9rem"><span class="sl-k">内功补给</span>
@@ -1330,7 +1330,7 @@ function renderAutoplayPanel(player) {
       </div>
       ${potionSelect('mp', mpBuy.selected_potion, mpResupply.enabled, '_setAutoResupplyItem')}
       ${sliderRow('触发', mpResupply.trigger_threshold ?? 10, 2, 50, 1, "window._setAutoResupplyTrigger('mp', this.value)", 'rs-mp-trigger-label')}
-      ${sliderRow('买至', mpBuy.target_quantity ?? 50, 5, 100, 5, "window._setAutoResupplyTarget('mp', this.value)", 'rs-mp-target-label')}
+      ${sliderRow('买至', mpBuy.target_quantity ?? 50, 5, 999, 1, "window._setAutoResupplyTarget('mp', this.value)", 'rs-mp-target-label')}
     </div>
 
     <div class="sec-panel auto-sell-panel">
@@ -1934,6 +1934,6 @@ window._setAutoResupplyTrigger = (kind, value) => {
 };
 
 window._setAutoResupplyTarget = (kind, value) => {
-  const v = Math.max(5, Math.min(100, Number(value) || 50));
+  const v = Math.max(5, Math.min(999, Number(value) || 50));
   updateAutoResupply(kind, (trigger, buy) => { buy.target_quantity = v; });
 };
