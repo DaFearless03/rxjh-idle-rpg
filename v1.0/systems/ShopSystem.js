@@ -7,6 +7,23 @@ import { InventorySystem } from './InventorySystem.js';
 import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260615-1';
 import { eventBus } from '../core/EventBus.js';
 
+function getEmptySlotCount(player) {
+  const slots = player.inventory?.slots || [];
+  const capacity = player.inventory?.capacity || 50;
+  return slots.filter(slot => !slot?.item_key || (slot.count || 0) <= 0).length
+    + Math.max(0, capacity - slots.length);
+}
+
+function getStackableSpace(player, itemKey) {
+  const slots = player.inventory?.slots || [];
+  const maxStack = InventorySystem._getMaxStack(itemKey, player);
+  const existingRoom = slots.reduce((sum, slot) => {
+    if (slot?.item_key !== itemKey) return sum;
+    return sum + Math.max(0, maxStack - (slot.count || 0));
+  }, 0);
+  return existingRoom + getEmptySlotCount(player) * maxStack;
+}
+
 export const ShopSystem = {
   FORBIDDEN_SELL_TYPES: ['quest_items', 'boxes'],
 
@@ -55,6 +72,9 @@ export const ShopSystem = {
     if (itemClass === 'equipment') {
       const template = player._equipTemplates?.find(item => item.key === itemKey);
       if (!template) return { success: false, message: '装备模板不存在，购买失败' };
+      if (getEmptySlotCount(player) < count) {
+        return { success: false, message: '背包空格不足，购买失败' };
+      }
       for (let index = 0; index < count; index += 1) {
         if (!InventorySystem.addEquipmentInstance(player, createEquipmentInstance(template)).success) {
           success = false;
@@ -62,6 +82,9 @@ export const ShopSystem = {
         }
       }
     } else {
+      if (getStackableSpace(player, itemKey) < count) {
+        return { success: false, message: '背包空格不足，购买失败' };
+      }
       success = InventorySystem.add(player, itemKey, count).success;
     }
 

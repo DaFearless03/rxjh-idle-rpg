@@ -15,7 +15,7 @@ import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260613
 import { DropSystem } from './systems/DropSystem.js?v=release-20260615-1';
 import { BoxSystem } from './systems/BoxSystem.js?v=release-20260615-1';
 import { NPCSystem, UIState } from './systems/NPCSystem.js';
-import { ShopSystem } from './systems/ShopSystem.js?v=release-20260615-1';
+import { ShopSystem } from './systems/ShopSystem.js?v=release-20260616-1';
 import { TaskSystem } from './systems/TaskSystem.js';
 import { QigongSystem } from './systems/QigongSystem.js?v=release-20260614-6';
 import { BuffSystem } from './systems/BuffSystem.js';

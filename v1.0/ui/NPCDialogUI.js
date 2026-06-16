@@ -4,7 +4,7 @@
  */
 import { UIManager } from './UIManager.js?v=release-20260615-1';
 import { TaskSystem } from '../systems/TaskSystem.js';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260615-1';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260616-1';
 import { InventorySystem } from '../systems/InventorySystem.js';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260612-2';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260612-2';
