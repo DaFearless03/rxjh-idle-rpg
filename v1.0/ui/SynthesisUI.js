@@ -5,7 +5,7 @@
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260617-1';
-import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260617-1';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260617-2';
 
 const SLOT_ICON = {
   weapon: '⚔️', chest: '👕', gloves: '🧤', boots: '👟', inner_armor: '🛡️',

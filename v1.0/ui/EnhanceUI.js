@@ -4,7 +4,7 @@
  */
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
-import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260617-1';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260617-2';
 
 const SLOT_LABEL = {
   weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲',

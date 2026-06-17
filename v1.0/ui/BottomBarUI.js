@@ -10,7 +10,7 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-2026061
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260617-1';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260614-6';
 import { mountCharacterPanel } from './CharacterUI.js?v=release-20260614-6';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260617-1';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260617-2';
 import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260615-1';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
@@ -178,7 +178,12 @@ window._refreshOpenInventorySurfaces = () => {
     const player = window.game?.player;
     if (!player) return;
     const scrollPositions = captureInventoryScrollPositions();
+    const sheetPopupOpen = !!document.querySelector('#qtyBackdrop.open, #whPopup.open, #whEquipPopup.open');
     if (document.getElementById('page-inventory')?.classList.contains('active')) renderInventoryPanel(player);
+    if (sheetPopupOpen) {
+      restoreInventoryScrollPositions(scrollPositions);
+      return;
+    }
     if (document.getElementById('warehouseBackdrop')?.classList.contains('open')) _renderWarehouse();
     if (document.getElementById('yjlShopBackdrop')?.classList.contains('open')) window._renderYjlShop();
     if (document.getElementById('pszShopBackdrop')?.classList.contains('open')) window._renderPszShop();

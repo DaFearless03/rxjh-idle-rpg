@@ -293,8 +293,9 @@ export function mountInventoryPanel(container, player) {
   const normalized = normalizeLegacyEquipmentSlots(player);
   const migrated = migrateEquippedItemsOutOfBag(player);
   if (normalized || migrated) window.game?.saveNow?.();
+  const modalState = captureOpenInventoryModal(container);
   container.innerHTML = renderInventoryPanel(player);
-  bindInventoryInteractions(container, player);
+  bindInventoryInteractions(container, player, modalState);
 }
 
 export function normalizeLegacyEquipmentSlots(player) {
@@ -336,7 +337,7 @@ function migrateEquippedItemsOutOfBag(player) {
   return changed;
 }
 
-function bindInventoryInteractions(container, player) {
+function bindInventoryInteractions(container, player, initialModalState = null) {
   const signal = createAbortSignal(container);
   let pending = null;
   let popupTarget = null;
@@ -404,6 +405,8 @@ function bindInventoryInteractions(container, player) {
       setPopupQty(input, popupTarget.max, value);
     }
   }, { signal });
+
+  restoreOpenInventoryModal(container, player, initialModalState, popup => { popupTarget = popup; });
 }
 
 function openItemPopup(container, player, bagIndex, setTarget) {
@@ -414,6 +417,9 @@ function openItemPopup(container, player, bagIndex, setTarget) {
   const max = Math.max(1, Number(slot.count || 1));
   const isBox = display.itemClass === 'boxes';
   const isQuest = display.itemClass === 'quest_items';
+  modal.dataset.bagIndex = String(bagIndex);
+  modal.dataset.itemKey = slot.item_key || slot.key || '';
+  modal.dataset.itemClass = display.itemClass || '';
   setTarget({ type: 'item', bagIndex, max, itemClass: display.itemClass });
   modal.querySelector('[data-field="icon"]').textContent = display.icon;
   modal.querySelector('[data-field="name"]').textContent = display.name;
@@ -539,6 +545,59 @@ function handleModalAction(container, player, action, popupTarget, setTarget) {
 
 function closeInventoryModals(container) {
   container.querySelectorAll('.item-backdrop.open').forEach(modal => modal.classList.remove('open'));
+}
+
+function captureOpenInventoryModal(container) {
+  const itemModal = container?.querySelector?.('.inventory-item-modal.open');
+  if (itemModal) {
+    return {
+      type: 'item',
+      bagIndex: Number(itemModal.dataset.bagIndex),
+      itemKey: itemModal.dataset.itemKey || '',
+      qty: Number(itemModal.querySelector('[data-field="qty"]')?.value || 1),
+    };
+  }
+  const equipModal = container?.querySelector?.('.inventory-equip-modal.open');
+  if (equipModal) {
+    return {
+      type: 'equip',
+      source: equipModal.dataset.source || 'bag',
+      instanceId: equipModal.dataset.instanceId || '',
+      bagIndex: Number(equipModal.dataset.bagIndex),
+      slot: equipModal.dataset.slot || '',
+      index: Number(equipModal.dataset.index || 0),
+    };
+  }
+  return null;
+}
+
+function restoreOpenInventoryModal(container, player, state, setTarget) {
+  if (!state || !player) return;
+  if (state.type === 'item') {
+    const slots = player.inventory?.slots || [];
+    let bagIndex = Number.isInteger(state.bagIndex) ? state.bagIndex : -1;
+    if (!slots[bagIndex] || (slots[bagIndex].item_key || slots[bagIndex].key) !== state.itemKey || (slots[bagIndex].count || 0) <= 0) {
+      bagIndex = slots.findIndex(slot =>
+        (slot?.count || 0) > 0
+        && (slot.item_key || slot.key) === state.itemKey
+      );
+    }
+    if (bagIndex < 0) return;
+    openItemPopup(container, player, bagIndex, setTarget);
+    setPopupQty(container.querySelector('.inventory-item-modal [data-field="qty"]'), player.inventory.slots[bagIndex]?.count || 1, state.qty);
+    return;
+  }
+  if (state.type === 'equip' && state.instanceId) {
+    const exists = player.inventory?.equipment_instances?.[state.instanceId];
+    if (!exists) return;
+    openEquipmentPopup(container, player, {
+      source: state.source,
+      instanceId: state.instanceId,
+      bagIndex: state.bagIndex,
+      slot: state.slot,
+      index: state.index,
+    });
+  }
 }
 
 function getPopupQty(container, max) {
