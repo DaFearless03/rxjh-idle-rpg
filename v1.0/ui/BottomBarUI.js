@@ -7,7 +7,7 @@ import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260616-1';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260613-12';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260617-1';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260614-16';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260617-1';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260614-6';
 import { mountCharacterPanel } from './CharacterUI.js?v=release-20260614-6';
 import { mountInventoryPanel } from './InventoryUI.js?v=release-20260617-1';
@@ -16,7 +16,7 @@ import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260615-1';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260614-2';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260617-1';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260617-2';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260617-2';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
 
@@ -305,6 +305,12 @@ function updateEnhanceWorkbench() {
     costValue.textContent = equipTile
       ? `💰 ${Number(equipTile.dataset.cost || 0).toLocaleString()}`
       : '--';
+  }
+  const rateValue = document.querySelector('#djx-enhance-cost .v.rate');
+  if (rateValue) {
+    const targetLevel = Number(equipInstance?.enhance_level || 0) + 1;
+    const rate = equipTile ? EnhanceSystem.getSuccessRate(window.game?.player, targetLevel) : null;
+    rateValue.textContent = rate == null ? '--' : `${Math.round(rate * 100)}%`;
   }
 }
 

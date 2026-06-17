@@ -53,17 +53,23 @@ export const EnhanceSystem = {
     eventBus.emit('resources.changed', { player, resource: 'gold', amount: cost, action: 'remove' });
 
     // 成功率判定
-    const successRate = this.SUCCESS_RATE[currentLevel + 1] || 0.01;
+    const successRate = this.getSuccessRate(player, currentLevel + 1);
     if (Math.random() < successRate) {
       // 成功
       ei.enhance_level += 1;
-      return { success: true, message: `强化成功！+${ei.enhance_level}` };
+      return { success: true, message: `强化成功！+${ei.enhance_level}（成功率 ${Math.round(successRate * 100)}%）`, successRate };
     } else {
       // 失败摧毁装备（含已合成石头）
       this._destroyEquipment(player, instanceId);
       eventBus.emit('inventory.changed', { player, item_key: ei.item_key, action: 'remove', changed_count: 1, count: 0 });
-      return { success: false, message: `强化失败，装备已碎裂！` };
+      return { success: false, message: `强化失败，装备已碎裂！（成功率 ${Math.round(successRate * 100)}%）`, successRate };
     }
+  },
+
+  getSuccessRate(player, targetLevel) {
+    const baseRate = this.SUCCESS_RATE[targetLevel] ?? 0.01;
+    const bonusRate = Number(player?.enhanceSuccessRate || 0);
+    return Math.max(0, Math.min(1, baseRate + bonusRate));
   },
 
   /**

@@ -10,7 +10,7 @@ import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260615
 import { BattleSystem } from './systems/BattleSystem.js?v=release-20260617-1';
 import { InventorySystem } from './systems/InventorySystem.js?v=release-20260613-12';
 import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260613-22';
-import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260613-22';
+import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260617-1';
 import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260617-1';
 import { DropSystem } from './systems/DropSystem.js?v=release-20260615-1';
 import { BoxSystem } from './systems/BoxSystem.js?v=release-20260615-1';
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260617-1';
-import './ui/BottomBarUI.js?v=release-20260617-2';
+import './ui/BottomBarUI.js?v=release-20260617-3';
 
 // ========================
 // 数据加载
