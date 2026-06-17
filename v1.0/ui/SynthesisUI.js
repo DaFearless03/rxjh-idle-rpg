@@ -5,7 +5,7 @@
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260614-16';
-import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260614-16';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260617-1';
 
 const SLOT_ICON = {
   weapon: '⚔️', chest: '👕', gloves: '🧤', boots: '👟', inner_armor: '🛡️',
@@ -75,7 +75,7 @@ function getStoneAttributeLabel(key) {
 }
 
 function renderChoiceTile(item, kind) {
-  return `<div class="bag-tile ${kind === 'equip' ? 'equip' : 'stack'}" draggable="true" ondragstart="window._djxDragItem(event,'${escapeHtml(item.key)}','synth')" data-kind="${kind}" data-key="${escapeHtml(item.key)}" data-icon="${escapeHtml(item.icon)}" data-name="${escapeHtml(item.name)}" data-cap="${item.capacity || ''}" data-used="${item.used || 0}" data-cost="${item.cost || ''}" data-stone-category="${item.stoneCategory || item.category || ''}" data-filled="${escapeHtml((item.filled || []).join('|'))}">
+  return `<div class="bag-tile ${kind === 'equip' ? 'equip' : 'stack'}" data-kind="${kind}" data-key="${escapeHtml(item.key)}" data-icon="${escapeHtml(item.icon)}" data-name="${escapeHtml(item.name)}" data-cap="${item.capacity || ''}" data-used="${item.used || 0}" data-cost="${item.cost || ''}" data-stone-category="${item.stoneCategory || item.category || ''}" data-filled="${escapeHtml((item.filled || []).join('|'))}">
     ${kind === 'equip' ? `<div class="bt-badge">${item.used}/${item.capacity}孔</div>` : ''}
     <div class="bt-icon">${item.icon}</div>
     <div class="bt-name">${escapeHtml(item.name)}</div>
@@ -98,8 +98,8 @@ export function renderSynthesisWorkbench(player) {
     <div class="craft-work">
       <div class="sheet-gold-bar">持有金币 <b>💰 ${(player?.resources?.gold || 0).toLocaleString()}</b></div>
       <div class="craft-slots">
-        <div class="craft-dropzone equip-slot" data-zone="equip" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'equip','synth')">
-          <div class="dz-plus">＋</div><div class="dz-hint">拖入装备</div>
+        <div class="craft-dropzone equip-slot" data-zone="equip">
+          <div class="dz-plus">＋</div><div class="dz-hint">选择装备</div>
         </div>
       </div>
       <div class="slot-grid" id="djx-synth-slot-grid">

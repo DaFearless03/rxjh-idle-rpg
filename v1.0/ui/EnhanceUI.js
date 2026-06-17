@@ -4,7 +4,7 @@
  */
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
-import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260614-16';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260617-1';
 
 const SLOT_LABEL = {
   weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲',
@@ -59,7 +59,7 @@ function getEnhanceStones(player) {
 }
 
 function renderChoiceTile(item, kind) {
-  return `<div class="bag-tile ${kind === 'equip' ? 'equip' : 'stack'}" draggable="true" ondragstart="window._djxDragItem(event,'${escapeHtml(item.key)}','enhance')" data-kind="${kind}" data-key="${escapeHtml(item.key)}" data-icon="${escapeHtml(item.icon)}" data-name="${escapeHtml(item.name)}">
+  return `<div class="bag-tile ${kind === 'equip' ? 'equip' : 'stack'}" data-kind="${kind}" data-key="${escapeHtml(item.key)}" data-icon="${escapeHtml(item.icon)}" data-name="${escapeHtml(item.name)}">
     <div class="bt-icon">${item.icon}</div>
     <div class="bt-name">${escapeHtml(item.name)}</div>
     ${item.sub ? `<div class="bt-sub">${escapeHtml(item.sub)}</div>` : ''}
@@ -77,12 +77,12 @@ export function renderEnhanceWorkbench(player) {
   return `<div class="craft-body">
     <div class="craft-work">
       <div class="craft-slots">
-        <div class="craft-dropzone equip-slot" data-zone="equip" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'equip','enhance')">
-          <div class="dz-plus">＋</div><div class="dz-hint">拖入装备</div>
+        <div class="craft-dropzone equip-slot" data-zone="equip">
+          <div class="dz-plus">＋</div><div class="dz-hint">选择装备</div>
         </div>
         <div class="craft-arrow">＋</div>
-        <div class="craft-dropzone stone-slot" data-zone="enhance-stone" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'stone','enhance')">
-          <div class="dz-plus">＋</div><div class="dz-hint">拖入<br>强化石</div>
+        <div class="craft-dropzone stone-slot" data-zone="enhance-stone">
+          <div class="dz-plus">＋</div><div class="dz-hint">选择<br>强化石</div>
         </div>
       </div>
       <div class="craft-result" id="djx-enhance-cost">

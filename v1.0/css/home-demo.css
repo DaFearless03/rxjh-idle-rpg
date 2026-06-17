@@ -1492,6 +1492,8 @@ body {
 .craft-bag { flex: 1; min-height: 0; overflow-y: auto; padding: 0.8rem 1rem 1.2rem; background: rgba(0,0,0,0.035); }
 .craft-bag:has(.craft-inventory-pane) { padding: 0; overflow: hidden; }
 .craft-inventory-pane { height: 100%; }
+.craft-inventory-pane .bag-tile { cursor: pointer; touch-action: auto; }
+.craft-inventory-pane .bag-tile:active { cursor: pointer; }
 
 /* 槽位行（装备槽 + 强化石槽）*/
 .craft-slots { display: flex; align-items: center; justify-content: center; gap: 0.8rem; margin: 0.2rem 0 0.9rem; }

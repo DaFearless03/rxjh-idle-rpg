@@ -10,14 +10,14 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-2026061
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260614-16';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260614-6';
 import { mountCharacterPanel } from './CharacterUI.js?v=release-20260614-6';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260615-1';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260617-1';
 import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260615-1';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260615-1';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260614-2';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260614-19';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260614-17';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260617-1';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260617-1';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
 
 window._openPanel = (panelId) => {
@@ -141,7 +141,6 @@ window._renderDjxSynth = (type) => {
       window._djxSelectItem(key, type);
     });
   });
-  bindCraftPointerDrag(el, type);
 };
 
 let _inventorySurfaceRefreshFrame = null;
@@ -194,72 +193,6 @@ window._refreshOpenInventorySurfaces = () => {
     }
     restoreInventoryScrollPositions(scrollPositions);
   });
-};
-
-function bindCraftPointerDrag(container, type) {
-  container.querySelectorAll('.bag-tile[data-key]').forEach(tile => {
-    tile.addEventListener('pointerdown', event => {
-      if (event.pointerType === 'mouse' && event.button !== 0) return;
-      const ghost = tile.cloneNode(true);
-      ghost.classList.add('drag-ghost');
-      ghost.style.left = `${event.clientX}px`;
-      ghost.style.top = `${event.clientY}px`;
-      document.body.appendChild(ghost);
-      tile.setPointerCapture?.(event.pointerId);
-
-      const move = e => {
-        ghost.style.left = `${e.clientX}px`;
-        ghost.style.top = `${e.clientY}px`;
-        document.querySelectorAll(`#djx-${type}-content .dragover`).forEach(el => el.classList.remove('dragover'));
-        const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.craft-dropzone, .synth-slot.empty:not(.inactive)');
-        target?.classList.add('dragover');
-      };
-      const up = e => {
-        tile.removeEventListener('pointermove', move);
-        tile.removeEventListener('pointerup', up);
-        tile.removeEventListener('pointercancel', up);
-        document.querySelectorAll(`#djx-${type}-content .dragover`).forEach(el => el.classList.remove('dragover'));
-        ghost.remove();
-        const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.craft-dropzone, .synth-slot.empty:not(.inactive)');
-        const isStone = tile.dataset.kind === 'stone';
-        const valid = isStone ? target?.classList.contains('synth-slot') || target?.dataset.zone?.endsWith('-stone') : target?.dataset.zone === 'equip';
-        if (valid) window._djxSelectItem(tile.dataset.key, type);
-        else if (target) {
-          target.classList.add('reject');
-          setTimeout(() => target.classList.remove('reject'), 300);
-        }
-      };
-      tile.addEventListener('pointermove', move);
-      tile.addEventListener('pointerup', up);
-      tile.addEventListener('pointercancel', up);
-    });
-  });
-}
-
-window._djxDragItem = (e, itemKey, type) => {
-  e.dataTransfer.setData('text/plain', itemKey + '|' + type);
-  e.dataTransfer.effectAllowed = 'move';
-};
-
-window._djxDropItem = (e, slotType, type) => {
-  e.preventDefault();
-  e.target.closest('.craft-dropzone')?.classList.remove('dragover');
-  const data = e.dataTransfer.getData('text/plain');
-  if (!data) return;
-  const [itemKey, dragType] = data.split('|');
-  const stoneKey = isCraftStoneKey(itemKey);
-  // 石头只能放stone槽，装备只能放equip槽
-  if (slotType === 'stone' && !stoneKey) {
-    const zone = e.target.closest('.craft-dropzone');
-    if (zone) { zone.classList.add('reject'); setTimeout(() => zone.classList.remove('reject'), 300); }
-    return;
-  }
-  if (slotType === 'equip' && stoneKey) {
-    const zone = e.target.closest('.craft-dropzone');
-    if (zone) { zone.classList.add('reject'); setTimeout(() => zone.classList.remove('reject'), 300); }
-    return;
-  }
-  window._djxSelectItem(itemKey, type);
 };
 
 window._djxSlots = { synth: {}, enhance: {} };
@@ -324,7 +257,7 @@ function updateSynthesisWorkbench() {
     const stone = filled[index];
     if (stone) return `<div class="synth-slot filled">💠<span class="slot-val">${getSynthesisStoneAttribute(stone)}</span></div>`;
     const staged = index === filled.length && slots.stone;
-    return `<div class="synth-slot ${staged ? 'filled staged' : 'empty'}" data-idx="${index}" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="window._djxDropItem(event,'stone','synth')">${staged ? `💎<span class="slot-val">${getSynthesisStoneAttribute(slots.stone)}</span>` : '＋'}</div>`;
+    return `<div class="synth-slot ${staged ? 'filled staged' : 'empty'}" data-idx="${index}">${staged ? `💎<span class="slot-val">${getSynthesisStoneAttribute(slots.stone)}</span>` : '＋'}</div>`;
   }).join('');
   if (result) {
     const costValue = result.querySelector('.v.cost');
@@ -422,7 +355,7 @@ window._djxClearSlot = (slotType, type) => {
   if (targetZone) {
     targetZone.classList.remove('filled');
     const hint = slotType === 'stone'
-      ? (type === 'synth' ? '拖入<br>合成石' : '强化石<br>自动消耗')
+      ? (type === 'synth' ? '选择<br>合成石' : '选择<br>强化石')
       : '选择背包装备';
     targetZone.innerHTML = `<div class="dz-plus">＋</div><div class="dz-hint">${hint}</div>`;
   }

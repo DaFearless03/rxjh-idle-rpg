@@ -169,7 +169,7 @@ export function renderBagTile(slot, player, options = {}) {
   const craftKey = options.craftType && slot.instance_id ? slot.instance_id : display.key;
   const craftKind = slot.instance_id ? 'equip' : /^(enhance_stone|vajra|cold_jade|hot_blood)_/.test(display.key) ? 'stone' : 'item';
   const craftAttrs = options.craftType
-    ? `draggable="true" ondragstart="window._djxDragItem(event,'${escapeHtml(craftKey)}','${escapeHtml(options.craftType)}')" data-kind="${craftKind}" data-craft-type="${escapeHtml(options.craftType)}" ${options.extraData || ''}`
+    ? `data-kind="${craftKind}" data-craft-type="${escapeHtml(options.craftType)}" ${options.extraData || ''}`
     : '';
   const classes = [
     'bag-tile',
