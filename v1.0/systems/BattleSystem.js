@@ -166,18 +166,18 @@ export class BattleSystem {
   // ========================
 
   _lockMainTarget() {
-    const alive = this.monsters.filter(m => m.isAlive());
-    if (alive.length === 0) {
+    const candidates = this.monsters.filter(m => m.isAlive() && m.isReadyToAttack());
+    if (candidates.length === 0) {
       this._mainTargetKey = null;
       return null;
     }
     // sticky：活着不切
     if (this._mainTargetKey) {
-      const current = alive.find(m => m.key === this._mainTargetKey);
+      const current = candidates.find(m => m.key === this._mainTargetKey);
       if (current) return current;
     }
     // 选血最少的
-    const lowest = alive.reduce((a, b) => a.hp <= b.hp ? a : b);
+    const lowest = candidates.reduce((a, b) => a.hp <= b.hp ? a : b);
     this._mainTargetKey = lowest.key;
     return lowest;
   }
@@ -188,7 +188,7 @@ export class BattleSystem {
 
   _playerAttack() {
     const target = this._lockMainTarget();
-    if (!target || !target.isAlive()) return;
+    if (!target || !target.isAlive() || !target.isReadyToAttack()) return;
 
     const attackCfg = this._player.auto_play?.auto_attack || {};
     const skill = attackCfg.attack_type === 'skill'
