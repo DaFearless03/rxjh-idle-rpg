@@ -7,6 +7,13 @@ import { InventorySystem } from './InventorySystem.js';
 import { eventBus } from '../core/EventBus.js';
 
 export const SynthesisSystem = {
+  SUCCESS_RATE: {
+    0: 0.90,
+    1: 0.50,
+    2: 0.20,
+    3: 0.05,
+  },
+
   // 各装备槽位孔数
   SLOT_CAPACITY: {
     weapon: 4,
@@ -52,8 +59,9 @@ export const SynthesisSystem = {
     }
 
     // 检查孔位是否已满
-    const currentStones = ei.synthesis_slots || [];
-    if (currentStones.length >= capacity) {
+    const currentStones = (ei.synthesis_slots || []).filter(Boolean);
+    const occupiedCount = currentStones.length;
+    if (occupiedCount >= capacity) {
       return { success: false, message: `孔位已满` };
     }
 
@@ -92,13 +100,33 @@ export const SynthesisSystem = {
       stoneSlot.item_key = null;
     }
 
-    // 石头 key 追加到装备 synthesis_slots
-    ei.synthesis_slots = ei.synthesis_slots || [];
-    ei.synthesis_slots.push(stoneItemKey);
     eventBus.emit('inventory.changed', { player, item_key: stoneItemKey, action: 'remove', changed_count: 1, count: InventorySystem.count(player, stoneItemKey) });
     eventBus.emit('resources.changed', { player, resource: 'gold', amount: cost, action: 'remove' });
 
-    return { success: true, message: `合成成功！孔位 ${ei.synthesis_slots.length}/${capacity}` };
+    const successRate = this.getSuccessRate(player, occupiedCount);
+    if (Math.random() >= successRate) {
+      return {
+        success: false,
+        message: `合成失败，合成石已消失（成功率 ${Math.round(successRate * 100)}%）`,
+        successRate,
+      };
+    }
+
+    // 石头 key 追加到装备 synthesis_slots
+    ei.synthesis_slots = ei.synthesis_slots || [];
+    ei.synthesis_slots.push(stoneItemKey);
+
+    return {
+      success: true,
+      message: `合成成功！孔位 ${ei.synthesis_slots.length}/${capacity}（成功率 ${Math.round(successRate * 100)}%）`,
+      successRate,
+    };
+  },
+
+  getSuccessRate(player, occupiedCount = 0) {
+    const baseRate = this.SUCCESS_RATE[occupiedCount] ?? 0.05;
+    const bonusRate = Number(player?.enhanceSuccessRate || 0);
+    return Math.max(0, Math.min(1, baseRate + bonusRate));
   },
 
   _getStoneCategory(stoneItemKey) {

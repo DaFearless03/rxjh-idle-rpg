@@ -6,7 +6,7 @@ import { UIManager } from './UIManager.js?v=release-20260615-1';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260616-1';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260613-12';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260614-16';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260617-1';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260614-16';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260614-6';
 import { mountCharacterPanel } from './CharacterUI.js?v=release-20260614-6';
@@ -17,7 +17,7 @@ import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260615-1';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260614-2';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260617-1';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260617-1';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260617-2';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
 
 window._openPanel = (panelId) => {
@@ -245,6 +245,8 @@ function updateSynthesisWorkbench() {
     grid.innerHTML = Array(4).fill('<div class="synth-slot empty inactive">＋</div>').join('');
     const costValue = result?.querySelector('.v.cost');
     if (costValue) costValue.textContent = '--';
+    const rateValue = result?.querySelector('.v.rate');
+    if (rateValue) rateValue.textContent = '--';
     reset?.classList.add('hidden');
     return;
   }
@@ -262,6 +264,11 @@ function updateSynthesisWorkbench() {
   if (result) {
     const costValue = result.querySelector('.v.cost');
     if (costValue) costValue.textContent = `💰 ${Number(equipTile.dataset.cost || 0).toLocaleString()}`;
+    const rateValue = result.querySelector('.v.rate');
+    if (rateValue) {
+      const rate = SynthesisSystem.getSuccessRate(window.game?.player, filled.length);
+      rateValue.textContent = `${Math.round(rate * 100)}%`;
+    }
   }
   if (confirm && filled.length >= capacity) {
     confirm.disabled = true;
