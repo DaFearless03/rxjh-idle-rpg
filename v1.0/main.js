@@ -43,7 +43,7 @@ import {
   showOfflineRewardLoading,
   showOfflineRewardUI,
   updateOfflineRewardProgress,
-} from './ui/MultiSaveUI.js?v=release-20260614-11';
+} from './ui/MultiSaveUI.js?v=release-20260617-1';
 import './ui/BottomBarUI.js?v=release-20260616-3';
 
 // ========================
@@ -554,7 +554,6 @@ async function enterCharacter(slotIndex) {
   // 离线模拟（若上次在挂机且离线超过1分钟）
   if (wasAutoPlaying && offlineHours > (1 / 60)) {
     console.log(`[离线] 检测到 ${offlineHours.toFixed(1)} 小时离线收益，开始结算...`);
-    previewPlayerForOfflineLoading(player, slotIndex);
     showOfflineRewardLoading(0);
     offlineSummary = await OfflineSimulator.settle_offline_rewards({
       ...save,
@@ -585,41 +584,12 @@ async function enterCharacter(slotIndex) {
   }
 
   await initGameForPlayer(player, slotIndex);
+  UIManager.closeAllModals();
   if (offlineSummary) {
     showOfflineRewardUI(offlineSummary);
+  } else {
+    UIManager.openPanel('home');
   }
-}
-
-function previewPlayerForOfflineLoading(player, slotIndex) {
-  game = new Game();
-  game.config = config;
-  game.player = player;
-  game.careersData = careersData;
-  game.monstersData = monstersData;
-  game.equipmentsData = equipmentsData;
-  game.stonesData = stonesData;
-  game.subZonesData = subZonesData;
-  game.subZoneDropsData = subZoneDropsData;
-  game.npcsData = npcsData;
-  game.events = eventBus;
-  const currentSubZone = subZonesData.find(sz => sz.key === player.location?.current_sub_zone_key) || null;
-  game.battle = new BattleSystem({
-    config,
-    player,
-    monstersData,
-    martialArtsData,
-    attrSystemRef: attrSys,
-    dropSystemRef: dropSys,
-    subZonesData,
-    subZoneDropsData,
-    currentSubZone,
-    buffSystemRef: BuffSystem
-  });
-  game.battle._quiet = true;
-  currentSlotIndex = slotIndex;
-  syncGMGlobals();
-  UIManager.openPanel('home');
-  UIManager._refreshAll();
 }
 
 /**

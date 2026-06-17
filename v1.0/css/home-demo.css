@@ -3759,7 +3759,7 @@ body {
 .offline-loading-overlay {
   position: absolute;
   inset: 0;
-  z-index: 160;
+  z-index: 260;
   display: none;
   align-items: center;
   justify-content: center;

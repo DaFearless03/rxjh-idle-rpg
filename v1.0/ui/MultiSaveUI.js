@@ -158,8 +158,12 @@ export function showMultiSaveUI(globalSave, characters, careersData) {
 
   // 绑定全局操作
   window._ui_switchCharacter = (slotIndex) => {
-    UIManager.popModal();
-    setTimeout(() => window.game?.switchCharacter(slotIndex), 100);
+    if (window.__characterSwitching) return;
+    window.__characterSwitching = true;
+    Promise.resolve(window.game?.switchCharacter(slotIndex))
+      .finally(() => {
+        window.__characterSwitching = false;
+      });
   };
 
   window._ui_deleteCharacter = (slotIndex) => {
