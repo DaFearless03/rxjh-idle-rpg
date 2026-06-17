@@ -84,7 +84,7 @@ export class DamageSystem {
   attack_resolution_pipeline(attacker, target, attackType = 'normal', skill = null) {
     // 0. hit_check
     if (!this.hit_check(attacker, target)) {
-      return { isMiss: true, finalDmg: 0, actualDmg: 0, isCrit: false, isShielded: false, isLeech: false, isCountered: false };
+      return { isMiss: true, finalDmg: 0, actualDmg: 0, isCrit: false, isCombo: false, isShielded: false, isLeech: false, isCountered: false };
     }
 
     // 1. 计算 finalDmg
@@ -93,9 +93,9 @@ export class DamageSystem {
       result = this.normal_attack_damage(attacker, target);
     } else {
       // skill_damage（Phase 1 不走这里，保留接口）
-      result = { finalDmg: this._skill_damage(attacker, target, skill), isMiss: false, isCrit: false, isArmorBroken: false };
+      result = { finalDmg: this._skill_damage(attacker, target, skill), isMiss: false, isCrit: false, isCombo: false, isArmorBroken: false };
     }
-    const { finalDmg, isCrit, isArmorBroken } = result;
+    const { finalDmg, isCrit, isCombo, isArmorBroken } = result;
 
     // 2. shieldRate 减伤（守方）
     let actualDmg = finalDmg;
@@ -122,7 +122,7 @@ export class DamageSystem {
       isCountered = true;
     }
 
-    return { isMiss: false, finalDmg, actualDmg, isCrit, isShielded, isLeech, isCountered, isArmorBroken };
+    return { isMiss: false, finalDmg, actualDmg, isCrit, isCombo, isShielded, isLeech, isCountered, isArmorBroken };
   }
 
   /**

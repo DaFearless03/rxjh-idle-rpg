@@ -216,6 +216,7 @@ export class BattleSystem {
       });
     } else {
       let parts = [`[${skill?.name || '普攻'}] 玩家 → ${target.name} 伤害 ${result.actualDmg}`];
+      if (result.isCombo) parts.push('连击');
       if (result.isCrit) parts.push('暴击');
       if (result.isArmorBroken) parts.push('破甲');
       if (result.isShielded) parts.push('护身');
@@ -226,7 +227,7 @@ export class BattleSystem {
         target: target.name,
         skill_name: skill?.name,
         damage: result.actualDmg,
-        crit_suffix: result.isCrit ? ' (暴击!)' : '',
+        crit_suffix: result.isCombo ? ' (连击!)' : result.isCrit ? ' (暴击!)' : '',
       });
 
       if (result.isLeech) eventBus.emit('battle.leech', { target: target.name, damage: result.actualDmg, heal: Math.floor(result.actualDmg * 0.3) });
