@@ -5,7 +5,7 @@
  */
 import { SaveManager } from '../core/SaveManager.js?v=release-20260614-14';
 import { AttributeSystem } from './AttributeSystem.js?v=release-20260612-2';
-import { BattleSystem } from './BattleSystem.js?v=release-20260616-1';
+import { BattleSystem } from './BattleSystem.js?v=release-20260617-1';
 import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260615-1';
 import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260615-1';
 import { eventBus } from '../core/EventBus.js';
@@ -50,7 +50,7 @@ export const OfflineSimulator = {
   },
 
   async _runSimulation(save, sim_seconds, onProgress) {
-    const TICK_MS = sim_seconds >= 3600 ? 1000 : 100;
+    const TICK_MS = sim_seconds >= 3600 ? 5000 : 100;
     const BATCH_SECONDS = sim_seconds >= 3600 ? 3600 : 60;
     const BATCH_TICKS = Math.max(1, Math.floor(BATCH_SECONDS * 1000 / TICK_MS));
     const total_ticks = Math.floor(sim_seconds * 1000 / TICK_MS);

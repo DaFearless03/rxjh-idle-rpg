@@ -251,36 +251,53 @@ export class BattleSystem {
   _monsterAttacks(deltaMs) {
     for (const monster of this.monsters) {
       if (!monster.isAlive()) continue;
-      monster.tickUpdate(deltaMs);
+      let remainingMs = deltaMs;
+      while (remainingMs > 0 && monster.isAlive() && this._player.hp > 0) {
+        if (monster.preheatRemaining > 0) {
+          const stepMs = Math.min(remainingMs, monster.preheatRemaining);
+          const hitsBoundary = stepMs === remainingMs;
+          monster.tickUpdate(stepMs);
+          remainingMs -= stepMs;
+          if (hitsBoundary && monster.preheatRemaining <= 0) remainingMs = Number.EPSILON;
+          continue;
+        }
 
-      // 被动怪物：未受到攻击前不主动攻击玩家
-      if (monster.passive && !monster._provoked) continue;
+        if (monster._atkCdRemaining > 0) {
+          const stepMs = Math.min(remainingMs, monster._atkCdRemaining);
+          const hitsBoundary = stepMs === remainingMs;
+          monster.tickUpdate(stepMs);
+          remainingMs -= stepMs;
+          if (hitsBoundary && monster._atkCdRemaining <= 0) remainingMs = Number.EPSILON;
+          continue;
+        }
 
-      if (!monster.isReadyToAttack()) continue;
-      if (monster._atkCdRemaining > 0) continue;
+        // 被动怪物：未受到攻击前不主动攻击玩家
+        if (monster.passive && !monster._provoked) break;
+        if (!monster.isReadyToAttack()) break;
 
-      // 攻击玩家
-      monster.triggerAttack();
-      const result = this._damageSys.attack_resolution_pipeline(monster, this._player, 'normal', null);
+        // 攻击玩家
+        monster.triggerAttack();
+        const result = this._damageSys.attack_resolution_pipeline(monster, this._player, 'normal', null);
 
-      if (result.isMiss) {
-        this._pushEvent(`[普攻] ${monster.name} → 玩家 MISS`);
-        eventBus.emit('battle.monster_miss', { attacker: monster.name });
-      } else {
-        let parts = [`[普攻] ${monster.name} → 玩家 伤害 ${result.actualDmg}`];
-        if (result.isCrit) parts.push('暴击');
-        if (result.isShielded) parts.push('护身');
-        if (result.isCountered) parts.push(`反伤(${result.actualDmg})`);
-        if (result.isLeech) parts.push('汲取');
-        this._pushEvent(parts.join(' '));
-        this._player.hp = Math.max(0, this._player.hp - result.actualDmg);
-        eventBus.emit('battle.monster_hit', { attacker: monster.name, damage: result.actualDmg, shield_suffix: result.isShielded ? ' (护身)' : '' });
-        eventBus.emit('battle.player_status_changed', { reason: 'monster_hit' });
-        if (result.isCountered) eventBus.emit('battle.counter', { attacker: monster.name, damage: result.actualDmg, reflected: result.actualDmg });
+        if (result.isMiss) {
+          this._pushEvent(`[普攻] ${monster.name} → 玩家 MISS`);
+          eventBus.emit('battle.monster_miss', { attacker: monster.name });
+        } else {
+          let parts = [`[普攻] ${monster.name} → 玩家 伤害 ${result.actualDmg}`];
+          if (result.isCrit) parts.push('暴击');
+          if (result.isShielded) parts.push('护身');
+          if (result.isCountered) parts.push(`反伤(${result.actualDmg})`);
+          if (result.isLeech) parts.push('汲取');
+          this._pushEvent(parts.join(' '));
+          this._player.hp = Math.max(0, this._player.hp - result.actualDmg);
+          eventBus.emit('battle.monster_hit', { attacker: monster.name, damage: result.actualDmg, shield_suffix: result.isShielded ? ' (护身)' : '' });
+          eventBus.emit('battle.player_status_changed', { reason: 'monster_hit' });
+          if (result.isCountered) eventBus.emit('battle.counter', { attacker: monster.name, damage: result.actualDmg, reflected: result.actualDmg });
 
-        if (this._player.hp <= 0) {
-          this._onPlayerDeath();
-          return;
+          if (this._player.hp <= 0) {
+            this._onPlayerDeath();
+            return;
+          }
         }
       }
     }
@@ -411,9 +428,10 @@ export class BattleSystem {
     // 玩家自动攻击仅在挂机状态开启时执行。
     if (this._player.auto_play?.is_auto_play) {
       this._playerAtkCd = (this._playerAtkCd || 0) + deltaMs;
-      if (this._playerAtkCd >= 1000) {
-        this._playerAtkCd = 0;
+      while (this._playerAtkCd >= 1000 && this._player.auto_play?.is_auto_play && this._player.hp > 0) {
+        this._playerAtkCd -= 1000;
         this._playerAttack();
+        if (!this._lockMainTarget()) break;
       }
     } else {
       this._playerAtkCd = 0;
