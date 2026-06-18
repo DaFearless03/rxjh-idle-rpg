@@ -25,6 +25,7 @@ class UIManagerClass {
     this._rewardAutoScroll = true;
     this._logScrollBoundElements = new WeakSet();
     this._homeSession = { startedAt: null, kills: 0, exp: 0, gold: 0, drops: 0 };
+    this._refreshAllFrame = null;
 
     eventBus.on('player.level_up', () => this._refreshAll());
     eventBus.on('player.death', () => this._refreshAll());
@@ -46,14 +47,14 @@ class UIManagerClass {
       if (!player || player === window.game?.player) window._refreshOpenInventorySurfaces?.();
     });
     eventBus.on('battle.monsters_changed', () => this._refreshMonsterList());
-    eventBus.on('battle.player_status_changed', () => this._refreshAll());
+    eventBus.on('battle.player_status_changed', () => this._refreshAllThrottled());
     eventBus.on('monster.death', (data) => {
       if (this._homeSession.startedAt) {
         this._homeSession.kills += 1;
         this._homeSession.exp += Number(data?.exp || 0);
         this._homeSession.gold += Number(data?.gold || 0);
       }
-      this._refreshAll();
+      this._refreshAllThrottled();
       window._refreshOpenInventorySurfaces?.();
     });
     eventBus.on('buff.applied', () => this._refreshAll());
@@ -203,6 +204,14 @@ class UIManagerClass {
     this._refreshStatusBar();
     this._refreshMonsterList();
     this._refreshIdleIndicator();
+  }
+
+  _refreshAllThrottled() {
+    if (this._refreshAllFrame) return;
+    this._refreshAllFrame = requestAnimationFrame(() => {
+      this._refreshAllFrame = null;
+      this._refreshAll();
+    });
   }
 
   _refreshHomePage() {

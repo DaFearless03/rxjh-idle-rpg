@@ -32,7 +32,7 @@ import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260615-1
 import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260618-1';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260618-1';
-import { UIManager } from './ui/UIManager.js?v=release-20260615-1';
+import { UIManager } from './ui/UIManager.js?v=release-20260618-1';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260616-1';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260614-5';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260618-1';
@@ -662,7 +662,7 @@ async function initGameForPlayer(player, slotIndex) {
         player.mp = Math.min(player.maxMp, player.mp + Math.ceil(player.maxMp * 0.01));
         recovered = true;
       }
-      if (recovered) UIManager._refreshAll();
+      if (recovered) UIManager._refreshAllThrottled?.();
     }
     _saveTimer += delta;
     if (_saveTimer >= 60000) {
