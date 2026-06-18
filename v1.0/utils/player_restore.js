@@ -125,12 +125,15 @@ export function applyCareerRuntimeFields(player, careersData = []) {
   const baseCareer = careersData.find(c => c.career_family === careerFamily && c.stage === 'base') || currentCareer || {};
   const baseStats = baseCareer.base_stats || currentCareer?.base_stats || {};
   const growth = currentCareer?.attrGrow || baseCareer.attrGrow || {};
+  const levelSteps = Math.max(0, (Number(player.level) || 1) - 1);
 
   player.career_family = careerFamily;
-  player.str = baseStats.str ?? 0;
-  player.dex = baseStats.dex ?? 0;
-  player.int = baseStats.int ?? 0;
-  player.sta = baseStats.sta ?? 0;
+  player._baseStats = { ...baseStats };
+  player._attrGrow = { ...growth };
+  player.str = Math.floor((baseStats.str ?? 0) + levelSteps * (growth.str ?? 0));
+  player.dex = Math.floor((baseStats.dex ?? 0) + levelSteps * (growth.dex ?? 0));
+  player.int = Math.floor((baseStats.int ?? 0) + levelSteps * (growth.int ?? 0));
+  player.sta = Math.floor((baseStats.sta ?? 0) + levelSteps * (growth.sta ?? 0));
   player.baseHp = baseStats.baseHp ?? 100;
   player.baseMp = baseStats.baseMp ?? 100;
   player.hpGrowth = growth.hpGrowth ?? 60;

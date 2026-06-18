@@ -16,11 +16,15 @@ export class Player {
     const cd = opts.careerData;
     const level = opts.level ?? 1;
 
-    // 四维初始值（来自 base_stats）
-    this.str = cd.base_stats.str;
-    this.dex = cd.base_stats.dex;
-    this.int = cd.base_stats.int;
-    this.sta = cd.base_stats.sta;
+    // 四维 = 基础值 + (等级-1) * 每级成长；读档恢复也使用同一口径。
+    const levelSteps = Math.max(0, level - 1);
+    const grow = cd.attrGrow || {};
+    this._baseStats = { ...(cd.base_stats || {}) };
+    this._attrGrow = { ...grow };
+    this.str = Math.floor((cd.base_stats.str || 0) + levelSteps * (grow.str ?? 0));
+    this.dex = Math.floor((cd.base_stats.dex || 0) + levelSteps * (grow.dex ?? 0));
+    this.int = Math.floor((cd.base_stats.int || 0) + levelSteps * (grow.int ?? 0));
+    this.sta = Math.floor((cd.base_stats.sta || 0) + levelSteps * (grow.sta ?? 0));
 
     // 职业化基础值（用于派生公式）
     this.baseHp = cd.base_stats.baseHp;

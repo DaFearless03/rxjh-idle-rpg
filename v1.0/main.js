@@ -6,9 +6,9 @@
 import { Game } from './core/Game.js';
 import { GameLoop } from './core/GameLoop.js';
 import { eventBus } from './core/EventBus.js';
-import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260615-1';
-import { BattleSystem } from './systems/BattleSystem.js?v=release-20260617-3';
-import { InventorySystem } from './systems/InventorySystem.js?v=release-20260613-12';
+import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260618-1';
+import { BattleSystem } from './systems/BattleSystem.js?v=release-20260618-1';
+import { InventorySystem } from './systems/InventorySystem.js?v=release-20260618-1';
 import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260613-22';
 import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260617-1';
 import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260617-1';
@@ -19,7 +19,7 @@ import { ShopSystem } from './systems/ShopSystem.js?v=release-20260616-1';
 import { TaskSystem } from './systems/TaskSystem.js';
 import { QigongSystem } from './systems/QigongSystem.js?v=release-20260614-6';
 import { BuffSystem } from './systems/BuffSystem.js';
-import { Player } from './entities/Player.js?v=release-20260612-2';
+import { Player } from './entities/Player.js?v=release-20260618-1';
 import { createEquipmentInstance } from './entities/EquipmentInstance.js?v=release-20260615-1';
 import { SaveManager } from './core/SaveManager.js?v=release-20260614-14';
 import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js';
@@ -29,13 +29,13 @@ import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flow
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260614-1';
 import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260615-1';
 import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260615-1';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260617-1';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260618-1';
 import { storage } from './utils/storage.js';
-import { restoreRuntimePlayerFromSave } from './utils/player_restore.js?v=release-20260614-14';
+import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260618-1';
 import { UIManager } from './ui/UIManager.js?v=release-20260615-1';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260616-1';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260614-5';
-import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260615-1';
+import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260618-1';
 import {
   hideOfflineRewardLoading,
   showMultiSaveUI,
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260617-1';
-import './ui/BottomBarUI.js?v=release-20260617-5';
+import './ui/BottomBarUI.js?v=release-20260618-1';
 
 // ========================
 // 数据加载
@@ -1161,18 +1161,8 @@ window.game = {
     console.log(`[给予] ${result.success ? `${itemKey} x${count}` : `${itemKey} x${result.added}（丢弃 ${result.discarded}）`}`);
   },
   setLevel: (lv) => {
-    const cd = careersData.find(c => c.key === game.player.career);
-    const grow = cd?.attrGrow || { str: 0, dex: 0, sta: 0, int: 0 };
-    const baseLv = game.player._baseLevel || 1;
-    const levelDiff = lv - baseLv;
-    if (levelDiff > 0) {
-      game.player.str += grow.str * levelDiff;
-      game.player.dex += grow.dex * levelDiff;
-      game.player.sta += grow.sta * levelDiff;
-      game.player.int += grow.int * levelDiff;
-    }
-    game.player._baseLevel = lv;
     game.player.level = lv;
+    applyCareerRuntimeFields(game.player, careersData);
     attrSys.recompute(game.player);
     game.player.hp = game.player.maxHp;
     game.player.mp = game.player.maxMp;

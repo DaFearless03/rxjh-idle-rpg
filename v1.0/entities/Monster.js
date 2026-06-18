@@ -3,12 +3,15 @@
  * @desc 怪物实体
  * @ref 07_monsters.monster_template
  */
+import { generateUUID } from '../utils/uuid.js';
+
 export class Monster {
   /**
    * @param {Object} template 怪物配置对象
    * @param {number} template.hp 最大生命（也是当前 hp 初始值）
    */
   constructor(template) {
+    this.uid = generateUUID();
     this.key = template.key;
     this.name = template.name;
     this.passive = template.passive || false;

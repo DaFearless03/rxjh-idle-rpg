@@ -6,7 +6,7 @@
 import { eventBus } from '../core/EventBus.js';
 import { Monster } from '../entities/Monster.js';
 import { DamageSystem } from './DamageSystem.js';
-import { grantExp, onLevelUp, applyDeathExpLoss } from '../utils/formulas.js';
+import { grantExp, onLevelUp, applyDeathExpLoss } from '../utils/formulas.js?v=release-20260618-1';
 
 const DEFAULT_ELITE_CAP_PER_ZONE = 1;
 
@@ -37,7 +37,7 @@ export class BattleSystem {
     /** @type {Monster[]} 当前场上怪物 */
     this.monsters = [];
 
-    /** 主目标 key */
+    /** 主目标 uid */
     this._mainTargetKey = null;
 
     /** 刷怪计时（毫秒） */
@@ -173,12 +173,12 @@ export class BattleSystem {
     }
     // sticky：活着不切
     if (this._mainTargetKey) {
-      const current = candidates.find(m => m.key === this._mainTargetKey);
+      const current = candidates.find(m => m.uid === this._mainTargetKey);
       if (current) return current;
     }
     // 选血最少的
     const lowest = candidates.reduce((a, b) => a.hp <= b.hp ? a : b);
-    this._mainTargetKey = lowest.key;
+    this._mainTargetKey = lowest.uid;
     return lowest;
   }
 
@@ -313,7 +313,7 @@ export class BattleSystem {
     // 移除
     this.monsters = this.monsters.filter(m => m !== monster);
     // 重置目标锁
-    if (this._mainTargetKey === monster.key) {
+    if (this._mainTargetKey === monster.uid) {
       this._mainTargetKey = null;
     }
     // grant_exp（含跨级判断）
@@ -421,7 +421,7 @@ export class BattleSystem {
 
     // 刷怪计时
     this._spawnTimerMs += deltaMs;
-    if (this._spawnTimerMs >= this._spawnIntervalMs) {
+    while (this._spawnTimerMs >= this._spawnIntervalMs) {
       this._spawnTimerMs -= this._spawnIntervalMs;
       this._trySpawn();
     }

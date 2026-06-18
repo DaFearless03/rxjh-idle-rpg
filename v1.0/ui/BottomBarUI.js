@@ -4,7 +4,7 @@
  */
 import { UIManager } from './UIManager.js?v=release-20260615-1';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260616-1';
-import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260613-12';
+import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260618-1';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260617-1';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260617-1';
@@ -14,7 +14,7 @@ import { mountInventoryPanel } from './InventoryUI.js?v=release-20260617-2';
 import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260615-1';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260615-1';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260618-1';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260614-2';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260617-2';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260617-2';
@@ -1841,16 +1841,10 @@ document.addEventListener('click', (e) => {
   }
   const btn = e.target.closest('.menu-btn[data-panel]');
   if (btn) {
+    if (btn.getAttribute('onclick')) return;
     const panel = btn.dataset.panel;
     if (panel !== 'home') window._openPanel(panel);
   }
-});
-
-document.querySelectorAll('#page-combat .menu-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const onclick = btn.getAttribute('onclick');
-    if (onclick) eval(onclick);
-  });
 });
 
 // Setup warehouse popup events (once)

@@ -185,7 +185,25 @@ window._leaderSubmit = (questKey) => {
 };
 
 export function showNPCDialog(npcData, player, careersData, questTemplates) {
-  document.getElementById('npc-dialog-title').textContent = npcData.name || 'NPC';
+  const backdrop = document.getElementById('npcDialogBackdrop');
+  if (backdrop) {
+    const npcKey = Object.entries(TOWN_NPC_DATA).find(([key, npc]) =>
+      key === npcData?.key || npc.key === npcData?.key || npc.name === npcData?.name
+    )?.[0] || (npcData?.type === 'quest' ? 'leader' : null);
+    if (npcKey) {
+      openTownNPCDialog(npcKey);
+      return;
+    }
+  }
+
+  const legacyTitle = document.getElementById('npc-dialog-title');
+  const legacyContent = document.getElementById('npc-dialog-content');
+  if (!legacyTitle || !legacyContent) {
+    console.warn('[NPCDialogUI] 找不到 NPC 弹窗容器，已忽略旧弹窗渲染', npcData);
+    return;
+  }
+
+  legacyTitle.textContent = npcData.name || 'NPC';
 
   let content = '';
   if (npcData.type === 'quest') {
@@ -202,7 +220,7 @@ export function showNPCDialog(npcData, player, careersData, questTemplates) {
     content = buildShopDialog(npcData, player) + buildEnhanceDialog(npcData, player);
   }
 
-  document.getElementById('npc-dialog-content').innerHTML = content;
+  legacyContent.innerHTML = content;
   const modal = document.getElementById('modal-npc');
   if (modal) UIManager.pushModal(modal);
 

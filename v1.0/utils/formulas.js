@@ -55,9 +55,20 @@ export function onLevelUp(player, fromLevel, toLevel, config, recomputeFn) {
   player.qigong = player.qigong || { available_points: 0 };
   player.qigong.available_points += gainedPoints;
 
+  refreshPrimaryAttributes(player);
   if (recomputeFn) recomputeFn(player);
   player.hp = player.maxHp;
   player.mp = player.maxMp;
+}
+
+function refreshPrimaryAttributes(player) {
+  const baseStats = player._baseStats || {};
+  const growth = player._attrGrow || {};
+  const levelSteps = Math.max(0, (Number(player.level) || 1) - 1);
+  for (const key of ['str', 'dex', 'int', 'sta']) {
+    if (baseStats[key] == null || growth[key] == null) continue;
+    player[key] = Math.floor(Number(baseStats[key] || 0) + levelSteps * Number(growth[key] || 0));
+  }
 }
 
 /**

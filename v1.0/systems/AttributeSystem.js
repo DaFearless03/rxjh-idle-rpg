@@ -55,13 +55,13 @@ export class AttributeSystem {
     const maxHpBase = (player.baseHp || 100) + (level - 1) * (player.hpGrowth || 60) + sta * c.staToHp;
     const maxHpAdd = (h.maxHpAdd || 0);
     const maxHpPct = (h.maxHpPct || 0);
-    player.maxHp = Math.floor(maxHpBase + maxHpAdd) * (1 + maxHpPct);
+    player.maxHp = Math.floor((maxHpBase + maxHpAdd) * (1 + maxHpPct));
 
     // maxMp: (baseMp + (level-1)*mpGrowth + int*intToMp + sum(maxMpAdd)) * (1 + sum(maxMpPct))
     const maxMpBase = (player.baseMp || 100) + (level - 1) * (player.mpGrowth || 20) + int * c.intToMp;
     const maxMpAdd = (h.maxMpAdd || 0);
     const maxMpPct = (h.maxMpPct || 0);
-    player.maxMp = Math.floor(maxMpBase + maxMpAdd) * (1 + maxMpPct);
+    player.maxMp = Math.floor((maxMpBase + maxMpAdd) * (1 + maxMpPct));
 
     // atkMin: (baseAtk + floor(str*0.8*strToAtk) + sum(atkMinAdd) + sum(atkSelfAdd)) * (1 + sum(atkMinPct) + sum(atkSelfPct))
     const atkSelfAdd = (h.atkSelfAdd || 0);

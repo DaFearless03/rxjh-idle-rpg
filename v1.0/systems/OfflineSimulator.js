@@ -4,12 +4,12 @@
  * @ref 13_save.simulation_flow
  */
 import { SaveManager } from '../core/SaveManager.js?v=release-20260614-14';
-import { AttributeSystem } from './AttributeSystem.js?v=release-20260612-2';
-import { BattleSystem } from './BattleSystem.js?v=release-20260617-3';
+import { AttributeSystem } from './AttributeSystem.js?v=release-20260618-1';
+import { BattleSystem } from './BattleSystem.js?v=release-20260618-1';
 import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260615-1';
 import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260615-1';
 import { eventBus } from '../core/EventBus.js';
-import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260614-14';
+import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260618-1';
 
 export const OfflineSimulator = {
   is_in_offline_simulation: false,

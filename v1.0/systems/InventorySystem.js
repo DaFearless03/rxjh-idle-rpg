@@ -58,6 +58,8 @@ export const InventorySystem = {
   add(player, itemKey, count) {
     const slots = player.inventory?.slots || [];
     const maxStack = this._getMaxStack(itemKey, player);
+    const isQuestItem = this._getItemClass(itemKey, player) === 'quest_items';
+    const snapshot = isQuestItem ? JSON.parse(JSON.stringify(slots)) : null;
     let remaining = count;
     let added = 0;
     let discarded = 0;
@@ -101,9 +103,11 @@ export const InventorySystem = {
     // step 3: 超出容量的部分
     if (remaining > 0) {
       // 任务物品特例：step 3 不丢弃，改为 success=False
-      const itemClass = this._getItemClass(itemKey, player);
-      if (itemClass === 'quest_items') {
-        this._emitChanged(player, itemKey, added, 'add');
+      if (isQuestItem) {
+        if (snapshot) {
+          player.inventory.slots.length = 0;
+          player.inventory.slots.push(...snapshot);
+        }
         return { success: false, added: 0, discarded: count };
       }
       discarded = remaining;
