@@ -49,6 +49,7 @@ class UIManagerClass {
     eventBus.on('battle.monsters_changed', () => this._refreshMonsterList());
     eventBus.on('battle.player_status_changed', () => this._refreshAllThrottled());
     eventBus.on('monster.death', (data) => {
+      if (globalThis.__rxjhOfflineSimulation) return;
       if (this._homeSession.startedAt) {
         this._homeSession.kills += 1;
         this._homeSession.exp += Number(data?.exp || 0);

@@ -12,7 +12,7 @@ import { InventorySystem } from './systems/InventorySystem.js?v=release-20260618
 import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260613-22';
 import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260617-1';
 import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260617-1';
-import { DropSystem } from './systems/DropSystem.js?v=release-20260615-1';
+import { DropSystem } from './systems/DropSystem.js?v=release-20260618-1';
 import { BoxSystem } from './systems/BoxSystem.js?v=release-20260615-1';
 import { NPCSystem, UIState } from './systems/NPCSystem.js';
 import { ShopSystem } from './systems/ShopSystem.js?v=release-20260616-1';
@@ -29,10 +29,10 @@ import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flow
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260618-2';
 import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260615-1';
 import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260615-1';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260618-1';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260618-2';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260618-1';
-import { UIManager } from './ui/UIManager.js?v=release-20260618-1';
+import { UIManager } from './ui/UIManager.js?v=release-20260618-2';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260616-1';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260614-5';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260618-1';
@@ -688,6 +688,7 @@ async function initGameForPlayer(player, slotIndex) {
     saveCurrentPlayerNow('player_death', { force: true });
   });
   onRuntimeEvent('monster.death', (data) => {
+    if (globalThis.__rxjhOfflineSimulation) return;
     console.log(`[事件] monster.death: ${data.monsterKey} exp+${data.exp}`);
   });
   onRuntimeEvent('quest.accepted', (data) => console.log(`[事件] quest.accepted: ${data.name}`));

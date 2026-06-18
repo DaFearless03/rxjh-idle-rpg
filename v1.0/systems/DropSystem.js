@@ -112,7 +112,7 @@ export class DropSystem {
     player.resources = player.resources || { gold: 0, training: 0, merit: 0 };
     player.resources.gold += amount;
     eventBus.emit('resources.changed', { player, resource: 'gold', amount, action: 'add' });
-    console.log(`[掉落] 金币 +${amount}`);
+    this._logDrop(`[掉落] 金币 +${amount}`);
   }
 
   _dropEquipment(player, equipmentKey) {
@@ -121,10 +121,10 @@ export class DropSystem {
     const newInstance = createEquipmentInstance(template);
     const result = InventorySystem.addEquipmentInstance(player, newInstance);
     if (result.success) {
-      console.log(`[掉落] 装备 ${template.name}`);
+      this._logDrop(`[掉落] 装备 ${template.name}`);
       eventBus.emit('drop.equipment', { equipment_key: equipmentKey, equipment_name: template.name });
     } else {
-      console.log(`[掉落] 装备 ${template.name}（背包已满，已丢弃）`);
+      this._logDrop(`[掉落] 装备 ${template.name}（背包已满，已丢弃）`);
       eventBus.emit('drop.discarded', { item_key: equipmentKey, item_name: template.name, count: 1, reason: 'inventory_full' });
     }
   }
@@ -152,10 +152,10 @@ export class DropSystem {
     }
     const result = InventorySystem.add(player, finalKey, 1);
     if (result.success) {
-      console.log(`[掉落] 石头 ${finalKey}`);
+      this._logDrop(`[掉落] 石头 ${finalKey}`);
       eventBus.emit('drop.stone', { stone_key: finalKey, stone_base_name: this._getStoneName(stoneKey) });
     } else {
-      console.log(`[掉落] 石头 ${finalKey}（背包已满，已丢弃）`);
+      this._logDrop(`[掉落] 石头 ${finalKey}（背包已满，已丢弃）`);
       eventBus.emit('drop.discarded', { item_key: finalKey, item_name: this._getStoneName(stoneKey), count: 1, reason: 'inventory_full' });
     }
   }
@@ -198,7 +198,7 @@ export class DropSystem {
     // 加入背包
     const result = InventorySystem.add(player, itemKey, 1);
     if (result.success) {
-      console.log(`[任务物品] ${itemKey} x1（${currentCount + 1}/${requiredCount}）`);
+      this._logDrop(`[任务物品] ${itemKey} x1（${currentCount + 1}/${requiredCount}）`);
       // stage_advance_check
       this._taskSys.stageAdvanceCheck(player);
       return true;
@@ -214,7 +214,7 @@ export class DropSystem {
     if (player.auto_play) {
       player.auto_play.is_auto_play = false;
     }
-    console.warn(`[任务物品] ${itemKey} 无法保存（背包已满），已停止挂机`);
+    this._logDrop(`[任务物品] ${itemKey} 无法保存（背包已满），已停止挂机`, 'warn');
     eventBus.emit('drop.discarded', { item_key: itemKey, item_name: itemKey, count: 1, reason: 'inventory_full_quest_item' });
     return false;
   }
@@ -222,10 +222,10 @@ export class DropSystem {
   _dropBox(player, boxKey) {
     const result = InventorySystem.add(player, boxKey, 1);
     if (result.success) {
-      console.log(`[掉落] 盒子 ${boxKey}`);
+      this._logDrop(`[掉落] 盒子 ${boxKey}`);
       eventBus.emit('drop.box', { box_key: boxKey, box_name: boxKey });
     } else {
-      console.log(`[掉落] 盒子 ${boxKey}（背包已满，已丢弃）`);
+      this._logDrop(`[掉落] 盒子 ${boxKey}（背包已满，已丢弃）`);
       eventBus.emit('drop.discarded', { item_key: boxKey, item_name: boxKey, count: 1, reason: 'inventory_full' });
     }
   }
@@ -233,6 +233,12 @@ export class DropSystem {
   // ========================
   // helpers
   // ========================
+
+  _logDrop(message, level = 'log') {
+    if (globalThis.__rxjhOfflineSimulation) return;
+    const logger = level === 'warn' ? console.warn : console.log;
+    logger(message);
+  }
 
   _calcModifiers(levelDiff) {
     let rate_modifier = 1.0;

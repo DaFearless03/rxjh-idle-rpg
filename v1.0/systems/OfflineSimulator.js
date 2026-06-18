@@ -36,7 +36,9 @@ export const OfflineSimulator = {
     const sim_seconds = Math.min(elapsed_s, 86400); // 24h cap
     if (sim_seconds < 1) return null;
 
+    const previousOfflineSimulationFlag = globalThis.__rxjhOfflineSimulation === true;
     this.is_in_offline_simulation = true;
+    globalThis.__rxjhOfflineSimulation = true;
 
     try {
       const summary = await this._runSimulation(save, sim_seconds, onProgress);
@@ -46,6 +48,7 @@ export const OfflineSimulator = {
       return summary;
     } finally {
       this.is_in_offline_simulation = false;
+      globalThis.__rxjhOfflineSimulation = previousOfflineSimulationFlag;
     }
   },
 
