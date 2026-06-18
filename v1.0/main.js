@@ -26,7 +26,7 @@ import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js
 import { assertValidGameConfig } from './core/ConfigValidator.js';
 import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260618-1';
 import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260618-1';
-import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260618-1';
+import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260618-2';
 import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260615-1';
 import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260615-1';
 import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260618-1';
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260617-1';
-import './ui/BottomBarUI.js?v=release-20260618-1';
+import './ui/BottomBarUI.js?v=release-20260618-2';
 
 // ========================
 // 数据加载
@@ -947,7 +947,14 @@ window.game = {
   },
 
   // ---------- 存档 ----------
-  exportSave(opts = {}) {
+  async exportSave(opts = {}) {
+    if (game?.player && currentSlotIndex) {
+      const saved = await saveCurrentPlayerNow('export_save', { force: true });
+      if (!saved) {
+        console.warn('[导出] 当前角色保存失败，已取消导出');
+        return null;
+      }
+    }
     const pack = doExportSave(opts);
     if (pack) {
       console.log('[导出] 存档已生成（base64），长度:', pack.length);

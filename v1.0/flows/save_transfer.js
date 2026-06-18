@@ -110,6 +110,8 @@ async function fullReplaceActions(pack) {
     normalizedPlayers[key] = normalized.payload;
   }
 
+  const backupEntries = captureSaveEntries();
+
   // 1.5 写入事务标记
   storage.set('import_in_progress', 'true');
 
@@ -117,18 +119,24 @@ async function fullReplaceActions(pack) {
     // 2. 清空当前所有 player-* + game key
     for (const key of [...storage.keys()]) {
       if (key.startsWith('player-') || key === 'game') {
-        storage.remove(key);
+        if (!storage.remove(key)) {
+          restoreSaveEntries(backupEntries);
+          return { success: false, message: '导入失败：无法清理旧存档' };
+        }
       }
     }
 
     // 3. 写入导入包
-    if (pack.game) {
-      storage.set('game', JSON.stringify(pack.game));
+    if (!storage.set('game', JSON.stringify(pack.game))) {
+      restoreSaveEntries(backupEntries);
+      return { success: false, message: '导入失败：全局存档写入失败（存储空间不足？）' };
     }
     for (const [key, payload] of Object.entries(normalizedPlayers)) {
       const json = JSON.stringify(payload);
-      storage.set(key, json);
-      storage.set(`${key}-bak`, json);
+      if (!storage.set(key, json) || !storage.set(`${key}-bak`, json)) {
+        restoreSaveEntries(backupEntries);
+        return { success: false, message: '导入失败：角色存档写入失败（存储空间不足？）' };
+      }
     }
 
     // 4. last_used_slot 沿用导入包（若指向不存在角色则置 null）
@@ -136,7 +144,10 @@ async function fullReplaceActions(pack) {
       const slot = pack.game.character_slots.last_used_slot;
       if (!storage.get(`player-${slot}`)) {
         pack.game.character_slots.last_used_slot = null;
-        storage.set('game', JSON.stringify(pack.game));
+        if (!storage.set('game', JSON.stringify(pack.game))) {
+          restoreSaveEntries(backupEntries);
+          return { success: false, message: '导入失败：全局存档写入失败（存储空间不足？）' };
+        }
       }
     }
   } finally {
@@ -191,6 +202,24 @@ function restoreSlotBackup(key, value) {
   else storage.set(key, value);
 }
 
+function captureSaveEntries() {
+  return storage.keys()
+    .filter(key => key === 'game' || key.startsWith('player-'))
+    .map(key => [key, storage.get(key)]);
+}
+
+function restoreSaveEntries(entries) {
+  const keep = new Set(entries.map(([key]) => key));
+  for (const key of [...storage.keys()]) {
+    if ((key === 'game' || key.startsWith('player-')) && !keep.has(key)) {
+      storage.remove(key);
+    }
+  }
+  for (const [key, value] of entries) {
+    restoreSlotBackup(key, value);
+  }
+}
+
 function sortPlayerKeys(a, b) {
   return Number(a.split('-')[1]) - Number(b.split('-')[1]);
 }
@@ -201,7 +230,7 @@ function isWrappedPlayerPayload(payload) {
     && payload.data
     && payload.version
     && payload.saved_at
-    && payload.checksum;
+    && Object.prototype.hasOwnProperty.call(payload, 'checksum');
 }
 
 async function normalizePlayerPayload(payload) {
@@ -213,11 +242,22 @@ async function normalizePlayerPayload(payload) {
     if (payload.version !== SAVE_VERSION) {
       return { success: false, message: `角色存档版本不匹配（导出:${payload.version} / 当前:${SAVE_VERSION}）` };
     }
-    const expected = await computeChecksum(payload.data, payload.version, payload.saved_at);
-    if (expected !== payload.checksum) {
+    if (!payload.data || typeof payload.data !== 'object') {
+      return { success: false, message: '角色数据结构无效' };
+    }
+    const checksum = await computeChecksum(payload.data, payload.version, payload.saved_at);
+    if (payload.checksum !== null && checksum !== payload.checksum) {
       return { success: false, message: '角色存档校验失败' };
     }
-    return { success: true, payload };
+    return {
+      success: true,
+      payload: {
+        data: payload.data,
+        version: payload.version,
+        saved_at: payload.saved_at,
+        checksum,
+      },
+    };
   }
 
   // 兼容旧导出包：旧实现只导出了 data，导入前补回 SaveManager 外层包装。

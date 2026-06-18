@@ -970,12 +970,12 @@ window._settingsSetExportScope = (scope) => {
   document.getElementById('exportScopeCurrent')?.classList.toggle('on', _settingsExportScope === 'current');
 };
 
-window._settingsExportSave = () => {
-  const text = window.game?.exportSave?.({ include_all_characters: _settingsExportScope === 'all' });
+window._settingsExportSave = async () => {
+  const text = await window.game?.exportSave?.({ include_all_characters: _settingsExportScope === 'all' });
   const output = document.getElementById('settingsExportText');
   if (output && text) output.value = text;
   if (text) window._settingsCopyExport();
-  else UIManager.toast('导出失败：没有可导出的角色', 'error');
+  else UIManager.toast('导出失败：当前存档未能保存或没有可导出的角色', 'error');
 };
 
 window._settingsCopyExport = () => {
