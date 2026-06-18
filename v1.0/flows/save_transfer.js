@@ -5,7 +5,7 @@
  */
 import { storage } from '../utils/storage.js';
 import { base64Encode, base64Decode, computeChecksum } from '../utils/crypto.js';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260614-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260618-1';
 
 const SAVE_VERSION = '1.0';
 const PLAYER_KEY_RE = /^player-\d+$/;
@@ -148,7 +148,7 @@ async function fullReplaceActions(pack) {
 }
 
 /**
- * 单角色导入（无事务标记）
+ * 单角色导入：仅替换目标槽位，失败时回滚目标槽位主备存档。
  */
 async function partialReplaceActions(pack) {
   // 1. 校验版本
@@ -170,10 +170,25 @@ async function partialReplaceActions(pack) {
   const normalized = await normalizePlayerPayload(playerData);
   if (!normalized.success) return { success: false, message: normalized.message };
   const json = JSON.stringify(normalized.payload);
-  storage.set(`player-${targetSlot}`, json);
-  storage.set(`player-${targetSlot}-bak`, json);
+
+  const primaryKey = `player-${targetSlot}`;
+  const shadowKey = `${primaryKey}-bak`;
+  const previousPrimary = storage.get(primaryKey);
+  const previousShadow = storage.get(shadowKey);
+  const primaryOk = storage.set(primaryKey, json);
+  const shadowOk = primaryOk ? storage.set(shadowKey, json) : false;
+  if (!primaryOk || !shadowOk) {
+    restoreSlotBackup(primaryKey, previousPrimary);
+    restoreSlotBackup(shadowKey, previousShadow);
+    return { success: false, message: '存档写入失败（存储空间不足？）' };
+  }
 
   return { success: true, message: '角色导入成功' };
+}
+
+function restoreSlotBackup(key, value) {
+  if (value == null) storage.remove(key);
+  else storage.set(key, value);
 }
 
 function sortPlayerKeys(a, b) {

@@ -21,12 +21,12 @@ import { QigongSystem } from './systems/QigongSystem.js?v=release-20260614-6';
 import { BuffSystem } from './systems/BuffSystem.js';
 import { Player } from './entities/Player.js?v=release-20260618-1';
 import { createEquipmentInstance } from './entities/EquipmentInstance.js?v=release-20260615-1';
-import { SaveManager } from './core/SaveManager.js?v=release-20260614-14';
+import { SaveManager } from './core/SaveManager.js?v=release-20260618-1';
 import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js';
 import { assertValidGameConfig } from './core/ConfigValidator.js';
-import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260614-14';
-import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260614-1';
-import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260614-1';
+import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260618-1';
+import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260618-1';
+import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260618-1';
 import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260615-1';
 import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260615-1';
 import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260618-1';
@@ -326,11 +326,15 @@ function setupPageLifecycleAutoSave() {
   });
 
   window.addEventListener('pagehide', () => {
-    saveCurrentPlayerNow('pagehide', { force: true });
+    if (game?.player && currentSlotIndex) {
+      SaveManager.savePlayerStateSync(game.player, currentSlotIndex);
+    }
   });
 
   window.addEventListener('beforeunload', () => {
-    saveCurrentPlayerNow('beforeunload', { force: true });
+    if (game?.player && currentSlotIndex) {
+      SaveManager.savePlayerStateSync(game.player, currentSlotIndex);
+    }
   });
 }
 

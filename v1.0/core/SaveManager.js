@@ -41,6 +41,26 @@ export const SaveManager = {
   },
 
   /**
+   * 同步保存（页面卸载场景专用）。
+   * WebCrypto checksum 是异步的，pagehide/beforeunload 里可能跑不完；
+   * 这里写 checksum:null 的快照，下次正常保存会覆盖成带校验版本。
+   */
+  savePlayerStateSync(player, slotIndex) {
+    if (this._guard()) return false;
+
+    const now = Date.now();
+    if (!player.offline) player.offline = {};
+    player.offline.last_save_timestamp = now;
+
+    const save = this._buildPlayerSave(player, now);
+    const payload = { data: save, version: SAVE_VERSION, saved_at: now, checksum: null };
+    const json = JSON.stringify(payload);
+    const primaryOk = storage.set(PRIMARY_KEY(slotIndex), json);
+    const shadowOk = storage.set(SHADOW_KEY(slotIndex), json);
+    return primaryOk && shadowOk;
+  },
+
+  /**
    * 保存全局存档
    * @param {Object} globalSave
    */
@@ -78,6 +98,10 @@ export const SaveManager = {
 
     try {
       const parsed = JSON.parse(raw);
+      if (parsed.checksum === null) {
+        const valid = parsed.version === SAVE_VERSION && !!parsed.data;
+        return { valid, data: valid ? parsed.data : null, raw: valid ? JSON.stringify(parsed) : null };
+      }
       const expected = await computeChecksum(parsed.data, parsed.version, parsed.saved_at);
       const valid = expected === parsed.checksum;
       return { valid, data: valid ? parsed.data : null, raw: valid ? JSON.stringify(parsed) : null };

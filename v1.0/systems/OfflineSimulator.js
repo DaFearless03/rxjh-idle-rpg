@@ -3,7 +3,7 @@
  * @desc 离线模拟引擎：settle_offline_rewards + is_in_offline_simulation flag
  * @ref 13_save.simulation_flow
  */
-import { SaveManager } from '../core/SaveManager.js?v=release-20260614-14';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260618-1';
 import { AttributeSystem } from './AttributeSystem.js?v=release-20260618-1';
 import { BattleSystem } from './BattleSystem.js?v=release-20260618-1';
 import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260615-1';
