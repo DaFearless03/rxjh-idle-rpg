@@ -2,7 +2,7 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260618-1';
+import { UIManager } from './UIManager.js?v=release-20260618-2';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260616-1';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260618-1';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
@@ -19,6 +19,7 @@ import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260617-2';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260617-2';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
+import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260617-1';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -1005,7 +1006,6 @@ window._returnToSaveList = async () => {
   _returningToSaveList = true;
   try {
     const characters = await window.game?.returnToSaveList?.();
-    const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260614-11');
     UIManager.closeAllModals();
     UIManager.closePanel();
     showMultiSaveUI(window._currentGlobalSave, characters || [], window._careersData || []);
@@ -1037,7 +1037,6 @@ window._confirmStartOfflineAutoplay = async () => {
       UIManager.toast(result?.message || '开始离线挂机失败', 'error');
       return;
     }
-    const { showMultiSaveUI } = await import('./MultiSaveUI.js?v=release-20260614-11');
     UIManager.closeAllModals();
     UIManager.closePanel();
     showMultiSaveUI(window._currentGlobalSave, result.characters || [], window._careersData || []);

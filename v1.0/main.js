@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260617-1';
-import './ui/BottomBarUI.js?v=release-20260618-2';
+import './ui/BottomBarUI.js?v=release-20260618-3';
 
 // ========================
 // 数据加载
@@ -338,7 +338,7 @@ function setupPageLifecycleAutoSave() {
   });
 }
 
-async function cleanupCurrentRuntime({ save = true } = {}) {
+async function cleanupCurrentRuntime({ save = true, saveMode = 'async' } = {}) {
   const playerToSave = game?.player || null;
   const slotToSave = currentSlotIndex;
 
@@ -353,7 +353,12 @@ async function cleanupCurrentRuntime({ save = true } = {}) {
   window._currentNpc = null;
 
   if (save && playerToSave && slotToSave) {
-    await SaveManager.savePlayerState(playerToSave, slotToSave);
+    if (saveMode === 'sync') {
+      const saved = SaveManager.savePlayerStateSync(playerToSave, slotToSave);
+      if (!saved) console.warn('[存档] 同步快照保存失败');
+    } else {
+      await SaveManager.savePlayerState(playerToSave, slotToSave);
+    }
   }
 
   game = null;
@@ -797,7 +802,7 @@ window.game = {
     if (game?.player?.auto_play?.is_auto_play) {
       AutoPlaySystem.stop(game.player, 'return_to_save_list');
     }
-    await cleanupCurrentRuntime({ save: true });
+    await cleanupCurrentRuntime({ save: true, saveMode: 'sync' });
     return loadAllCharacters();
   },
 
@@ -805,7 +810,7 @@ window.game = {
     if (!game?.player?.auto_play?.is_auto_play || !game.player.location?.current_sub_zone_key) {
       return { success: false, message: '当前角色没有进行中的野外挂机' };
     }
-    await cleanupCurrentRuntime({ save: true });
+    await cleanupCurrentRuntime({ save: true, saveMode: 'sync' });
     return { success: true, characters: loadAllCharacters() };
   },
 
