@@ -658,11 +658,76 @@ function getInventorySortInfo(slot, player, equipmentInstances, index) {
   return info;
 }
 
+function getStackClassifyPlayer(player, equipmentInstances) {
+  return {
+    ...(player || {}),
+    inventory: {
+      ...(player?.inventory || {}),
+      equipment_instances: equipmentInstances || player?.inventory?.equipment_instances || {},
+    },
+  };
+}
+
+function isStackMergeableSlot(slot, player, equipmentInstances) {
+  if (!slot?.item_key || (slot.count || 0) <= 0 || slot.instance_id) return false;
+  const classifyPlayer = getStackClassifyPlayer(player, equipmentInstances);
+  const itemClass = InventorySystem._getItemClass?.(slot.item_key, classifyPlayer) || 'unknown';
+  if (itemClass === 'equipment') return false;
+  return (InventorySystem._getMaxStack?.(slot.item_key, classifyPlayer) || 1) > 1;
+}
+
+function compactStackableSlots(slots, player, equipmentInstances) {
+  const passthrough = [];
+  const empty = [];
+  const groups = new Map();
+
+  for (const slot of slots || []) {
+    if (!slot?.item_key || (slot.count || 0) <= 0) {
+      empty.push(slot);
+      continue;
+    }
+    if (!isStackMergeableSlot(slot, player, equipmentInstances)) {
+      passthrough.push(slot);
+      continue;
+    }
+
+    const itemKey = slot.item_key;
+    if (!groups.has(itemKey)) {
+      const template = { ...slot };
+      delete template.count;
+      groups.set(itemKey, {
+        itemKey,
+        template,
+        count: 0,
+        maxStack: Math.max(1, InventorySystem._getMaxStack?.(itemKey, getStackClassifyPlayer(player, equipmentInstances)) || 99),
+      });
+    }
+    groups.get(itemKey).count += Number(slot.count || 0);
+  }
+
+  const stacked = [];
+  for (const group of groups.values()) {
+    let remaining = group.count;
+    while (remaining > 0) {
+      const take = Math.min(remaining, group.maxStack);
+      stacked.push({ ...group.template, item_key: group.itemKey, count: take });
+      remaining -= take;
+    }
+  }
+
+  const filled = [...passthrough, ...stacked];
+  const emptyCount = Math.max(0, (slots || []).length - filled.length);
+  const normalizedEmpty = empty.slice(0, emptyCount);
+  while (normalizedEmpty.length < emptyCount) normalizedEmpty.push({ item_key: null, count: 0 });
+  return { filled, empty: normalizedEmpty };
+}
+
 function sortInventorySlots(slots, player, equipmentInstances = player?.inventory?.equipment_instances) {
-  const filled = slots
+  const compacted = compactStackableSlots(slots, player, equipmentInstances);
+  const filled = compacted.filled
     .map((slot, index) => ({ slot, info: getInventorySortInfo(slot, player, equipmentInstances, index) }))
     .filter(entry => entry.slot?.item_key && (entry.slot.count || 0) > 0);
-  const empty = slots.filter(slot => !slot?.item_key || (slot.count || 0) <= 0);
+  const empty = compacted.empty;
 
   filled.sort((a, b) => {
     const ai = a.info;
@@ -694,7 +759,9 @@ function sortInventorySlots(slots, player, equipmentInstances = player?.inventor
     const nameCompare = compareText(ai.name, bi.name);
     if (nameCompare) return nameCompare;
     const keyCompare = compareText(ai.itemKey, bi.itemKey);
-    return keyCompare || ai.index - bi.index;
+    if (keyCompare) return keyCompare;
+    const countCompare = Number(b.slot.count || 0) - Number(a.slot.count || 0);
+    return countCompare || ai.index - bi.index;
   });
   return [...filled.map(entry => entry.slot), ...empty];
 }
