@@ -12,10 +12,10 @@ import { InventorySystem } from './systems/InventorySystem.js?v=release-20260618
 import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260613-22';
 import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260617-1';
 import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260617-1';
-import { DropSystem } from './systems/DropSystem.js?v=release-20260618-1';
+import { DropSystem } from './systems/DropSystem.js?v=release-20260619-1';
 import { BoxSystem } from './systems/BoxSystem.js?v=release-20260615-1';
 import { NPCSystem, UIState } from './systems/NPCSystem.js';
-import { ShopSystem } from './systems/ShopSystem.js?v=release-20260616-1';
+import { ShopSystem } from './systems/ShopSystem.js?v=release-20260619-1';
 import { TaskSystem } from './systems/TaskSystem.js';
 import { QigongSystem } from './systems/QigongSystem.js?v=release-20260614-6';
 import { BuffSystem } from './systems/BuffSystem.js';
@@ -29,7 +29,7 @@ import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flow
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260618-2';
 import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260615-1';
 import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260615-1';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260619-1';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260619-2';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260618-1';
 import { UIManager } from './ui/UIManager.js?v=release-20260619-1';
@@ -429,6 +429,19 @@ function isOfflineSimulationActive() {
   return globalThis.__rxjhOfflineSimulation === true;
 }
 
+function isOfflineDebugEnabled() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return params.has('debug-offline') || params.has('offline-debug');
+  } catch {
+    return false;
+  }
+}
+
+function logOfflineDebug(...args) {
+  if (isOfflineDebugEnabled()) console.log(...args);
+}
+
 function nowMs() {
   return globalThis.performance?.now?.() ?? Date.now();
 }
@@ -633,7 +646,7 @@ async function enterCharacter(slotIndex) {
 
   // 离线模拟（若上次在挂机且离线超过1分钟）
   if (wasAutoPlaying && offlineHours > (1 / 60)) {
-    console.log(`[离线] 检测到 ${offlineHours.toFixed(1)} 小时离线收益，开始结算...`);
+    logOfflineDebug(`[离线] 检测到 ${offlineHours.toFixed(1)} 小时离线收益，开始结算...`);
     showOfflineRewardLoading(0);
     await waitForNextPaint();
     offlineStartedAt = nowMs();
@@ -654,7 +667,7 @@ async function enterCharacter(slotIndex) {
       _attributeConstants: config.attribute_constants,
     }, {
       onProgress: (p) => {
-        if (p % 20 === 0) console.log(`[离线结算] ${p}%`);
+        if (p % 20 === 0) logOfflineDebug(`[离线结算] ${p}%`);
         updateOfflineRewardProgress(p);
       }
     });
@@ -676,7 +689,7 @@ async function enterCharacter(slotIndex) {
     UIManager.openPanel('home');
   }
   const totalMs = nowMs() - enterStartedAt;
-  if (offlineSummary || totalMs > 1000) {
+  if (isOfflineDebugEnabled() && (offlineSummary || totalMs > 1000)) {
     const offlineMs = offlineStartedAt && offlineFinishedAt ? Math.round(offlineFinishedAt - offlineStartedAt) : 0;
     console.log(`[进入角色耗时] 离线结算=${offlineMs}ms 初始化=${Math.round(initFinishedAt - initStartedAt)}ms 总计=${Math.round(totalMs)}ms`);
   }

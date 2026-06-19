@@ -24,6 +24,11 @@ function getStackableSpace(player, itemKey) {
   return existingRoom + getEmptySlotCount(player) * maxStack;
 }
 
+function logShop(message) {
+  if (globalThis.__rxjhOfflineSimulation) return;
+  console.log(message);
+}
+
 export const ShopSystem = {
   FORBIDDEN_SELL_TYPES: ['quest_items', 'boxes'],
 
@@ -96,7 +101,7 @@ export const ShopSystem = {
 
     player.resources.gold -= price;
     eventBus.emit('resources.changed', { player, resource: 'gold', amount: price, action: 'remove' });
-    console.log(`[商店] 购买 ${itemEntry.name || itemKey} x${count}，花费 ${price} 金币`);
+    logShop(`[商店] 购买 ${itemEntry.name || itemKey} x${count}，花费 ${price} 金币`);
     return { success: true, message: `购买成功` };
   },
 
@@ -131,7 +136,7 @@ export const ShopSystem = {
     InventorySystem.remove(player, itemKey, count);
     player.resources.gold += totalPrice;
     eventBus.emit('resources.changed', { player, resource: 'gold', amount: totalPrice, action: 'add' });
-    console.log(`[商店] 出售 ${itemKey} x${count}，获得 ${totalPrice} 金币`);
+    logShop(`[商店] 出售 ${itemKey} x${count}，获得 ${totalPrice} 金币`);
     return { success: true, message: `出售成功，获得 ${totalPrice} 金币` };
   },
 
