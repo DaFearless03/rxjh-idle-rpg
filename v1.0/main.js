@@ -32,7 +32,7 @@ import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260615-1
 import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260619-2';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260618-1';
-import { UIManager } from './ui/UIManager.js?v=release-20260619-2';
+import { UIManager } from './ui/UIManager.js?v=release-20260619-3';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260616-1';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260614-5';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260619-1';
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260619-2';
-import './ui/BottomBarUI.js?v=release-20260619-6';
+import './ui/BottomBarUI.js?v=release-20260619-7';
 
 // ========================
 // 数据加载

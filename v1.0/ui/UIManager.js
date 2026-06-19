@@ -460,4 +460,5 @@ class UIManagerClass {
   }
 }
 
-export const UIManager = new UIManagerClass();
+export const UIManager = globalThis.__rxjhUIManager
+  || (globalThis.__rxjhUIManager = new UIManagerClass());
