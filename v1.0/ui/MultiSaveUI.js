@@ -160,7 +160,8 @@ export function showMultiSaveUI(globalSave, characters, careersData) {
   window._ui_switchCharacter = (slotIndex) => {
     if (window.__characterSwitching) return;
     window.__characterSwitching = true;
-    Promise.resolve(window.game?.switchCharacter(slotIndex))
+    const switcher = window._switchCharacterFromSaveList || window.game?.switchCharacter;
+    Promise.resolve(switcher?.(slotIndex))
       .finally(() => {
         window.__characterSwitching = false;
       });
@@ -339,7 +340,7 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
     }    await flow.step4_persist(r3.save, r3.slotIndex, window._currentGlobalSave);
     UIManager.popModal();
     UIManager.toast(`角色「${name}」创建成功！`, 'success');
-    setTimeout(() => window.game?.switchCharacter(r3.slotIndex), 300);
+    setTimeout(() => (window._switchCharacterFromSaveList || window.game?.switchCharacter)?.(r3.slotIndex), 300);
   };
 }
 

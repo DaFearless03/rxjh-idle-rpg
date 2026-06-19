@@ -3,7 +3,7 @@
  * @desc 底部导航 + 主面板切换桥接函数
  */
 import { UIManager } from './UIManager.js?v=release-20260619-1';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260616-1';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260619-1';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260618-1';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260617-1';
@@ -19,7 +19,7 @@ import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260619-2';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260619-2';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
-import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260617-1';
+import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260619-2';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);

@@ -43,8 +43,8 @@ import {
   showOfflineRewardLoading,
   showOfflineRewardUI,
   updateOfflineRewardProgress,
-} from './ui/MultiSaveUI.js?v=release-20260617-1';
-import './ui/BottomBarUI.js?v=release-20260619-3';
+} from './ui/MultiSaveUI.js?v=release-20260619-2';
+import './ui/BottomBarUI.js?v=release-20260619-5';
 
 // ========================
 // 数据加载
@@ -182,6 +182,8 @@ let lastLifecycleSaveAt = 0;
 let lifecycleSaveInFlight = null;
 let mainScreenUIBuilt = false;
 let mainScreenEventListenersBound = false;
+let enterCharacterVersion = 0;
+let returningToSaveList = false;
 
 const gmGameConfig = {
   ...config,
@@ -369,6 +371,7 @@ async function cleanupCurrentRuntime({ save = true, saveMode = 'async' } = {}) {
 }
 
 setupPageLifecycleAutoSave();
+window._switchCharacterFromSaveList = async (slotIndex) => enterCharacter(slotIndex);
 
 // ========================
 // 启动序列
@@ -602,12 +605,16 @@ async function runCreateCharacterFlow(targetSlotIndex) {
 // 进入角色（加载存档 + 初始化游戏）
 // ========================
 async function enterCharacter(slotIndex) {
+  if (returningToSaveList) return;
+  const enterVersion = ++enterCharacterVersion;
   const enterStartedAt = nowMs();
   if (game || loop || runtimeEventUnsubscribers.length > 0) {
     await cleanupCurrentRuntime({ save: true });
   }
+  if (enterVersion !== enterCharacterVersion || returningToSaveList) return;
 
   const save = await SaveManager.restorePlayerFromSave(slotIndex);
+  if (enterVersion !== enterCharacterVersion || returningToSaveList) return;
   if (!save) {
     console.log(`[错误] 槽位 ${slotIndex} 无有效存档`);
     return;
@@ -671,6 +678,10 @@ async function enterCharacter(slotIndex) {
         updateOfflineRewardProgress(p);
       }
     });
+    if (enterVersion !== enterCharacterVersion || returningToSaveList) {
+      hideOfflineRewardLoading();
+      return;
+    }
     offlineFinishedAt = nowMs();
     if (offlineSummary) {
       Object.assign(player, offlineSummary._player || {});
@@ -681,6 +692,10 @@ async function enterCharacter(slotIndex) {
 
   const initStartedAt = nowMs();
   await initGameForPlayer(player, slotIndex);
+  if (enterVersion !== enterCharacterVersion || returningToSaveList) {
+    await cleanupCurrentRuntime({ save: true, saveMode: 'sync' });
+    return;
+  }
   const initFinishedAt = nowMs();
   UIManager.closeAllModals();
   if (offlineSummary) {
@@ -692,6 +707,24 @@ async function enterCharacter(slotIndex) {
   if (isOfflineDebugEnabled() && (offlineSummary || totalMs > 1000)) {
     const offlineMs = offlineStartedAt && offlineFinishedAt ? Math.round(offlineFinishedAt - offlineStartedAt) : 0;
     console.log(`[进入角色耗时] 离线结算=${offlineMs}ms 初始化=${Math.round(initFinishedAt - initStartedAt)}ms 总计=${Math.round(totalMs)}ms`);
+  }
+}
+
+async function returnToSaveListRuntime() {
+  if (returningToSaveList) return loadAllCharacters();
+  returningToSaveList = true;
+  enterCharacterVersion++;
+  try {
+    if (game?.player?.auto_play?.is_auto_play) {
+      AutoPlaySystem.stop(game.player, 'return_to_save_list');
+    }
+    await cleanupCurrentRuntime({ save: true, saveMode: 'sync' });
+    currentGlobalSave = SaveManager.restoreGlobalState() || currentGlobalSave || { ...globalSaveInit };
+    window._currentGlobalSave = currentGlobalSave;
+    window._careersData = careersData;
+    return loadAllCharacters();
+  } finally {
+    returningToSaveList = false;
   }
 }
 
@@ -893,11 +926,7 @@ window.game = {
   },
 
   async returnToSaveList() {
-    if (game?.player?.auto_play?.is_auto_play) {
-      AutoPlaySystem.stop(game.player, 'return_to_save_list');
-    }
-    await cleanupCurrentRuntime({ save: true, saveMode: 'sync' });
-    return loadAllCharacters();
+    return returnToSaveListRuntime();
   },
 
   async startOfflineAutoplay() {
