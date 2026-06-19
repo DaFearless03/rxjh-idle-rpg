@@ -157,7 +157,7 @@ class UIManagerClass {
     if (!modalEl) return;
     this._modals = this._modals.filter(modal => modal !== modalEl);
     if (this._modals.length > 0) {
-      this._modals[this._modals.length - 1].classList.remove('active');
+      this._modals[this._modals.length - 1].classList.remove('active', 'open');
     }
     modalEl.classList.add('active');
     this._modals.push(modalEl);
@@ -166,7 +166,7 @@ class UIManagerClass {
   popModal() {
     const top = this._modals.pop();
     if (top) {
-      top.classList.remove('active');
+      top.classList.remove('active', 'open');
     }
     if (this._modals.length > 0) {
       this._modals[this._modals.length - 1].classList.add('active');
@@ -176,7 +176,7 @@ class UIManagerClass {
   closeModal(modalEl) {
     if (!modalEl) return;
     this._modals = this._modals.filter(modal => modal !== modalEl);
-    modalEl.classList.remove('active');
+    modalEl.classList.remove('active', 'open');
     if (this._modals.length > 0) {
       this._modals[this._modals.length - 1].classList.add('active');
     }
@@ -191,6 +191,11 @@ class UIManagerClass {
 
   closeAllModals() {
     while (this._modals.length > 0) this.popModal();
+    document.querySelectorAll('.modal-overlay.active, .modal-overlay.open, .save-modal-overlay.active, .save-modal-overlay.open')
+      .forEach(modal => modal.classList.remove('active', 'open'));
+    document.querySelectorAll('.offline-loading-overlay.open')
+      .forEach(overlay => overlay.classList.remove('open'));
+    this._modals = [];
   }
 
   // ========================
