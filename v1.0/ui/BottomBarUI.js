@@ -1148,13 +1148,21 @@ function renderPanelContent(panelId) {
   }
 }
 
-function renderCharacterPanel(player) {
+function renderCharacterPanel(player, options = {}) {
   const el = document.getElementById('character-panel-content');
   if (!el) return;
   const p = player || window.game?.player;
   if (!p) return;
+  const preserveScroll = options.preserveScroll === true;
+  const scrollEl = preserveScroll ? document.querySelector('#page-character > .main-scroll') : null;
+  const scrollTop = scrollEl ? scrollEl.scrollTop : 0;
   syncCharacterHeader(p);
   mountCharacterPanel(el, p, window._characterActiveTab || 'info');
+  if (scrollEl) {
+    requestAnimationFrame(() => {
+      scrollEl.scrollTop = Math.min(scrollTop, Math.max(0, scrollEl.scrollHeight - scrollEl.clientHeight));
+    });
+  }
 }
 
 function syncCharacterHeader(player) {
@@ -1595,7 +1603,7 @@ window._resetQigong = () => {
   if (r && r.success) {
     window._attrSys?.recompute(p);
     UIManager.toast('气功已重置', 'success');
-    renderCharacterPanel(p);
+    renderCharacterPanel(p, { preserveScroll: true });
   } else {
     UIManager.toast(r?.message || '重置失败', 'error');
   }
@@ -1607,7 +1615,7 @@ window._investQigong = (key, pts) => {
   const r = QigongSystem.investQigong(p, key, pts);
   if (r && r.success) {
     window._attrSys?.recompute(p);
-    renderCharacterPanel(p);
+    renderCharacterPanel(p, { preserveScroll: true });
   } else {
     UIManager.toast(r?.message || '分配失败', 'error');
   }
