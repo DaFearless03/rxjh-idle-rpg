@@ -10,6 +10,10 @@ import { appendCombatLog, formatCombatLog, renderCombatLog } from './CombatLogUI
 import { appendRewardLog, formatRewardLog, renderRewardLog } from './RewardLogUI.js';
 import { TaskSystem } from '../systems/TaskSystem.js';
 
+function isOfflineSimulationActive() {
+  return globalThis.__rxjhOfflineSimulation === true;
+}
+
 function getCareerDisplayName(player) {
   return window._careersData?.find(career => career.key === player?.career)?.name || player?.career || '—';
 }
@@ -27,8 +31,14 @@ class UIManagerClass {
     this._homeSession = { startedAt: null, kills: 0, exp: 0, gold: 0, drops: 0 };
     this._refreshAllFrame = null;
 
-    eventBus.on('player.level_up', () => this._refreshAll());
-    eventBus.on('player.death', () => this._refreshAll());
+    eventBus.on('player.level_up', () => {
+      if (isOfflineSimulationActive()) return;
+      this._refreshAll();
+    });
+    eventBus.on('player.death', () => {
+      if (isOfflineSimulationActive()) return;
+      this._refreshAll();
+    });
     eventBus.on('player.career_transfer', () => this._refreshAll());
     const refreshQuestState = () => {
       this._refreshAll();
@@ -38,18 +48,26 @@ class UIManagerClass {
     eventBus.on('quest.completed', refreshQuestState);
     eventBus.on('quest.stage_advance', refreshQuestState);
     eventBus.on('inventory.changed', ({ player } = {}) => {
+      if (isOfflineSimulationActive()) return;
       if (!player || player === window.game?.player) {
         window._refreshActiveQuestPanel?.();
         window._refreshOpenInventorySurfaces?.();
       }
     });
     eventBus.on('resources.changed', ({ player } = {}) => {
+      if (isOfflineSimulationActive()) return;
       if (!player || player === window.game?.player) window._refreshOpenInventorySurfaces?.();
     });
-    eventBus.on('battle.monsters_changed', () => this._refreshMonsterList());
-    eventBus.on('battle.player_status_changed', () => this._refreshAllThrottled());
+    eventBus.on('battle.monsters_changed', () => {
+      if (isOfflineSimulationActive()) return;
+      this._refreshMonsterList();
+    });
+    eventBus.on('battle.player_status_changed', () => {
+      if (isOfflineSimulationActive()) return;
+      this._refreshAllThrottled();
+    });
     eventBus.on('monster.death', (data) => {
-      if (globalThis.__rxjhOfflineSimulation) return;
+      if (isOfflineSimulationActive()) return;
       if (this._homeSession.startedAt) {
         this._homeSession.kills += 1;
         this._homeSession.exp += Number(data?.exp || 0);
@@ -73,13 +91,23 @@ class UIManagerClass {
     });
     ['drop.equipment', 'drop.stone', 'drop.box', 'drop.potion'].forEach(eventName => {
       eventBus.on(eventName, () => {
+        if (isOfflineSimulationActive()) return;
         if (this._homeSession.startedAt) this._homeSession.drops += 1;
         this._refreshHomePage();
       });
     });
-    eventBus.on('autoplay.consume_hp', (d) => this._addCombatLog('auto_consume_hp', d));
-    eventBus.on('autoplay.consume_mp', (d) => this._addCombatLog('auto_consume_mp', d));
-    eventBus.on('teleport.done', () => this._refreshAll());
+    eventBus.on('autoplay.consume_hp', (d) => {
+      if (isOfflineSimulationActive()) return;
+      this._addCombatLog('auto_consume_hp', d);
+    });
+    eventBus.on('autoplay.consume_mp', (d) => {
+      if (isOfflineSimulationActive()) return;
+      this._addCombatLog('auto_consume_mp', d);
+    });
+    eventBus.on('teleport.done', () => {
+      if (isOfflineSimulationActive()) return;
+      this._refreshAll();
+    });
 
     this._refreshIdleIndicator();
     eventBus.on('autoplay.start', () => this._refreshIdleIndicator());

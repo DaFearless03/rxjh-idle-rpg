@@ -29,10 +29,10 @@ import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flow
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260618-2';
 import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260615-1';
 import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260615-1';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260618-2';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260619-1';
 import { storage } from './utils/storage.js';
 import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260618-1';
-import { UIManager } from './ui/UIManager.js?v=release-20260618-2';
+import { UIManager } from './ui/UIManager.js?v=release-20260619-1';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260616-1';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260614-5';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260618-1';
@@ -425,38 +425,106 @@ function buildMainScreen() {
   UIManager._refreshHomePage();
 }
 
+function isOfflineSimulationActive() {
+  return globalThis.__rxjhOfflineSimulation === true;
+}
+
+function nowMs() {
+  return globalThis.performance?.now?.() ?? Date.now();
+}
+
+function waitForNextPaint() {
+  return new Promise(resolve => {
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => setTimeout(resolve, 0));
+      return;
+    }
+    setTimeout(resolve, 0);
+  });
+}
+
 function bindMainScreenEventListenersOnce() {
   if (mainScreenEventListenersBound) return;
   mainScreenEventListenersBound = true;
 
   // 这些监听跟页面骨架生命周期一致，避免切角色/重进流程时重复订阅。
-  eventBus.on('player.level_up', () => UIManager._refreshTopBar());
-  eventBus.on('player.death', () => UIManager._refreshTopBar());
+  eventBus.on('player.level_up', () => {
+    if (isOfflineSimulationActive()) return;
+    UIManager._refreshTopBar();
+  });
+  eventBus.on('player.death', () => {
+    if (isOfflineSimulationActive()) return;
+    UIManager._refreshTopBar();
+  });
   eventBus.on('gm.refresh', () => refreshActivePanelAfterGM());
 
-  eventBus.on('battle.player_hit', (d) => UIManager._addCombatLog('player_normal_attack_hit', d));
-  eventBus.on('battle.player_miss', (d) => UIManager._addCombatLog('player_normal_attack_miss', d));
-  eventBus.on('battle.player_skill', (d) => UIManager._addCombatLog('player_skill_release', d));
-  eventBus.on('battle.monster_hit', (d) => UIManager._addCombatLog('monster_attack_hit', d));
-  eventBus.on('battle.monster_miss', (d) => UIManager._addCombatLog('monster_attack_miss', d));
-  eventBus.on('battle.crit', (d) => UIManager._addCombatLog('player_normal_attack_hit', { ...d, crit_suffix: ' (暴击!)' }));
-  eventBus.on('battle.leech', (d) => UIManager._addCombatLog('leech_triggered', d));
-  eventBus.on('battle.counter', (d) => UIManager._addCombatLog('counter_triggered', d));
-  eventBus.on('battle.armor_break', (d) => UIManager._addCombatLog('armor_break_triggered', d));
+  eventBus.on('battle.player_hit', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager._addCombatLog('player_normal_attack_hit', d);
+  });
+  eventBus.on('battle.player_miss', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager._addCombatLog('player_normal_attack_miss', d);
+  });
+  eventBus.on('battle.player_skill', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager._addCombatLog('player_skill_release', d);
+  });
+  eventBus.on('battle.monster_hit', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager._addCombatLog('monster_attack_hit', d);
+  });
+  eventBus.on('battle.monster_miss', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager._addCombatLog('monster_attack_miss', d);
+  });
+  eventBus.on('battle.crit', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager._addCombatLog('player_normal_attack_hit', { ...d, crit_suffix: ' (暴击!)' });
+  });
+  eventBus.on('battle.leech', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager._addCombatLog('leech_triggered', d);
+  });
+  eventBus.on('battle.counter', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager._addCombatLog('counter_triggered', d);
+  });
+  eventBus.on('battle.armor_break', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager._addCombatLog('armor_break_triggered', d);
+  });
   eventBus.on('monster.death', (d) => {
+    if (isOfflineSimulationActive()) return;
     const monsterName = d.monsterName || monstersData.find(monster => monster.key === d.monsterKey)?.name || d.monsterKey;
     UIManager._addCombatLog('monster_died', { monster_name: monsterName });
     UIManager.addRewardLog('monster_kill_reward', { monster_name: monsterName, exp: d.exp || 0, gold: d.gold || 0 });
   });
   eventBus.on('player.death', (d) => {
+    if (isOfflineSimulationActive()) return;
     UIManager._addCombatLog('player_died', {});
     UIManager.addRewardLog('exp_loss_on_death', { loss: d?.exp_loss || 0 });
   });
-  eventBus.on('player.level_up', (d) => UIManager.addRewardLog('level_up', { from_level: d.from_level, to_level: d.to_level }));
-  eventBus.on('drop.equipment', (d) => UIManager.addRewardLog('equipment_dropped', d));
-  eventBus.on('drop.stone', (d) => UIManager.addRewardLog('stone_dropped', d));
-  eventBus.on('drop.box', (d) => UIManager.addRewardLog('box_dropped', d));
-  eventBus.on('drop.potion', (d) => UIManager.addRewardLog('potion_dropped', d));
+  eventBus.on('player.level_up', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager.addRewardLog('level_up', { from_level: d.from_level, to_level: d.to_level });
+  });
+  eventBus.on('drop.equipment', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager.addRewardLog('equipment_dropped', d);
+  });
+  eventBus.on('drop.stone', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager.addRewardLog('stone_dropped', d);
+  });
+  eventBus.on('drop.box', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager.addRewardLog('box_dropped', d);
+  });
+  eventBus.on('drop.potion', (d) => {
+    if (isOfflineSimulationActive()) return;
+    UIManager.addRewardLog('potion_dropped', d);
+  });
 
   eventBus.on('teleport.done', ({ to }) => {
     if (to == null) {
@@ -521,6 +589,7 @@ async function runCreateCharacterFlow(targetSlotIndex) {
 // 进入角色（加载存档 + 初始化游戏）
 // ========================
 async function enterCharacter(slotIndex) {
+  const enterStartedAt = nowMs();
   if (game || loop || runtimeEventUnsubscribers.length > 0) {
     await cleanupCurrentRuntime({ save: true });
   }
@@ -559,11 +628,15 @@ async function enterCharacter(slotIndex) {
   const wasAutoPlaying = save.auto_play?.is_auto_play && save.location?.current_sub_zone_key;
   const offlineHours = simSeconds / 3600;
   let offlineSummary = null;
+  let offlineStartedAt = 0;
+  let offlineFinishedAt = 0;
 
   // 离线模拟（若上次在挂机且离线超过1分钟）
   if (wasAutoPlaying && offlineHours > (1 / 60)) {
     console.log(`[离线] 检测到 ${offlineHours.toFixed(1)} 小时离线收益，开始结算...`);
     showOfflineRewardLoading(0);
+    await waitForNextPaint();
+    offlineStartedAt = nowMs();
     offlineSummary = await OfflineSimulator.settle_offline_rewards({
       ...save,
       _slotIndex: slotIndex,
@@ -585,6 +658,7 @@ async function enterCharacter(slotIndex) {
         updateOfflineRewardProgress(p);
       }
     });
+    offlineFinishedAt = nowMs();
     if (offlineSummary) {
       Object.assign(player, offlineSummary._player || {});
     } else {
@@ -592,12 +666,19 @@ async function enterCharacter(slotIndex) {
     }
   }
 
+  const initStartedAt = nowMs();
   await initGameForPlayer(player, slotIndex);
+  const initFinishedAt = nowMs();
   UIManager.closeAllModals();
   if (offlineSummary) {
     showOfflineRewardUI(offlineSummary);
   } else {
     UIManager.openPanel('home');
+  }
+  const totalMs = nowMs() - enterStartedAt;
+  if (offlineSummary || totalMs > 1000) {
+    const offlineMs = offlineStartedAt && offlineFinishedAt ? Math.round(offlineFinishedAt - offlineStartedAt) : 0;
+    console.log(`[进入角色耗时] 离线结算=${offlineMs}ms 初始化=${Math.round(initFinishedAt - initStartedAt)}ms 总计=${Math.round(totalMs)}ms`);
   }
 }
 

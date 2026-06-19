@@ -42,8 +42,8 @@ export const OfflineSimulator = {
 
     try {
       const summary = await this._runSimulation(save, sim_seconds, onProgress);
-      // 保存离线后的玩家状态
-      await SaveManager.savePlayerState(summary._player, save._slotIndex || 1);
+      // 先写同步快照，避免收益页展示被完整异步存档和 checksum 阻塞。
+      SaveManager.savePlayerStateSync(summary._player, save._slotIndex || 1);
       onSummary(summary);
       return summary;
     } finally {
