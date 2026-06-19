@@ -10,14 +10,14 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-2026061
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260617-1';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260614-6';
 import { mountCharacterPanel } from './CharacterUI.js?v=release-20260614-6';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260619-1';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260619-2';
 import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260615-1';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
-import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260618-1';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260614-2';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260619-1';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260619-1';
+import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260619-1';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260619-1';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260619-1';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260619-2';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260619-2';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
 import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260617-1';
 
@@ -172,19 +172,13 @@ function restoreInventoryScrollPositions(positions) {
   });
 }
 
-window._refreshOpenInventorySurfaces = () => {
-  if (_inventorySurfaceRefreshFrame) return;
-  _inventorySurfaceRefreshFrame = requestAnimationFrame(() => {
-    _inventorySurfaceRefreshFrame = null;
-    const player = window.game?.player;
-    if (!player) return;
-    const scrollPositions = captureInventoryScrollPositions();
-    const sheetPopupOpen = !!document.querySelector('#qtyBackdrop.open, #whPopup.open, #whEquipPopup.open');
-    if (document.getElementById('page-inventory')?.classList.contains('active')) renderInventoryPanel(player);
-    if (sheetPopupOpen) {
-      restoreInventoryScrollPositions(scrollPositions);
-      return;
-    }
+function refreshOpenInventorySurfacesNow() {
+  const player = window.game?.player;
+  if (!player) return;
+  const scrollPositions = captureInventoryScrollPositions();
+  const sheetPopupOpen = !!document.querySelector('#qtyBackdrop.open, #whPopup.open, #whEquipPopup.open');
+  if (document.getElementById('page-inventory')?.classList.contains('active')) renderInventoryPanel(player);
+  if (!sheetPopupOpen) {
     if (document.getElementById('warehouseBackdrop')?.classList.contains('open')) _renderWarehouse();
     if (document.getElementById('yjlShopBackdrop')?.classList.contains('open')) window._renderYjlShop();
     if (document.getElementById('pszShopBackdrop')?.classList.contains('open')) window._renderPszShop();
@@ -197,7 +191,23 @@ window._refreshOpenInventorySurfaces = () => {
         if (savedSlots.stone) window._djxSelectItem(savedSlots.stone, _djxCurrentTab);
       }
     }
-    restoreInventoryScrollPositions(scrollPositions);
+  }
+  restoreInventoryScrollPositions(scrollPositions);
+}
+
+function flushOpenInventorySurfaceRefresh() {
+  if (_inventorySurfaceRefreshFrame && typeof cancelAnimationFrame === 'function') {
+    cancelAnimationFrame(_inventorySurfaceRefreshFrame);
+  }
+  _inventorySurfaceRefreshFrame = null;
+  refreshOpenInventorySurfacesNow();
+}
+
+window._refreshOpenInventorySurfaces = () => {
+  if (_inventorySurfaceRefreshFrame) return;
+  _inventorySurfaceRefreshFrame = requestAnimationFrame(() => {
+    _inventorySurfaceRefreshFrame = null;
+    refreshOpenInventorySurfacesNow();
   });
 };
 
@@ -568,7 +578,7 @@ window._sortShopInventory = () => {
   if (!Array.isArray(slots)) return;
   player.inventory.slots = sortInventorySlots(slots, player);
   window.game?.saveNow?.();
-  window._refreshOpenInventorySurfaces?.();
+  flushOpenInventorySurfaceRefresh();
   window._showToast('背包已整理');
 };
 

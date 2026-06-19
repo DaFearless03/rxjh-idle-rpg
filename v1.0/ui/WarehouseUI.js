@@ -3,7 +3,7 @@
  * @desc 仓库双区渲染 helper。交互仍由 BottomBarUI 的存取流程托管。
  */
 
-import { getBagSlotsInOrder, renderBagTile } from './InventoryUI.js?v=release-20260614-2';
+import { getBagSlotsInOrder, renderBagTile } from './InventoryUI.js?v=release-20260619-2';
 
 const WH_CAPACITY = 50;
 

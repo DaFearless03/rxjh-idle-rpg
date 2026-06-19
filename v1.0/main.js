@@ -35,7 +35,7 @@ import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/
 import { UIManager } from './ui/UIManager.js?v=release-20260619-1';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260616-1';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260614-5';
-import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260618-1';
+import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260619-1';
 import {
   hideOfflineRewardLoading,
   showMultiSaveUI,
@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260617-1';
-import './ui/BottomBarUI.js?v=release-20260619-2';
+import './ui/BottomBarUI.js?v=release-20260619-3';
 
 // ========================
 // 数据加载

@@ -10,7 +10,7 @@ import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260612-2'
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260612-2';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260612-2';
 import { NPCSystem, UIState } from '../systems/NPCSystem.js';
-import { getBagSlotsInOrder } from './InventoryUI.js?v=release-20260614-2';
+import { getBagSlotsInOrder } from './InventoryUI.js?v=release-20260619-2';
 
 const TOWN_NPC_DATA = {
   leader: {
