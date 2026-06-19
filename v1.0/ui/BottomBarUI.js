@@ -2,7 +2,7 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260618-2';
+import { UIManager } from './UIManager.js?v=release-20260619-1';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260616-1';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260618-1';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
@@ -10,14 +10,14 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-2026061
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260617-1';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260614-6';
 import { mountCharacterPanel } from './CharacterUI.js?v=release-20260614-6';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260617-2';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260619-1';
 import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260615-1';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260614-2';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260618-1';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260614-2';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260617-2';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260617-2';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260619-1';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260619-1';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
 import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260617-1';
 
@@ -732,6 +732,10 @@ function sortInventorySlots(slots, player, equipmentInstances = player?.inventor
   filled.sort((a, b) => {
     const ai = a.info;
     const bi = b.info;
+    if (ai.itemKey === bi.itemKey) {
+      const countCompare = Number(b.slot.count || 0) - Number(a.slot.count || 0);
+      if (countCompare) return countCompare;
+    }
     if (ai.categoryOrder !== bi.categoryOrder) return ai.categoryOrder - bi.categoryOrder;
     if (ai.stone && bi.stone) {
       if (ai.stone.subtypeOrder !== bi.stone.subtypeOrder) return ai.stone.subtypeOrder - bi.stone.subtypeOrder;
@@ -759,9 +763,7 @@ function sortInventorySlots(slots, player, equipmentInstances = player?.inventor
     const nameCompare = compareText(ai.name, bi.name);
     if (nameCompare) return nameCompare;
     const keyCompare = compareText(ai.itemKey, bi.itemKey);
-    if (keyCompare) return keyCompare;
-    const countCompare = Number(b.slot.count || 0) - Number(a.slot.count || 0);
-    return countCompare || ai.index - bi.index;
+    return keyCompare || ai.index - bi.index;
   });
   return [...filled.map(entry => entry.slot), ...empty];
 }
