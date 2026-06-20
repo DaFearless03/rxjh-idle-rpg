@@ -9,10 +9,10 @@ import { eventBus } from '../core/EventBus.js';
 const POTION_TEMPLATES = {
   hp_potion_grade1: { key: 'hp_potion_grade1', name: '金创药（小）', type: 'hp', recovery: 70, min_level: 1, min_transfer: 0 },
   hp_potion_grade2: { key: 'hp_potion_grade2', name: '金创药（中）', type: 'hp', recovery: 160, min_level: 35, min_transfer: 2 },
-  hp_potion_grade3: { key: 'hp_potion_grade3', name: '金创药（大）', type: 'hp', recovery: 300, grade_threshold: 61 },
+  hp_potion_grade3: { key: 'hp_potion_grade3', name: '金创药（大）', type: 'hp', recovery: 300, min_level: 60, min_transfer: 3 },
   mp_potion_grade1: { key: 'mp_potion_grade1', name: '人参', type: 'mp', recovery: 70, grade_threshold: 1 },
   mp_potion_grade2: { key: 'mp_potion_grade2', name: '野山参', type: 'mp', recovery: 160, min_level: 35, min_transfer: 2 },
-  mp_potion_grade3: { key: 'mp_potion_grade3', name: '雪原参', type: 'mp', recovery: 320, grade_threshold: 61 },
+  mp_potion_grade3: { key: 'mp_potion_grade3', name: '雪原参', type: 'mp', recovery: 320, min_level: 60, min_transfer: 3 },
 };
 
 function clampCount(count) {
