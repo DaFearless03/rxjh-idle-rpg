@@ -35,7 +35,7 @@ import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/
 import { UIManager } from './ui/UIManager.js?v=release-20260620-1';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260616-1';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260620-1';
-import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260620-1';
+import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260620-2';
 import {
   hideOfflineRewardLoading,
   showMultiSaveUI,

@@ -71,10 +71,12 @@ export function openTownNPCDialog(npcKey) {
     document.getElementById('npcDialogClose').textContent = '离开';
     renderTownLeaderQuestDialog('accept');
   } else {
+    const funcRow = document.getElementById('npcFuncRow');
+    funcRow.style.removeProperty('display');
     document.getElementById("npcDialogHead").style.display = "flex";
     document.getElementById('npcDialogLine').style.display = 'block';
     document.getElementById('npcDialogClose').textContent = npcKey === 'djx' ? '离开' : '关 闭';
-    document.getElementById('npcFuncRow').innerHTML = npc.funcs.map(func => {
+    funcRow.innerHTML = npc.funcs.map(func => {
       const item = typeof func === 'string' ? { key: func, label: func, icon: '' } : func;
       return `<button class="npc-func-btn" data-npc="${npcKey}" data-func="${item.key}">${item.icon ? `<span class="f-icon">${item.icon}</span>` : ''}${item.label}</button>`;
     }).join('');
