@@ -13,11 +13,11 @@ import { mountCharacterPanel } from './CharacterUI.js?v=release-20260614-6';
 import { mountInventoryPanel } from './InventoryUI.js?v=release-20260620-1';
 import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260620-1';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
-import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260619-1';
+import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260620-1';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260620-2';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260619-1';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260619-2';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260619-2';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260620-1';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260620-1';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260620-1';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260620-1';
 import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260620-3';
 

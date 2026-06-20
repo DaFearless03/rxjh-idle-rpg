@@ -1258,7 +1258,13 @@ body {
   margin: 0 -1rem;
   padding: 0.8rem 1rem 0.6rem;
 }
-.shop-sell-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+.shop-sell-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.55rem 0.35rem 0.35rem;
+  box-sizing: border-box;
+}
 .shop-sell-pane .bag-grid {
   width: 100%;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -1266,7 +1272,7 @@ body {
   min-height: 0;
   max-height: none;
   margin-bottom: 0;
-  overflow-x: hidden;
+  overflow: visible;
 }
 .shop-sell-pane .bag-tile {
   box-sizing: border-box;
@@ -1282,6 +1288,36 @@ body {
   white-space: nowrap;
 }
 .shop-sell-pane .bag-tile.nosell { opacity: 0.45; cursor: not-allowed; }
+.shop-sell-pane .bag-tile .bt-enh,
+.shop-sell-pane .bag-tile .bt-badge,
+#warehouseBackdrop .bag-tile .bt-enh,
+#warehouseBackdrop .bag-tile .bt-badge {
+  top: -0.4rem;
+  right: -0.3rem;
+  left: auto;
+  border-radius: 0.7rem;
+  z-index: 2;
+}
+.shop-sell-pane .bag-tile .bt-badge,
+#warehouseBackdrop .bag-tile .bt-badge {
+  background: var(--border-inner);
+  color: #fff;
+}
+.shop-sell-pane .bag-tile .bt-enh,
+#warehouseBackdrop .bag-tile .bt-enh {
+  background: var(--menu-accent);
+  color: #fff;
+}
+.shop-sell-pane .bag-tile .bt-badge.quest,
+#warehouseBackdrop .bag-tile .bt-badge.quest {
+  left: -0.3rem;
+  right: auto;
+}
+.shop-sell-pane .bag-tile .bt-badge.cross,
+#warehouseBackdrop .bag-tile .bt-badge.cross {
+  background: var(--menu-yellow);
+  color: #5a4500;
+}
 
 /* === 强化 / 合成 工作台：上=操作区，下=背包，拖拽放入槽位 === */
 .bottom-sheet.craft-sheet { max-height: 92%; }
@@ -1817,7 +1853,7 @@ body {
   font-weight: bold; color: var(--text-link); cursor: pointer;
 }
 .wh-sort:active { background: var(--highlight); transform: scale(0.96); }
-.wh-scroll { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; padding: 0.2rem 1rem 1rem; }
+.wh-scroll { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; padding: 0.55rem 1rem 1rem; }
 .wh-pane.top .wh-scroll { background: rgba(0,0,0,0.02); }
 .wh-pane.bottom .wh-scroll { background: rgba(0,0,0,0.05); }
 .wh-scroll .bag-grid {
@@ -1825,7 +1861,7 @@ body {
   grid-template-columns: repeat(6, minmax(0, 1fr));
   min-height: 0;
   max-height: none;
-  overflow-x: hidden;
+  overflow-x: visible;
   overflow-y: visible;
   margin-bottom: 0;
 }

@@ -2,7 +2,7 @@
  * @file ui/ShopUI.js
  * @desc 城镇商店列表渲染：武器、防具、药店。
  */
-import { getBagSlotsInOrder } from './InventoryUI.js?v=release-20260619-2';
+import { getBagSlotsInOrder } from './InventoryUI.js?v=release-20260620-1';
 
 const CAREER_NAME = { blade: '刀客', sword: '剑客', staff: '医师', spear: '枪客' };
 const CAREER_ICON = { blade: '🗡️', sword: '⚔️', staff: '🪄', spear: '🔱' };
@@ -150,6 +150,8 @@ function renderSellInventory(player) {
     const meta = window._itemMetaByKey?.[baseKey] || {};
     const price = getShopSellPrice(itemKey, player);
     const noSell = price <= 0 || itemClass === 'boxes' || itemClass === 'quest_items';
+    const instance = slot.instance_id ? player?.inventory?.equipment_instances?.[slot.instance_id] : null;
+    const enhance = Number(instance?.enhance_level || 0);
     const name = meta.name || itemKey;
     const icon = meta.icon || (slot.instance_id ? '⚔️' : '📦');
     const sub = itemClass === 'stones' ? getStoneAttributeLabel(itemKey) : '';
@@ -159,8 +161,8 @@ function renderSellInventory(player) {
         : (slot.count > 1 ? `<div class="bt-badge">×${slot.count}</div>` : '');
     const action = noSell ? `window._showToast('该物品不可出售')`
       : `window._openShopQuantity('sell','${escapeHtml(itemKey)}',${price},'${escapeHtml(name)}','${icon}',${slot.count || 1},'${escapeHtml(slot.instance_id || '')}')`;
-    return `<button class="bag-tile${noSell ? ' nosell' : ''}${itemClass === 'quest_items' ? ' cross' : ''}" onclick="${action}" title="${escapeHtml(name)} · ${noSell ? '不可出售' : `出售 ${price} 金币`}">
-      <div class="bt-icon">${icon}</div><div class="bt-name">${escapeHtml(name)}</div>${sub ? `<div class="bt-sub">${escapeHtml(sub)}</div>` : ''}${badge}
+    return `<button class="bag-tile${slot.instance_id ? ' equip' : ''}${noSell ? ' nosell' : ''}${itemClass === 'quest_items' ? ' cross' : ''}" onclick="${action}" title="${escapeHtml(name)} · ${noSell ? '不可出售' : `出售 ${price} 金币`}">
+      <div class="bt-icon">${icon}</div><div class="bt-name">${escapeHtml(name)}</div>${sub ? `<div class="bt-sub">${escapeHtml(sub)}</div>` : ''}${enhance > 0 ? `<div class="bt-enh">+${enhance}</div>` : ''}${badge}
     </button>`;
   });
   while (cells.length < 50) cells.push('<div class="bag-tile empty"></div>');
