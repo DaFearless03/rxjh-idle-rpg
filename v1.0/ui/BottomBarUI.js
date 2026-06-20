@@ -1154,13 +1154,23 @@ function renderCharacterPanel(player, options = {}) {
   const p = player || window.game?.player;
   if (!p) return;
   const preserveScroll = options.preserveScroll === true;
-  const scrollEl = preserveScroll ? document.querySelector('#page-character > .main-scroll') : null;
+  const scrollSelector = '#page-character .role-tab-body';
+  const scrollEl = preserveScroll ? document.querySelector(scrollSelector) : null;
   const scrollTop = scrollEl ? scrollEl.scrollTop : 0;
   syncCharacterHeader(p);
   mountCharacterPanel(el, p, window._characterActiveTab || 'info');
   if (scrollEl) {
+    const restoreScroll = () => {
+      const nextScrollEl = document.querySelector(scrollSelector);
+      if (!nextScrollEl) return;
+      nextScrollEl.scrollTop = Math.min(
+        scrollTop,
+        Math.max(0, nextScrollEl.scrollHeight - nextScrollEl.clientHeight),
+      );
+    };
+    restoreScroll();
     requestAnimationFrame(() => {
-      scrollEl.scrollTop = Math.min(scrollTop, Math.max(0, scrollEl.scrollHeight - scrollEl.clientHeight));
+      restoreScroll();
     });
   }
 }
