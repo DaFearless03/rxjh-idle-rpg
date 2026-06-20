@@ -7,8 +7,8 @@ import { InventorySystem } from './InventorySystem.js';
 import { eventBus } from '../core/EventBus.js';
 
 const POTION_TEMPLATES = {
-  hp_potion_grade1: { key: 'hp_potion_grade1', name: '金创药（小）', type: 'hp', recovery: 70, grade_threshold: 1 },
-  hp_potion_grade2: { key: 'hp_potion_grade2', name: '金创药（中）', type: 'hp', recovery: 160, grade_threshold: 36 },
+  hp_potion_grade1: { key: 'hp_potion_grade1', name: '金创药（小）', type: 'hp', recovery: 70, min_level: 1, min_transfer: 0 },
+  hp_potion_grade2: { key: 'hp_potion_grade2', name: '金创药（中）', type: 'hp', recovery: 160, min_level: 35, min_transfer: 2 },
   hp_potion_grade3: { key: 'hp_potion_grade3', name: '金创药（大）', type: 'hp', recovery: 300, grade_threshold: 61 },
   mp_potion_grade1: { key: 'mp_potion_grade1', name: '人参', type: 'mp', recovery: 70, grade_threshold: 1 },
   mp_potion_grade2: { key: 'mp_potion_grade2', name: '野山参', type: 'mp', recovery: 160, grade_threshold: 36 },
@@ -27,7 +27,10 @@ export const ConsumableSystem = {
   canUse(player, itemKey) {
     const tpl = this.getTemplate(itemKey);
     if (!tpl) return false;
-    return (player?.level || 1) >= tpl.grade_threshold;
+    const minLevel = tpl.min_level ?? tpl.grade_threshold ?? 1;
+    const minTransfer = tpl.min_transfer ?? 0;
+    const transferCount = Math.max(0, (player?.career_history?.length || 1) - 1);
+    return (player?.level || 1) >= minLevel && transferCount >= minTransfer;
   },
 
   use(player, itemKey, count = 1, options = {}) {
@@ -37,7 +40,12 @@ export const ConsumableSystem = {
       return { success: false, message: '该物品不能使用' };
     }
     if (!this.canUse(player, itemKey)) {
-      return { success: false, message: `等级不足，Lv.${tpl.grade_threshold} 后可使用` };
+      const minLevel = tpl.min_level ?? tpl.grade_threshold ?? 1;
+      const minTransfer = tpl.min_transfer ?? 0;
+      const requirement = minTransfer > 0
+        ? `需达到 Lv.${minLevel} 且完成 ${minTransfer} 转`
+        : `需达到 Lv.${minLevel}`;
+      return { success: false, message: `${requirement}后可使用` };
     }
     if (InventorySystem.count(player, itemKey) < useCount) {
       return { success: false, message: '药剂数量不足' };

@@ -27,7 +27,7 @@ import { assertValidGameConfig } from './core/ConfigValidator.js';
 import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260618-1';
 import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260618-1';
 import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260618-2';
-import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260615-1';
+import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260620-1';
 import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260615-1';
 import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260619-2';
 import { storage } from './utils/storage.js';

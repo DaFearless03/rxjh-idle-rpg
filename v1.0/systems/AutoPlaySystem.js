@@ -4,7 +4,7 @@
  * @ref 10_consumables.auto_consume / auto_heal_skill / auto_resupply
  */
 import { InventorySystem } from './InventorySystem.js';
-import { ConsumableSystem } from './ConsumableSystem.js';
+import { ConsumableSystem } from './ConsumableSystem.js?v=release-20260620-1';
 import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260615-1';
 import { eventBus } from '../core/EventBus.js';
 
