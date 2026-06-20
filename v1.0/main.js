@@ -542,13 +542,12 @@ function bindMainScreenEventListenersOnce() {
     UIManager.addRewardLog('potion_dropped', d);
   });
 
-  eventBus.on('teleport.done', ({ to }) => {
-    if (to == null) {
-      UIManager.openPanel('home');
-    } else {
-      UIManager.openPanel('combat');
-      game?.battle?.ensureInitialSpawn?.();
+  eventBus.on('teleport.done', ({ to, source }) => {
+    const isBackgroundTeleport = source === 'auto_resupply' || source === 'auto_sell';
+    if (!isBackgroundTeleport) {
+      UIManager.openPanel(to == null ? 'home' : 'combat');
     }
+    if (to != null) game?.battle?.ensureInitialSpawn?.();
     UIManager._refreshAll();
   });
 
