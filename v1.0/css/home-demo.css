@@ -2721,6 +2721,9 @@ body {
   pointer-events: none;
   z-index: 0;
 }
+.inventory-page .char-sprite.career-sword {
+  background-image: url('../icons/inventory_sword_sprite.png');
+}
 .inventory-page .eq-slot.empty {
   border-style: dashed;
   border-color: #b0a890;

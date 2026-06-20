@@ -147,9 +147,13 @@ function renderSlot(player, slotKey, options = {}) {
 }
 
 export function renderEquipmentDoll(player) {
+  const career = window._careersData?.find(item => item.key === player?.career);
+  const family = career?.career_family
+    || ['blade', 'sword', 'spear', 'staff'].find(key => String(player?.career || '').includes(key))
+    || 'blade';
   return `<div class="doll-panel demo-equip-panel">
     <div class="doll-figure" id="inventoryDollFigure">
-      <div class="char-sprite"></div>
+      <div class="char-sprite career-${family}"></div>
       ${renderSlot(player, 'weapon')}
       ${renderSlot(player, 'inner_armor')}
       ${renderSlot(player, 'cape')}

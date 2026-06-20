@@ -2,7 +2,7 @@
  * @file ui/InventoryUI.js / EquipUI.js / QigongUI.js / TaskUI.js / ShopEnhanceUI.js
  * @desc 背包/装备/气功/任务/商店强化 等UI
  */
-import { UIManager } from './UIManager.js?v=release-20260619-3';
+import { UIManager } from './UIManager.js?v=release-20260620-1';
 import { InventorySystem } from '../systems/InventorySystem.js';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260612-2';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260612-2';

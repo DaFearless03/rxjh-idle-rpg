@@ -4,7 +4,7 @@
  */
 
 import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260615-1';
-import { buildEquipmentDetailView, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260615-1';
+import { buildEquipmentDetailView, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260620-1';
 
 const ITEM_META = {
   hp_potion_grade1: { icon: '🍶', name: '金创药(小)', desc: '恢复70点生命值' },

@@ -2,7 +2,7 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260619-3';
+import { UIManager } from './UIManager.js?v=release-20260620-1';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260619-1';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260618-1';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
@@ -10,15 +10,15 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-2026061
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260617-1';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260614-6';
 import { mountCharacterPanel } from './CharacterUI.js?v=release-20260614-6';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260619-2';
-import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260615-1';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260620-1';
+import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260620-1';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260619-1';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260619-1';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260620-1';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260619-1';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260619-2';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260619-2';
-import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260613-28';
+import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260620-1';
 import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260619-2';
 
 window._openPanel = (panelId) => {

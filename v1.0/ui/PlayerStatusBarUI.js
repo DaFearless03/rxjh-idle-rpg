@@ -85,7 +85,13 @@ export function refreshPlayerAvatar(player, options = {}) {
   const avatar = document.getElementById(`${prefix}-avatar`);
   if (!avatar) return;
   const career = window._careersData?.find(item => item.key === player.career);
-  const family = career?.career_family;
-  avatar.style.backgroundImage = family === 'blade' ? 'url("icons/avatar_blade.png")' : '';
-  avatar.classList.toggle('empty', family !== 'blade');
+  const family = career?.career_family
+    || ['blade', 'sword', 'spear', 'staff'].find(key => String(player.career || '').includes(key));
+  const avatarByFamily = {
+    blade: 'icons/avatar_blade.png',
+    sword: 'icons/avatar_sword.png',
+  };
+  const avatarPath = avatarByFamily[family];
+  avatar.style.backgroundImage = avatarPath ? `url("${avatarPath}")` : '';
+  avatar.classList.toggle('empty', !avatarPath);
 }
