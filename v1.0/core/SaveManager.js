@@ -41,6 +41,29 @@ export const SaveManager = {
   },
 
   /**
+   * 直接保存已反序列化的存档体，供角色列表等无运行时 player 的流程使用。
+   * preserveOfflineTimestamp 用于避免列表操作重置离线收益起算时间。
+   */
+  async savePlayerSnapshot(saveData, slotIndex, { preserveOfflineTimestamp = false } = {}) {
+    if (this._guard() || !saveData) return false;
+
+    const now = Date.now();
+    const savedAt = preserveOfflineTimestamp
+      ? Number(saveData.offline?.last_save_timestamp) || now
+      : now;
+    const save = JSON.parse(JSON.stringify(saveData));
+    save.offline = save.offline || {};
+    save.offline.last_save_timestamp = savedAt;
+
+    const checksum = await computeChecksum(save, SAVE_VERSION, savedAt);
+    const payload = { data: save, version: SAVE_VERSION, saved_at: savedAt, checksum };
+    const json = JSON.stringify(payload);
+    const primaryOk = storage.set(PRIMARY_KEY(slotIndex), json);
+    const shadowOk = storage.set(SHADOW_KEY(slotIndex), json);
+    return primaryOk && shadowOk;
+  },
+
+  /**
    * 同步保存（页面卸载场景专用）。
    * WebCrypto checksum 是异步的，pagehide/beforeunload 里可能跑不完；
    * 这里写 checksum:null 的快照，下次正常保存会覆盖成带校验版本。

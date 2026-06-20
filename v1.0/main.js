@@ -21,7 +21,7 @@ import { QigongSystem } from './systems/QigongSystem.js?v=release-20260614-6';
 import { BuffSystem } from './systems/BuffSystem.js';
 import { Player } from './entities/Player.js?v=release-20260618-1';
 import { createEquipmentInstance } from './entities/EquipmentInstance.js?v=release-20260615-1';
-import { SaveManager } from './core/SaveManager.js?v=release-20260618-1';
+import { SaveManager } from './core/SaveManager.js?v=release-20260620-1';
 import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js';
 import { assertValidGameConfig } from './core/ConfigValidator.js';
 import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260618-1';
@@ -184,6 +184,7 @@ let mainScreenUIBuilt = false;
 let mainScreenEventListenersBound = false;
 let enterCharacterVersion = 0;
 let returningToSaveList = false;
+let slotUnlockInFlight = false;
 
 const gmGameConfig = {
   ...config,
@@ -987,25 +988,48 @@ window.game = {
   },
 
   async unlockSlot(slotIndex) {
-    if (!game?.player) return { success: false, message: '请先进入任意角色后再解锁槽位' };
-    const unlocked = currentGlobalSave?.character_slots?.unlocked_count ?? 3;
-    if (slotIndex <= unlocked) return { success: false, message: '该槽位已经解锁' };
-    if (slotIndex > 10) return { success: false, message: '角色槽位已达到上限' };
-    if (slotIndex !== unlocked + 1) {
-      return { success: false, message: `请先解锁第 ${unlocked + 1} 号位` };
+    if (slotUnlockInFlight) return { success: false, message: '正在解锁栏位，请稍候' };
+    slotUnlockInFlight = true;
+    try {
+      const unlocked = currentGlobalSave?.character_slots?.unlocked_count ?? 3;
+      if (slotIndex <= unlocked) return { success: false, message: '该槽位已经解锁' };
+      if (slotIndex > 10) return { success: false, message: '角色槽位已达到上限' };
+      if (slotIndex !== unlocked + 1) {
+        return { success: false, message: `请先解锁第 ${unlocked + 1} 号位` };
+      }
+
+      const cost = 100;
+      const activePlayer = game?.player || null;
+      const payerSlot = currentSlotIndex
+        || currentGlobalSave?.character_slots?.last_used_slot
+        || null;
+      if (!payerSlot) return { success: false, message: '请先进入任意角色后再解锁栏位' };
+
+      const payerSave = activePlayer ? null : await SaveManager.restorePlayerFromSave(payerSlot);
+      if (!activePlayer && !payerSave) {
+        return { success: false, message: '支付角色存档不可用，请重新进入角色后再试' };
+      }
+      const resources = activePlayer?.resources || payerSave.resources || (payerSave.resources = {});
+      if ((resources.gold || 0) < cost) {
+        return { success: false, message: `金币不足（需要 ${cost}）` };
+      }
+
+      resources.gold -= cost;
+      if (activePlayer) {
+        eventBus.emit('resources.changed', { player: activePlayer, resource: 'gold', amount: cost, action: 'remove' });
+        await SaveManager.savePlayerState(activePlayer, payerSlot);
+      } else {
+        await SaveManager.savePlayerSnapshot(payerSave, payerSlot, { preserveOfflineTimestamp: true });
+      }
+
+      currentGlobalSave.character_slots.unlocked_count = slotIndex;
+      await SaveManager.saveGlobalState(currentGlobalSave);
+      window._currentGlobalSave = currentGlobalSave;
+      console.log(`[解锁] 第 ${slotIndex} 槽位已解锁，支付槽位 ${payerSlot}，剩余金币 ${resources.gold}`);
+      return { success: true, message: `第 ${slotIndex} 号位已解锁，消耗 ${cost} 金币` };
+    } finally {
+      slotUnlockInFlight = false;
     }
-    const cost = 100;
-    if ((game.player.resources?.gold || 0) < cost) {
-      return { success: false, message: `金币不足（需要 ${cost}）` };
-    }
-    game.player.resources.gold -= cost;
-    eventBus.emit('resources.changed', { player: game.player, resource: 'gold', amount: cost, action: 'remove' });
-    currentGlobalSave.character_slots.unlocked_count = slotIndex;
-    await SaveManager.saveGlobalState(currentGlobalSave);
-    await SaveManager.savePlayerState(game.player, currentSlotIndex);
-    window._currentGlobalSave = currentGlobalSave;
-    console.log(`[解锁] 第 ${slotIndex} 槽位已解锁，剩余金币 ${game.player.resources.gold}`);
-    return { success: true, message: `第 ${slotIndex} 号位已解锁，消耗 ${cost} 金币` };
   },
 
   // ---------- 挂机 ----------
