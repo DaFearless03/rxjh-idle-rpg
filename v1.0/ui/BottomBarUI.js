@@ -2,7 +2,7 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260620-1';
+import { UIManager } from './UIManager.js?v=release-20260620-2';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260619-1';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260618-1';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
@@ -19,7 +19,7 @@ import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260619-2';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260619-2';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260620-1';
-import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260619-2';
+import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260620-3';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -1216,6 +1216,9 @@ function renderAutoplayPanel(player) {
   const mpBuy = ap.auto_resupply?.purchase_rules?.mp || {};
   const autoSell = ap.auto_sell || {};
   const equipmentFilter = autoSell.equipment || {};
+  const autoStore = ap.auto_store || {};
+  const autoStoreStoneRules = autoStore.stones?.rules || [];
+  const autoStoreEquipmentKeys = autoStore.equipment?.item_keys || [];
   const escapeSettingText = value => String(value ?? '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -1328,6 +1331,94 @@ function renderAutoplayPanel(player) {
     </div>`;
   };
 
+  const autoStoreStoneGroup = () => {
+    const categoryLabels = { enhance: '强化石', vajra: '金刚石', cold_jade: '寒玉石', hot_blood: '热血石' };
+    const categoryGroups = {
+      enhance: 'enhance_stones', vajra: 'vajra_stones', cold_jade: 'cold_jade_stones', hot_blood: 'hot_blood_stones',
+    };
+    const selection = window._autoStoreStoneSelection || {};
+    const category = categoryLabels[selection.category] ? selection.category : 'enhance';
+    const definitions = window._stonesData?.[categoryGroups[category]] || [];
+    const attributes = new Map();
+    definitions.forEach(stone => (stone.attribute?.pool || []).forEach(attribute => {
+      const entry = attributes.get(attribute.key) || { key: attribute.key, name: attribute.name, values: new Set() };
+      const [min, max] = attribute.value_range || [0, 0];
+      if (Number.isInteger(min) && Number.isInteger(max)) {
+        for (let value = min; value <= max; value++) entry.values.add(value);
+      } else {
+        entry.values.add(Number(min));
+        entry.values.add(Number(max));
+      }
+      attributes.set(attribute.key, entry);
+    }));
+    const attributeOptions = [...attributes.values()];
+    const attributeKey = attributeOptions.some(item => item.key === selection.attributeKey)
+      ? selection.attributeKey
+      : attributeOptions[0]?.key || '';
+    const selectedAttribute = attributes.get(attributeKey);
+    const values = [...(selectedAttribute?.values || [])].sort((a, b) => a - b);
+    const selectedValue = values.some(value => String(value) === String(selection.value))
+      ? String(selection.value)
+      : values.length ? String(values[0]) : '';
+    window._autoStoreStoneSelection = { category, attributeKey, value: selectedValue };
+
+    const enabled = !!autoStore.enabled;
+    const hasAttributes = category !== 'enhance' && attributeOptions.length > 0;
+    const configuredNames = autoStoreStoneRules.map(rule => {
+      if (rule.category === 'enhance') return categoryLabels.enhance;
+      const group = window._stonesData?.[categoryGroups[rule.category]] || [];
+      const attribute = group.flatMap(stone => stone.attribute?.pool || []).find(item => item.key === rule.attribute_key);
+      return `${categoryLabels[rule.category] || rule.category}·${attribute?.name || rule.attribute_key}${rule.value}`;
+    }).join('；');
+    return `<div class="auto-sell-group auto-store-group">
+      <div class="auto-sell-group-title"><span>💎 石头存仓库清单</span><span>精确匹配属性与数值</span></div>
+      <div class="auto-sell-equipment-controls${enabled ? '' : ' disabled'}">
+        <label><span>石头类型</span>${customDropdown(Object.keys(categoryLabels).map(key => ({ value: key, label: categoryLabels[key] })), category, '_setAutoStoreStoneSelection', { kind: 'category', enabled, compact: true })}</label>
+        <label><span>属性类型</span>${customDropdown(attributeOptions.length ? attributeOptions.map(item => ({ value: item.key, label: item.name })) : [{ value: '', label: '无属性' }], attributeKey, '_setAutoStoreStoneSelection', { kind: 'attributeKey', enabled: enabled && hasAttributes, compact: true })}</label>
+        <label><span>属性值</span>${customDropdown(values.length ? values.map(value => ({ value: String(value), label: String(value) })) : [{ value: '', label: '无属性值' }], selectedValue, '_setAutoStoreStoneSelection', { kind: 'value', enabled: enabled && hasAttributes, compact: true })}</label>
+        <div class="auto-sell-equipment-actions">
+          <button class="btn-3d green" onclick="window._addAutoStoreStoneRule()"${enabled && (category === 'enhance' || (attributeKey && selectedValue !== '')) ? '' : ' disabled'}>添加石头</button>
+          <button class="btn-3d red" onclick="window._clearAutoStoreStoneRules()"${enabled && autoStoreStoneRules.length ? '' : ' disabled'}>清空石头清单</button>
+        </div>
+        <label class="auto-sell-equipment-list"><span>当前石头清单</span><textarea readonly placeholder="暂未添加石头">${escapeSettingText(configuredNames)}</textarea></label>
+      </div>
+    </div>`;
+  };
+
+  const autoStoreEquipmentGroup = () => {
+    const slotLabels = {
+      weapon: '武器', chest: '胸甲', gloves: '手套', boots: '鞋子', inner_armor: '内甲',
+      ring: '戒指', earring: '耳环', amulet: '项链', cape: '披风',
+    };
+    const careerLabels = { blade: '刀客', sword: '剑客', spear: '枪客', staff: '医师' };
+    const templates = window._equipTemplates || [];
+    const selection = window._autoStoreEquipmentSelection || {};
+    const slot = slotLabels[selection.slot] ? selection.slot : 'weapon';
+    const career = careerLabels[selection.career] ? selection.career : 'blade';
+    const careerSlot = slot === 'weapon' || slot === 'chest';
+    const candidates = templates.filter(item =>
+      item.slot === slot
+      && (!careerSlot || !item.required_career?.length || item.required_career.includes(career))
+    );
+    const itemKey = candidates.some(item => item.key === selection.itemKey) ? selection.itemKey : candidates[0]?.key || '';
+    window._autoStoreEquipmentSelection = { slot, career, itemKey };
+    const enabled = !!autoStore.enabled;
+    const configuredNames = autoStoreEquipmentKeys.map(key => templates.find(item => item.key === key)?.name || key).join('；');
+    return `<div class="auto-sell-group auto-sell-equipment auto-store-group">
+      <div class="auto-sell-group-title"><span>⚔ 装备存仓库清单</span><span>匹配装备名称</span></div>
+      <div class="auto-sell-equipment-controls${enabled ? '' : ' disabled'}">
+        <label><span>装备类型</span>${customDropdown(Object.keys(slotLabels).map(key => ({ value: key, label: slotLabels[key] })), slot, '_setAutoStoreEquipmentSelection', { kind: 'slot', enabled, compact: true })}</label>
+        <label><span>职业</span>${customDropdown(Object.keys(careerLabels).map(key => ({ value: key, label: careerLabels[key] })), career, '_setAutoStoreEquipmentSelection', { kind: 'career', enabled, compact: true })}</label>
+        <label><span>装备名字</span>${customDropdown(candidates.map(item => ({ value: item.key, label: item.name })), itemKey, '_setAutoStoreEquipmentSelection', { kind: 'itemKey', enabled, compact: true })}</label>
+        <div class="auto-sell-equipment-actions">
+          <button class="btn-3d green" onclick="window._addAutoStoreEquipment()"${enabled && itemKey ? '' : ' disabled'}>添加装备</button>
+          <button class="btn-3d red" onclick="window._clearAutoStoreEquipment()"${enabled && autoStoreEquipmentKeys.length ? '' : ' disabled'}>清空装备清单</button>
+        </div>
+        <label class="auto-sell-equipment-list"><span>当前装备清单</span><textarea readonly placeholder="暂未添加装备">${escapeSettingText(configuredNames)}</textarea></label>
+      </div>
+    </div>`;
+  };
+
   el.innerHTML = `
     <div class="sec-panel">
       <div class="panel-title"><span>⚔ 自动打怪</span></div>
@@ -1378,6 +1469,15 @@ function renderAutoplayPanel(player) {
       ${potionSelect('mp', mpBuy.selected_potion, mpResupply.enabled, '_setAutoResupplyItem')}
       ${sliderRow('触发', mpResupply.trigger_threshold ?? 10, 2, 50, 1, "window._setAutoResupplyTrigger('mp', this.value)", 'rs-mp-trigger-label')}
       ${sliderRow('买至', mpBuy.target_quantity ?? 50, 5, 999, 1, "window._setAutoResupplyTarget('mp', this.value)", 'rs-mp-target-label')}
+    </div>
+
+    <div class="sec-panel auto-store-panel">
+      <div class="panel-title"><span>📦 自动存仓库</span>${toggleBtn('auto-store', autoStore.enabled, 'window._toggleAutoStore()')}</div>
+      <p class="hang-settings-note">包满自动回城，自动存仓库后再自动出售、自动补给</p>
+      <div class="${autoStore.enabled ? '' : 'auto-sell-disabled'}">
+        ${autoStoreStoneGroup()}
+        ${autoStoreEquipmentGroup()}
+      </div>
     </div>
 
     <div class="sec-panel auto-sell-panel">
@@ -1522,6 +1622,91 @@ window._clearAutoSellEquipmentFilter = () => {
   updateAutoSell(config => {
     if (!config.enabled || !config.equipment.enabled) return;
     config.equipment.item_keys = [];
+  });
+};
+
+function updateAutoStore(update) {
+  const player = window.game?.player;
+  if (!player) return;
+  player.auto_play = player.auto_play || {};
+  player.auto_play.auto_store = player.auto_play.auto_store || {
+    enabled: false,
+    stones: { rules: [] },
+    equipment: { item_keys: [] },
+  };
+  player.auto_play.auto_store.stones = player.auto_play.auto_store.stones || { rules: [] };
+  player.auto_play.auto_store.stones.rules = player.auto_play.auto_store.stones.rules || [];
+  player.auto_play.auto_store.equipment = player.auto_play.auto_store.equipment || { item_keys: [] };
+  player.auto_play.auto_store.equipment.item_keys = player.auto_play.auto_store.equipment.item_keys || [];
+  update(player.auto_play.auto_store);
+  window.game?.saveNow?.();
+  renderAutoplayPanel(player);
+}
+
+window._toggleAutoStore = () => {
+  updateAutoStore(config => { config.enabled = !config.enabled; });
+};
+
+window._setAutoStoreStoneSelection = (field, value) => {
+  const selection = {
+    ...(window._autoStoreStoneSelection || {}),
+    [field]: value,
+  };
+  if (field === 'category') {
+    selection.attributeKey = '';
+    selection.value = '';
+  } else if (field === 'attributeKey') {
+    selection.value = '';
+  }
+  window._autoStoreStoneSelection = selection;
+  renderAutoplayPanel(window.game?.player);
+};
+
+window._addAutoStoreStoneRule = () => {
+  const selection = window._autoStoreStoneSelection || {};
+  if (!selection.category) return;
+  const rule = selection.category === 'enhance'
+    ? { category: 'enhance', attribute_key: null, value: null }
+    : { category: selection.category, attribute_key: selection.attributeKey, value: Number(selection.value) };
+  if (rule.category !== 'enhance' && (!rule.attribute_key || !Number.isFinite(rule.value))) return;
+  updateAutoStore(config => {
+    if (!config.enabled) return;
+    const duplicate = config.stones.rules.some(item =>
+      item.category === rule.category
+      && item.attribute_key === rule.attribute_key
+      && Number(item.value) === Number(rule.value)
+    );
+    if (!duplicate) config.stones.rules.push(rule);
+  });
+};
+
+window._clearAutoStoreStoneRules = () => {
+  updateAutoStore(config => {
+    if (config.enabled) config.stones.rules = [];
+  });
+};
+
+window._setAutoStoreEquipmentSelection = (field, value) => {
+  window._autoStoreEquipmentSelection = {
+    ...(window._autoStoreEquipmentSelection || {}),
+    [field]: value,
+  };
+  if (field !== 'itemKey') window._autoStoreEquipmentSelection.itemKey = '';
+  renderAutoplayPanel(window.game?.player);
+};
+
+window._addAutoStoreEquipment = () => {
+  const itemKey = window._autoStoreEquipmentSelection?.itemKey;
+  if (!itemKey || !window._equipTemplates?.some(item => item.key === itemKey)) return;
+  updateAutoStore(config => {
+    if (!config.enabled) return;
+    if (!config.equipment.item_keys.includes(itemKey)) config.equipment.item_keys.push(itemKey);
+  });
+};
+
+window._clearAutoStoreEquipment = () => {
+  updateAutoStore(config => {
+    if (config.enabled) config.equipment.item_keys = [];
   });
 };
 

@@ -4,7 +4,7 @@
  * @ref 13_save.startup_sequence
  */
 import { storage } from '../utils/storage.js';
-import { SaveManager } from './SaveManager.js';
+import { SaveManager } from './SaveManager.js?v=release-20260620-2';
 
 /**
  * @param {Object} opts

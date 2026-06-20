@@ -21,18 +21,18 @@ import { QigongSystem } from './systems/QigongSystem.js?v=release-20260614-6';
 import { BuffSystem } from './systems/BuffSystem.js';
 import { Player } from './entities/Player.js?v=release-20260618-1';
 import { createEquipmentInstance } from './entities/EquipmentInstance.js?v=release-20260615-1';
-import { SaveManager } from './core/SaveManager.js?v=release-20260620-1';
-import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js';
+import { SaveManager } from './core/SaveManager.js?v=release-20260620-2';
+import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js?v=release-20260620-1';
 import { assertValidGameConfig } from './core/ConfigValidator.js';
-import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260618-1';
-import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260618-1';
-import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260618-2';
-import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260620-3';
-import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260615-1';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260619-2';
+import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260620-1';
+import { getDeletionConfirmInfo, executeDeletion, hasAnyCharacter } from './flows/character_deletion_flow.js?v=release-20260620-1';
+import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260620-1';
+import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260620-4';
+import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260620-1';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260620-1';
 import { storage } from './utils/storage.js';
-import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260618-1';
-import { UIManager } from './ui/UIManager.js?v=release-20260620-1';
+import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260620-1';
+import { UIManager } from './ui/UIManager.js?v=release-20260620-2';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260616-1';
 import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260620-1';
 import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260620-2';
@@ -43,8 +43,8 @@ import {
   showOfflineRewardLoading,
   showOfflineRewardUI,
   updateOfflineRewardProgress,
-} from './ui/MultiSaveUI.js?v=release-20260620-1';
-import './ui/BottomBarUI.js?v=release-20260620-2';
+} from './ui/MultiSaveUI.js?v=release-20260620-3';
+import './ui/BottomBarUI.js?v=release-20260620-4';
 
 // ========================
 // 数据加载
@@ -544,7 +544,7 @@ function bindMainScreenEventListenersOnce() {
   });
 
   eventBus.on('teleport.done', ({ to, source }) => {
-    const isBackgroundTeleport = source === 'auto_resupply' || source === 'auto_sell';
+    const isBackgroundTeleport = source === 'auto_resupply' || source === 'auto_store' || source === 'auto_sell';
     if (!isBackgroundTeleport) {
       UIManager.openPanel(to == null ? 'home' : 'combat');
     }

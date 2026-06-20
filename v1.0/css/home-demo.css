@@ -3570,6 +3570,7 @@ body {
 .auto-sell-disabled { opacity: 0.5; }
 .auto-sell-equipment .auto-sell-group-title { align-items: center; }
 .auto-sell-equipment { overflow: visible; }
+.auto-store-group { overflow: visible; }
 .auto-sell-equipment .autoplay-toggle {
   min-width: 3.5rem;
   padding: 0.42rem 0.6rem;

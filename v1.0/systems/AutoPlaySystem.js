@@ -6,6 +6,7 @@
 import { InventorySystem } from './InventorySystem.js';
 import { ConsumableSystem } from './ConsumableSystem.js?v=release-20260620-3';
 import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260615-1';
+import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260620-1';
 import { eventBus } from '../core/EventBus.js';
 
 function createCooldownState() {
@@ -160,9 +161,10 @@ export const AutoPlaySystem = {
 
   _autoResupplyCheck(player, teleportFn) {
     const shouldResupply = this._willTriggerResupply(player);
+    const shouldAutoStore = this._shouldReturnForAutoStore(player);
     const shouldAutoSell = this._shouldReturnForAutoSell(player);
-    if (!shouldResupply && !shouldAutoSell) return false;
-    const source = shouldResupply ? 'auto_resupply' : 'auto_sell';
+    if (!shouldResupply && !shouldAutoStore && !shouldAutoSell) return false;
+    const source = shouldResupply ? 'auto_resupply' : shouldAutoStore ? 'auto_store' : 'auto_sell';
 
     const previousSubZone = player.location?.current_sub_zone_key || player.location?.last_wilderness_sub_zone || null;
     if (previousSubZone) {
@@ -212,6 +214,14 @@ export const AutoPlaySystem = {
     const capacity = player.inventory?.capacity || 50;
     const used = slots.filter(slot => slot?.item_key && (slot.count || 0) > 0).length;
     return used >= capacity && AutoSellSystem.hasSellableConfiguredItems(player);
+  },
+
+  _shouldReturnForAutoStore(player) {
+    if (!player.auto_play?.auto_store?.enabled) return false;
+    const slots = player.inventory?.slots || [];
+    const capacity = player.inventory?.capacity || 50;
+    const used = slots.filter(slot => slot?.item_key && (slot.count || 0) > 0).length;
+    return used >= capacity && AutoStoreSystem.hasStorableConfiguredItems(player);
   },
 
   _willTriggerResupply(player) {

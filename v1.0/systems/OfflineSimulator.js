@@ -3,13 +3,14 @@
  * @desc 离线模拟引擎：settle_offline_rewards + is_in_offline_simulation flag
  * @ref 13_save.simulation_flow
  */
-import { SaveManager } from '../core/SaveManager.js?v=release-20260618-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260620-2';
 import { AttributeSystem } from './AttributeSystem.js?v=release-20260618-1';
 import { BattleSystem } from './BattleSystem.js?v=release-20260618-1';
-import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260620-3';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260620-4';
 import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260619-1';
+import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260620-1';
 import { eventBus } from '../core/EventBus.js';
-import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260618-1';
+import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260620-1';
 
 export const OfflineSimulator = {
   is_in_offline_simulation: false,
@@ -214,8 +215,9 @@ export const OfflineSimulator = {
     battle._mainTargetKey = null;
     battle._currentSubZone = subZonesData?.find(s => s.key === subZoneKey) || null;
     battle._initialSpawned = false;
-    const isAutomatedTownReturn = source === 'auto_resupply' || source === 'auto_sell';
+    const isAutomatedTownReturn = source === 'auto_resupply' || source === 'auto_store' || source === 'auto_sell';
     if (prev && !subZoneKey && isAutomatedTownReturn) {
+      AutoStoreSystem.storeConfiguredItems(player, { silent: true });
       AutoSellSystem.sellConfiguredStones(player, { silent: true });
     }
   },

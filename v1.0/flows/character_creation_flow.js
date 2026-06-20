@@ -4,7 +4,7 @@
  * @ref 13_save.character_creation_flow
  */
 import { storage } from '../utils/storage.js';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260618-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260620-2';
 import { generateUUID } from '../utils/uuid.js';
 import { eventBus } from '../core/EventBus.js';
 
@@ -93,6 +93,11 @@ export function runCharacterCreationFlow(opts) {
             enabled: false,
             categories: {},
             equipment: { enabled: false, item_keys: [] },
+          },
+          auto_store: {
+            enabled: false,
+            stones: { rules: [] },
+            equipment: { item_keys: [] },
           },
         },
         offline: { last_save_timestamp: now },

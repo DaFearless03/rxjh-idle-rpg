@@ -278,6 +278,18 @@ export const SaveManager = {
           item_keys: copy.auto_sell?.equipment?.item_keys || [],
         },
       },
+      auto_store: {
+        ...copy.auto_store,
+        enabled: copy.auto_store?.enabled ?? false,
+        stones: {
+          ...copy.auto_store?.stones,
+          rules: copy.auto_store?.stones?.rules || [],
+        },
+        equipment: {
+          ...copy.auto_store?.equipment,
+          item_keys: copy.auto_store?.equipment?.item_keys || [],
+        },
+      },
     };
   },
 
