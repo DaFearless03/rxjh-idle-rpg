@@ -91,6 +91,7 @@ export function refreshPlayerAvatar(player, options = {}) {
     blade: 'icons/avatar_blade.png',
     sword: 'icons/avatar_sword.png',
     spear: 'icons/avatar_spear.png?v=release-20260621-2',
+    staff: 'icons/avatar_staff.png?v=release-20260621-1',
   };
   const avatarPath = avatarByFamily[family];
   avatar.style.backgroundImage = avatarPath ? `url("${avatarPath}")` : '';
