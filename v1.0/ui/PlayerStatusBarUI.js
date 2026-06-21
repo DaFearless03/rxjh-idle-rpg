@@ -90,6 +90,7 @@ export function refreshPlayerAvatar(player, options = {}) {
   const avatarByFamily = {
     blade: 'icons/avatar_blade.png',
     sword: 'icons/avatar_sword.png',
+    spear: 'icons/avatar_spear.png',
   };
   const avatarPath = avatarByFamily[family];
   avatar.style.backgroundImage = avatarPath ? `url("${avatarPath}")` : '';

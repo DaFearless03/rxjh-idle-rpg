@@ -2806,6 +2806,9 @@ body {
 .inventory-page .char-sprite.career-sword {
   background-image: url('../icons/inventory_sword_sprite.png');
 }
+.inventory-page .char-sprite.career-spear {
+  background-image: url('../icons/inventory_spear_sprite.png');
+}
 .inventory-page .eq-slot.empty {
   border-style: dashed;
   border-color: #b0a890;

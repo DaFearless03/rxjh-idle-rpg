@@ -2,7 +2,7 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260620-2';
+import { UIManager } from './UIManager.js?v=release-20260621-1';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260619-1';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260618-1';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
@@ -18,7 +18,7 @@ import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260620-2';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260620-1';
 import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260620-1';
 import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260620-1';
-import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260620-1';
+import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260621-1';
 import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260620-3';
 
 window._openPanel = (panelId) => {
