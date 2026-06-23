@@ -87,7 +87,6 @@ export function renderEnhanceWorkbench(player) {
       </div>
       <div class="craft-result" id="djx-enhance-cost">
         <div class="cr-row"><span class="l">强化费用</span><span class="v cost">--</span></div>
-        <div class="cr-row"><span class="l">成功率</span><span class="v rate">--</span></div>
       </div>
       <div class="craft-actions">
         <button class="craft-confirm" disabled onclick="window._djxDoCraft('enhance')">强化</button>

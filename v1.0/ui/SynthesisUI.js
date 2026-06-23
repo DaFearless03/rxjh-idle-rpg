@@ -107,7 +107,6 @@ export function renderSynthesisWorkbench(player) {
       </div>
       <div class="craft-result" id="djx-synth-result">
         <div class="cr-row"><span class="l">合成费用</span><span class="v cost">--</span></div>
-        <div class="cr-row"><span class="l">成功率</span><span class="v rate">--</span></div>
       </div>
       <div class="craft-actions">
         <button class="craft-confirm" disabled onclick="window._djxDoCraft('synth')">镶嵌</button>

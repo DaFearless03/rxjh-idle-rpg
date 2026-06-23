@@ -16,8 +16,8 @@ import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
 import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260620-1';
 import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260620-2';
 import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260620-1';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260620-1';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260620-1';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260623-1';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260623-1';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260621-3';
 import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260620-3';
 
@@ -261,8 +261,6 @@ function updateSynthesisWorkbench() {
     grid.innerHTML = Array(4).fill('<div class="synth-slot empty inactive">＋</div>').join('');
     const costValue = result?.querySelector('.v.cost');
     if (costValue) costValue.textContent = '--';
-    const rateValue = result?.querySelector('.v.rate');
-    if (rateValue) rateValue.textContent = '--';
     reset?.classList.add('hidden');
     return;
   }
@@ -280,11 +278,6 @@ function updateSynthesisWorkbench() {
   if (result) {
     const costValue = result.querySelector('.v.cost');
     if (costValue) costValue.textContent = `💰 ${Number(equipTile.dataset.cost || 0).toLocaleString()}`;
-    const rateValue = result.querySelector('.v.rate');
-    if (rateValue) {
-      const rate = SynthesisSystem.getSuccessRate(window.game?.player, filled.length);
-      rateValue.textContent = `${Math.round(rate * 100)}%`;
-    }
   }
   if (confirm && filled.length >= capacity) {
     confirm.disabled = true;
@@ -321,12 +314,6 @@ function updateEnhanceWorkbench() {
     costValue.textContent = equipTile
       ? `💰 ${Number(equipTile.dataset.cost || 0).toLocaleString()}`
       : '--';
-  }
-  const rateValue = document.querySelector('#djx-enhance-cost .v.rate');
-  if (rateValue) {
-    const targetLevel = Number(equipInstance?.enhance_level || 0) + 1;
-    const rate = equipTile ? EnhanceSystem.getSuccessRate(window.game?.player, targetLevel) : null;
-    rateValue.textContent = rate == null ? '--' : `${Math.round(rate * 100)}%`;
   }
 }
 
