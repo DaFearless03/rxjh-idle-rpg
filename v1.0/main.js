@@ -7,7 +7,7 @@ import { Game } from './core/Game.js';
 import { GameLoop } from './core/GameLoop.js';
 import { eventBus } from './core/EventBus.js';
 import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260618-1';
-import { BattleSystem } from './systems/BattleSystem.js?v=release-20260618-1';
+import { BattleSystem } from './systems/BattleSystem.js?v=release-20260623-1';
 import { InventorySystem } from './systems/InventorySystem.js?v=release-20260618-1';
 import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260613-22';
 import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260617-1';

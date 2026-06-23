@@ -75,8 +75,8 @@ export class BattleSystem {
     if (zoneMonsterKeys.length === 0) return null;
     const candidates = this._monstersData.filter(m => zoneMonsterKeys.includes(m.key) && m.monster_type !== 'boss');
     const normalMonsters = candidates.filter(m => (m.monster_type || 'normal') === 'normal');
-    const activeEliteCount = this._getActiveEliteCount();
-    const eliteMonsters = activeEliteCount < this._getEliteCapPerZone()
+    const eliteCount = this._getEliteCount();
+    const eliteMonsters = eliteCount < this._getEliteCapPerZone()
       ? candidates.filter(m => m.monster_type === 'elite')
       : [];
     const ratio = String(this._config.battle_flow.battle_model.monster_spawn.spawn_weight?.elite_vs_normal || '1:50')
@@ -100,8 +100,10 @@ export class BattleSystem {
     return weightedPool[weightedPool.length - 1].monster;
   }
 
-  _getActiveEliteCount() {
-    return this.monsters.filter(monster => monster.isAlive() && monster.monster_type === 'elite').length;
+  _getEliteCount() {
+    // 精英上限约束的是当前战场实例，而不是“可攻击的活怪”。
+    // 死亡结算、UI 刷新或外部状态同步的同一帧内，也不能给第二只精英留出生成窗口。
+    return this.monsters.filter(monster => monster.monster_type === 'elite').length;
   }
 
   _getEliteCapPerZone() {
@@ -111,7 +113,7 @@ export class BattleSystem {
 
   _spawnMonster(template) {
     if (!template) return null;
-    if (template.monster_type === 'elite' && this._getActiveEliteCount() >= this._getEliteCapPerZone()) {
+    if (template.monster_type === 'elite' && this._getEliteCount() >= this._getEliteCapPerZone()) {
       return null;
     }
 

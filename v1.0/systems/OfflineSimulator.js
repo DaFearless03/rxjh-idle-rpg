@@ -5,7 +5,7 @@
  */
 import { SaveManager } from '../core/SaveManager.js?v=release-20260620-2';
 import { AttributeSystem } from './AttributeSystem.js?v=release-20260618-1';
-import { BattleSystem } from './BattleSystem.js?v=release-20260618-1';
+import { BattleSystem } from './BattleSystem.js?v=release-20260623-1';
 import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260620-4';
 import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260619-1';
 import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260620-1';
