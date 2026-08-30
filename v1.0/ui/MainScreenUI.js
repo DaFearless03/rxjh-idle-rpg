@@ -3,7 +3,7 @@
  * @desc 主页面骨架（demo 风格）：phone-frame + top-bar + main-scroll + bottom-menu + 所有 panel
  */
 
-import { renderZoneBattleArea } from './ZoneBattleAreaUI.js';
+import { renderZoneBattleArea } from './ZoneBattleAreaUI.js?v=release-20260830-1';
 
 let mainScreenKeydownBound = false;
 

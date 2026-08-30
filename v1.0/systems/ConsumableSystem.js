@@ -3,8 +3,8 @@
  * @desc 药剂系统：手动喝药 + 自动喝药共用恢复公式。
  * @ref 10_consumables.md
  */
-import { InventorySystem } from './InventorySystem.js';
-import { eventBus } from '../core/EventBus.js';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
 
 const POTION_TEMPLATES = {
   hp_potion_grade1: { key: 'hp_potion_grade1', name: '金创药（小）', type: 'hp', recovery: 70, min_level: 1, min_transfer: 0 },

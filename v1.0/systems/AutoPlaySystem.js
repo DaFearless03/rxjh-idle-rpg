@@ -3,14 +3,15 @@
  * @desc is_auto_play 状态机 + 12项清挂机规则 + auto_consume + auto_heal_skill + auto_resupply
  * @ref 10_consumables.auto_consume / auto_heal_skill / auto_resupply
  */
-import { InventorySystem } from './InventorySystem.js';
-import { ConsumableSystem } from './ConsumableSystem.js?v=release-20260620-3';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260615-1';
-import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260620-1';
-import { eventBus } from '../core/EventBus.js';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
+import { ConsumableSystem } from './ConsumableSystem.js?v=release-20260830-1';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260830-1';
+import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260830-1';
+import { BuffSystem } from './BuffSystem.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
 
 function createCooldownState() {
-  return { hp_potion: 0, mp_potion: 0, heal_skill: 0 };
+  return { hp_potion: 0, mp_potion: 0, heal_skill: 0, buff_skill: 0 };
 }
 
 export const AutoPlaySystem = {
@@ -19,9 +20,14 @@ export const AutoPlaySystem = {
   _cooldowns: createCooldownState(),
   _resupplyCheckTimer: 0,
   _potionShopItems: [],
+  _martialArtsData: [],
 
   setPotionShopItems(items = []) {
     this._potionShopItems = Array.isArray(items) ? items : [];
+  },
+
+  setMartialArtsData(items = []) {
+    this._martialArtsData = Array.isArray(items) ? items : [];
   },
 
   resetRuntimeState() {
@@ -80,16 +86,16 @@ export const AutoPlaySystem = {
    */
   tick(player, deltaMs, teleportFn) {
     this._ensurePlayerContext(player);
+    this._cooldowns.hp_potion = Math.max(0, this._cooldowns.hp_potion - deltaMs);
+    this._cooldowns.mp_potion = Math.max(0, this._cooldowns.mp_potion - deltaMs);
+    this._cooldowns.heal_skill = Math.max(0, this._cooldowns.heal_skill - deltaMs);
+    this._cooldowns.buff_skill = Math.max(0, this._cooldowns.buff_skill - deltaMs);
+
     if (!player.auto_play?.is_auto_play) {
       this.is_auto_play = false;
       return;
     }
     this.is_auto_play = true;
-
-    // 更新 cd
-    this._cooldowns.hp_potion = Math.max(0, this._cooldowns.hp_potion - deltaMs);
-    this._cooldowns.mp_potion = Math.max(0, this._cooldowns.mp_potion - deltaMs);
-    this._cooldowns.heal_skill = Math.max(0, this._cooldowns.heal_skill - deltaMs);
 
     // auto_consume
     const consumedHp = this._autoConsumeHP(player, deltaMs);
@@ -100,7 +106,8 @@ export const AutoPlaySystem = {
     }
 
     // auto_heal_skill
-    this._autoHealSkill(player, deltaMs);
+    this._autoHealSkill(player);
+    this._autoBuffSkill(player);
 
     // auto_resupply 检查（每 1000ms 一次）
     this._resupplyCheckTimer = (this._resupplyCheckTimer || 0) + deltaMs;
@@ -138,25 +145,65 @@ export const AutoPlaySystem = {
     return true;
   },
 
-  _autoHealSkill(player, deltaMs) {
+  _autoHealSkill(player) {
     const cfg = player.auto_play?.auto_heal_skill;
     if (!cfg?.enabled || !cfg?.selected_skill_key) return;
-    if (this._cooldowns.heal_skill > 0) return;
+    if (player.hp / Math.max(1, player.maxHp) > (cfg.threshold ?? 0.5)) return;
+    this.castSupportSkill(player, cfg.selected_skill_key, { source: 'auto' });
+  },
 
+  _autoBuffSkill(player) {
+    const cfg = player.auto_play?.auto_buff_skill;
+    if (!cfg?.enabled || !cfg?.selected_skill_key) return;
     const skill = this._findSkill(cfg.selected_skill_key, player);
-    if (!skill) return;
+    const buffKey = skill?.effect?.buff_key;
+    if (!skill || skill.type !== 'buff' || !buffKey) return;
+    if (player.buffs?.some(buff => buff.key === buffKey && (buff.duration === -1 || buff.remaining > 0))) return;
+    this.castSupportSkill(player, cfg.selected_skill_key, { source: 'auto' });
+  },
 
-    const mpCost = skill.cost?.mp || 0;
-    if (player.mp < mpCost) return;
+  castSupportSkill(player, skillKey, { source = 'manual' } = {}) {
+    this._ensurePlayerContext(player);
+    const skill = this._findSkill(skillKey, player);
+    if (!skill || !['heal', 'buff'].includes(skill.type)) {
+      return { success: false, message: '该辅助武功未学习或不存在' };
+    }
 
-    // 施放武功（这里简化处理，实际应由武功系统执行）
+    const cooldownKey = skill.type === 'heal' ? 'heal_skill' : 'buff_skill';
+    if (this._cooldowns[cooldownKey] > 0) {
+      return { success: false, message: '武功尚在冷却中' };
+    }
+    if (skill.type === 'heal' && player.hp >= player.maxHp) {
+      return { success: false, message: '生命值已满' };
+    }
+
+    const mpCost = Math.max(0, Math.floor((skill.cost?.mp || 0) * (1 - (player.mpCostReduce || 0))));
+    if (player.mp < mpCost) return { success: false, message: `内功不足，需要 ${mpCost}` };
+
+    let result;
+    if (skill.type === 'heal') {
+      const healAmount = Math.max(0, Math.floor((skill.effect?.value || 0) * (1 + (player.healBonus || 0))));
+      const actualHeal = Math.min(healAmount, player.maxHp - player.hp);
+      player.hp += actualHeal;
+      result = { success: true, message: `${skill.name}恢复 ${actualHeal} 点生命`, healAmount: actualHeal };
+      eventBus.emit('autoplay.heal_skill', { player, skill: skill.key, skillName: skill.name, healAmount: actualHeal, source });
+    } else {
+      const buffKey = skill.effect?.buff_key;
+      const template = BuffSystem._buffTemplates[buffKey];
+      if (!template) return { success: false, message: '增益配置不存在' };
+      const duration = template.duration === -1
+        ? -1
+        : Math.max(0, template.duration + (player.buffDuration || 0));
+      const applied = BuffSystem.applyBuff(player, buffKey, duration);
+      if (!applied.success) return applied;
+      result = { success: true, message: `${skill.name}施放成功`, buffKey };
+      eventBus.emit('autoplay.buff_skill', { player, skill: skill.key, skillName: skill.name, buffKey, source });
+    }
+
     player.mp = Math.max(0, player.mp - mpCost);
-    const healBonus = player.healBonus || 0;
-    const healAmount = Math.floor((skill.effect?.value || skill.power || 0) * (1 + healBonus));
-    player.hp = Math.min(player.maxHp, player.hp + healAmount);
-
-    this._cooldowns.heal_skill = skill.coolDown || 1000;
-    eventBus.emit('autoplay.heal_skill', { skill: cfg.selected_skill_key, healAmount });
+    this._cooldowns[cooldownKey] = skill.coolDown || 1000;
+    eventBus.emit('battle.player_status_changed', { player, reason: `${skill.type}_skill_cast` });
+    return result;
   },
 
   _autoResupplyCheck(player, teleportFn) {
@@ -276,7 +323,7 @@ export const AutoPlaySystem = {
 
   _findSkill(skillKey, player) {
     if (!player.learned_martial_arts?.includes(skillKey)) return null;
-    return { key: skillKey, power: 100, coolDown: 1000, cost: { mp: 20 } };
+    return this._martialArtsData.find(skill => skill.key === skillKey) || null;
   },
 
   /**

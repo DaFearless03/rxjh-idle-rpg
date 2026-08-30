@@ -3,8 +3,8 @@
  * @desc 4步启动检测
  * @ref 13_save.startup_sequence
  */
-import { storage } from '../utils/storage.js';
-import { SaveManager } from './SaveManager.js?v=release-20260620-2';
+import { storage } from '../utils/storage.js?v=release-20260830-1';
+import { SaveManager } from './SaveManager.js?v=release-20260830-1';
 
 /**
  * @param {Object} opts
@@ -12,7 +12,7 @@ import { SaveManager } from './SaveManager.js?v=release-20260620-2';
  * @param {Function} opts.onNoCharacter         有globalSave但无角色回调
  * @param {Function} opts.onShowMultiSaveList   显示多存档列表回调（含角色数据）
  */
-export function runStartupSequence(opts) {
+export async function runStartupSequence(opts) {
   const { onFirstLaunch, onNoCharacter, onShowMultiSaveList } = opts;
 
   // 1) 检测 import_in_progress 脏状态
@@ -24,72 +24,52 @@ export function runStartupSequence(opts) {
       }
     }
     console.warn('[启动] 上次导入未完成，存档已重置');
-    onFirstLaunch();
+    await onFirstLaunch();
     return;
   }
 
   // 2) 检查 global_save 是否存在
   const globalSave = SaveManager.restoreGlobalState();
   if (!globalSave) {
-    onFirstLaunch();
+    await onFirstLaunch();
     return;
   }
 
-  // 3) 检查有无 player-* 存档
-  const hasPlayer = storage.keys().some(k => k.startsWith('player-') && !k.endsWith('-bak'));
-  if (!hasPlayer) {
-    onNoCharacter();
+  const characters = await loadCharacters(globalSave);
+  if (characters.length === 0) {
+    await onNoCharacter();
     return;
   }
 
   // 4) 校验 last_used_slot 有效性
   if (globalSave.character_slots?.last_used_slot != null) {
     const slot = globalSave.character_slots.last_used_slot;
-    if (!storage.get(`player-${slot}`)) {
+    if (!characters.some(character => character.slotIndex === slot)) {
       globalSave.character_slots.last_used_slot = null;
-      SaveManager.saveGlobalState(globalSave);
-    }
-  }
-
-  // 加载所有角色数据用于显示列表
-  const characters = [];
-  const maxSlot = globalSave.character_slots?.unlocked_count ?? 3;
-  for (let i = 1; i <= maxSlot; i++) {
-    const raw = storage.get(`player-${i}`);
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        const data = parsed.data || parsed;
-        characters.push({ slotIndex: i, ...data });
-      } catch {
-        // 损坏的存档忽略
+      if (!await SaveManager.saveGlobalState(globalSave)) {
+        console.warn('[启动] 无效的最近角色槽位未能写回存档');
       }
     }
   }
 
-  onShowMultiSaveList({ globalSave, characters });
+  await onShowMultiSaveList({ globalSave, characters });
 }
 
 /**
  * 读取所有角色存档（用于 multi_save 列表）
  */
-export function loadAllCharacters() {
+export async function loadAllCharacters() {
   const globalSave = SaveManager.restoreGlobalState();
   if (!globalSave) return [];
+  return loadCharacters(globalSave);
+}
 
+async function loadCharacters(globalSave) {
   const characters = [];
   const maxSlot = globalSave.character_slots?.unlocked_count ?? 3;
   for (let i = 1; i <= maxSlot; i++) {
-    const raw = storage.get(`player-${i}`);
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        const data = parsed.data || parsed;
-        characters.push({ slotIndex: i, ...data });
-      } catch {
-        // 损坏的存档忽略
-      }
-    }
+    const data = await SaveManager.restorePlayerFromSave(i);
+    if (data) characters.push({ slotIndex: i, ...data });
   }
   return characters;
 }

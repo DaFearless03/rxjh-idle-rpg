@@ -3,7 +3,7 @@
  * @desc 强化系统 +0~+10（成功/失败毁装备）
  * @ref 05_equipment.md 5.5.7 enhance_system
  */
-import { eventBus } from '../core/EventBus.js';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
 
 export const EnhanceSystem = {
   // 强化成功率
@@ -57,12 +57,12 @@ export const EnhanceSystem = {
     if (Math.random() < successRate) {
       // 成功
       ei.enhance_level += 1;
-      return { success: true, message: `强化成功！+${ei.enhance_level}（成功率 ${Math.round(successRate * 100)}%）`, successRate };
+      return { success: true, message: `强化成功！+${ei.enhance_level}`, successRate };
     } else {
       // 失败摧毁装备（含已合成石头）
       this._destroyEquipment(player, instanceId);
       eventBus.emit('inventory.changed', { player, item_key: ei.item_key, action: 'remove', changed_count: 1, count: 0 });
-      return { success: false, message: `强化失败，装备已碎裂！（成功率 ${Math.round(successRate * 100)}%）`, successRate };
+      return { success: false, message: '强化失败，装备已碎裂！', successRate };
     }
   },
 

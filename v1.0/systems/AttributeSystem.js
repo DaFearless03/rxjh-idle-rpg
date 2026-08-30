@@ -43,7 +43,6 @@ export class AttributeSystem {
     // 气功加成
     if (this._qigongSys) {
       this._qigongSys.collectQigongHooks(player, h);
-      this._qigongSys.collectEarringBonus(player, h);
     }
 
     // Buff 加成
@@ -82,8 +81,8 @@ export class AttributeSystem {
       (c.baseDef + sta * c.staToDef + (h.defAdd || 0)) * (1 + (h.defPct || 0))
     );
 
-    // matk: weapon.atkMax * matk_weapon_ratio（Phase 1 无武器 = 0）
-    player.matk = (player._weaponAtkMax || 0) * c.matk_weapon_ratio;
+    // matk: 当前武器攻击上限 * 系数 + 装备直接提供的武功攻击力
+    player.matk = Math.floor((h.weaponAtkMax || 0) * c.matk_weapon_ratio + (h.matkAdd || 0));
 
     // mdef: 0 + sum(mdefAdd)
     player.mdef = (h.mdefAdd || 0);
@@ -101,8 +100,8 @@ export class AttributeSystem {
     ));
 
     // 战斗属性（base_value 声明式写法，这里直接用常量）
-    player.critR = (player._baseCritR ?? 0.30) + (h.critRLAdd || 0);
-    player.critB = (player._baseCritB ?? 1.5) + (h.critBLAdd || 0);
+    player.critR = (player._baseCritR ?? 0.30) + (h.critRAdd || 0) + (h.critRLAdd || 0);
+    player.critB = (player._baseCritB ?? 1.5) + (h.critBAdd || 0) + (h.critBLAdd || 0);
     player.skillCritRate = (player._baseSkillCritRate ?? 0) + (h.skillCritRateAdd || 0);
     player.combo = (player._baseCombo ?? 0) + (h.comboAdd || 0);
     player.shieldRate = (player._baseShieldRate ?? 0) + (h.shieldRateAdd || 0);
@@ -159,7 +158,11 @@ export class AttributeSystem {
           h.atkMinAdd = (h.atkMinAdd || 0) + stats.atkMin + (slot === 'weapon' ? enhanceLevel * 6 : 0);
         }
         if (stats.atkMax !== undefined) {
-          h.atkMaxAdd = (h.atkMaxAdd || 0) + stats.atkMax + (slot === 'weapon' ? enhanceLevel * 8 : 0);
+          const enhancedAtkMax = stats.atkMax + (slot === 'weapon' ? enhanceLevel * 8 : 0);
+          h.atkMaxAdd = (h.atkMaxAdd || 0) + enhancedAtkMax;
+          if (slot === 'weapon') {
+            h.weaponAtkMax = (h.weaponAtkMax || 0) + enhancedAtkMax;
+          }
         }
         if (stats.def !== undefined) {
           h.defAdd = (h.defAdd || 0) + stats.def + (slot !== 'weapon' ? enhanceLevel * 3 : 0);
@@ -192,6 +195,9 @@ export class AttributeSystem {
           const stoneAttribute = this._parseStoneAttribute(stoneKey);
           if (stoneAttribute) {
             h[stoneAttribute.hook] = (h[stoneAttribute.hook] || 0) + stoneAttribute.value;
+          } else if (stoneKey.includes('--skill_level_up--')) {
+            // 技能等级由 QigongSystem 按绑定目标计算，不能再套用热血石 fallback。
+            continue;
           } else if (stoneKey.startsWith('vajra')) {
             h.atkMinAdd = (h.atkMinAdd || 0) + 5;
             h.atkMaxAdd = (h.atkMaxAdd || 0) + 8;

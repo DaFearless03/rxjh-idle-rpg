@@ -3,9 +3,9 @@
  * @desc 刀剑笑合成镶嵌工坊 UI。
  */
 
-import { getEquipmentTemplate } from './EquipUI.js?v=release-20260613-2';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260617-1';
-import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260620-1';
+import { getEquipmentTemplate } from './EquipUI.js?v=release-20260830-1';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260830-1';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260830-1';
 
 const SLOT_ICON = {
   weapon: '⚔️', chest: '👕', gloves: '🧤', boots: '👟', inner_armor: '🛡️',

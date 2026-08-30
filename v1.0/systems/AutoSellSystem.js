@@ -2,8 +2,8 @@
  * @file systems/AutoSellSystem.js
  * @desc 回城时按玩家配置自动出售低属性石头与未被过滤清单保护的装备。
  */
-import { ShopSystem } from './ShopSystem.js?v=release-20260619-1';
-import { eventBus } from '../core/EventBus.js';
+import { ShopSystem } from './ShopSystem.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
 
 function parseStoneKey(itemKey) {
   const match = String(itemKey || '').match(/^(.+?)--(.+?)--(-?\d+(?:\.\d+)?)$/);

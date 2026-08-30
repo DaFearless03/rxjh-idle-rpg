@@ -3,10 +3,10 @@
  * @desc 4步角色创建流程
  * @ref 13_save.character_creation_flow
  */
-import { storage } from '../utils/storage.js';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260620-2';
-import { generateUUID } from '../utils/uuid.js';
-import { eventBus } from '../core/EventBus.js';
+import { storage } from '../utils/storage.js?v=release-20260830-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260830-1';
+import { generateUUID } from '../utils/uuid.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
 
 const BASE_CAREERS = ['warrior_blade', 'warrior_sword', 'warrior_spear', 'healer'];
 
@@ -17,7 +17,7 @@ const BASE_CAREERS = ['warrior_blade', 'warrior_sword', 'warrior_spear', 'healer
  * @param {Function} opts.onComplete 创建完成回调（传入 player 对象）
  */
 export function runCharacterCreationFlow(opts) {
-  const { careersData, globalSave, onComplete } = opts;
+  const { careersData, globalSave, attributeConstants = {}, onComplete } = opts;
 
   // 返回 step 函数供外部调用（console 环境下直接执行）
   return {
@@ -46,6 +46,10 @@ export function runCharacterCreationFlow(opts) {
         return { success: false, message: err.message || '无法选择角色槽位' };
       }
       const now = Date.now();
+      const maxHp = career.base_stats.baseHp
+        + (career.base_stats.sta || 0) * (attributeConstants.staToHp || 0);
+      const maxMp = career.base_stats.baseMp
+        + (career.base_stats.int || 0) * (attributeConstants.intToMp || 0);
 
       const newSave = {
         player: {
@@ -56,8 +60,8 @@ export function runCharacterCreationFlow(opts) {
           career: careerKey,
           career_history: [careerKey],
           faction: 'neutral',
-          hp: career.base_stats.baseHp,
-          mp: career.base_stats.baseMp,
+          hp: maxHp,
+          mp: maxMp,
         },
         resources: { gold: 100, training: 0, merit: 0 },
         qigong: { available_points: 1, invested: {}, attribute_reset_count: 0 },
@@ -78,7 +82,8 @@ export function runCharacterCreationFlow(opts) {
             hp_potion: { enabled: true, selected_item_key: null, threshold: 0.30 },
             mp_potion: { enabled: true, selected_item_key: null, threshold: 0.30 },
           },
-          auto_heal_skill: { enabled: false, selected_skill_key: null },
+          auto_heal_skill: { enabled: false, selected_skill_key: null, threshold: 0.50 },
+          auto_buff_skill: { enabled: false, selected_skill_key: null },
           auto_resupply: {
             trigger_rules: {
               hp: { enabled: false, selected_potion: null, trigger_threshold: 5 },
@@ -108,11 +113,19 @@ export function runCharacterCreationFlow(opts) {
     },
 
     step4_persist: async (save, slotIndex, updatedGlobalSave) => {
+      const previousLastUsedSlot = updatedGlobalSave.character_slots.last_used_slot;
       // 写入玩家存档
-      await SaveManager.savePlayerState(buildPlayerFromSave(save), slotIndex);
+      const playerSaved = await SaveManager.savePlayerState(buildPlayerFromSave(save), slotIndex);
+      if (!playerSaved) return { success: false, message: '角色存档写入失败' };
       // 更新全局存档
       updatedGlobalSave.character_slots.last_used_slot = slotIndex;
-      await SaveManager.saveGlobalState(updatedGlobalSave);
+      const globalSaved = await SaveManager.saveGlobalState(updatedGlobalSave);
+      if (!globalSaved) {
+        updatedGlobalSave.character_slots.last_used_slot = previousLastUsedSlot;
+        storage.remove(`player-${slotIndex}`);
+        storage.remove(`player-${slotIndex}-bak`);
+        return { success: false, message: '全局存档写入失败' };
+      }
       eventBus.emit('character.created', { slotIndex, name: save.player.name });
       return { success: true, slotIndex };
     }
@@ -128,14 +141,14 @@ function resolveSlotIndex(targetSlotIndex, globalSave) {
     if (targetSlotIndex < 1 || targetSlotIndex > unlocked) {
       throw new Error(`槽位 ${targetSlotIndex} 未解锁`);
     }
-    if (storage.get(`player-${targetSlotIndex}`)) {
+    if (storage.get(`player-${targetSlotIndex}`) || storage.get(`player-${targetSlotIndex}-bak`)) {
       throw new Error(`槽位 ${targetSlotIndex} 已有角色`);
     }
     return targetSlotIndex;
   }
   // 找第一个空槽
   for (let i = 1; i <= unlocked; i++) {
-    if (!storage.get(`player-${i}`)) return i;
+    if (!storage.get(`player-${i}`) && !storage.get(`player-${i}-bak`)) return i;
   }
   throw new Error('没有可用的角色槽位');
 }

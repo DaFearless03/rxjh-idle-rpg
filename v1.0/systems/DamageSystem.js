@@ -3,7 +3,7 @@
  * @desc 命中判定 + 普通攻击伤害 + 攻击结算 pipeline
  * @ref 06_battle.damage_formulas (hit_check / normal_attack_damage / attack_resolution_pipeline)
  */
-import { random, randInt } from '../utils/random.js';
+import { random, randInt } from '../utils/random.js?v=release-20260830-1';
 
 export class DamageSystem {
   /**

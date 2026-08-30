@@ -3,8 +3,8 @@
  * @desc 任务查看器：进行中 / 可接取 / 已完成三段。
  */
 
-import { InventorySystem } from '../systems/InventorySystem.js';
-import { TaskSystem } from '../systems/TaskSystem.js';
+import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260830-1';
+import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260830-1';
 
 function escapeHtml(value) {
   return String(value ?? '')

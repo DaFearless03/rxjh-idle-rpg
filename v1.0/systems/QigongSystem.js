@@ -1,9 +1,9 @@
 /**
  * @file systems/QigongSystem.js
- * @desc 气功系统：投点 / 重置 / 耳环加成 / 热血石加成
+ * @desc 气功系统：投点 / 重置 / 装备热血石加成
  * @ref 04_skills_qigong_buff 4.2 气功系统
  */
-import { eventBus } from '../core/EventBus.js';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
 
 export const QigongSystem = {
   _qigongTemplates: [],
@@ -113,8 +113,8 @@ export const QigongSystem = {
       const invested = player.qigong?.invested?.[q.key] || 0;
       const effectiveLevel = this._calcEffectiveLevel(player, q);
       const effectType = q.effect.type;
-      const current = this._calcEffectValue(q, invested);
-      const next = this._calcEffectValue(q, invested + 1);
+      const current = this._calcEffectValue(q, effectiveLevel);
+      const next = this._calcEffectValue(q, Math.min(q.max_level, effectiveLevel + 1));
       const isPct = effectType.endsWith('Pct') || ['critR','critB','combo','shieldRate','counterDamage',
         'armorBreak','skillCritRate','healBonus','mpCostReduce','mpRecoveryBonus','leech',
         'mf','gf'].includes(effectType);
@@ -152,13 +152,14 @@ export const QigongSystem = {
       return a.unlock.min_level - b.unlock.min_level;
     }).map(q => {
       const invested = player.qigong?.invested?.[q.key] || 0;
+      const effectiveLevel = this._calcEffectiveLevel(player, q);
       const unlocked = transferCount >= q.unlock.min_transfer && player.level >= q.unlock.min_level;
       const lockParts = [];
       if (player.level < q.unlock.min_level) lockParts.push('Lv.' + q.unlock.min_level);
       if (transferCount < q.unlock.min_transfer) lockParts.push(q.unlock.min_transfer + ' 转');
       const lockText = lockParts.length ? '需 ' + lockParts.join(' · ') + ' 解锁' : '';
       const effectType = q.effect.type;
-      const current = this._calcEffectValue(q, invested);
+      const current = this._calcEffectValue(q, effectiveLevel);
       const isPct = effectType.endsWith('Pct') || ['critR','critB','combo','shieldRate','counterDamage',
         'armorBreak','skillCritRate','healBonus','mpCostReduce','mpRecoveryBonus','leech',
         'mf','gf'].includes(effectType);
@@ -168,6 +169,7 @@ export const QigongSystem = {
         name: q.name,
         description: this.EFFECT_DESC[effectType] || (q.description || effectType),
         invested,
+        effectiveLevel,
         unlocked,
         lockText,
         max_level: q.max_level,
@@ -245,7 +247,7 @@ export const QigongSystem = {
       if (!qigong) continue;
 
       const effectType = qigong.effect.type;
-      const totalValue = this._calcEffectValue(qigong, points);
+      const totalValue = this._calcEffectValue(qigong, this._calcEffectiveLevel(player, qigong));
 
       // 百分比类 → xxxPct 钩子；数值类 → xxxAdd 钩子
       if (effectType.endsWith('Pct')) {
@@ -256,61 +258,57 @@ export const QigongSystem = {
     }
   },
 
-  /**
-   * 计算耳环 qigong 加成（仅当 invested >= 1 时生效）
-   * @param {Object} player
-   * @param {Object} h 钩子对象
-   */
-  collectEarringBonus(player, h) {
-    const earringSlots = player.equipped?.earring || [];
-    for (const earringVal of earringSlots) {
-      if (!earringVal?.instance_id) continue;
-      const inst = player.inventory?.equipment_instances?.[earringVal.instance_id];
-      if (!inst?.synthesis_slots) continue;
-
-      for (const stoneKey of inst.synthesis_slots) {
-        if (stoneKey.startsWith('hot_blood')) {
-          const skillKey = stoneKey.replace('hot_blood_', '').replace(/_0\d$/, '');
-          const invested = player.qigong?.invested?.[stoneKey.replace('hot_blood_', 'qigong_')] || 0;
-          if (invested >= 1) {
-            const qigong = this._qigongTemplates.find(q => q.key === stoneKey.replace('hot_blood_', ''));
-            if (qigong) {
-              const bonus = Math.min(10, qigong.max_level) - invested;
-              if (bonus > 0) {
-                const effectType = qigong.effect.type;
-                if (effectType.endsWith('Pct')) {
-                  h[effectType] = (h[effectType] || 0) + qigong.effect.value_per_level * bonus;
-                } else {
-                  h[effectType + 'Add'] = (h[effectType + 'Add'] || 0) + qigong.effect.value_per_level * bonus;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+  bindSkillLevelStone(player, stoneKey, random = Math.random) {
+    const parsed = this._parseSkillLevelStone(stoneKey);
+    if (!parsed || parsed.targetKey) return stoneKey;
+    const targetKey = this._selectSkillLevelTarget(player, random);
+    return targetKey ? `${stoneKey}--${targetKey}` : stoneKey;
   },
 
   _calcEffectValue(qigong, points) {
+    if (points <= 0) return 0;
     return qigong.effect.base_value + points * qigong.effect.value_per_level;
   },
 
   _calcEffectiveLevel(player, qigong) {
     let level = player.qigong?.invested?.[qigong.key] || 0;
-    const earringSlots = player.equipped?.earring || [];
-    for (const earringVal of earringSlots) {
-      if (!earringVal?.instance_id) continue;
-      const inst = player.inventory?.equipment_instances?.[earringVal.instance_id];
-      if (!inst?.synthesis_slots) continue;
-      for (const stoneKey of inst.synthesis_slots) {
-        if (stoneKey.startsWith('hot_blood')) {
-          if (stoneKey.includes(qigong.key)) {
-            level += Math.min(10, qigong.max_level);
-          }
+    if (level <= 0) return 0;
+
+    const instances = player.inventory?.equipment_instances || {};
+    for (const equippedValue of Object.values(player.equipped || {})) {
+      const entries = Array.isArray(equippedValue) ? equippedValue : [equippedValue];
+      for (const entry of entries) {
+        if (!entry?.instance_id) continue;
+        const instance = instances[entry.instance_id];
+        for (const stoneKey of instance?.synthesis_slots || []) {
+          const parsed = this._parseSkillLevelStone(stoneKey);
+          if (!parsed) continue;
+          const targetKey = parsed.targetKey || this._selectSkillLevelTarget(player, () => 0);
+          if (targetKey === qigong.key) level += parsed.value;
         }
       }
     }
     return Math.min(level, qigong.max_level);
+  },
+
+  _parseSkillLevelStone(stoneKey) {
+    const [baseKey, hook, rawValue, targetKey = null] = String(stoneKey || '').split('--');
+    const value = Math.max(0, Math.floor(Number(rawValue) || 0));
+    if (!baseKey.startsWith('hot_blood') || hook !== 'skill_level_up' || value <= 0) return null;
+    return { value, targetKey };
+  },
+
+  _selectSkillLevelTarget(player, random = Math.random) {
+    const family = this._getCareerFamily(player);
+    const careerQigongs = this._qigongTemplates.filter(qigong => {
+      const families = Array.isArray(qigong.career_family) ? qigong.career_family : [qigong.career_family];
+      return families.includes(family);
+    });
+    const invested = careerQigongs.filter(qigong => (player.qigong?.invested?.[qigong.key] || 0) > 0);
+    const candidates = invested.length > 0 ? invested : careerQigongs;
+    if (candidates.length === 0) return null;
+    const index = Math.min(candidates.length - 1, Math.floor(Math.max(0, random()) * candidates.length));
+    return candidates[index].key;
   },
 
   _ensureQigongState(player) {

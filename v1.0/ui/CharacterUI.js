@@ -3,7 +3,7 @@
  * @desc 角色页：严格复用 ui_demo_role 的信息 / 气功 / 武功结构。
  */
 
-import { renderQigongPanel } from './QigongUI.js?v=release-20260614-6';
+import { renderQigongPanel } from './QigongUI.js?v=release-20260830-1';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -118,7 +118,9 @@ function renderMartialPanel(player) {
       </div>
       ${lockText ? `<div class="ma-lock-cond">${lockText}</div>` : ''}
       <div class="ma-foot">${isLearned
-        ? '<div class="ma-learned-note">✓ 已掌握</div>'
+        ? (ma.type === 'heal' || ma.type === 'buff'
+          ? `<button class="btn-3d green ma-learn" onclick="window._castMartialArt('${ma.key}')">施放武功</button>`
+          : '<div class="ma-learned-note">✓ 已掌握</div>')
         : `<button class="btn-3d green ma-learn" onclick="window._requestLearnMartial('${ma.key}')" ${canLearn ? '' : 'disabled'}>学习武功</button>`}</div>
     </div>`;
   }).join('')}</div>`;

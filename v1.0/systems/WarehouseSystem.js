@@ -3,8 +3,8 @@
  * @desc 仓库系统：deposit / withdraw
  * @ref 11_inventory.md warehouse_operation_limit / forbidden_types
  */
-import { InventorySystem } from './InventorySystem.js';
-import { eventBus } from '../core/EventBus.js';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
 
 export const WarehouseSystem = {
   FORBIDDEN_TYPES: ['quest_items'],

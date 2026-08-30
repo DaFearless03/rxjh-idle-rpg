@@ -3,7 +3,7 @@
  * @desc 背包系统：count / add / remove / addEquipmentInstance
  * @ref 11_inventory.md InventorySystem 标准函数
  */
-import { eventBus } from '../core/EventBus.js';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
 
 export const InventorySystem = {
   _itemClasses: {

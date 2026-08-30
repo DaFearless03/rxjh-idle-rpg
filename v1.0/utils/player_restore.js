@@ -34,8 +34,8 @@ export function restoreRuntimePlayerFromSave(save, opts = {}) {
     career: save.player?.career || 'warrior_blade',
     career_history: save.player?.career_history || [],
     faction: save.player?.faction || 'neutral',
-    hp: save.player?.hp || 100,
-    mp: save.player?.mp || 100,
+    hp: save.player?.hp ?? 100,
+    mp: save.player?.mp ?? 100,
     resources: save.resources || { gold: 0, training: 0, merit: 0 },
     qigong: save.qigong || { available_points: 1, invested: {}, attribute_reset_count: 0 },
     learned_martial_arts: save.learned_martial_arts || [],
@@ -83,7 +83,8 @@ function normalizeAutoPlay(autoPlay) {
       hp_potion: { enabled: true, selected_item_key: null, threshold: 0.30, ...(copy.auto_consume?.hp_potion || {}) },
       mp_potion: { enabled: true, selected_item_key: null, threshold: 0.30, ...(copy.auto_consume?.mp_potion || {}) },
     },
-    auto_heal_skill: { enabled: false, selected_skill_key: null, ...(copy.auto_heal_skill || {}) },
+    auto_heal_skill: { enabled: false, selected_skill_key: null, threshold: 0.50, ...(copy.auto_heal_skill || {}) },
+    auto_buff_skill: { enabled: false, selected_skill_key: null, ...(copy.auto_buff_skill || {}) },
     auto_resupply: {
       ...copy.auto_resupply,
       trigger_rules: {

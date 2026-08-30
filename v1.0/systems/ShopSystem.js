@@ -3,9 +3,9 @@
  * @desc 商店买卖：价格倍率 / forbidden 检查
  * @ref 08_maps_npc_quests shop npc
  */
-import { InventorySystem } from './InventorySystem.js';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260615-1';
-import { eventBus } from '../core/EventBus.js';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
 
 function getEmptySlotCount(player) {
   const slots = player.inventory?.slots || [];
@@ -118,6 +118,8 @@ export const ShopSystem = {
       return { success: false, message: '该 NPC 不提供商店服务' };
     }
 
+    count = Math.max(1, Math.floor(Number(count) || 1));
+
     // 检查物品类
     const itemClass = InventorySystem._getItemClass(itemKey, player);
     if (this.FORBIDDEN_SELL_TYPES.includes(itemClass)) {
@@ -135,6 +137,8 @@ export const ShopSystem = {
 
     InventorySystem.remove(player, itemKey, count);
     player.resources.gold += totalPrice;
+    player.statistics = player.statistics || {};
+    player.statistics.total_gold_earned = (player.statistics.total_gold_earned || 0) + totalPrice;
     eventBus.emit('resources.changed', { player, resource: 'gold', amount: totalPrice, action: 'add' });
     logShop(`[商店] 出售 ${itemKey} x${count}，获得 ${totalPrice} 金币`);
     return { success: true, message: `出售成功，获得 ${totalPrice} 金币` };
@@ -150,9 +154,12 @@ export const ShopSystem = {
     slot.instance_id = null;
     slot.count = 0;
     delete player.inventory.equipment_instances[instanceId];
-    player.resources.gold += Math.max(0, Number(sellPrice) || 0);
+    const earnedGold = Math.max(0, Number(sellPrice) || 0);
+    player.resources.gold += earnedGold;
+    player.statistics = player.statistics || {};
+    player.statistics.total_gold_earned = (player.statistics.total_gold_earned || 0) + earnedGold;
     eventBus.emit('inventory.changed', { player, item_key: instance.item_key, action: 'remove', changed_count: 1, count: 0 });
-    eventBus.emit('resources.changed', { player, resource: 'gold', amount: sellPrice, action: 'add' });
-    return { success: true, message: `出售成功，获得 ${sellPrice} 金币` };
+    eventBus.emit('resources.changed', { player, resource: 'gold', amount: earnedGold, action: 'add' });
+    return { success: true, message: `出售成功，获得 ${earnedGold} 金币` };
   }
 };

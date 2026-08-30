@@ -3,9 +3,9 @@
  * @desc 导出 base64 / 全量导入 / 单角色导入 / import_in_progress 事务
  * @ref 13_save.save_transfer
  */
-import { storage } from '../utils/storage.js';
-import { base64Encode, base64Decode, computeChecksum } from '../utils/crypto.js';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260620-2';
+import { storage } from '../utils/storage.js?v=release-20260830-1';
+import { base64Encode, base64Decode, computeChecksum } from '../utils/crypto.js?v=release-20260830-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260830-1';
 
 const SAVE_VERSION = '1.0';
 const PLAYER_KEY_RE = /^player-\d+$/;
@@ -14,9 +14,9 @@ const PLAYER_KEY_RE = /^player-\d+$/;
  * 导出存档
  * @param {Object} opts
  * @param {boolean} opts.include_all_characters  true=导出全部+global；false=仅当前角色
- * @returns {string|null} base64 字符串或 null
+ * @returns {Promise<string|null>} base64 字符串或 null
  */
-export function exportSave(opts = {}) {
+export async function exportSave(opts = {}) {
   const { include_all_characters = true } = opts;
   const exportMeta = {
     schema_version: SAVE_VERSION,
@@ -28,13 +28,20 @@ export function exportSave(opts = {}) {
     // 导出全部角色 + global
     const globalSave = SaveManager.restoreGlobalState();
     const players = {};
-    for (const key of storage.keys().filter(k => PLAYER_KEY_RE.test(k)).sort(sortPlayerKeys)) {
-      if (PLAYER_KEY_RE.test(key)) {
-        const raw = storage.get(key);
-        if (raw) {
-          players[key] = JSON.parse(raw);
-        }
+    const skippedSlots = [];
+    const unlocked = globalSave?.character_slots?.unlocked_count ?? 3;
+    for (let slot = 1; slot <= unlocked; slot++) {
+      const key = `player-${slot}`;
+      const valid = await SaveManager.readValidPlayerPayload(slot);
+      if (valid) {
+        players[key] = valid.payload;
+      } else if (storage.get(key) || storage.get(`${key}-bak`)) {
+        skippedSlots.push(slot);
       }
+    }
+    if (skippedSlots.length > 0) {
+      console.warn(`[导出] 已跳过无法恢复的损坏槽位：${skippedSlots.join(', ')}`);
+      exportMeta.skipped_slots = skippedSlots;
     }
     const pack = { include_all_characters: true, game: globalSave, players, export_meta: exportMeta };
     return base64Encode(pack);
@@ -43,10 +50,9 @@ export function exportSave(opts = {}) {
     const globalSave = SaveManager.restoreGlobalState();
     const slot = globalSave?.character_slots?.last_used_slot;
     if (!slot) return null;
-    const raw = storage.get(`player-${slot}`);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    const pack = { include_all_characters: false, player: { slot_index: slot, data: parsed }, export_meta: exportMeta };
+    const valid = await SaveManager.readValidPlayerPayload(slot);
+    if (!valid) return null;
+    const pack = { include_all_characters: false, player: { slot_index: slot, data: valid.payload }, export_meta: exportMeta };
     return base64Encode(pack);
   }
 }
@@ -218,10 +224,6 @@ function restoreSaveEntries(entries) {
   for (const [key, value] of entries) {
     restoreSlotBackup(key, value);
   }
-}
-
-function sortPlayerKeys(a, b) {
-  return Number(a.split('-')[1]) - Number(b.split('-')[1]);
 }
 
 function isWrappedPlayerPayload(payload) {

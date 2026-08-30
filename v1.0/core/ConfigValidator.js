@@ -142,6 +142,7 @@ export function validateGameConfig(data) {
   for (const dropTable of subZoneDropsData) {
     warnIf(warnings, dropTable.sub_zone_key !== 'default' && !subZoneKeys.has(dropTable.sub_zone_key), `sub_zone_drops ${dropTable.key}: sub_zone_key ${dropTable.sub_zone_key} missing`);
     for (const roll of dropTable.drop_rolls || []) {
+      warnIf(warnings, typeof roll.enabled !== 'boolean', `sub_zone_drops ${dropTable.key}: roll enabled must be boolean`);
       for (const item of roll.equipment_pool || []) {
         warnIf(warnings, !equipmentKeys.has(item.key), `sub_zone_drops ${dropTable.key}: equipment_pool ${item.key} missing in equipments`);
       }

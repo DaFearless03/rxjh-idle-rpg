@@ -3,9 +3,9 @@
  * @desc 3步角色删除流程
  * @ref 13_save.character_deletion_flow
  */
-import { storage } from '../utils/storage.js';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260620-2';
-import { eventBus } from '../core/EventBus.js';
+import { storage } from '../utils/storage.js?v=release-20260830-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
 
 /**
  * 触发删除前的二次确认信息
@@ -31,9 +31,16 @@ export function getDeletionConfirmInfo(slotIndex, characterData, careersData = [
  * @returns {Object} { success, globalSave }
  */
 export async function executeDeletion(slotIndex, globalSave) {
+  const primaryKey = `player-${slotIndex}`;
+  const shadowKey = `${primaryKey}-bak`;
+  const primaryBackup = storage.get(primaryKey);
+  const shadowBackup = storage.get(shadowKey);
+  const previousLastUsedSlot = globalSave.character_slots.last_used_slot;
+
   // 1. 清存档
-  storage.remove(`player-${slotIndex}`);
-  storage.remove(`player-${slotIndex}-bak`);
+  const primaryRemoved = storage.remove(primaryKey);
+  const shadowRemoved = storage.remove(shadowKey);
+  if (!primaryRemoved || !shadowRemoved) return { success: false, globalSave, message: '角色存档删除失败' };
 
   // 2. 若 last_used_slot 指向被删角色 → 置 null
   if (globalSave.character_slots.last_used_slot === slotIndex) {
@@ -43,7 +50,12 @@ export async function executeDeletion(slotIndex, globalSave) {
   // 3. unlocked_count 不回退（已解锁槽位永久保留）
 
   // 4. 写全局存档
-  await SaveManager.saveGlobalState(globalSave);
+  if (!await SaveManager.saveGlobalState(globalSave)) {
+    globalSave.character_slots.last_used_slot = previousLastUsedSlot;
+    if (primaryBackup != null) storage.set(primaryKey, primaryBackup);
+    if (shadowBackup != null) storage.set(shadowKey, shadowBackup);
+    return { success: false, globalSave, message: '全局存档写入失败' };
+  }
 
   eventBus.emit('character.deleted', { slotIndex });
   return { success: true, globalSave };

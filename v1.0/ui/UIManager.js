@@ -2,13 +2,13 @@
  * @file ui/UIManager.js
  * @desc UI 总控 + modal 层级管理 + toast
  */
-import { eventBus } from '../core/EventBus.js';
-import { storage } from '../utils/storage.js';
-import { refreshMonsterList } from './MonsterListUI.js?v=release-20260612-2';
-import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260621-3';
-import { appendCombatLog, formatCombatLog, renderCombatLog } from './CombatLogUI.js';
-import { appendRewardLog, formatRewardLog, renderRewardLog } from './RewardLogUI.js';
-import { TaskSystem } from '../systems/TaskSystem.js';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { storage } from '../utils/storage.js?v=release-20260830-1';
+import { refreshMonsterList } from './MonsterListUI.js?v=release-20260830-1';
+import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260830-1';
+import { appendCombatLog, formatCombatLog, renderCombatLog } from './CombatLogUI.js?v=release-20260830-1';
+import { appendRewardLog, formatRewardLog, renderRewardLog } from './RewardLogUI.js?v=release-20260830-1';
+import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260830-1';
 
 function isOfflineSimulationActive() {
   return globalThis.__rxjhOfflineSimulation === true;

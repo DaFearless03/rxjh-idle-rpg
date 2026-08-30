@@ -3,10 +3,10 @@
  * @desc 掉落系统：evaluate + 5个drop_*适配
  * @ref 09_economy_drops.md evaluation_flow / drop_adapters / drop_helpers
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260618-1';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260615-1';
-import { random } from '../utils/random.js';
-import { eventBus } from '../core/EventBus.js';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { QigongSystem } from './QigongSystem.js?v=release-20260830-1';
 
 export class DropSystem {
   /**
@@ -30,7 +30,7 @@ export class DropSystem {
    * @param {Object} subZoneDrop 对应 sub_zone_drops 配置
    * @ref 09_economy_drops.md evaluation_flow
    */
-  evaluate(player, monster, subZoneDrop) {
+  evaluate(player, monster, subZoneDrop, subZone = null) {
     const summary = {
       gold: 0,
     };
@@ -51,10 +51,14 @@ export class DropSystem {
     if (subZoneDrop && subZoneDrop.drop_rolls) {
       for (const roll of subZoneDrop.drop_rolls) {
         if (roll.trigger !== 'always') continue;
+        if (roll.enabled === false || roll.enabled === 'false') continue;
         for (let i = 0; i < roll.roll_count; i++) {
           // 2a. 金币掉落（10%概率）
           if (mods.gold_modifier > 0 && Math.random() < 0.10) {
-            const baseGold = Math.floor(Math.random() * (subZoneDrop.gold_range_max || 15) + (subZoneDrop.gold_range_min || 8));
+            const [configuredMin, configuredMax] = subZone?.gold_range || subZoneDrop.gold_range || [8, 15];
+            const minGold = Math.max(0, Math.floor(Number(configuredMin) || 0));
+            const maxGold = Math.max(minGold, Math.floor(Number(configuredMax) || minGold));
+            const baseGold = Math.floor(Math.random() * (maxGold - minGold + 1)) + minGold;
             const finalGold = Math.floor(baseGold * (1 + (player.goldDropBonus || 0)) * mods.gold_modifier);
             this._dropGold(player, finalGold);
             summary.gold += finalGold;
@@ -91,7 +95,7 @@ export class DropSystem {
     const boxConfig = this._config.monster_drop_box;
     if (boxConfig && monster.map_key) {
       const boxKey = boxConfig.box_type_by_map?.[monster.map_key];
-      if (boxKey && Math.random() < boxConfig.drop_rate) {
+      if (boxKey && Math.random() < boxConfig.drop_rate * mods.rate_modifier) {
         this._dropBox(player, boxKey);
       }
     }
@@ -111,6 +115,8 @@ export class DropSystem {
   _dropGold(player, amount) {
     player.resources = player.resources || { gold: 0, training: 0, merit: 0 };
     player.resources.gold += amount;
+    player.statistics = player.statistics || {};
+    player.statistics.total_gold_earned = (player.statistics.total_gold_earned || 0) + amount;
     eventBus.emit('resources.changed', { player, resource: 'gold', amount, action: 'add' });
     this._logDrop(`[掉落] 金币 +${amount}`);
   }
@@ -149,6 +155,9 @@ export class DropSystem {
         value = Math.floor(Math.random() * (max - min + 1) + min);
       }
       finalKey = stoneKey + '--' + poolItem.key + '--' + value;
+      if (poolItem.key === 'skill_level_up') {
+        finalKey = QigongSystem.bindSkillLevelStone(player, finalKey);
+      }
     }
     const result = InventorySystem.add(player, finalKey, 1);
     if (result.success) {
@@ -269,6 +278,10 @@ export class DropSystem {
     }
 
     return { rate_modifier, exp_modifier, training_modifier, gold_modifier };
+  }
+
+  getLevelDifferenceModifiers(playerLevel, monsterLevel) {
+    return this._calcModifiers((Number(playerLevel) || 1) - (Number(monsterLevel) || 1));
   }
 
   _weightedRandom(pool) {

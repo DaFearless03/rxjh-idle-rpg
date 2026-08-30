@@ -3,9 +3,9 @@
  * @desc 开盒系统：按 openable_items.weight 加权随机，支持批量开盒。
  * @ref 12_boxes.md
  */
-import { InventorySystem } from './InventorySystem.js';
-import { eventBus } from '../core/EventBus.js';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260615-1';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260830-1';
 
 function toPositiveInt(value, fallback = 1) {
   return Math.max(1, Math.floor(Number(value) || fallback));

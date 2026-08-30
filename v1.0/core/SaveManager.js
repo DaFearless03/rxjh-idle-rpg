@@ -3,8 +3,8 @@
  * @desc 存档管理：save_player_state / save_global_state / restore_player_from_save
  * @ref 13_save.save_player_state / 13_save.restore_player_from_save / 13_save.redundancy
  */
-import { storage } from '../utils/storage.js';
-import { computeChecksum } from '../utils/crypto.js';
+import { storage } from '../utils/storage.js?v=release-20260830-1';
+import { computeChecksum } from '../utils/crypto.js?v=release-20260830-1';
 
 const SAVE_VERSION = '1.0';
 const PRIMARY_KEY = (slot) => `player-${slot}`;
@@ -25,10 +25,11 @@ export const SaveManager = {
    * @param {number} slotIndex 1..10
    */
   async savePlayerState(player, slotIndex) {
-    if (this._guard()) return;
+    if (this._guard()) return false;
 
     const now = Date.now();
     if (!player.offline) player.offline = {};
+    const previousTimestamp = player.offline.last_save_timestamp;
     player.offline.last_save_timestamp = now;
 
     const save = this._buildPlayerSave(player, now);
@@ -36,8 +37,9 @@ export const SaveManager = {
     const payload = { data: save, version: SAVE_VERSION, saved_at: now, checksum };
 
     const json = JSON.stringify(payload);
-    storage.set(PRIMARY_KEY(slotIndex), json);
-    storage.set(SHADOW_KEY(slotIndex), json);
+    const saved = this._writeRedundantPlayerPayload(slotIndex, json);
+    if (!saved) player.offline.last_save_timestamp = previousTimestamp;
+    return saved;
   },
 
   /**
@@ -58,9 +60,7 @@ export const SaveManager = {
     const checksum = await computeChecksum(save, SAVE_VERSION, savedAt);
     const payload = { data: save, version: SAVE_VERSION, saved_at: savedAt, checksum };
     const json = JSON.stringify(payload);
-    const primaryOk = storage.set(PRIMARY_KEY(slotIndex), json);
-    const shadowOk = storage.set(SHADOW_KEY(slotIndex), json);
-    return primaryOk && shadowOk;
+    return this._writeRedundantPlayerPayload(slotIndex, json);
   },
 
   /**
@@ -73,14 +73,15 @@ export const SaveManager = {
 
     const now = Date.now();
     if (!player.offline) player.offline = {};
+    const previousTimestamp = player.offline.last_save_timestamp;
     player.offline.last_save_timestamp = now;
 
     const save = this._buildPlayerSave(player, now);
     const payload = { data: save, version: SAVE_VERSION, saved_at: now, checksum: null };
     const json = JSON.stringify(payload);
-    const primaryOk = storage.set(PRIMARY_KEY(slotIndex), json);
-    const shadowOk = storage.set(SHADOW_KEY(slotIndex), json);
-    return primaryOk && shadowOk;
+    const saved = this._writeRedundantPlayerPayload(slotIndex, json);
+    if (!saved) player.offline.last_save_timestamp = previousTimestamp;
+    return saved;
   },
 
   /**
@@ -88,8 +89,8 @@ export const SaveManager = {
    * @param {Object} globalSave
    */
   async saveGlobalState(globalSave) {
-    if (this._guard()) return;
-    storage.set(GLOBAL_KEY, JSON.stringify(globalSave));
+    if (this._guard()) return false;
+    return storage.set(GLOBAL_KEY, JSON.stringify(globalSave));
   },
 
   /**
@@ -98,6 +99,14 @@ export const SaveManager = {
    * @returns {Object|null} 玩家存档数据 或 null
    */
   async restorePlayerFromSave(slotIndex) {
+    const valid = await this.readValidPlayerPayload(slotIndex);
+    return valid?.data || null;
+  },
+
+  /**
+   * 读取带外层包装的有效存档；主存档损坏时自动使用影子副本修复。
+   */
+  async readValidPlayerPayload(slotIndex, { repairPrimary = true } = {}) {
     const primaryRaw = storage.get(PRIMARY_KEY(slotIndex));
     const shadowRaw = storage.get(SHADOW_KEY(slotIndex));
 
@@ -105,12 +114,19 @@ export const SaveManager = {
     const shadow = primary.valid ? { valid: false, data: null, raw: null } : await this._validatePlayerPayload(shadowRaw);
 
     if (primary.valid || shadow.valid) {
-      // 用 primary 恢复后把 shadow 同步为一致（只有 shadow 可用时提示用户）
+      const chosen = primary.valid ? primary : shadow;
       if (!primary.valid && shadow.valid) {
         console.warn('[存档] 检测到主存档损坏，已从影子存档恢复');
-        storage.set(PRIMARY_KEY(slotIndex), shadow.raw);
+        if (repairPrimary && !storage.set(PRIMARY_KEY(slotIndex), shadow.raw)) {
+          console.warn('[存档] 影子存档有效，但主存档修复写入失败');
+        }
       }
-      return primary.valid ? primary.data : shadow.data;
+      return {
+        data: chosen.data,
+        payload: JSON.parse(chosen.raw),
+        raw: chosen.raw,
+        recoveredFromShadow: !primary.valid && shadow.valid,
+      };
     }
 
     return null;
@@ -121,9 +137,11 @@ export const SaveManager = {
 
     try {
       const parsed = JSON.parse(raw);
+      if (parsed.version !== SAVE_VERSION || !parsed.data || typeof parsed.data !== 'object') {
+        return { valid: false, data: null, raw: null };
+      }
       if (parsed.checksum === null) {
-        const valid = parsed.version === SAVE_VERSION && !!parsed.data;
-        return { valid, data: valid ? parsed.data : null, raw: valid ? JSON.stringify(parsed) : null };
+        return { valid: true, data: parsed.data, raw: JSON.stringify(parsed) };
       }
       const expected = await computeChecksum(parsed.data, parsed.version, parsed.saved_at);
       const valid = expected === parsed.checksum;
@@ -145,6 +163,25 @@ export const SaveManager = {
     } catch {
       return null;
     }
+  },
+
+  _writeRedundantPlayerPayload(slotIndex, json) {
+    const primaryKey = PRIMARY_KEY(slotIndex);
+    const shadowKey = SHADOW_KEY(slotIndex);
+    const previousPrimary = storage.get(primaryKey);
+    const previousShadow = storage.get(shadowKey);
+    const primaryOk = storage.set(primaryKey, json);
+    const shadowOk = primaryOk && storage.set(shadowKey, json);
+    if (primaryOk && shadowOk) return true;
+
+    this._restoreStorageValue(primaryKey, previousPrimary);
+    this._restoreStorageValue(shadowKey, previousShadow);
+    return false;
+  },
+
+  _restoreStorageValue(key, value) {
+    if (value == null) storage.remove(key);
+    else storage.set(key, value);
   },
 
   /**
@@ -253,7 +290,13 @@ export const SaveManager = {
       auto_heal_skill: {
         enabled: false,
         selected_skill_key: null,
+        threshold: 0.50,
         ...(copy.auto_heal_skill || {}),
+      },
+      auto_buff_skill: {
+        enabled: false,
+        selected_skill_key: null,
+        ...(copy.auto_buff_skill || {}),
       },
       auto_resupply: {
         ...copy.auto_resupply,

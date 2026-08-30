@@ -2,24 +2,25 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260621-3';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260619-1';
-import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260618-1';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260613-22';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260617-1';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260617-1';
-import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260614-6';
-import { mountCharacterPanel } from './CharacterUI.js?v=release-20260614-6';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260620-1';
-import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260620-1';
-import { mountQuestPanel } from './TaskUI.js?v=release-20260612-2';
-import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260620-1';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260620-2';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260620-1';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260623-1';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260623-1';
-import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260621-3';
-import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260620-3';
+import { UIManager } from './UIManager.js?v=release-20260830-1';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260830-1';
+import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260830-1';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260830-1';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260830-1';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260830-1';
+import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260830-1';
+import { AutoPlaySystem } from '../systems/AutoPlaySystem.js?v=release-20260830-1';
+import { mountCharacterPanel } from './CharacterUI.js?v=release-20260830-1';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260830-1';
+import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260830-1';
+import { mountQuestPanel } from './TaskUI.js?v=release-20260830-1';
+import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260830-1';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260830-1';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260830-1';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260830-1';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260830-1';
+import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260830-1';
+import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260830-1';
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -1195,6 +1196,8 @@ function renderAutoplayPanel(player) {
   if (!p) return;
   const ap = p.auto_play || {};
   const attackCfg = ap.auto_attack || {};
+  const healCfg = ap.auto_heal_skill || {};
+  const buffCfg = ap.auto_buff_skill || {};
   const hpCfg = ap.auto_consume?.hp_potion || {};
   const mpCfg = ap.auto_consume?.mp_potion || {};
   const hpResupply = ap.auto_resupply?.trigger_rules?.hp || {};
@@ -1220,6 +1223,12 @@ function renderAutoplayPanel(player) {
   const learnedSkills = (window._martialArtsData || []).filter(skill =>
     skill.type === 'damage' && p.learned_martial_arts?.includes(skill.key)
   );
+  const learnedHealSkills = (window._martialArtsData || []).filter(skill =>
+    skill.type === 'heal' && p.learned_martial_arts?.includes(skill.key)
+  );
+  const learnedBuffSkills = (window._martialArtsData || []).filter(skill =>
+    skill.type === 'buff' && p.learned_martial_arts?.includes(skill.key)
+  );
   const selectedAttackSkill = learnedSkills.some(skill => skill.key === attackCfg.selected_skill_key)
     ? attackCfg.selected_skill_key
     : learnedSkills[0]?.key || '';
@@ -1239,6 +1248,24 @@ function renderAutoplayPanel(player) {
       label: `${skill.name}（内功 ${skill.cost?.mp ?? 0} / 伤害 ${skill.effect?.value ?? 0}）`,
     }))
     : [{ value: '', label: '暂无已学习的伤害武功' }];
+  const healSkillOptions = learnedHealSkills.length
+    ? learnedHealSkills.map(skill => ({
+      value: skill.key,
+      label: `${skill.name}（内功 ${skill.cost?.mp ?? 0} / 治疗 ${skill.effect?.value ?? 0}）`,
+    }))
+    : [{ value: '', label: '暂无已学习的治疗武功' }];
+  const buffSkillOptions = learnedBuffSkills.length
+    ? learnedBuffSkills.map(skill => ({
+      value: skill.key,
+      label: `${skill.name}（内功 ${skill.cost?.mp ?? 0}）`,
+    }))
+    : [{ value: '', label: '暂无已学习的增益武功' }];
+  const selectedHealSkill = learnedHealSkills.some(skill => skill.key === healCfg.selected_skill_key)
+    ? healCfg.selected_skill_key
+    : learnedHealSkills[0]?.key || '';
+  const selectedBuffSkill = learnedBuffSkills.some(skill => skill.key === buffCfg.selected_skill_key)
+    ? buffCfg.selected_skill_key
+    : learnedBuffSkills[0]?.key || '';
 
   const potionSelect = (kind, selected, enabled, handler = '_setAutoPotionItem') => {
     const keys = kind === 'hp' ? ['hp_potion_grade1','hp_potion_grade2','hp_potion_grade3'] : ['mp_potion_grade1','mp_potion_grade2','mp_potion_grade3'];
@@ -1422,6 +1449,20 @@ function renderAutoplayPanel(player) {
     </div>
 
     <div class="sec-panel">
+      <div class="panel-title"><span>✨ 自动辅助武功</span></div>
+      <div class="stat-line"><span class="sl-k">自动治疗</span>
+        ${toggleBtn('heal-skill', healCfg.enabled, "window._toggleAutoSupportSkill('heal')", !learnedHealSkills.length)}
+      </div>
+      ${customDropdown(healSkillOptions, selectedHealSkill, '_setAutoSupportSkill', { kind: 'heal', enabled: healCfg.enabled && learnedHealSkills.length })}
+      ${sliderRow('HP 阈值', Math.round((healCfg.threshold ?? 0.5) * 100), 5, 95, 5, "window._setAutoHealThreshold(this.value)", 'heal-skill-threshold-label', '%')}
+
+      <div class="stat-line" style="margin-top:0.9rem"><span class="sl-k">自动增益</span>
+        ${toggleBtn('buff-skill', buffCfg.enabled, "window._toggleAutoSupportSkill('buff')", !learnedBuffSkills.length)}
+      </div>
+      ${customDropdown(buffSkillOptions, selectedBuffSkill, '_setAutoSupportSkill', { kind: 'buff', enabled: buffCfg.enabled && learnedBuffSkills.length })}
+    </div>
+
+    <div class="sec-panel">
       <div class="panel-title"><span>💊 自动喝药</span></div>
       <!-- HP -->
       <div class="stat-line"><span class="sl-k">生命药剂</span>
@@ -1510,6 +1551,44 @@ window._setAutoAttackType = (attackType) => {
 
 window._setAutoAttackSkill = (skillKey) => {
   updateAutoAttack(config => { config.selected_skill_key = skillKey || null; });
+};
+
+function updateAutoSupportSkill(kind, update) {
+  const player = window.game?.player;
+  if (!player) return;
+  player.auto_play = player.auto_play || {};
+  const configKey = kind === 'buff' ? 'auto_buff_skill' : 'auto_heal_skill';
+  player.auto_play[configKey] = {
+    enabled: false,
+    selected_skill_key: null,
+    ...(kind === 'heal' ? { threshold: 0.5 } : {}),
+    ...(player.auto_play[configKey] || {}),
+  };
+  update(player.auto_play[configKey]);
+  window.game?.saveNow?.();
+  renderAutoplayPanel(player);
+}
+
+window._toggleAutoSupportSkill = (kind) => {
+  updateAutoSupportSkill(kind, config => {
+    config.enabled = !config.enabled;
+    if (config.enabled && !config.selected_skill_key) {
+      const type = kind === 'buff' ? 'buff' : 'heal';
+      config.selected_skill_key = (window._martialArtsData || []).find(skill =>
+        skill.type === type && window.game?.player?.learned_martial_arts?.includes(skill.key)
+      )?.key || null;
+    }
+  });
+};
+
+window._setAutoSupportSkill = (kind, skillKey) => {
+  updateAutoSupportSkill(kind, config => { config.selected_skill_key = skillKey || null; });
+};
+
+window._setAutoHealThreshold = value => {
+  updateAutoSupportSkill('heal', config => {
+    config.threshold = Math.max(0.05, Math.min(0.95, Number(value) / 100));
+  });
 };
 
 function updateAutoPotion(kind, update) {
@@ -1841,6 +1920,20 @@ window._learnMartial = (key) => {
   window.game?.saveNow?.();
   UIManager.toast(`学会武功：${martial.name}`, 'success');
   renderCharacterPanel(player);
+};
+
+window._castMartialArt = key => {
+  const player = window.game?.player;
+  if (!player) return;
+  const result = AutoPlaySystem.castSupportSkill(player, key, { source: 'manual' });
+  if (!result.success) {
+    UIManager.toast(result.message || '施放失败', 'error');
+    return;
+  }
+  window._attrSys?.recompute(player);
+  window.game?.saveNow?.();
+  UIManager.toast(result.message, 'success');
+  renderCharacterPanel(player, { preserveScroll: true });
 };
 
 window._switchQuestSeg = (seg) => {

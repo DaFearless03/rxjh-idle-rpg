@@ -38,9 +38,13 @@ export class EventBus {
    * @param {*} payload
    */
   emit(event, payload) {
-    const arr = this._listeners.get(event) || [];
+    const arr = [...(this._listeners.get(event) || [])];
     for (const cb of arr) {
-      cb(payload);
+      try {
+        cb(payload);
+      } catch (error) {
+        console.error(`[EventBus] listener failed for "${event}":`, error);
+      }
     }
   }
 

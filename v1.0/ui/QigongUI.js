@@ -3,7 +3,7 @@
  * @desc 气功页渲染：严格复用 ui_demo_role 的气功卡结构。
  */
 
-import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260614-6';
+import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260830-1';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -21,9 +21,11 @@ function getResetCost(player) {
 
 function renderQigongCard(q, available) {
   const invested = q.invested || 0;
+  const effective = Math.max(invested, q.effectiveLevel || 0);
   const max = q.max_level || 20;
-  const pct = max > 0 ? Math.min(100, Math.round((invested / max) * 100)) : 0;
+  const pct = max > 0 ? Math.min(100, Math.round((effective / max) * 100)) : 0;
   const isMax = invested >= max;
+  const levelLabel = effective > invested ? `${invested}(+${effective - invested})/${max}` : `${invested}/${max}`;
 
   // 锁定态
   if (!q.unlocked) {
@@ -42,7 +44,7 @@ function renderQigongCard(q, available) {
     '<div class="sc-desc">' + escapeHtml(q.description || '') + '</div>' +
     '<div class="qg-pts-row">' +
     '<div class="qg-mini-bar"><div class="qg-mini-fill" style="width:' + pct + '%"></div></div>' +
-    '<span class="qg-lv">' + invested + '/' + max + '</span>' +
+    '<span class="qg-lv">' + levelLabel + '</span>' +
     '</div>' +
     '</div>' +
     '<button class="btn-3d green qg-add" onclick="window._investQigong(\'' + q.key + '\', 1)"' +

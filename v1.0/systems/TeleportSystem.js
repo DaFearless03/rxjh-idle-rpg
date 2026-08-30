@@ -3,11 +3,11 @@
  * @desc teleport(sub_zone, source) + source 标记例外
  * @ref 08_maps_npc_quests.teleport_system / 10_consumables.is_auto_play.exit_triggers
  */
-import { eventBus } from '../core/EventBus.js';
-import { forceCloseDialog } from './NPCSystem.js';
-import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260620-4';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260615-1';
-import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260620-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { forceCloseDialog } from './NPCSystem.js?v=release-20260830-1';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260830-1';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260830-1';
+import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260830-1';
 
 export const TeleportSystem = {
   /**

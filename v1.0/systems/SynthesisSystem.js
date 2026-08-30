@@ -3,8 +3,9 @@
  * @desc 合成系统：石头嵌入装备孔位
  * @ref 05_equipment.md 5.5.10 synthesis_system
  */
-import { InventorySystem } from './InventorySystem.js';
-import { eventBus } from '../core/EventBus.js';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { QigongSystem } from './QigongSystem.js?v=release-20260830-1';
 
 export const SynthesisSystem = {
   SUCCESS_RATE: {
@@ -107,18 +108,18 @@ export const SynthesisSystem = {
     if (Math.random() >= successRate) {
       return {
         success: false,
-        message: `合成失败，合成石已消失（成功率 ${Math.round(successRate * 100)}%）`,
+        message: '合成失败，合成石已消失',
         successRate,
       };
     }
 
     // 石头 key 追加到装备 synthesis_slots
     ei.synthesis_slots = ei.synthesis_slots || [];
-    ei.synthesis_slots.push(stoneItemKey);
+    ei.synthesis_slots.push(QigongSystem.bindSkillLevelStone(player, stoneItemKey));
 
     return {
       success: true,
-      message: `合成成功！孔位 ${ei.synthesis_slots.length}/${capacity}（成功率 ${Math.round(successRate * 100)}%）`,
+      message: `合成成功！孔位 ${ei.synthesis_slots.length}/${capacity}`,
       successRate,
     };
   },

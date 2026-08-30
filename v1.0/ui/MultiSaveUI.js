@@ -3,10 +3,10 @@
  * @desc 多存档列表 UI
  * @ref 13_save.multi_save
  */
-import { storage } from '../utils/storage.js';
-import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260620-1';
-import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260620-1';
-import { UIManager } from './UIManager.js?v=release-20260620-2';
+import { storage } from '../utils/storage.js?v=release-20260830-1';
+import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260830-1';
+import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260830-1';
+import { UIManager } from './UIManager.js?v=release-20260830-1';
 
 const CAREER_EMOJI = {
   warrior_blade: '⚔️',
@@ -313,6 +313,7 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
     const flow = runCharacterCreationFlow({
       careersData: window._careersData || [],
       globalSave: window._currentGlobalSave || {},
+      attributeConstants: window._attributeConstants || {},
     });
     const r3 = flow.step3_initializeSave(window._selectedCareer, name, window._targetSlotIndex);
     if (!r3.success) { errEl.textContent = r3.message; return; }
@@ -337,7 +338,12 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
         r3.save.inventory.slots.push({ item_key: _tpl.key, count: 1, instance_id: _instId });
 
       }
-    }    await flow.step4_persist(r3.save, r3.slotIndex, window._currentGlobalSave);
+    }
+    const persisted = await flow.step4_persist(r3.save, r3.slotIndex, window._currentGlobalSave);
+    if (!persisted.success) {
+      errEl.textContent = persisted.message || '角色创建失败';
+      return;
+    }
     UIManager.popModal();
     UIManager.toast(`角色「${name}」创建成功！`, 'success');
     setTimeout(() => (window._switchCharacterFromSaveList || window.game?.switchCharacter)?.(r3.slotIndex), 300);

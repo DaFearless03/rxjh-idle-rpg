@@ -3,7 +3,7 @@
  * @desc 100ms tick 游戏循环
  * @ref 06_battle.battle_loop.interval
  */
-import { eventBus } from './EventBus.js';
+import { eventBus } from './EventBus.js?v=release-20260830-1';
 
 export class GameLoop {
   /**
@@ -46,11 +46,18 @@ export class GameLoop {
     const delay = Math.max(0, this._tickMs - elapsed);
     this._timerId = setTimeout(() => {
       if (!this._running) return;
+      const tickStartedAt = Date.now();
+      const deltaMs = Math.max(0, tickStartedAt - this._lastTickTime);
+      this._lastTickTime = tickStartedAt;
       this._tickCount++;
       for (const cb of this._callbacks) {
-        cb(this._tickCount);
+        try {
+          cb(this._tickCount, deltaMs);
+        } catch (error) {
+          console.error('[GameLoop] tick listener failed:', error);
+          eventBus.emit('game.loop_error', { error, tickCount: this._tickCount });
+        }
       }
-      this._lastTickTime = Date.now();
       this._schedule();
     }, delay);
   }

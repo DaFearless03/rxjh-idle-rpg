@@ -3,10 +3,10 @@
  * @desc 1vN 战斗系统：刷怪 / target_lock / 普攻结算 / 死亡判定
  * @ref 06_battle.battle_flow / 06_battle.battle_loop
  */
-import { eventBus } from '../core/EventBus.js';
-import { Monster } from '../entities/Monster.js';
-import { DamageSystem } from './DamageSystem.js';
-import { grantExp, onLevelUp, applyDeathExpLoss } from '../utils/formulas.js?v=release-20260618-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { Monster } from '../entities/Monster.js?v=release-20260830-1';
+import { DamageSystem } from './DamageSystem.js?v=release-20260830-1';
+import { grantExp, onLevelUp, applyDeathExpLoss } from '../utils/formulas.js?v=release-20260830-1';
 
 const DEFAULT_ELITE_CAP_PER_ZONE = 1;
 
@@ -189,8 +189,8 @@ export class BattleSystem {
   // ========================
 
   _playerAttack() {
-    const target = this._lockMainTarget();
-    if (!target || !target.isAlive() || !target.isReadyToAttack()) return;
+    const mainTarget = this._lockMainTarget();
+    if (!mainTarget || !mainTarget.isAlive() || !mainTarget.isReadyToAttack()) return;
 
     const attackCfg = this._player.auto_play?.auto_attack || {};
     const skill = attackCfg.attack_type === 'skill'
@@ -206,6 +206,22 @@ export class BattleSystem {
       this._player.mp = Math.max(0, this._player.mp - mpCost);
       eventBus.emit('battle.player_status_changed', { reason: 'skill_mp_cost' });
     }
+    const targetCount = skill?.target === 'aoe'
+      ? Math.max(1, Math.floor(Number(skill.effect?.target_count) || 1))
+      : 1;
+    const targets = [
+      mainTarget,
+      ...this.monsters.filter(monster =>
+        monster !== mainTarget && monster.isAlive() && monster.isReadyToAttack()
+      ),
+    ].slice(0, targetCount);
+
+    for (const target of targets) {
+      if (!this._resolvePlayerAttack(target, skill)) break;
+    }
+  }
+
+  _resolvePlayerAttack(target, skill) {
     const result = this._damageSys.attack_resolution_pipeline(this._player, target, skill ? 'skill' : 'normal', skill);
     if (!result.isMiss && target.passive) { target._provoked = true; }
 
@@ -244,7 +260,12 @@ export class BattleSystem {
       if (dead) {
         this._onMonsterDead(target);
       }
+      if (this._player.hp <= 0) {
+        this._onPlayerDeath();
+        return false;
+      }
     }
+    return true;
   }
 
   // ========================
@@ -297,7 +318,11 @@ export class BattleSystem {
           eventBus.emit('battle.player_status_changed', { reason: 'monster_hit' });
           if (result.isCountered) eventBus.emit('battle.counter', { attacker: monster.name, damage: result.actualDmg, reflected: result.actualDmg });
 
-          if (this._player.hp <= 0) {
+          const playerDied = this._player.hp <= 0;
+          if (!monster.isAlive()) {
+            this._onMonsterDead(monster);
+          }
+          if (playerDied) {
             this._onPlayerDeath();
             return;
           }
@@ -311,7 +336,11 @@ export class BattleSystem {
   // ========================
 
   _onMonsterDead(monster) {
-    this._pushEvent(`[击杀] ${monster.name} 倒下，经验 +${monster.exp}`);
+    const expModifier = this._dropSys?.getLevelDifferenceModifiers?.(this._player.level, monster.level)?.exp_modifier ?? 1;
+    const expReward = Math.max(0, Math.floor(monster.exp * expModifier));
+    this._pushEvent(`[击杀] ${monster.name} 倒下，经验 +${expReward}`);
+    this._player.statistics = this._player.statistics || {};
+    this._player.statistics.total_kills = (this._player.statistics.total_kills || 0) + 1;
     // 移除
     this.monsters = this.monsters.filter(m => m !== monster);
     // 重置目标锁
@@ -321,7 +350,7 @@ export class BattleSystem {
     // grant_exp（含跨级判断）
     grantExp(
       this._player,
-      monster.exp,
+      expReward,
       {
         exp_to_next_level: this._config.exp_to_next_level,
         current_level_cap: this._config.current_level_cap,
@@ -349,11 +378,12 @@ export class BattleSystem {
     if (this._dropSys) {
       // 找到当前 sub_zone 的掉落配置
       const subZoneDrop = this._subZoneDropsData.find(drop => drop.sub_zone_key === this._currentSubZone?.key);
-      dropSummary = this._dropSys.evaluate(this._player, monster, subZoneDrop || null);
+      dropSummary = this._dropSys.evaluate(this._player, monster, subZoneDrop || null, this._currentSubZone);
     } else {
       // 无 DropSystem 时直接给少量金币（Phase 1 兼容）
       this._player.resources = this._player.resources || { gold: 0, training: 0, merit: 0 };
       this._player.resources.gold += 5;
+      this._player.statistics.total_gold_earned = (this._player.statistics.total_gold_earned || 0) + 5;
       eventBus.emit('resources.changed', { player: this._player, resource: 'gold', amount: 5, action: 'add' });
       this._player.resources.training = (this._player.resources.training || 0) + 1;
       dropSummary = { gold: 5, training: 1 };
@@ -362,7 +392,7 @@ export class BattleSystem {
     eventBus.emit('monster.death', {
       monsterKey: monster.key,
       monsterName: monster.name || monster.key,
-      exp: monster.exp,
+      exp: expReward,
       gold: dropSummary?.gold || 0,
       training: dropSummary?.training || 0,
     });
@@ -404,8 +434,7 @@ export class BattleSystem {
 
   /**
    * 主 tick（100ms）
-   * @param {number} tickCount
-   * @param {number} deltaMs 实际上一次调用到现在经过的毫秒（近似 tickMs）
+   * @param {number} deltaMs 实际上一次调用到现在经过的毫秒
    */
   tick(deltaMs) {
     if (!this._currentSubZone) {

@@ -3,8 +3,8 @@
  * @desc Buff 系统：apply_buff / expire / DOT/HOT tick / attribute_mods 注入钩子
  * @ref 04_skills_qigong_buff Buff 系统
  */
-import { createBuffInstance, isBuffExpired } from '../entities/Buff.js';
-import { eventBus } from '../core/EventBus.js';
+import { createBuffInstance, isBuffExpired } from '../entities/Buff.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
 
 export const BuffSystem = {
   _buffTemplates: {},
@@ -48,7 +48,7 @@ export const BuffSystem = {
     const instance = createBuffInstance(template, { durationOverride });
     buffs.push(instance);
     console.log(`[Buff] 应用 ${template.name}`);
-    eventBus.emit('buff.applied', { buffKey, name: template.name });
+    eventBus.emit('buff.applied', { player, buffKey, name: template.name });
     return { success: true, message: `应用 ${template.name}` };
   },
 
@@ -96,7 +96,7 @@ export const BuffSystem = {
       for (const buff of expired) {
         player.buffs = player.buffs.filter(b => b !== buff);
         console.log(`[Buff] ${buff.name} 已结束`);
-        eventBus.emit('buff.expired', { buffKey: buff.key });
+        eventBus.emit('buff.expired', { player, buffKey: buff.key });
       }
     }
   },

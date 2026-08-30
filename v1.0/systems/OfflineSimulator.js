@@ -3,14 +3,14 @@
  * @desc 离线模拟引擎：settle_offline_rewards + is_in_offline_simulation flag
  * @ref 13_save.simulation_flow
  */
-import { SaveManager } from '../core/SaveManager.js?v=release-20260620-2';
-import { AttributeSystem } from './AttributeSystem.js?v=release-20260618-1';
-import { BattleSystem } from './BattleSystem.js?v=release-20260623-1';
-import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260620-4';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260619-1';
-import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260620-1';
-import { eventBus } from '../core/EventBus.js';
-import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260620-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260830-1';
+import { AttributeSystem } from './AttributeSystem.js?v=release-20260830-1';
+import { BattleSystem } from './BattleSystem.js?v=release-20260830-1';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260830-1';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260830-1';
+import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260830-1';
 
 export const OfflineSimulator = {
   is_in_offline_simulation: false,
@@ -44,7 +44,9 @@ export const OfflineSimulator = {
     try {
       const summary = await this._runSimulation(save, sim_seconds, onProgress);
       // 先写同步快照，避免收益页展示被完整异步存档和 checksum 阻塞。
-      SaveManager.savePlayerStateSync(summary._player, save._slotIndex || 1);
+      if (!SaveManager.savePlayerStateSync(summary._player, save._slotIndex || 1)) {
+        throw new Error('离线收益存档失败，请检查浏览器存储空间');
+      }
       onSummary(summary);
       return summary;
     } finally {
@@ -54,8 +56,10 @@ export const OfflineSimulator = {
   },
 
   async _runSimulation(save, sim_seconds, onProgress) {
-    const TICK_MS = sim_seconds >= 3600 ? 5000 : 100;
-    const BATCH_SECONDS = sim_seconds >= 3600 ? 3600 : 60;
+    // 战斗与自动吃药必须按与在线相同的粒度交替执行，否则粗粒度 tick
+    // 会先连续结算多次怪物攻击，再给自动吃药一次反应机会。
+    const TICK_MS = 100;
+    const BATCH_SECONDS = sim_seconds >= 3600 ? 600 : 60;
     const BATCH_TICKS = Math.max(1, Math.floor(BATCH_SECONDS * 1000 / TICK_MS));
     const total_ticks = Math.floor(sim_seconds * 1000 / TICK_MS);
 
@@ -136,6 +140,8 @@ export const OfflineSimulator = {
 
     try {
       for (let tick = 0; tick < total_ticks; tick++) {
+        player.statistics = player.statistics || {};
+        player.statistics.total_playtime_ms = (player.statistics.total_playtime_ms || 0) + TICK_MS;
         battle.tick(TICK_MS);
         const goldBeforeAutoPlay = player.resources?.gold || 0;
         AutoPlaySystem.tick(player, TICK_MS, (source, zone) => {

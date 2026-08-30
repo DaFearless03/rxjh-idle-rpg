@@ -3,8 +3,8 @@
  * @desc 背包页渲染：装备摘要 + demo 风格背包格子。
  */
 
-import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260615-1';
-import { buildEquipmentDetailView, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260620-1';
+import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260830-1';
+import { buildEquipmentDetailView, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260830-1';
 
 const ITEM_META = {
   hp_potion_grade1: { icon: '🍶', name: '金创药(小)', desc: '恢复70点生命值' },
@@ -43,6 +43,11 @@ function parseStoneAttr(key) {
   const attr = parts[1];
   const value = parts[2];
   if (!attr || !Number.isFinite(Number(value))) return '';
+  if (attr === 'skill_level_up') {
+    const targetKey = parts[3];
+    const target = window._qigongSys?._qigongTemplates?.find(item => item.key === targetKey);
+    return `${target?.name || '气功'}等级 +${value}`;
+  }
   const labels = {
     defAdd: '防御',
     maxHpAdd: '生命',
