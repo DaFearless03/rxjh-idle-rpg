@@ -3,7 +3,7 @@
  * @desc 命中判定 + 普通攻击伤害 + 攻击结算 pipeline
  * @ref 06_battle.damage_formulas (hit_check / normal_attack_damage / attack_resolution_pipeline)
  */
-import { random, randInt } from '../utils/random.js?v=release-20260830-1';
+import { random, randInt } from '../utils/random.js?v=release-20260830-3';
 
 export class DamageSystem {
   /**
@@ -42,12 +42,14 @@ export class DamageSystem {
       : attacker.atk;
 
     // 破甲
-    let effectiveDef = target.def || 0;
-    let effectiveMdef = target.mdef || 0;
+    const rawDef = Number(target.def);
+    const rawMdef = Number(target.mdef);
+    let effectiveDef = Number.isFinite(rawDef) && rawDef >= 0 ? rawDef : 0;
+    let effectiveMdef = Number.isFinite(rawMdef) && rawMdef >= 0 ? rawMdef : 0;
     let isArmorBroken = false;
     if (random() < (attacker.armorBreak ?? 0)) {
-      effectiveDef = target.def * (1 - this._cc.armorBreakDefReduce);
-      effectiveMdef = target.mdef * (1 - this._cc.armorBreakDefReduce);
+      effectiveDef *= (1 - this._cc.armorBreakDefReduce);
+      effectiveMdef *= (1 - this._cc.armorBreakDefReduce);
       isArmorBroken = true;
     }
 
@@ -56,7 +58,13 @@ export class DamageSystem {
     // 连击（仅玩家，触发后跳过暴击）
     if (attacker._isPlayer && random() < (attacker.combo ?? 0)) {
       const hits = this._cc.comboHits;
-      return { finalDmg: baseDmg * hits, isMiss: false, isCrit: false, isCombo: true, isArmorBroken };
+      return {
+        finalDmg: Math.max(1, Math.floor(baseDmg * hits)),
+        isMiss: false,
+        isCrit: false,
+        isCombo: true,
+        isArmorBroken,
+      };
     }
 
     // 暴击（与连击互斥）
@@ -84,7 +92,19 @@ export class DamageSystem {
   attack_resolution_pipeline(attacker, target, attackType = 'normal', skill = null) {
     // 0. hit_check
     if (!this.hit_check(attacker, target)) {
-      return { isMiss: true, finalDmg: 0, actualDmg: 0, isCrit: false, isCombo: false, isShielded: false, isLeech: false, isCountered: false };
+      return {
+        isMiss: true,
+        finalDmg: 0,
+        actualDmg: 0,
+        isCrit: false,
+        isCombo: false,
+        isShielded: false,
+        isLeech: false,
+        leechHeal: 0,
+        isCountered: false,
+        reflectedDmg: 0,
+        isArmorBroken: false,
+      };
     }
 
     // 1. 计算 finalDmg
@@ -92,8 +112,11 @@ export class DamageSystem {
     if (attackType === 'normal' || skill === null) {
       result = this.normal_attack_damage(attacker, target);
     } else {
-      // skill_damage（Phase 1 不走这里，保留接口）
-      result = { finalDmg: this._skill_damage(attacker, target, skill), isMiss: false, isCrit: false, isCombo: false, isArmorBroken: false };
+      result = {
+        ...this._skill_damage(attacker, target, skill),
+        isMiss: false,
+        isCombo: false,
+      };
     }
     const { finalDmg, isCrit, isCombo, isArmorBroken } = result;
 
@@ -104,25 +127,49 @@ export class DamageSystem {
       actualDmg = Math.floor(finalDmg * (1 - this._cc.shieldDamageReduceRate));
       isShielded = true;
     }
+    const targetHp = Number(target.hp);
+    if (Number.isFinite(targetHp)) {
+      actualDmg = Math.min(actualDmg, Math.max(0, targetHp));
+    }
 
     // 3. leech（攻方）
     let isLeech = false;
+    let leechHeal = 0;
     const leechChance = attacker.leech ?? 0;
     if (leechChance > 0 && random() < leechChance) {
-      const healAmt = Math.floor(actualDmg * this._cc.leechRate);
-      attacker.hp = Math.min(attacker.hp + healAmt, attacker.maxHp);
+      leechHeal = Math.min(
+        Math.floor(actualDmg * this._cc.leechRate),
+        Math.max(0, attacker.maxHp - attacker.hp),
+      );
+      attacker.hp += leechHeal;
       isLeech = true;
     }
 
     // 4. counterDamage（守方反击给攻方）
     let isCountered = false;
+    let reflectedDmg = 0;
     if (random() < (target.counterDamage ?? 0)) {
-      const reflected = Math.floor(actualDmg * this._cc.counterDamageRate);
-      attacker.hp = Math.max(0, attacker.hp - reflected);
+      reflectedDmg = Math.min(
+        Math.floor(actualDmg * this._cc.counterDamageRate),
+        Math.max(0, attacker.hp),
+      );
+      attacker.hp = Math.max(0, attacker.hp - reflectedDmg);
       isCountered = true;
     }
 
-    return { isMiss: false, finalDmg, actualDmg, isCrit, isCombo, isShielded, isLeech, isCountered, isArmorBroken };
+    return {
+      isMiss: false,
+      finalDmg,
+      actualDmg,
+      isCrit,
+      isCombo,
+      isShielded,
+      isLeech,
+      leechHeal,
+      isCountered,
+      reflectedDmg,
+      isArmorBroken,
+    };
   }
 
   /**
@@ -134,11 +181,15 @@ export class DamageSystem {
       ? randInt(attacker.atkMin, attacker.atkMax)
       : attacker.atk;
 
-    let effectiveDef = target.def || 0;
-    let effectiveMdef = target.mdef || 0;
+    const rawDef = Number(target.def);
+    const rawMdef = Number(target.mdef);
+    let effectiveDef = Number.isFinite(rawDef) && rawDef >= 0 ? rawDef : 0;
+    let effectiveMdef = Number.isFinite(rawMdef) && rawMdef >= 0 ? rawMdef : 0;
+    let isArmorBroken = false;
     if (random() < (attacker.armorBreak ?? 0)) {
-      effectiveDef = target.def * (1 - this._cc.armorBreakDefReduce);
-      effectiveMdef = target.mdef * (1 - this._cc.armorBreakDefReduce);
+      effectiveDef *= (1 - this._cc.armorBreakDefReduce);
+      effectiveMdef *= (1 - this._cc.armorBreakDefReduce);
+      isArmorBroken = true;
     }
 
     const basePart = Math.max(1, atk - effectiveDef) * 1.5;
@@ -147,10 +198,16 @@ export class DamageSystem {
     let skillDmg = basePart + matkPart + weaponBonus;
     skillDmg *= (100 / (100 + effectiveMdef));
 
+    let isCrit = false;
     if (random() < (attacker.skillCritRate ?? 0)) {
       skillDmg *= (1 + this._cc.skillCritDamageBonus);
+      isCrit = true;
     }
 
-    return Math.max(1, Math.floor(skillDmg));
+    return {
+      finalDmg: Math.max(1, Math.floor(skillDmg)),
+      isCrit,
+      isArmorBroken,
+    };
   }
 }

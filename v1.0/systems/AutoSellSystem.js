@@ -2,8 +2,8 @@
  * @file systems/AutoSellSystem.js
  * @desc 回城时按玩家配置自动出售低属性石头与未被过滤清单保护的装备。
  */
-import { ShopSystem } from './ShopSystem.js?v=release-20260830-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { ShopSystem } from './ShopSystem.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
 
 function parseStoneKey(itemKey) {
   const match = String(itemKey || '').match(/^(.+?)--(.+?)--(-?\d+(?:\.\d+)?)$/);
@@ -39,14 +39,16 @@ function isSellableEquipment(player, slot) {
     && !isProtectedEquipment(player, slot);
 }
 
-function getEquipmentSellPrice(player, itemKey) {
-  const template = player?._equipTemplates?.find(item => item.key === itemKey);
-  if (!template) return 1;
-  const level = Number(template.required_level || 1);
-  if (template.slot === 'weapon') return level < 35 ? level * 100 : level * 1000;
-  if (template.slot === 'gloves') return level * 20;
-  if (['chest', 'boots', 'inner_armor', 'cape'].includes(template.slot)) return level * 500;
-  return 1;
+function canSellSlot(player, slot) {
+  if (isSellableEquipment(player, slot)) {
+    return ShopSystem.canRecordSale(player, ShopSystem.getEquipmentSellPrice(player, slot.item_key));
+  }
+  if (!matchesConfiguredRule(player, slot?.item_key)) return false;
+  const count = Number(slot.count);
+  if (!Number.isSafeInteger(count) || count <= 0) return false;
+  const unitPrice = ShopSystem.getSellPrice(slot.item_key, { type: 'shop', items: [] });
+  const totalPrice = unitPrice * count;
+  return Number.isSafeInteger(totalPrice) && ShopSystem.canRecordSale(player, totalPrice);
 }
 
 export const AutoSellSystem = {
@@ -56,7 +58,7 @@ export const AutoSellSystem = {
     return (player?.inventory?.slots || []).some(slot =>
       slot?.item_key
       && (slot.count || 0) > 0
-      && (matchesConfiguredRule(player, slot.item_key) || isSellableEquipment(player, slot))
+      && canSellSlot(player, slot)
     );
   },
 
@@ -75,11 +77,7 @@ export const AutoSellSystem = {
       if (isSellableEquipment(player, slot)) {
         const itemKey = slot.item_key;
         const before = player.resources?.gold || 0;
-        const result = ShopSystem.sellEquipmentInstance(
-          player,
-          slot.instance_id,
-          getEquipmentSellPrice(player, itemKey)
-        );
+        const result = ShopSystem.sellEquipmentInstance(player, slot.instance_id);
         if (!result.success) continue;
         const earned = (player.resources?.gold || 0) - before;
         summary.sold += 1;

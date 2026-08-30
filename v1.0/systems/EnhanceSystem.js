@@ -3,9 +3,11 @@
  * @desc 强化系统 +0~+10（成功/失败毁装备）
  * @ref 05_equipment.md 5.5.7 enhance_system
  */
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
 
 export const EnhanceSystem = {
+  ENHANCEABLE_SLOTS: new Set(['weapon', 'chest', 'gloves', 'boots', 'inner_armor']),
+
   // 强化成功率
   SUCCESS_RATE: {
     1: 0.90, 2: 0.80, 3: 0.60, 4: 0.40, 5: 0.20,
@@ -16,47 +18,69 @@ export const EnhanceSystem = {
    * 强化装备
    * @param {Object} player
    * @param {string} instanceId 背包中的装备实例 ID
+   * @param {?string} preferredStoneKey 指定要消耗的强化石品类；不传时兼容旧调用并按 key 消耗
    * @returns {{ success: boolean, message: string }}
    */
-  enhance(player, instanceId) {
+  enhance(player, instanceId, preferredStoneKey = null) {
     const { instance: ei, template, slot: bagSlot } = this._getBagEquipment(player, instanceId);
     if (!bagSlot || !ei || !template) {
       return { success: false, message: '装备必须先卸下并放入背包' };
     }
-    const currentLevel = ei.enhance_level || 0;
+    if (!this.isEnhanceableTemplate(template)) {
+      return { success: false, message: '该装备不支持强化' };
+    }
+    const rawLevel = Number(ei.enhance_level);
+    const currentLevel = Number.isFinite(rawLevel) ? Math.max(0, Math.floor(rawLevel)) : 0;
+    ei.enhance_level = currentLevel;
     if (currentLevel >= 10) {
       return { success: false, message: `强化等级已达上限 +10` };
     }
 
     // 获取装备模板（找 required_level 算强化费用）
     // 计算强化费用
-    const cost = template.required_level * 1000;
-    if ((player.resources?.gold || 0) < cost) {
+    const requiredLevel = Number(template.required_level);
+    const cost = (Number.isFinite(requiredLevel) && requiredLevel > 0 ? Math.floor(requiredLevel) : 1) * 1000;
+    const gold = Number(player.resources?.gold);
+    if (!Number.isSafeInteger(gold) || gold < 0) return { success: false, message: '玩家金币数据异常' };
+    if (gold < cost) {
       return { success: false, message: `金币不足，需要 ${cost} 金币` };
     }
 
     // 消耗强化石（根据已合成石头数量）
-    const stoneCount = (ei.synthesis_slots || []).length;
+    const stoneCount = Array.isArray(ei.synthesis_slots) ? ei.synthesis_slots.filter(Boolean).length : 0;
     let stonesNeeded = 1;
     if (stoneCount >= 4) stonesNeeded = 3;
     else if (stoneCount >= 1) stonesNeeded = 2;
 
-    const availableStones = this._countEnhanceStones(player);
+    if (preferredStoneKey != null && !/^enhance_stone_/.test(String(preferredStoneKey))) {
+      return { success: false, message: '请选择强化石' };
+    }
+    const normalizedStoneKey = preferredStoneKey == null ? null : String(preferredStoneKey);
+    const availableStones = this._countEnhanceStones(player, normalizedStoneKey);
     if (availableStones < stonesNeeded) {
       return { success: false, message: `强化需要 ${stonesNeeded} 个强化石` };
     }
 
     // 扣钱扣石头
-    player.resources.gold -= cost;
-    this._removeEnhanceStones(player, stonesNeeded);
-    eventBus.emit('inventory.changed', { player, item_key: 'enhance_stone_01', action: 'remove', changed_count: stonesNeeded, count: this._countEnhanceStones(player) });
+    const removal = this._removeEnhanceStones(player, stonesNeeded, normalizedStoneKey);
+    if (!removal.success) return { success: false, message: '强化石消耗失败' };
+    player.resources.gold = gold - cost;
+    for (const [itemKey, removedCount] of Object.entries(removal.removed)) {
+      eventBus.emit('inventory.changed', {
+        player,
+        item_key: itemKey,
+        action: 'remove',
+        changed_count: removedCount,
+        count: this._countEnhanceStones(player, itemKey),
+      });
+    }
     eventBus.emit('resources.changed', { player, resource: 'gold', amount: cost, action: 'remove' });
 
     // 成功率判定
     const successRate = this.getSuccessRate(player, currentLevel + 1);
     if (Math.random() < successRate) {
       // 成功
-      ei.enhance_level += 1;
+      ei.enhance_level = currentLevel + 1;
       return { success: true, message: `强化成功！+${ei.enhance_level}`, successRate };
     } else {
       // 失败摧毁装备（含已合成石头）
@@ -68,8 +92,13 @@ export const EnhanceSystem = {
 
   getSuccessRate(player, targetLevel) {
     const baseRate = this.SUCCESS_RATE[targetLevel] ?? 0.01;
-    const bonusRate = Number(player?.enhanceSuccessRate || 0);
+    const rawBonus = Number(player?.enhanceSuccessRate);
+    const bonusRate = Number.isFinite(rawBonus) ? rawBonus : 0;
     return Math.max(0, Math.min(1, baseRate + bonusRate));
+  },
+
+  isEnhanceableTemplate(template) {
+    return !!template && this.ENHANCEABLE_SLOTS.has(template.slot);
   },
 
   /**
@@ -93,30 +122,48 @@ export const EnhanceSystem = {
     }
   },
 
-  _countEnhanceStones(player) {
+  _countEnhanceStones(player, preferredStoneKey = null) {
     const slots = player.inventory?.slots || [];
     return slots.reduce((sum, slot) => {
-      if (/^enhance_stone_/.test(slot.item_key || '')) return sum + (slot.count || 0);
+      if (!/^enhance_stone_/.test(slot.item_key || '')) return sum;
+      if (preferredStoneKey && slot.item_key !== preferredStoneKey) return sum;
+      const count = Number(slot.count);
+      if (Number.isSafeInteger(count) && count > 0) {
+        return Math.min(Number.MAX_SAFE_INTEGER, sum + count);
+      }
       return sum;
     }, 0);
   },
 
-  _removeEnhanceStones(player, count) {
+  _removeEnhanceStones(player, count, preferredStoneKey = null) {
+    if (!Number.isSafeInteger(count) || count <= 0
+      || this._countEnhanceStones(player, preferredStoneKey) < count) {
+      return { success: false, removed: {} };
+    }
     const slots = player.inventory?.slots || [];
     let remaining = count;
+    const removed = {};
     const stoneSlots = slots
-      .filter(slot => /^enhance_stone_/.test(slot.item_key || '') && (slot.count || 0) > 0)
+      .filter(slot => /^enhance_stone_/.test(slot.item_key || '')
+        && (!preferredStoneKey || slot.item_key === preferredStoneKey)
+        && Number.isSafeInteger(Number(slot.count))
+        && Number(slot.count) > 0)
       .sort((a, b) => a.item_key.localeCompare(b.item_key));
 
     for (const slot of stoneSlots) {
+      const itemKey = slot.item_key;
       const take = Math.min(slot.count, remaining);
       slot.count -= take;
       remaining -= take;
-      if (slot.count === 0) slot.item_key = null;
-      if (remaining === 0) return true;
+      removed[itemKey] = (removed[itemKey] || 0) + take;
+      if (slot.count === 0) {
+        slot.item_key = null;
+        delete slot.instance_id;
+      }
+      if (remaining === 0) return { success: true, removed };
     }
 
-    return false;
+    return { success: false, removed: {} };
   },
 
   /**

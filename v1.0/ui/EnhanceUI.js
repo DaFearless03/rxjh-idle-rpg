@@ -3,30 +3,9 @@
  * @desc 刀剑笑强化工坊 UI。
  */
 
-import { getEquipmentTemplate } from './EquipUI.js?v=release-20260830-1';
-import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260830-1';
-
-const SLOT_LABEL = {
-  weapon: '武器', chest: '衣服', gloves: '护手', boots: '鞋子', inner_armor: '内甲',
-  ring: '戒指', amulet: '项链', earring: '耳环', cape: '披风',
-};
-const SLOT_ICON = {
-  weapon: '⚔️', chest: '👕', gloves: '🧤', boots: '👟', inner_armor: '🛡️',
-  ring: '💍', amulet: '📿', earring: '💎', cape: '🧣',
-};
-
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function renderEmptyTiles(count) {
-  return Array(Math.max(0, count)).fill('<div class="bag-tile empty"></div>').join('');
-}
+import { getEquipmentTemplate } from './EquipUI.js?v=release-20260830-3';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260830-3';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260830-3';
 
 function getBagEquipmentChoices(player) {
   const equippedIds = new Set(Object.values(player?.equipped || {}).flat().filter(Boolean)
@@ -36,43 +15,17 @@ function getBagEquipmentChoices(player) {
     if (!instanceId || equippedIds.has(instanceId)) return null;
     const inst = instanceId ? player?.inventory?.equipment_instances?.[instanceId] : null;
     const tpl = getEquipmentTemplate(player, inst);
-    if (!inst || !tpl) return null;
+    if (!inst || !tpl || !EnhanceSystem.isEnhanceableTemplate(tpl)) return null;
     return {
       key: instanceId,
-      name: tpl.name || inst.item_key,
-      sub: `${SLOT_LABEL[tpl.slot] || tpl.slot} · +${inst.enhance_level || 0}`,
-      icon: SLOT_ICON[tpl.slot] || '⚔️',
       cost: (tpl.required_level || 1) * 1000,
     };
   }).filter(Boolean);
 }
 
-function getEnhanceStones(player) {
-  return (player?.inventory?.slots || [])
-    .filter(slot => slot.item_key === 'enhance_stone_01' && (slot.count || 0) > 0)
-    .map(slot => ({
-      key: slot.item_key,
-      name: '强化石',
-      count: slot.count || 1,
-      icon: '🪨',
-    }));
-}
-
-function renderChoiceTile(item, kind) {
-  return `<div class="bag-tile ${kind === 'equip' ? 'equip' : 'stack'}" data-kind="${kind}" data-key="${escapeHtml(item.key)}" data-icon="${escapeHtml(item.icon)}" data-name="${escapeHtml(item.name)}">
-    <div class="bt-icon">${item.icon}</div>
-    <div class="bt-name">${escapeHtml(item.name)}</div>
-    ${item.sub ? `<div class="bt-sub">${escapeHtml(item.sub)}</div>` : ''}
-    ${item.count > 1 ? `<div class="bt-badge">×${item.count}</div>` : ''}
-  </div>`;
-}
-
 export function renderEnhanceWorkbench(player) {
   if (normalizeLegacyEquipmentSlots(player)) window.game?.saveNow?.();
   const equips = getBagEquipmentChoices(player);
-  const stones = getEnhanceStones(player);
-  const equipGrid = equips.map(item => renderChoiceTile(item, 'equip')).join('') + renderEmptyTiles(12 - equips.length);
-  const stoneGrid = stones.map(item => renderChoiceTile(item, 'stone')).join('') + renderEmptyTiles(12 - stones.length);
 
   return `<div class="craft-body">
     <div class="craft-work">
@@ -94,7 +47,7 @@ export function renderEnhanceWorkbench(player) {
       </div>
     </div>
     <div class="craft-bag">${renderCraftBagPanel(player, 'enhance', slot => {
-      if (slot.item_key === 'enhance_stone_01') return 'data-craft-valid="1"';
+      if (/^enhance_stone_/.test(slot.item_key || '')) return 'data-craft-valid="1"';
       const item = equips.find(equip => equip.key === slot.instance_id);
       return item ? `data-craft-valid="1" data-cost="${item.cost}"` : '';
     })}</div>

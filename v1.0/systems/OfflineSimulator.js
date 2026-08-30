@@ -3,14 +3,15 @@
  * @desc 离线模拟引擎：settle_offline_rewards + is_in_offline_simulation flag
  * @ref 13_save.simulation_flow
  */
-import { SaveManager } from '../core/SaveManager.js?v=release-20260830-1';
-import { AttributeSystem } from './AttributeSystem.js?v=release-20260830-1';
-import { BattleSystem } from './BattleSystem.js?v=release-20260830-1';
-import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260830-1';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260830-1';
-import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260830-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
-import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260830-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260830-3';
+import { AttributeSystem } from './AttributeSystem.js?v=release-20260830-3';
+import { BattleSystem } from './BattleSystem.js?v=release-20260830-3';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260830-3';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260830-3';
+import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260830-3';
+import { addCappedNonNegative } from '../utils/numbers.js?v=release-20260830-3';
 
 export const OfflineSimulator = {
   is_in_offline_simulation: false,
@@ -27,8 +28,14 @@ export const OfflineSimulator = {
     const { onProgress = () => {}, onSummary = () => {} } = opts;
 
     // 触发条件校验
-    if (!save.auto_play?.is_auto_play || !save.location?.current_sub_zone_key) {
+    if (!save || typeof save !== 'object'
+      || !save.auto_play?.is_auto_play
+      || !save.location?.current_sub_zone_key) {
       return null;
+    }
+    const slotIndex = Number(save._slotIndex);
+    if (!Number.isInteger(slotIndex) || slotIndex < 1 || slotIndex > 10) {
+      throw new Error('离线结算的角色槽位无效');
     }
 
     const now = Date.now();
@@ -44,7 +51,7 @@ export const OfflineSimulator = {
     try {
       const summary = await this._runSimulation(save, sim_seconds, onProgress);
       // 先写同步快照，避免收益页展示被完整异步存档和 checksum 阻塞。
-      if (!SaveManager.savePlayerStateSync(summary._player, save._slotIndex || 1)) {
+      if (!SaveManager.savePlayerStateSync(summary._player, slotIndex)) {
         throw new Error('离线收益存档失败，请检查浏览器存储空间');
       }
       onSummary(summary);
@@ -90,6 +97,16 @@ export const OfflineSimulator = {
 
     const subZonesData = save._subZonesData;
     const currentSubZone = subZonesData?.find(sz => sz.key === save.location.current_sub_zone_key) || null;
+    if (!currentSubZone) {
+      player.location = player.location || {};
+      player.location.current_map_key = 'town_xuanbo';
+      player.location.current_sub_zone_key = null;
+      player.auto_play = player.auto_play || {};
+      player.auto_play.is_auto_play = false;
+      summary.stopped_reason = 'invalid_zone';
+      onProgress(100);
+      return summary;
+    }
     const battle = new BattleSystem({
       config: save._config,
       player,
@@ -128,6 +145,15 @@ export const OfflineSimulator = {
     const onDropDiscarded = (data) => {
       summary.items_discarded += data.count || 1;
     };
+    const onResupply = (data) => {
+      summary.gold_spent_on_potions = addCappedNonNegative(
+        summary.gold_spent_on_potions,
+        Number(data?.gold_spent),
+      );
+    };
+    const onBuffChanged = (data) => {
+      if (data?.player === player) save._attrSys?.recompute?.(player);
+    };
     eventBus.on('player.level_up', onLevelUp);
     eventBus.on('monster.death', onMonsterDeath);
     eventBus.on('autoplay.consume_hp', onConsumeHp);
@@ -136,24 +162,23 @@ export const OfflineSimulator = {
     eventBus.on('drop.stone', onDropStone);
     eventBus.on('drop.box', onDropBox);
     eventBus.on('drop.discarded', onDropDiscarded);
+    eventBus.on('autoplay.resupply', onResupply);
+    eventBus.on('buff.applied', onBuffChanged);
+    eventBus.on('buff.expired', onBuffChanged);
     AutoPlaySystem.syncFromPlayer(player);
 
     try {
       for (let tick = 0; tick < total_ticks; tick++) {
         player.statistics = player.statistics || {};
-        player.statistics.total_playtime_ms = (player.statistics.total_playtime_ms || 0) + TICK_MS;
+        player.statistics.total_playtime_ms = addCappedNonNegative(player.statistics.total_playtime_ms, TICK_MS);
         battle.tick(TICK_MS);
-        const goldBeforeAutoPlay = player.resources?.gold || 0;
         AutoPlaySystem.tick(player, TICK_MS, (source, zone) => {
-          this._teleportOffline(player, battle, subZonesData, zone, source);
-          if (source === 'auto_resupply' && zone === null) {
+          const teleported = this._teleportOffline(player, battle, subZonesData, zone, source);
+          if (teleported && source === 'auto_resupply' && zone === null) {
             summary.resupply_trips += 1;
           }
+          return teleported;
         });
-        const goldAfterAutoPlay = player.resources?.gold || 0;
-        if (goldAfterAutoPlay < goldBeforeAutoPlay) {
-          summary.gold_spent_on_potions += goldBeforeAutoPlay - goldAfterAutoPlay;
-        }
 
         // 更新统计
         summary.gold_gained = Math.max(0, (player.resources?.gold || 0) + summary.gold_spent_on_potions - startGold);
@@ -162,7 +187,7 @@ export const OfflineSimulator = {
         // 死亡检测
         if ((player.statistics?.total_deaths || 0) > startDeaths) {
           summary.deaths = (player.statistics?.total_deaths || 0) - startDeaths;
-          summary.died_at_s = tick * TICK_MS / 1000;
+          summary.died_at_s = (tick + 1) * TICK_MS / 1000;
           summary.stopped_reason = 'death';
           break;
         }
@@ -197,6 +222,9 @@ export const OfflineSimulator = {
       eventBus.off('drop.stone', onDropStone);
       eventBus.off('drop.box', onDropBox);
       eventBus.off('drop.discarded', onDropDiscarded);
+      eventBus.off('autoplay.resupply', onResupply);
+      eventBus.off('buff.applied', onBuffChanged);
+      eventBus.off('buff.expired', onBuffChanged);
       AutoPlaySystem.resetRuntimeState();
     }
 
@@ -210,6 +238,10 @@ export const OfflineSimulator = {
   },
 
   _teleportOffline(player, battle, subZonesData, subZoneKey, source) {
+    const targetSubZone = subZoneKey == null
+      ? null
+      : subZonesData?.find(zone => zone?.key === subZoneKey) || null;
+    if (subZoneKey != null && !targetSubZone) return false;
     const prev = player.location?.current_sub_zone_key || null;
     player.location = player.location || {};
     if (prev) {
@@ -219,13 +251,16 @@ export const OfflineSimulator = {
     player.location.current_map_key = subZoneKey ? 'wilderness_xuanbo_suburb' : 'town_xuanbo';
     battle.monsters = [];
     battle._mainTargetKey = null;
-    battle._currentSubZone = subZonesData?.find(s => s.key === subZoneKey) || null;
+    battle._currentSubZone = targetSubZone;
     battle._initialSpawned = false;
+    battle._spawnTimerMs = 0;
+    battle._playerAtkCd = 0;
     const isAutomatedTownReturn = source === 'auto_resupply' || source === 'auto_store' || source === 'auto_sell';
     if (prev && !subZoneKey && isAutomatedTownReturn) {
       AutoStoreSystem.storeConfiguredItems(player, { silent: true });
       AutoSellSystem.sellConfiguredStones(player, { silent: true });
     }
+    return true;
   },
 
   _restorePlayerFromSave(save) {

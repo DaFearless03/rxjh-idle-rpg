@@ -3,6 +3,8 @@
  * @desc 经验/升级相关公式
  * @ref 02_attributes.grant_exp / on_level_up / apply_death_exp_loss
  */
+import { creditSafeInteger } from './numbers.js?v=release-20260830-3';
+
 
 /**
  * 计算当前等级到下一级所需经验
@@ -11,7 +13,8 @@
  * @returns {number}
  */
 export function expToNextLevel(level, expTable) {
-  return expTable[level] ?? 0;
+  const required = Number(expTable?.[level]);
+  return Number.isSafeInteger(required) && required > 0 ? required : 0;
 }
 
 /**
@@ -23,22 +26,38 @@ export function expToNextLevel(level, expTable) {
  * @ref 02_attributes.grant_exp
  */
 export function grantExp(player, amount, config, onLevelUp) {
-  if (player.level >= config.current_level_cap) return;
-  player.exp += amount;
+  const cap = Number(config?.current_level_cap);
+  const gainedExp = Number(amount);
+  if (!player
+    || !Number.isSafeInteger(player.level)
+    || !Number.isSafeInteger(cap)
+    || cap < 1
+    || !Number.isSafeInteger(gainedExp)
+    || gainedExp <= 0
+    || player.level >= cap) return 0;
+  if (expToNextLevel(player.level, config?.exp_to_next_level) <= 0) return 0;
 
-  while (
-    player.level < config.current_level_cap &&
-    player.exp >= config.exp_to_next_level[player.level]
-  ) {
-    player.exp -= config.exp_to_next_level[player.level];
+  const currentExp = Number(player.exp);
+  player.exp = creditSafeInteger(
+    Number.isSafeInteger(currentExp) && currentExp >= 0 ? currentExp : 0,
+    gainedExp,
+  ).value;
+  let levelsGained = 0;
+
+  while (player.level < cap) {
+    const requiredExp = expToNextLevel(player.level, config?.exp_to_next_level);
+    if (requiredExp <= 0 || player.exp < requiredExp) break;
+    player.exp -= requiredExp;
     const fromLevel = player.level;
     player.level += 1;
+    levelsGained += 1;
     if (onLevelUp) onLevelUp(player, fromLevel, player.level);
   }
 
-  if (player.level >= config.current_level_cap) {
+  if (player.level >= cap) {
     player.exp = 0;
   }
+  return levelsGained;
 }
 
 /**
@@ -51,14 +70,23 @@ export function grantExp(player, amount, config, onLevelUp) {
  * @ref 02_attributes.on_level_up
  */
 export function onLevelUp(player, fromLevel, toLevel, config, recomputeFn) {
-  const gainedPoints = config.attribute_points.gain_per_level[toLevel] ?? 1;
+  const configuredPoints = Number(config?.attribute_points?.gain_per_level?.[toLevel]);
+  const gainedPoints = Number.isSafeInteger(configuredPoints) && configuredPoints >= 0
+    ? configuredPoints
+    : 1;
   player.qigong = player.qigong || { available_points: 0 };
-  player.qigong.available_points += gainedPoints;
+  const currentPoints = Number(player.qigong.available_points);
+  const pointsCredit = creditSafeInteger(
+    Number.isSafeInteger(currentPoints) && currentPoints >= 0 ? currentPoints : 0,
+    gainedPoints,
+  );
+  player.qigong.available_points = pointsCredit.value;
 
   refreshPrimaryAttributes(player);
   if (recomputeFn) recomputeFn(player);
   player.hp = player.maxHp;
   player.mp = player.maxMp;
+  return pointsCredit.added;
 }
 
 function refreshPrimaryAttributes(player) {
@@ -78,8 +106,11 @@ function refreshPrimaryAttributes(player) {
  * @ref 02_attributes.apply_death_exp_loss
  */
 export function applyDeathExpLoss(player, config) {
-  const loss = Math.floor(config.exp_to_next_level[player.level] * 0.01);
-  player.exp = Math.max(0, player.exp - loss);
+  if (!player) return 0;
+  const loss = Math.floor(expToNextLevel(player.level, config?.exp_to_next_level) * 0.01);
+  const currentExp = Number(player.exp);
+  player.exp = Math.max(0, (Number.isSafeInteger(currentExp) && currentExp >= 0 ? currentExp : 0) - loss);
+  return loss;
 }
 
 /**
@@ -89,9 +120,22 @@ export function applyDeathExpLoss(player, config) {
  * @param {number} points
  */
 export function assignQigongPoint(player, skillKey, points) {
+  if (!player
+    || typeof skillKey !== 'string'
+    || !/^[A-Za-z0-9_.:-]+$/.test(skillKey)
+    || !Number.isSafeInteger(points)
+    || points <= 0) return false;
   player.qigong = player.qigong || { available_points: 0 };
-  if (player.qigong.available_points < points) return;
+  const available = Number(player.qigong.available_points);
+  if (!Number.isSafeInteger(available) || available < points) return false;
   player.qigong.available_points -= points;
   player.qigong.skills = player.qigong.skills || {};
-  player.qigong.skills[skillKey] = (player.qigong.skills[skillKey] || 0) + points;
+  const invested = Number(player.qigong.skills[skillKey]);
+  const currentInvested = Number.isSafeInteger(invested) && invested >= 0 ? invested : 0;
+  if (currentInvested > Number.MAX_SAFE_INTEGER - points) {
+    player.qigong.available_points += points;
+    return false;
+  }
+  player.qigong.skills[skillKey] = currentInvested + points;
+  return true;
 }

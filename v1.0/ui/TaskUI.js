@@ -3,8 +3,8 @@
  * @desc 任务查看器：进行中 / 可接取 / 已完成三段。
  */
 
-import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260830-1';
-import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260830-1';
+import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260830-3';
+import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260830-3';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -64,8 +64,10 @@ function renderObjectives(player, stageBlock) {
 }
 
 function isQuestReady(player, quest) {
-  const stageBlock = (quest.objectives || []).find(stage => stage.stage === quest.current_stage) || quest.objectives?.[0];
-  return !!stageBlock && (stageBlock.items || []).every(item => InventorySystem.count(player, item.item_key) >= item.count);
+  const stages = quest.objectives || [];
+  return stages.length > 0 && stages.every(stage =>
+    (stage.items || []).every(item => InventorySystem.count(player, item.item_key) >= item.count)
+  );
 }
 
 function renderRewards(quest, prefix = '奖励') {

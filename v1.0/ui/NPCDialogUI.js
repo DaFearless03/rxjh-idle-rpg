@@ -2,15 +2,9 @@
  * @file ui/NPCDialogUI.js
  * @desc NPC 对话窗口
  */
-import { UIManager } from './UIManager.js?v=release-20260830-1';
-import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260830-1';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260830-1';
-import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260830-1';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260830-1';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260830-1';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260830-1';
-import { NPCSystem, UIState } from '../systems/NPCSystem.js?v=release-20260830-1';
-import { getBagSlotsInOrder } from './InventoryUI.js?v=release-20260830-1';
+import { UIManager } from './UIManager.js?v=release-20260830-3';
+import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260830-3';
+import { NPCSystem } from '../systems/NPCSystem.js?v=release-20260830-3';
 
 const TOWN_NPC_DATA = {
   leader: {
@@ -30,19 +24,21 @@ const TOWN_NPC_DATA = {
     funcs: [],
   },
   djx: {
+    key: 'shop_weapon_and_enhance',
+    type: 'shop_and_enhance',
     name: '刀剑笑',
     tag: '武器 · 强化 · 合成',
     avatar: '⚔',
-    line: '「刀客，要趁手的新兵器，还是把旧刀磨得更利？想镶石头，我这儿也成。」',
+    line: '「少侠，要趁手的新兵器，还是把旧兵刃磨得更利？想镶石头，我这儿也成。」',
     funcs: [
       { key: '武器商店', label: '购买', icon: '🛒' },
       { key: '强化', label: '强化', icon: '⚒' },
       { key: '合成', label: '合成', icon: '💎' },
     ],
   },
-  yjl: { name: '银娇龙', tag: '防具商', avatar: '👤', line: '本店的护具品质一流，童叟无欺！', funcs: ['防具商店'] },
-  psz: { name: '平十指', tag: '药剂商', avatar: '👤', line: '平价药剂，童叟无欺！', funcs: ['药水商店'] },
-  wdb: { name: '韦大宝', tag: '仓库', avatar: '👤', line: '存什么东西都行，找我就对了！', funcs: ['打开仓库'] },
+  yjl: { key: 'shop_armor', type: 'shop', name: '银娇龙', tag: '防具商', avatar: '👤', line: '本店的护具品质一流，童叟无欺！', funcs: ['防具商店'] },
+  psz: { key: 'shop_potion', type: 'shop', name: '平十指', tag: '药剂商', avatar: '👤', line: '平价药剂，童叟无欺！', funcs: ['药水商店'] },
+  wdb: { key: 'warehouse_npc', type: 'warehouse', name: '韦大宝', tag: '仓库', avatar: '👤', line: '存什么东西都行，找我就对了！', funcs: ['打开仓库'] },
 };
 
 function escapeHtml(value) {
@@ -53,9 +49,11 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
-
 export function openTownNPCDialog(npcKey) {
-  const npc = TOWN_NPC_DATA[npcKey];
+  const townKey = TOWN_NPC_DATA[npcKey]
+    ? npcKey
+    : Object.keys(TOWN_NPC_DATA).find(key => TOWN_NPC_DATA[key].key === npcKey);
+  const npc = TOWN_NPC_DATA[townKey];
   const backdrop = document.getElementById('npcDialogBackdrop');
   if (!npc || !backdrop) return;
 
@@ -65,7 +63,7 @@ export function openTownNPCDialog(npcKey) {
   document.getElementById('npcDialogLine').textContent = npc.line;
   NPCSystem.openDialog(npc);
   window._currentNpc = npc;
-  if (npcKey === 'leader') {
+  if (townKey === 'leader') {
     document.getElementById("npcDialogHead").style.display = "flex";
     document.getElementById('npcDialogLine').style.display = 'none';
     document.getElementById('npcDialogClose').textContent = '离开';
@@ -75,10 +73,10 @@ export function openTownNPCDialog(npcKey) {
     funcRow.style.removeProperty('display');
     document.getElementById("npcDialogHead").style.display = "flex";
     document.getElementById('npcDialogLine').style.display = 'block';
-    document.getElementById('npcDialogClose').textContent = npcKey === 'djx' ? '离开' : '关 闭';
+    document.getElementById('npcDialogClose').textContent = townKey === 'djx' ? '离开' : '关 闭';
     funcRow.innerHTML = npc.funcs.map(func => {
       const item = typeof func === 'string' ? { key: func, label: func, icon: '' } : func;
-      return `<button class="npc-func-btn" data-npc="${npcKey}" data-func="${item.key}">${item.icon ? `<span class="f-icon">${item.icon}</span>` : ''}${item.label}</button>`;
+      return `<button class="npc-func-btn" data-npc="${townKey}" data-func="${item.key}">${item.icon ? `<span class="f-icon">${item.icon}</span>` : ''}${item.label}</button>`;
     }).join('');
   }
   backdrop.classList.add('open');
@@ -186,297 +184,21 @@ window._leaderSubmit = (questKey) => {
   else renderTownLeaderQuestDialog('submit');
 };
 
-export function showNPCDialog(npcData, player, careersData, questTemplates) {
+export function showNPCDialog(npcData) {
   const backdrop = document.getElementById('npcDialogBackdrop');
-  if (backdrop) {
-    const npcKey = Object.entries(TOWN_NPC_DATA).find(([key, npc]) =>
-      key === npcData?.key || npc.key === npcData?.key || npc.name === npcData?.name
-    )?.[0] || (npcData?.type === 'quest' ? 'leader' : null);
-    if (npcKey) {
-      openTownNPCDialog(npcKey);
-      return;
-    }
+  if (!backdrop) {
+    console.warn('[NPCDialogUI] 找不到 NPC 弹窗容器', npcData);
+    return false;
   }
 
-  const legacyTitle = document.getElementById('npc-dialog-title');
-  const legacyContent = document.getElementById('npc-dialog-content');
-  if (!legacyTitle || !legacyContent) {
-    console.warn('[NPCDialogUI] 找不到 NPC 弹窗容器，已忽略旧弹窗渲染', npcData);
-    return;
+  const npcKey = Object.entries(TOWN_NPC_DATA).find(([key, npc]) =>
+    key === npcData?.key || npc.key === npcData?.key || npc.name === npcData?.name
+  )?.[0] || (npcData?.type === 'quest' ? 'leader' : null);
+  if (!npcKey) {
+    console.warn('[NPCDialogUI] 当前版本不支持该 NPC', npcData);
+    return false;
   }
 
-  legacyTitle.textContent = npcData.name || 'NPC';
-
-  let content = '';
-  if (npcData.type === 'quest') {
-    content = buildQuestDialog(npcData, player, questTemplates);
-  } else if (npcData.type === 'shop' || npcData.type === 'shop_and_enhance') {
-    content = buildShopDialog(npcData, player);
-  } else if (npcData.type === 'enhance') {
-    content = buildEnhanceDialog(npcData, player);
-  } else if (npcData.type === 'warehouse') {
-    content = buildWarehouseDialog(npcData, player);
-  } else if (npcData.type === 'synthesis') {
-    content = buildSynthesisDialog(npcData, player);
-  } else if (npcData.type === 'shop_and_enhance') {
-    content = buildShopDialog(npcData, player) + buildEnhanceDialog(npcData, player);
-  }
-
-  legacyContent.innerHTML = content;
-  const modal = document.getElementById('modal-npc');
-  if (modal) UIManager.pushModal(modal);
-
-  window.closeNPCDialog = () => {
-    UIManager.popModal();
-    window._closeNPCDialogFn?.();
-  };
-}
-
-function buildQuestDialog(npcData, player, questTemplates) {
-  const visible = TaskSystem.listVisibleQuests(player, npcData);
-  const accepted = player.quests?.accepted || [];
-  const canSubmit = accepted.filter(q => {
-    const stageBlock = q.objectives?.find(s => s.stage === q.current_stage);
-    return stageBlock?.items?.every(i => InventorySystem.count(player, i.item_key) >= i.count);
-  });
-
-  return `
-    <div class="mb-4">
-      <div class="text-dim mb-4" style="margin-bottom:8px">可接任务：</div>
-      ${visible.length === 0 ? '<div class="text-dim">（无可接任务）</div>' : visible.map(q => `
-        <div class="quest-item" onclick="window._acceptQuest('${q.key}')">
-          <div class="qname">【${q.name}】</div>
-          <div class="qdesc">${q.description || ''}</div>
-          <div class="qprog text-dim">需 Lv${q.prerequisite?.level || 1}，转职${q.required_transfer || 0}次</div>
-        </div>
-      `).join('')}
-    </div>
-    ${canSubmit.length > 0 ? `
-    <div class="mb-4">
-      <div class="text-dim mb-4" style="margin-bottom:8px">可提交任务：</div>
-      ${canSubmit.map(q => `
-        <div class="quest-item" onclick="window._submitQuest('${q.key}')" style="border-color:#d0a000">
-          <div class="qname" style="color:#d0a000">【可提交】${q.name}</div>
-          <div class="qprog text-success">点击提交</div>
-        </div>
-      `).join('')}
-    </div>` : ''}
-  `;
-}
-
-function buildShopDialog(npcData, player) {
-  const items = npcData.items || [];
-  return `
-    <div class="mb-4">
-      <p class="text-dim mb-4">商品列表（点击购买）</p>
-      <div class="grid-2 gap-4">
-        ${items.map(item => {
-          const itemKey = item.item_key || item.key;
-          const price = Math.floor((item.buy_price || 0) * (npcData.price_multiplier || 1.0));
-          const canBuy = (player.resources?.gold || 0) >= price;
-          return `
-          <div class="item-cell" style="height:auto;padding:6px;cursor:pointer"
-               onclick="${canBuy ? `window._buyItem('${itemKey}', 1)` : ''}"
-               title="${item.description || item.name}">
-            <div style="font-size:16px">${getItemEmoji(itemKey)}</div>
-            <div style="font-size:10px">${item.name}</div>
-            <div style="font-size:10px;color:${canBuy ? '#e07020' : '#666'}">💰 ${price}</div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>
-    <div>
-      <p class="text-dim mb-4">背包物品（点击出售）</p>
-      <div class="item-grid">
-        ${getBagSlotsInOrder(player).map(s => {
-          const isQuestItem = InventorySystem._getItemClass(s.item_key, player) === 'quest_items';
-          const basePrice = getSellPrice(s.item_key);
-          const sellPrice = Math.floor(basePrice * 0.5);
-          if (isQuestItem || sellPrice <= 0) return '';
-          return `
-          <div class="item-cell" onclick="window._sellItem('${s.item_key}', 1)"
-               title="${s.item_key}">
-            <div style="font-size:16px">${getItemEmoji(s.item_key)}</div>
-            <span class="count">${s.count}</span>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>
-  `;
-}
-
-function buildEnhanceDialog(npcData, player) {
-  return `
-    <p class="text-dim mb-4">强化装备（选择装备后选强化石）</p>
-    <div class="mb-4">
-      <div class="text-dim mb-4" style="font-size:11px">已穿装备</div>
-      <div class="equip-grid">
-        ${Object.entries(player.equipped || {}).map(([slot, val]) => {
-          if (!val || (Array.isArray(val) && val.every(v => !v))) return `<div class="equip-cell"><div class="slot">${slot}</div><div>—</div></div>`;
-          const inst = val.instance_id ? player.inventory?.equipment_instances?.[val.instance_id] : null;
-          const tpl = window._equipTemplates?.find(t => t.key === inst?.item_key);
-          return `
-          <div class="equip-cell" onclick="window._selectEnhanceEquip('${slot}', '${val.instance_id}')">
-            <div class="slot">${slot}</div>
-            <div class="name">${tpl?.name || inst?.item_key || '?'}</div>
-            ${inst ? `<div style="font-size:9px">+${inst.enhance_level || 0}</div>` : ''}
-          </div>`;
-        }).join('')}
-      </div>
-    </div>
-    <div id="enhance-stone-area" class="mb-4" style="display:none">
-      <div class="text-dim mb-4">强化石（选一个）</div>
-      <div class="item-grid">
-        ${['vajra_01','enhance_stone_01'].map(k => `
-          <div class="item-cell" onclick="window._selectEnhanceStone('${k}')">
-            <div style="font-size:16px">${getItemEmoji(k)}</div>
-            <div style="font-size:10px">${k}</div>
-          </div>`).join('')}
-      </div>
-      <button class="btn primary mt-4" style="width:100%" id="do-enhance-btn" onclick="window._doEnhance()">强化 +1</button>
-    </div>
-  `;
-}
-
-function buildSynthesisDialog(npcData, player) {
-  return `
-    <p class="text-dim mb-4">合成石头（选择装备+石头）</p>
-    <div class="mb-4">
-      <div class="text-dim mb-4">已穿装备</div>
-      <div class="equip-grid">
-        ${Object.entries(player.equipped || {}).filter(([,v]) => v?.instance_id).map(([slot, val]) => {
-          const inst = player.inventory?.equipment_instances?.[val.instance_id];
-          const tpl = window._equipTemplates?.find(t => t.key === inst?.item_key);
-          const hasEmptySlot = inst?.synthesis_slots?.some(s => s == null);
-          return `
-          <div class="equip-cell" onclick="window._selectSynthesisEquip('${slot}', '${val.instance_id}')"
-               style="${hasEmptySlot ? 'border-color:#d0a000' : ''}">
-            <div class="slot">${slot}</div>
-            <div class="name">${tpl?.name || inst?.item_key || '?'}</div>
-            ${hasEmptySlot ? '<div style="font-size:9px;color:#d0a000">有空格</div>' : ''}
-          </div>`;
-        }).join('')}
-      </div>
-    </div>
-    <div id="synthesis-stone-area" style="display:none">
-      <div class="text-dim mb-4">合成石（选一个）</div>
-      <div class="item-grid">
-        ${['vajra_01','cold_jade_01','hot_blood_01'].map(k => `
-          <div class="item-cell" onclick="window._selectSynthesisStone('${k}')">
-            <div style="font-size:16px">${getItemEmoji(k)}</div>
-            <div style="font-size:10px">${k}</div>
-          </div>`).join('')}
-      </div>
-      <button class="btn primary mt-4" style="width:100%" onclick="window._doSynthesis()">合 成</button>
-    </div>
-  `;
-}
-
-function buildWarehouseDialog(npcData, player) {
-  const inv = getBagSlotsInOrder(player);
-  const wh = player.warehouse?.slots || [];
-  return `
-    <div style="display:flex;gap:12px">
-      <div style="flex:1">
-        <div class="text-dim mb-4">背包</div>
-        <div class="item-grid" style="grid-template-columns:repeat(4,42px)">
-          ${inv.map(s => `
-            <div class="item-cell" onclick="window._depositItem('${s.item_key}', 1)">
-              <div style="font-size:14px">${getItemEmoji(s.item_key)}</div>
-              <span class="count">${s.count}</span>
-            </div>`).join('')}
-        </div>
-      </div>
-      <div style="flex:1">
-        <div class="text-dim mb-4">仓库</div>
-        <div class="item-grid" style="grid-template-columns:repeat(4,42px)">
-          ${wh.filter(s=>s.count>0).map(s => `
-            <div class="item-cell" onclick="window._withdrawItem('${s.item_key}', 1)">
-              <div style="font-size:14px">${getItemEmoji(s.item_key)}</div>
-              <span class="count">${s.count}</span>
-            </div>`).join('')}
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// 辅助
-const ITEM_EMOJI = {
-  hp_potion_grade1: '💊', hp_potion_grade2: '💊', hp_potion_grade3: '💊',
-  mp_potion_grade1: '🌿', mp_potion_grade2: '🌿', mp_potion_grade3: '🌿',
-  cold_jade_01: '💎', vajra_01: '💠', enhance_stone_01: '🔮', hot_blood_01: '❤️',
-  box_xuanbo_01: '📦',
-};
-function getItemEmoji(key) { return ITEM_EMOJI[key] || '📦'; }
-function getSellPrice(key) {
-  const prices = { hp_potion_grade1:10, mp_potion_grade1:10, hp_potion_grade2:50, mp_potion_grade2:50,
-    hp_potion_grade3:120, mp_potion_grade3:120, cold_jade_01:20, vajra_01:20, enhance_stone_01:15, hot_blood_01:25 };
-  return prices[key] || 5;
-}
-
-window._buyItem = (itemKey, count) => {
-  const result = ShopSystem.buy(window.game?.player, UIState.active_npc?.data, itemKey, count);
-  if (result.success) UIManager.toast('购买成功', 'success');
-  else UIManager.toast(result.message, 'error');
-  refreshNPCDialog(window._currentNpc, window.game?.player, window._questTemplates);
-};
-window._sellItem = (itemKey, count) => {
-  const result = ShopSystem.sell(window.game?.player, UIState.active_npc?.data, itemKey, count);
-  if (result.success) UIManager.toast('出售成功', 'info');
-  refreshNPCDialog(window._currentNpc, window.game?.player, window._questTemplates);
-};
-window._acceptQuest = (questKey) => {
-  const tpl = window._questTemplates?.find(q => q.key === questKey);
-  if (!tpl) return;
-  const result = TaskSystem.acceptQuest(window.game?.player, tpl);
-  UIManager.toast(result.message, result.success ? 'success' : 'error');
-  refreshNPCDialog(window._currentNpc, window.game?.player, window._questTemplates);
-};
-window._submitQuest = (questKey) => {
-  const inst = window.game?.player?.quests?.accepted?.find(q => q.key === questKey);
-  if (!inst) return;
-  const result = TaskSystem.submitQuest(window.game?.player, inst, window._questTemplates, window._careersData);
-  UIManager.toast(result.message, result.success ? 'success' : 'error');
-  if (result.success) { window.closeNPCDialog(); window.game?.showStatus?.(); }
-  else refreshNPCDialog(window._currentNpc, window.game?.player, window._questTemplates);
-};
-window._selectEnhanceEquip = (slot, instanceId) => {
-  window._enhanceSlot = slot; window._enhanceInstId = instanceId;
-  document.getElementById('enhance-stone-area').style.display = '';
-};
-window._selectEnhanceStone = (key) => { window._enhanceStone = key; };
-window._doEnhance = () => {
-  if (!window._enhanceSlot) return;
-  const result = EnhanceSystem.enhance(window.game?.player, window._enhanceSlot);
-  UIManager.toast(result.message, result.success ? 'success' : 'error');
-  if (result.success) window.game?.showStatus?.();
-};
-window._selectSynthesisEquip = (slot, instanceId) => {
-  window._synSlot = slot; window._synInstId = instanceId;
-  document.getElementById('synthesis-stone-area').style.display = '';
-};
-window._selectSynthesisStone = (key) => { window._synStone = key; };
-window._doSynthesis = () => {
-  if (!window._synSlot) return;
-  const result = SynthesisSystem.synthesize(window.game?.player, window._synSlot, window._synStone);
-  UIManager.toast(result.message, result.success ? 'success' : 'error');
-};
-window._depositItem = (key, count) => {
-  const r = WarehouseSystem.deposit(window.game?.player, key, count);
-  UIManager.toast(r.success ? `存入 ${key}×${r.deposited}` : '存入失败', r.success ? 'info' : 'error');
-  refreshNPCDialog(window._currentNpc, window.game?.player, window._questTemplates);
-};
-window._withdrawItem = (key, count) => {
-  const r = WarehouseSystem.withdraw(window.game?.player, key, count);
-  UIManager.toast(r.success ? `取出 ${key}×${r.withdrawn}` : '取出失败', r.success ? 'info' : 'error');
-  refreshNPCDialog(window._currentNpc, window.game?.player, window._questTemplates);
-};
-window._questTemplates = null;
-window._careersData = null;
-window._currentNpc = null;
-
-function refreshNPCDialog(npcData, player, questTemplates) {
-  if (!npcData) return;
-  showNPCDialog(npcData, player, window._careersData, window._questTemplates);
+  openTownNPCDialog(npcKey);
+  return true;
 }

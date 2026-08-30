@@ -3,8 +3,8 @@
  * @desc 药剂系统：手动喝药 + 自动喝药共用恢复公式。
  * @ref 10_consumables.md
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
 
 const POTION_TEMPLATES = {
   hp_potion_grade1: { key: 'hp_potion_grade1', name: '金创药（小）', type: 'hp', recovery: 70, min_level: 1, min_transfer: 0 },
@@ -15,8 +15,17 @@ const POTION_TEMPLATES = {
   mp_potion_grade3: { key: 'mp_potion_grade3', name: '雪原参', type: 'mp', recovery: 320, min_level: 60, min_transfer: 3 },
 };
 
-function clampCount(count) {
-  return Math.max(1, Math.floor(Number(count) || 1));
+function normalizeCount(count) {
+  const value = Number(count);
+  return Number.isSafeInteger(value) && value > 0 ? value : 0;
+}
+
+function getTransferCount(player) {
+  return [player?.career, ...(Array.isArray(player?.career_history) ? player.career_history : [])]
+    .reduce((maxTransfer, career) => {
+      const match = String(career || '').match(/_transfer_(\d+)/);
+      return Math.max(maxTransfer, match ? Number(match[1]) : 0);
+    }, 0);
 }
 
 export const ConsumableSystem = {
@@ -29,16 +38,17 @@ export const ConsumableSystem = {
     if (!tpl) return false;
     const minLevel = tpl.min_level ?? tpl.grade_threshold ?? 1;
     const minTransfer = tpl.min_transfer ?? 0;
-    const transferCount = Math.max(0, (player?.career_history?.length || 1) - 1);
-    return (player?.level || 1) >= minLevel && transferCount >= minTransfer;
+    const level = Number(player?.level);
+    return Number.isFinite(level) && level >= minLevel && getTransferCount(player) >= minTransfer;
   },
 
   use(player, itemKey, count = 1, options = {}) {
     const tpl = this.getTemplate(itemKey);
-    const useCount = clampCount(count);
+    const useCount = normalizeCount(count);
     if (!player || !tpl) {
       return { success: false, message: '该物品不能使用' };
     }
+    if (!useCount) return { success: false, message: '使用数量无效' };
     if (!this.canUse(player, itemKey)) {
       const minLevel = tpl.min_level ?? tpl.grade_threshold ?? 1;
       const minTransfer = tpl.min_transfer ?? 0;
@@ -54,13 +64,20 @@ export const ConsumableSystem = {
     const maxField = tpl.type === 'hp' ? 'maxHp' : 'maxMp';
     const valueField = tpl.type === 'hp' ? 'hp' : 'mp';
     const bonusField = tpl.type === 'hp' ? 'healBonus' : 'mpRecoveryBonus';
-    const current = Number(player[valueField] || 0);
-    const maxValue = Number(player[maxField] || current);
+    const rawCurrent = Number(player[valueField]);
+    const maxValue = Number(player[maxField]);
+    if (!Number.isFinite(rawCurrent) || !Number.isFinite(maxValue) || maxValue <= 0) {
+      return { success: false, message: '角色属性数据异常' };
+    }
+    const current = Math.max(0, Math.min(maxValue, rawCurrent));
     if (current >= maxValue) {
       return { success: false, message: tpl.type === 'hp' ? '生命已满' : '内功已满' };
     }
 
-    const perUseRecovery = Math.floor(tpl.recovery * (1 + (player[bonusField] || 0)));
+    const rawBonus = Number(player[bonusField]);
+    const bonus = Number.isFinite(rawBonus) ? rawBonus : 0;
+    const perUseRecovery = Math.max(0, Math.floor(tpl.recovery * (1 + bonus)));
+    if (perUseRecovery <= 0) return { success: false, message: '当前恢复效果为 0，未消耗药剂' };
     const totalRecovery = perUseRecovery * useCount;
     const actualRecovered = Math.max(0, Math.min(maxValue - current, totalRecovery));
     const removed = InventorySystem.remove(player, itemKey, useCount);

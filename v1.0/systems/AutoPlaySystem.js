@@ -3,12 +3,13 @@
  * @desc is_auto_play 状态机 + 12项清挂机规则 + auto_consume + auto_heal_skill + auto_resupply
  * @ref 10_consumables.auto_consume / auto_heal_skill / auto_resupply
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
-import { ConsumableSystem } from './ConsumableSystem.js?v=release-20260830-1';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260830-1';
-import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260830-1';
-import { BuffSystem } from './BuffSystem.js?v=release-20260830-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-3';
+import { ConsumableSystem } from './ConsumableSystem.js?v=release-20260830-3';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260830-3';
+import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260830-3';
+import { BuffSystem } from './BuffSystem.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { isMartialArtUsable } from '../utils/martial_arts.js?v=release-20260830-3';
 
 function createCooldownState() {
   return { hp_potion: 0, mp_potion: 0, heal_skill: 0, buff_skill: 0 };
@@ -20,10 +21,13 @@ export const AutoPlaySystem = {
   _cooldowns: createCooldownState(),
   _resupplyCheckTimer: 0,
   _potionShopItems: [],
+  _potionShopPriceMultiplier: 1,
   _martialArtsData: [],
 
-  setPotionShopItems(items = []) {
+  setPotionShopItems(items = [], priceMultiplier = 1) {
     this._potionShopItems = Array.isArray(items) ? items : [];
+    const multiplier = Number(priceMultiplier);
+    this._potionShopPriceMultiplier = Number.isFinite(multiplier) && multiplier > 0 ? multiplier : 1;
   },
 
   setMartialArtsData(items = []) {
@@ -56,6 +60,7 @@ export const AutoPlaySystem = {
    * 进入挂机状态
    */
   start(player) {
+    if (!player || typeof player !== 'object') return false;
     this._ensurePlayerContext(player);
     player.auto_play = player.auto_play || {};
     player.auto_play.is_auto_play = true;
@@ -63,12 +68,14 @@ export const AutoPlaySystem = {
     this._cooldowns = createCooldownState();
     this._resupplyCheckTimer = 0;
     eventBus.emit('autoplay.start', {});
+    return true;
   },
 
   /**
    * 停止挂机（4条退出规则统一出口）
    */
   stop(player, reason = 'manual') {
+    if (!player || typeof player !== 'object') return false;
     this._ensurePlayerContext(player);
     player.auto_play = player.auto_play || {};
     player.auto_play.is_auto_play = false;
@@ -76,6 +83,7 @@ export const AutoPlaySystem = {
     this._cooldowns = createCooldownState();
     this._resupplyCheckTimer = 0;
     eventBus.emit('autoplay.stop', { reason });
+    return true;
   },
 
   /**
@@ -85,7 +93,10 @@ export const AutoPlaySystem = {
    * @param {Function} teleportFn teleport(source, subZone) 传送函数引用
    */
   tick(player, deltaMs, teleportFn) {
+    if (!player || typeof player !== 'object') return;
     this._ensurePlayerContext(player);
+    const elapsedMs = Number(deltaMs);
+    deltaMs = Number.isFinite(elapsedMs) && elapsedMs > 0 ? elapsedMs : 0;
     this._cooldowns.hp_potion = Math.max(0, this._cooldowns.hp_potion - deltaMs);
     this._cooldowns.mp_potion = Math.max(0, this._cooldowns.mp_potion - deltaMs);
     this._cooldowns.heal_skill = Math.max(0, this._cooldowns.heal_skill - deltaMs);
@@ -121,13 +132,19 @@ export const AutoPlaySystem = {
     const cfg = player.auto_play?.auto_consume?.hp_potion;
     if (!cfg?.enabled || !cfg?.selected_item_key) return false;
     if (this._cooldowns.hp_potion > 0) return false;
-    if (player.hp / player.maxHp > cfg.threshold) return false;
+    const hp = Number(player.hp);
+    const maxHp = Number(player.maxHp);
+    const threshold = Number(cfg.threshold);
+    if (!Number.isFinite(hp) || !Number.isFinite(maxHp) || maxHp <= 0
+      || !Number.isFinite(threshold) || threshold < 0 || threshold > 1) return false;
+    if (hp / maxHp > threshold) return false;
     if (InventorySystem.count(player, cfg.selected_item_key) <= 0) return false;
 
     const result = ConsumableSystem.use(player, cfg.selected_item_key, 1, { source: 'auto' });
     if (!result.success) return false;
 
-    this._cooldowns.hp_potion = cfg.cooldown ?? 5000;
+    const cooldown = Number(cfg.cooldown);
+    this._cooldowns.hp_potion = Number.isFinite(cooldown) && cooldown > 0 ? cooldown : 5000;
     return true;
   },
 
@@ -135,13 +152,19 @@ export const AutoPlaySystem = {
     const cfg = player.auto_play?.auto_consume?.mp_potion;
     if (!cfg?.enabled || !cfg?.selected_item_key) return false;
     if (this._cooldowns.mp_potion > 0) return false;
-    if (player.mp / player.maxMp > cfg.threshold) return false;
+    const mp = Number(player.mp);
+    const maxMp = Number(player.maxMp);
+    const threshold = Number(cfg.threshold);
+    if (!Number.isFinite(mp) || !Number.isFinite(maxMp) || maxMp <= 0
+      || !Number.isFinite(threshold) || threshold < 0 || threshold > 1) return false;
+    if (mp / maxMp > threshold) return false;
     if (InventorySystem.count(player, cfg.selected_item_key) <= 0) return false;
 
     const result = ConsumableSystem.use(player, cfg.selected_item_key, 1, { source: 'auto' });
     if (!result.success) return false;
 
-    this._cooldowns.mp_potion = cfg.cooldown ?? 5000;
+    const cooldown = Number(cfg.cooldown);
+    this._cooldowns.mp_potion = Number.isFinite(cooldown) && cooldown > 0 ? cooldown : 5000;
     return true;
   },
 
@@ -158,11 +181,23 @@ export const AutoPlaySystem = {
     const skill = this._findSkill(cfg.selected_skill_key, player);
     const buffKey = skill?.effect?.buff_key;
     if (!skill || skill.type !== 'buff' || !buffKey) return;
-    if (player.buffs?.some(buff => buff.key === buffKey && (buff.duration === -1 || buff.remaining > 0))) return;
+    const activeBuff = player.buffs?.find(buff =>
+      buff.key === buffKey && (buff.duration === -1 || buff.remaining > 0)
+    );
+    if (activeBuff) {
+      const maxStacks = Number.isSafeInteger(activeBuff.max_stacks) && activeBuff.max_stacks >= 1
+        ? Math.min(activeBuff.max_stacks, 100)
+        : 1;
+      const stacks = Number.isSafeInteger(activeBuff.stacks) && activeBuff.stacks >= 1
+        ? activeBuff.stacks
+        : 1;
+      if (!activeBuff.stackable || stacks >= maxStacks) return;
+    }
     this.castSupportSkill(player, cfg.selected_skill_key, { source: 'auto' });
   },
 
   castSupportSkill(player, skillKey, { source = 'manual' } = {}) {
+    if (!player || typeof player !== 'object') return { success: false, message: '角色数据无效' };
     this._ensurePlayerContext(player);
     const skill = this._findSkill(skillKey, player);
     if (!skill || !['heal', 'buff'].includes(skill.type)) {
@@ -173,17 +208,32 @@ export const AutoPlaySystem = {
     if (this._cooldowns[cooldownKey] > 0) {
       return { success: false, message: '武功尚在冷却中' };
     }
-    if (skill.type === 'heal' && player.hp >= player.maxHp) {
+    const hp = Number(player.hp);
+    const maxHp = Number(player.maxHp);
+    const mp = Number(player.mp);
+    if (![hp, maxHp, mp].every(Number.isFinite) || maxHp <= 0 || hp < 0 || mp < 0) {
+      return { success: false, message: '角色状态数据异常' };
+    }
+    if (skill.type === 'heal' && hp >= maxHp) {
       return { success: false, message: '生命值已满' };
     }
 
-    const mpCost = Math.max(0, Math.floor((skill.cost?.mp || 0) * (1 - (player.mpCostReduce || 0))));
-    if (player.mp < mpCost) return { success: false, message: `内功不足，需要 ${mpCost}` };
+    const configuredMpCost = Number(skill.cost?.mp ?? 0);
+    const rawMpCostReduce = Number(player.mpCostReduce);
+    if (!Number.isFinite(configuredMpCost) || configuredMpCost < 0) return { success: false, message: '武功消耗配置无效' };
+    const mpCostReduce = Number.isFinite(rawMpCostReduce) ? Math.max(0, Math.min(1, rawMpCostReduce)) : 0;
+    const mpCost = Math.max(0, Math.floor(configuredMpCost * (1 - mpCostReduce)));
+    if (mp < mpCost) return { success: false, message: `内功不足，需要 ${mpCost}` };
 
     let result;
     if (skill.type === 'heal') {
-      const healAmount = Math.max(0, Math.floor((skill.effect?.value || 0) * (1 + (player.healBonus || 0))));
-      const actualHeal = Math.min(healAmount, player.maxHp - player.hp);
+      const configuredHeal = Number(skill.effect?.value);
+      const rawHealBonus = Number(player.healBonus);
+      if (!Number.isFinite(configuredHeal) || configuredHeal <= 0) return { success: false, message: '治疗武功配置无效' };
+      const healBonus = Number.isFinite(rawHealBonus) ? rawHealBonus : 0;
+      const healAmount = Math.max(0, Math.floor(configuredHeal * (1 + healBonus)));
+      if (healAmount <= 0) return { success: false, message: '当前治疗效果为 0' };
+      const actualHeal = Math.min(healAmount, maxHp - hp);
       player.hp += actualHeal;
       result = { success: true, message: `${skill.name}恢复 ${actualHeal} 点生命`, healAmount: actualHeal };
       eventBus.emit('autoplay.heal_skill', { player, skill: skill.key, skillName: skill.name, healAmount: actualHeal, source });
@@ -191,17 +241,26 @@ export const AutoPlaySystem = {
       const buffKey = skill.effect?.buff_key;
       const template = BuffSystem._buffTemplates[buffKey];
       if (!template) return { success: false, message: '增益配置不存在' };
-      const duration = template.duration === -1
+      const templateDuration = Number(template.duration);
+      const rawDurationBonus = Number(player.buffDuration);
+      if (!Number.isFinite(templateDuration) || (templateDuration !== -1 && templateDuration <= 0)) {
+        return { success: false, message: '增益持续时间配置无效' };
+      }
+      const durationBonus = Number.isFinite(rawDurationBonus) ? rawDurationBonus : 0;
+      const duration = templateDuration === -1
         ? -1
-        : Math.max(0, template.duration + (player.buffDuration || 0));
+        : Math.max(1, templateDuration + durationBonus);
       const applied = BuffSystem.applyBuff(player, buffKey, duration);
       if (!applied.success) return applied;
       result = { success: true, message: `${skill.name}施放成功`, buffKey };
       eventBus.emit('autoplay.buff_skill', { player, skill: skill.key, skillName: skill.name, buffKey, source });
     }
 
-    player.mp = Math.max(0, player.mp - mpCost);
-    this._cooldowns[cooldownKey] = skill.coolDown || 1000;
+    player.mp = Math.max(0, mp - mpCost);
+    const configuredCooldown = Number(skill.coolDown ?? 1000);
+    this._cooldowns[cooldownKey] = Number.isFinite(configuredCooldown) && configuredCooldown > 0
+      ? configuredCooldown
+      : 1000;
     eventBus.emit('battle.player_status_changed', { player, reason: `${skill.type}_skill_cast` });
     return result;
   },
@@ -214,13 +273,21 @@ export const AutoPlaySystem = {
     const source = shouldResupply ? 'auto_resupply' : shouldAutoStore ? 'auto_store' : 'auto_sell';
 
     const previousSubZone = player.location?.current_sub_zone_key || player.location?.last_wilderness_sub_zone || null;
+    if (!previousSubZone) {
+      player._stopped_reason = 'auto_return_zone_missing';
+      this.stop(player, 'auto_return_zone_missing');
+      return false;
+    }
     if (previousSubZone) {
       player.location = player.location || {};
       player.location.last_wilderness_sub_zone = previousSubZone;
     }
 
     if (teleportFn) {
-      teleportFn(source, null);
+      if (teleportFn(source, null) === false) {
+        this.stop(player, 'auto_return_to_town_failed');
+        return false;
+      }
     } else {
       player.location = player.location || {};
       player.location.current_sub_zone_key = null;
@@ -234,6 +301,7 @@ export const AutoPlaySystem = {
     let purchaseSummary = { bought: {}, gold_spent: 0 };
     if (shouldResupply) {
       purchaseSummary = this._autoBuyPotions(player);
+      eventBus.emit('autoplay.resupply', purchaseSummary);
       if (this._willTriggerResupply(player)) {
         player._stopped_reason = 'auto_resupply_gold_insufficient';
         this.stop(player, 'auto_resupply_gold_insufficient');
@@ -243,15 +311,16 @@ export const AutoPlaySystem = {
 
     const target = player.location?.last_wilderness_sub_zone;
     if (target && teleportFn) {
-      teleportFn(source, target);
+      if (teleportFn(source, target) === false) {
+        player._stopped_reason = 'auto_return_zone_invalid';
+        this.stop(player, 'auto_return_zone_invalid');
+        return true;
+      }
     } else if (target) {
       player.location.current_sub_zone_key = target;
       player.location.current_map_key = 'wilderness_xuanbo_suburb';
     }
 
-    if (shouldResupply) {
-      eventBus.emit('autoplay.resupply', purchaseSummary);
-    }
     return true;
   },
 
@@ -281,19 +350,33 @@ export const AutoPlaySystem = {
 
   _isResupplyRuleTriggered(player, rule) {
     if (!rule?.enabled || !rule?.selected_potion) return false;
-    return InventorySystem.count(player, rule.selected_potion) < (rule.trigger_threshold ?? 0);
+    const threshold = Number(rule.trigger_threshold);
+    return Number.isSafeInteger(threshold) && threshold > 0
+      && InventorySystem.count(player, rule.selected_potion) < threshold;
   },
 
   _autoBuyPotions(player) {
     const purchaseRules = player.auto_play?.auto_resupply?.purchase_rules;
     const summary = { bought: {}, gold_spent: 0 };
-    if (!purchaseRules) return summary;
+    const gold = Number(player.resources?.gold);
+    if (!purchaseRules || !Number.isSafeInteger(gold) || gold < 0) return summary;
 
-    for (const rule of [purchaseRules.hp, purchaseRules.mp]) {
+    const triggerRules = player.auto_play?.auto_resupply?.trigger_rules || {};
+    for (const kind of ['hp', 'mp']) {
+      const rule = purchaseRules[kind];
       if (!rule?.enabled || !rule?.selected_potion) continue;
 
       const current = InventorySystem.count(player, rule.selected_potion);
-      const need = (rule.target_quantity ?? 0) - current;
+      const configuredTarget = Number(rule.target_quantity);
+      if (!Number.isSafeInteger(configuredTarget) || configuredTarget <= 0) continue;
+      const trigger = triggerRules[kind];
+      const triggerThreshold = trigger?.enabled && trigger.selected_potion === rule.selected_potion
+        ? Number(trigger.trigger_threshold)
+        : 0;
+      const targetQuantity = Number.isSafeInteger(triggerThreshold) && triggerThreshold > 0
+        ? Math.max(configuredTarget, triggerThreshold)
+        : configuredTarget;
+      const need = targetQuantity - current;
       if (need <= 0) continue;
 
       const unitPrice = this._getPotionBuyPrice(rule.selected_potion);
@@ -318,12 +401,14 @@ export const AutoPlaySystem = {
 
   _getPotionBuyPrice(itemKey) {
     const item = this._potionShopItems.find(entry => entry.item_key === itemKey);
-    return item?.buy_price || 0;
+    const price = Number(item?.buy_price);
+    const adjustedPrice = Math.floor(price * this._potionShopPriceMultiplier);
+    return Number.isSafeInteger(adjustedPrice) && adjustedPrice > 0 ? adjustedPrice : 0;
   },
 
   _findSkill(skillKey, player) {
-    if (!player.learned_martial_arts?.includes(skillKey)) return null;
-    return this._martialArtsData.find(skill => skill.key === skillKey) || null;
+    const skill = this._martialArtsData.find(item => item.key === skillKey) || null;
+    return isMartialArtUsable(player, skill) ? skill : null;
   },
 
   /**

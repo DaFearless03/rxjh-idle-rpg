@@ -3,11 +3,11 @@
  * @desc teleport(sub_zone, source) + source 标记例外
  * @ref 08_maps_npc_quests.teleport_system / 10_consumables.is_auto_play.exit_triggers
  */
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
-import { forceCloseDialog } from './NPCSystem.js?v=release-20260830-1';
-import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260830-1';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260830-1';
-import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { forceCloseDialog } from './NPCSystem.js?v=release-20260830-3';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260830-3';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260830-3';
+import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260830-3';
 
 export const TeleportSystem = {
   /**
@@ -18,6 +18,15 @@ export const TeleportSystem = {
    * @param {Object} game BattleSystem 引用（用于重置战斗现场）
    */
   teleport(subZoneKey, source, player, game) {
+    if (!player || typeof player !== 'object') return false;
+    let targetSubZone = null;
+    if (subZoneKey != null) {
+      if (typeof subZoneKey !== 'string' || !subZoneKey) return false;
+      const knownZones = game?.subZonesData;
+      if (!Array.isArray(knownZones)) return false;
+      targetSubZone = knownZones.find(zone => zone?.key === subZoneKey) || null;
+      if (!targetSubZone) return false;
+    }
     const prev = player.location?.current_sub_zone_key || null;
 
     if (source === 'player_click' && player.auto_play?.is_auto_play) {
@@ -36,8 +45,10 @@ export const TeleportSystem = {
     if (game?.battle) {
       game.battle.monsters = [];
       game.battle._mainTargetKey = null;
-      game.battle._currentSubZone = game.subZonesData?.find(s => s.key === subZoneKey) || null;
+      game.battle._currentSubZone = targetSubZone;
       game.battle._initialSpawned = false;
+      game.battle._spawnTimerMs = 0;
+      game.battle._playerAtkCd = 0;
     }
 
     // 关闭 NPC 对话

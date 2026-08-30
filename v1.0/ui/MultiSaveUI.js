@@ -3,10 +3,10 @@
  * @desc 多存档列表 UI
  * @ref 13_save.multi_save
  */
-import { storage } from '../utils/storage.js?v=release-20260830-1';
-import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260830-1';
-import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260830-1';
-import { UIManager } from './UIManager.js?v=release-20260830-1';
+import { storage } from '../utils/storage.js?v=release-20260830-3';
+import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260830-3';
+import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260830-3';
+import { UIManager } from './UIManager.js?v=release-20260830-3';
 
 const CAREER_EMOJI = {
   warrior_blade: '⚔️',
@@ -312,33 +312,13 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
     if (!window._selectedCareer) { errEl.textContent = '请先选择职业'; return; }
     const flow = runCharacterCreationFlow({
       careersData: window._careersData || [],
+      equipmentsData: window._equipTemplates || [],
       globalSave: window._currentGlobalSave || {},
       attributeConstants: window._attributeConstants || {},
     });
     const r3 = flow.step3_initializeSave(window._selectedCareer, name, window._targetSlotIndex);
     if (!r3.success) { errEl.textContent = r3.message; return; }
 
-    // 新角色初始武器（各职业系攻击力最低的武器）
-    const _startWeapons = { blade: "blade_base_001", sword: "sword_base_001", spear: "spear_base_001", staff: "staff_base_001" };
-    const _cd = (window._careersData || []).find(c => c.key === window._selectedCareer);
-    const _family = _cd?.career_family || "blade";
-    const _weaponKey = _startWeapons[_family];
-    if (_weaponKey) {
-      const _tpl = (window._equipTemplates || []).find(e => e.key === _weaponKey);
-      if (_tpl) {
-        r3.save.inventory = r3.save.inventory || { capacity: 50, slots: [], equipment_instances: {} };
-        const _instId = 'init_' + _tpl.key;
-        r3.save.inventory.equipment_instances[_instId] = {
-          instance_id: _instId,
-          item_key: _tpl.key,
-          enhance_level: 0,
-          synthesis_slots: []
-        };
-        r3.save.inventory.slots = Array.isArray(r3.save.inventory.slots) ? r3.save.inventory.slots : [];
-        r3.save.inventory.slots.push({ item_key: _tpl.key, count: 1, instance_id: _instId });
-
-      }
-    }
     const persisted = await flow.step4_persist(r3.save, r3.slotIndex, window._currentGlobalSave);
     if (!persisted.success) {
       errEl.textContent = persisted.message || '角色创建失败';
@@ -376,6 +356,9 @@ export function showOfflineRewardUI(summary) {
       inventory_full_quest_item: '背包满，任务物品无法保存',
       player_stopped: '手动停止',
       auto_resupply_gold_insufficient: '金币不足停止',
+      auto_return_zone_missing: '未记录可返回的战斗区域',
+      auto_return_zone_invalid: '原战斗区域已失效',
+      invalid_zone: '存档中的战斗区域已失效',
       zone_change: '切换区域后停止',
       return_to_save_list: '返回角色列表后停止',
     };
@@ -397,7 +380,7 @@ export function showOfflineRewardUI(summary) {
   if (summary.level_ups?.length > 0) {
     const first = summary.level_ups[0];
     const last = summary.level_ups[summary.level_ups.length - 1];
-    const totalPoints = summary.level_ups.reduce((s, l) => s + (l.gained_points || 1), 0);
+    const totalPoints = summary.level_ups.reduce((s, l) => s + (l.gained_points ?? 1), 0);
     html += row('⬆', '升级', `${summary.level_ups.length} 次<span class="rr-detail">Lv${first.from_level} → Lv${last.to_level}（+${totalPoints} 气功点）</span>`, 'up');
   }
   html += row('🪙', '金币', `+${summary.gold_gained || 0}`, 'gold');

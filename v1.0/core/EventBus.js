@@ -15,10 +15,14 @@ export class EventBus {
    * @param {Function} callback
    */
   on(event, callback) {
+    if (typeof event !== 'string' || !event || typeof callback !== 'function') {
+      throw new TypeError('event name and callback are required');
+    }
     if (!this._listeners.has(event)) {
       this._listeners.set(event, []);
     }
     this._listeners.get(event).push(callback);
+    return () => this.off(event, callback);
   }
 
   /**
@@ -30,6 +34,7 @@ export class EventBus {
     const arr = this._listeners.get(event) || [];
     const idx = arr.indexOf(callback);
     if (idx !== -1) arr.splice(idx, 1);
+    if (arr.length === 0) this._listeners.delete(event);
   }
 
   /**

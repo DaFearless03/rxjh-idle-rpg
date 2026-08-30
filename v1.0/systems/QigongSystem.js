@@ -3,7 +3,7 @@
  * @desc 气功系统：投点 / 重置 / 装备热血石加成
  * @ref 04_skills_qigong_buff 4.2 气功系统
  */
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
 
 export const QigongSystem = {
   _qigongTemplates: [],
@@ -57,9 +57,11 @@ export const QigongSystem = {
    * 计算玩家 transfer_count
    */
   _getTransferCount(player) {
-    const career = player.career || '';
-    const match = career.match(/_transfer_(\d+)st/);
-    return match ? parseInt(match[1]) : 0;
+    return [player?.career, ...(Array.isArray(player?.career_history) ? player.career_history : [])]
+      .reduce((maxTransfer, career) => {
+        const match = String(career || '').match(/_transfer_(\d+)/);
+        return Math.max(maxTransfer, match ? Number(match[1]) : 0);
+      }, 0);
   },
 
   _getCareerFamily(player) {
@@ -192,9 +194,23 @@ export const QigongSystem = {
     const qigong = this._qigongTemplates.find(q => q.key === qigongKey);
     if (!qigong) return { success: false, message: `气功 ${qigongKey} 不存在` };
 
+    const requestedPoints = Number(points);
+    if (!Number.isSafeInteger(requestedPoints) || requestedPoints <= 0) {
+      return { success: false, message: '投入点数必须是正整数' };
+    }
+
+    const families = Array.isArray(qigong.career_family) ? qigong.career_family : [qigong.career_family];
+    if (!families.includes(this._getCareerFamily(player))) {
+      return { success: false, message: '该气功不属于当前职业' };
+    }
+    if (this._getTransferCount(player) < (qigong.unlock?.min_transfer || 0)
+      || (player.level || 1) < (qigong.unlock?.min_level || 1)) {
+      return { success: false, message: '该气功尚未解锁' };
+    }
+
     const current = player.qigong.invested[qigongKey] || 0;
     const available = this.getAvailablePoints(player);
-    const canAdd = Math.min(points, available, qigong.max_level - current);
+    const canAdd = Math.min(requestedPoints, available, qigong.max_level - current);
     if (canAdd <= 0) {
       return { success: false, message: `气功点不足或已达上限` };
     }
@@ -214,14 +230,26 @@ export const QigongSystem = {
    */
   resetQigong(player) {
     this._ensureQigongState(player);
-    const count = player.qigong?.attribute_reset_count || 0;
+    const count = player.qigong.attribute_reset_count;
     const cost = Math.floor(10000 * Math.pow(10, count));
+    if (!Number.isSafeInteger(cost) || cost <= 0) {
+      return { success: false, message: '已达到气功重置次数上限' };
+    }
 
-    if ((player.resources?.gold || 0) < cost) {
+    const gold = Number(player.resources?.gold);
+    if (!Number.isSafeInteger(gold) || gold < 0) {
+      return { success: false, message: '玩家金币数据异常' };
+    }
+    if (gold < cost) {
       return { success: false, message: `重置需要 ${cost} 金币` };
     }
 
     const refunded = Object.values(player.qigong?.invested || {}).reduce((s, v) => s + v, 0);
+    if (!Number.isSafeInteger(refunded)
+      || refunded < 0
+      || refunded > Number.MAX_SAFE_INTEGER - player.qigong.available_points) {
+      return { success: false, message: '气功点数据异常' };
+    }
     player.resources.gold -= cost;
     eventBus.emit('resources.changed', { player, resource: 'gold', amount: cost, action: 'remove' });
     player.qigong.invested = {};
@@ -240,11 +268,17 @@ export const QigongSystem = {
    */
   collectQigongHooks(player, h) {
     const invested = player.qigong?.invested || {};
+    const transferCount = this._getTransferCount(player);
+    const careerFamily = this._getCareerFamily(player);
 
     for (const [key, points] of Object.entries(invested)) {
       if (points <= 0) continue;
       const qigong = this._qigongTemplates.find(q => q.key === key);
       if (!qigong) continue;
+      const families = Array.isArray(qigong.career_family) ? qigong.career_family : [qigong.career_family];
+      if (!families.includes(careerFamily)
+        || transferCount < (qigong.unlock?.min_transfer || 0)
+        || (player.level || 1) < (qigong.unlock?.min_level || 1)) continue;
 
       const effectType = qigong.effect.type;
       const totalValue = this._calcEffectValue(qigong, this._calcEffectiveLevel(player, qigong));
@@ -275,12 +309,24 @@ export const QigongSystem = {
     if (level <= 0) return 0;
 
     const instances = player.inventory?.equipment_instances || {};
-    for (const equippedValue of Object.values(player.equipped || {})) {
+    const templates = player._equipTemplates || [];
+    const seenInstances = new Set();
+    for (const [slot, equippedValue] of Object.entries(player.equipped || {})) {
       const entries = Array.isArray(equippedValue) ? equippedValue : [equippedValue];
       for (const entry of entries) {
-        if (!entry?.instance_id) continue;
-        const instance = instances[entry.instance_id];
-        for (const stoneKey of instance?.synthesis_slots || []) {
+        const instanceId = typeof entry === 'string' ? entry : entry?.instance_id;
+        if (!instanceId || seenInstances.has(instanceId)) continue;
+        seenInstances.add(instanceId);
+        const instance = instances[instanceId];
+        if (!instance) continue;
+        const template = templates.find(item => item.key === instance.item_key);
+        if (!template || template.slot !== slot) continue;
+        const equipmentBonus = Number(template?.base_stats?.qigong);
+        if (Number.isFinite(equipmentBonus) && equipmentBonus > 0) {
+          level += Math.floor(equipmentBonus);
+        }
+        for (const stoneKey of Array.isArray(instance.synthesis_slots) ? instance.synthesis_slots : []) {
+          if (typeof stoneKey !== 'string' || !stoneKey) continue;
           const parsed = this._parseSkillLevelStone(stoneKey);
           if (!parsed) continue;
           const targetKey = parsed.targetKey || this._selectSkillLevelTarget(player, () => 0);
@@ -307,17 +353,27 @@ export const QigongSystem = {
     const invested = careerQigongs.filter(qigong => (player.qigong?.invested?.[qigong.key] || 0) > 0);
     const candidates = invested.length > 0 ? invested : careerQigongs;
     if (candidates.length === 0) return null;
-    const index = Math.min(candidates.length - 1, Math.floor(Math.max(0, random()) * candidates.length));
+    const sampled = Number(random());
+    const roll = Number.isFinite(sampled) ? Math.max(0, Math.min(1 - Number.EPSILON, sampled)) : 0;
+    const index = Math.floor(roll * candidates.length);
     return candidates[index].key;
   },
 
   _ensureQigongState(player) {
     player.qigong = player.qigong || {};
-    player.qigong.invested = player.qigong.invested || {};
-    player.qigong.attribute_reset_count = player.qigong.attribute_reset_count || 0;
+    player.qigong.invested = player.qigong.invested && typeof player.qigong.invested === 'object'
+      && !Array.isArray(player.qigong.invested) ? player.qigong.invested : {};
+    for (const [key, value] of Object.entries(player.qigong.invested)) {
+      const points = Number(value);
+      if (!Number.isSafeInteger(points) || points <= 0) delete player.qigong.invested[key];
+      else player.qigong.invested[key] = points;
+    }
+    const resetCount = Number(player.qigong.attribute_reset_count);
+    player.qigong.attribute_reset_count = Number.isSafeInteger(resetCount) && resetCount >= 0 ? resetCount : 0;
 
-    if (typeof player.qigong.available_points !== 'number') {
-      const invested = Object.values(player.qigong.invested).reduce((s, v) => s + v, 0);
+    if (!Number.isSafeInteger(player.qigong.available_points) || player.qigong.available_points < 0) {
+      const invested = Object.values(player.qigong.invested)
+        .reduce((sum, value) => Math.min(Number.MAX_SAFE_INTEGER, sum + value), 0);
       player.qigong.available_points = Math.max(0, this.calcMaxPoints(player) - invested);
     }
   }

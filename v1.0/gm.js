@@ -13,7 +13,10 @@
 
   const player = () => window.Game?.currentPlayer || null;
   const config = () => window.GameConfig || {};
-  const value = (id, fallback = 0) => Number(document.getElementById(id)?.value) || fallback;
+  const value = (id, fallback = 0) => {
+    const parsed = Number(document.getElementById(id)?.value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
   const selected = id => document.getElementById(id)?.dataset?.value || document.getElementById(id)?.value || '';
   const slotLabels = { weapon:'⚔ 武器', chest:'🧥 胸甲', gloves:'🧤 手套', boots:'👢 鞋子', inner_armor:'🛡 内甲', ring:'💍 戒指', earring:'✨ 耳环', amulet:'📿 项链', cape:'🦸 披风' };
   const familyLabels = { blade:'🔪 刀', sword:'⚔ 剑', spear:'🔱 枪', staff:'🌿 医' };
@@ -45,17 +48,28 @@
     return current;
   }
 
-  async function finish(message, { recompute = true, save = true } = {}) {
+  async function finish(message, { recompute = true, save = true, refill = false } = {}) {
     const current = player();
     if (current && recompute) {
       window.AttributeSystem?.recompute?.(current);
-      current.hp = Math.min(current.hp ?? current.maxHp, current.maxHp);
-      current.mp = Math.min(current.mp ?? current.maxMp, current.maxMp);
+      current.hp = refill ? current.maxHp : Math.min(current.hp ?? current.maxHp, current.maxHp);
+      current.mp = refill ? current.maxMp : Math.min(current.mp ?? current.maxMp, current.maxMp);
     }
     window.EventBus?.emit?.('gm.refresh', { source: 'gm.js' });
-    if (save) await window.SaveManager?.save?.();
+    const saved = !save || await window.SaveManager?.save?.();
+    if (!saved) {
+      toast(`${message}，但存档失败`, 'error');
+      syncPanel();
+      return false;
+    }
     toast(message, 'success');
     syncPanel();
+    return true;
+  }
+
+  function positiveSafeInteger(input, max = Number.MAX_SAFE_INTEGER) {
+    const number = Number(input);
+    return Number.isSafeInteger(number) && number > 0 && number <= max ? number : 0;
   }
 
   function itemMeta(key) {
@@ -294,30 +308,53 @@
   }
 
   function setLevel(current, nextLevel) {
-    nextLevel = Math.min(Number(window.currentLevelCap || 60), Math.max(1, Number(nextLevel) || 1));
-    const career = (config().careers || []).find(c => c.key === current.career);
-    const grow = career?.attrGrow || {};
-    const diff = nextLevel - (current.level || 1);
-    for (const stat of ['str', 'dex', 'sta', 'int']) current[stat] = (current[stat] || 0) + (grow[stat] || 0) * diff;
-    current.level = nextLevel;
+    const cap = positiveSafeInteger(window.currentLevelCap || config().current_level_cap, 1000) || 60;
+    current.level = Math.min(cap, Math.max(1, Math.floor(Number(nextLevel) || 1)));
     current.exp = 0;
+    return window.Game?.rebuildCareerFields?.(current) === true;
   }
 
   function addExp(current, amount) {
-    current.exp = (current.exp || 0) + amount;
-    const cap = window.currentLevelCap || 200;
+    const gain = positiveSafeInteger(amount);
+    const currentExp = Number(current.exp);
+    if (!gain || !Number.isSafeInteger(currentExp) || currentExp < 0 || gain > Number.MAX_SAFE_INTEGER - currentExp) return -1;
+    const cap = positiveSafeInteger(window.currentLevelCap || config().current_level_cap, 1000) || 60;
+    if (!Number.isSafeInteger(current.level) || current.level < 1 || current.level >= cap) return -1;
+    current.exp = currentExp + gain;
+    let levelsGained = 0;
     while (current.level < cap) {
-      const needed = window.expToNext?.[current.level] || 0;
+      const needed = positiveSafeInteger(window.expToNext?.[current.level]);
       if (!needed || current.exp < needed) break;
       current.exp -= needed;
-      setLevel(current, current.level + 1);
+      current.level += 1;
+      levelsGained += 1;
+      const points = Number(config().attribute_points?.gain_per_level?.[current.level]);
+      if (Number.isSafeInteger(points) && points > 0) {
+        current.qigong = current.qigong || { available_points: 0, invested: {} };
+        const available = Number(current.qigong.available_points);
+        if (Number.isSafeInteger(available) && available >= 0 && points <= Number.MAX_SAFE_INTEGER - available) {
+          current.qigong.available_points = available + points;
+        }
+      }
     }
+    if (current.level >= cap) current.exp = 0;
+    window.Game?.rebuildCareerFields?.(current);
+    return levelsGained;
   }
 
   function giveEquipment(current, key, count = 1) {
+    const template = (config().equipments || []).find(item => item.key === key);
+    if (!template) return 0;
     let added = 0;
     for (let i = 0; i < count; i++) {
-      const instance = { instance_id: `gm_${Date.now()}_${i}_${Math.random().toString(36).slice(2, 7)}`, item_key: key, enhance_level: 0, synthesis_slots: [] };
+      const instance = {
+        instance_id: `gm_${Date.now()}_${i}_${Math.random().toString(36).slice(2, 7)}`,
+        item_key: key,
+        enhance_level: 0,
+        synthesis_slots: [],
+        desc: template.description || '',
+        extra: { ...(template.extra_affixes || {}) },
+      };
       const result = window.InventorySystem?.addEquipmentInstance?.(current, instance);
       if (result?.success) added++;
     }
@@ -328,19 +365,28 @@
     const current = requirePlayer();
     if (!current) return;
     if (action === 'gold' || action === 'gold-custom') {
-      const amount = action === 'gold' ? Number(dataValue) : value('gm-gold');
-      current.resources.gold = (current.resources.gold || 0) + amount;
+      const amount = positiveSafeInteger(action === 'gold' ? dataValue : value('gm-gold'));
+      const gold = Number(current.resources?.gold);
+      if (!amount || !Number.isSafeInteger(gold) || gold < 0 || amount > Number.MAX_SAFE_INTEGER - gold) {
+        return toast('金币数量无效或已达上限', 'error');
+      }
+      current.resources.gold = gold + amount;
       return finish(`金币 +${amount}`, { recompute: false });
     }
     if (action === 'exp' || action === 'exp-custom') {
-      const amount = action === 'exp' ? Number(dataValue) : value('gm-exp');
-      addExp(current, amount);
-      return finish(`经验 +${amount}`);
+      const amount = positiveSafeInteger(action === 'exp' ? dataValue : value('gm-exp'));
+      const levelsGained = addExp(current, amount);
+      if (!amount || levelsGained < 0) return toast('经验数量无效或已达上限', 'error');
+      return finish(`经验 +${amount}`, { refill: levelsGained > 0 });
     }
     if (action === 'qigong' || action === 'qigong-custom') {
-      const amount = action === 'qigong' ? Number(dataValue) : value('gm-qigong');
+      const amount = positiveSafeInteger(action === 'qigong' ? dataValue : value('gm-qigong'));
       current.qigong = current.qigong || { available_points: 0, invested: {} };
-      current.qigong.available_points = (current.qigong.available_points || 0) + amount;
+      const available = Number(current.qigong.available_points);
+      if (!amount || !Number.isSafeInteger(available) || available < 0 || amount > Number.MAX_SAFE_INTEGER - available) {
+        return toast('气功点数量无效或已达上限', 'error');
+      }
+      current.qigong.available_points = available + amount;
       return finish(`气功点 +${amount}`);
     }
     if (action === 'heal') {
@@ -348,13 +394,16 @@
       return finish('HP/MP 已回满', { recompute: false });
     }
     if (action === 'level') {
-      const level = Math.max(1, value('gm-level', current.level));
-      setLevel(current, level);
-      return finish(`等级已设置为 Lv.${level}`);
+      const requestedLevel = Math.floor(value('gm-level', current.level));
+      if (!Number.isSafeInteger(requestedLevel) || requestedLevel < 1) return toast('等级无效', 'error');
+      if (!setLevel(current, requestedLevel)) return toast('职业数据无效，无法设置等级', 'error');
+      return finish(`等级已设置为 Lv.${current.level}`, { refill: true });
     }
     if (action === 'give-equipment') {
       const key = selected('gm-equipment');
-      const added = giveEquipment(current, key, Math.max(1, value('gm-equip-count', 1)));
+      const count = positiveSafeInteger(value('gm-equip-count', 1), 99);
+      if (!count) return toast('装备数量无效', 'error');
+      const added = giveEquipment(current, key, count);
       return finish(`已给予 ${itemMeta(key).name} ×${added}`);
     }
     if (action === 'set') {
@@ -372,7 +421,8 @@
       return finish(`已发放 ${transfer ? 'T1' : 'Base'} 套装，共 ${added} 件`);
     }
     if (action === 'enhance' || action === 'enhance-custom') {
-      const target = action === 'enhance' ? Number(dataValue) : value('gm-enhance', 0);
+      const target = Math.floor(action === 'enhance' ? Number(dataValue) : value('gm-enhance', 0));
+      if (!Number.isSafeInteger(target) || target < 0 || target > 10) return toast('强化等级必须是 0～10 的整数', 'error');
       const instanceId = current.equipped?.weapon?.instance_id;
       const instance = current.inventory?.equipment_instances?.[instanceId];
       if (!instance) return toast('请先装备武器', 'error');
@@ -381,11 +431,13 @@
     }
     if (action === 'give-stone' || action === 'quick-item' || action === 'quick-box') {
       const key = action === 'give-stone' ? generatedStoneKey() : dataValue;
-      const count = action === 'give-stone' ? Math.max(1, value('gm-stone-count', 1)) : action === 'quick-box' ? 10 : 99;
+      const count = action === 'give-stone' ? positiveSafeInteger(value('gm-stone-count', 1), 99) : action === 'quick-box' ? 10 : 99;
+      if (!count) return toast('物品数量无效', 'error');
       const result = giveItem(key, count);
       return finish(`${itemMeta(key).name} +${result?.added || 0}`, { recompute: false });
     }
     if (action === 'faction') {
+      if (!['positive', 'negative', 'neutral'].includes(dataValue)) return toast('派系无效', 'error');
       current.faction = dataValue;
       return finish(`派系已切换为 ${dataValue}`);
     }
@@ -397,6 +449,7 @@
       current.career_family = career.career_family;
       current.faction = career.faction || current.faction;
       current.career_history = [...new Set([...(current.career_history || []), key])];
+      if (window.Game?.rebuildCareerFields?.(current) !== true) return toast('职业属性重建失败', 'error');
       return finish(`职业已切换为 ${career.name || key}`);
     }
     if (action === 'qigong-full') {
@@ -430,20 +483,15 @@
       return finish('仓库已清空', { recompute: false });
     }
     if (action === 'export-save') {
-      const text = window.game?.exportSave
-        ? window.game.exportSave({ include_all_characters: true })
-        : btoa(unescape(encodeURIComponent(JSON.stringify({ player: current, localStorage: { ...localStorage } }))));
-      await navigator.clipboard?.writeText?.(text);
-      return toast('存档 Base64 已复制到剪贴板', 'success');
+      const text = await window.game?.exportSave?.({ include_all_characters: true });
+      return toast(text ? '存档已生成' : '存档导出失败', text ? 'success' : 'error');
     }
     if (action === 'import-save') {
       const text = prompt('粘贴此前导出的存档 Base64');
       if (!text) return;
       try {
-        if (window.game?.importSave) return window.game.importSave(text);
-        const parsed = JSON.parse(decodeURIComponent(escape(atob(text))));
-        for (const [key, val] of Object.entries(parsed.localStorage || {})) localStorage.setItem(key, val);
-        location.reload();
+        if (!window.game?.importSave) return toast('存档接口尚未就绪', 'error');
+        return await window.game.importSave(text);
       } catch { toast('导入内容不是有效存档', 'error'); }
     }
     if (action === 'nuke') {

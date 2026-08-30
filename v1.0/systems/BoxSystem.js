@@ -3,12 +3,13 @@
  * @desc 开盒系统：按 openable_items.weight 加权随机，支持批量开盒。
  * @ref 12_boxes.md
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260830-1';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260830-3';
 
-function toPositiveInt(value, fallback = 1) {
-  return Math.max(1, Math.floor(Number(value) || fallback));
+function toPositiveInt(value) {
+  const count = Number(value);
+  return Number.isSafeInteger(count) && count > 0 ? count : 0;
 }
 
 function aggregate(list, item) {
@@ -22,8 +23,8 @@ export const BoxSystem = {
   _equipments: new Map(),
 
   setTemplates({ boxes = [], equipmentTemplates = [] } = {}) {
-    this._boxes = new Map((boxes || []).map(box => [box.key, box]));
-    this._equipments = new Map((equipmentTemplates || []).map(item => [item.key, item]));
+    this._boxes = new Map((Array.isArray(boxes) ? boxes : []).filter(box => box?.key).map(box => [box.key, box]));
+    this._equipments = new Map((Array.isArray(equipmentTemplates) ? equipmentTemplates : []).filter(item => item?.key).map(item => [item.key, item]));
   },
 
   getBox(boxKey) {
@@ -36,6 +37,7 @@ export const BoxSystem = {
     if (!player || !box) {
       return { success: false, message: '盒子不存在', obtained: [], discarded: [] };
     }
+    if (!openCount) return { success: false, message: '开启数量无效', obtained: [], discarded: [] };
     if (!Array.isArray(box.openable_items) || box.openable_items.length === 0) {
       return { success: false, message: '该盒子没有配置奖池', obtained: [], discarded: [] };
     }
@@ -104,9 +106,11 @@ export const BoxSystem = {
   },
 
   _pickReward(box) {
-    const pool = (box.openable_items || []).filter(item => Number(item.weight) > 0);
+    const pool = (box.openable_items || []).filter(item =>
+      typeof item?.item_key === 'string' && item.item_key && Number.isFinite(Number(item.weight)) && Number(item.weight) > 0
+    );
     const total = pool.reduce((sum, item) => sum + Number(item.weight), 0);
-    if (total <= 0) return null;
+    if (!Number.isFinite(total) || total <= 0) return null;
     let roll = Math.random() * total;
     for (const item of pool) {
       roll -= Number(item.weight);

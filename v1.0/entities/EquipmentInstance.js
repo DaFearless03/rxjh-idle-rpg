@@ -3,7 +3,7 @@
  * @desc 装备实例工厂
  * @ref 09_economy_drops.md drop_helpers.create_equipment_instance
  */
-import { generateUUID } from '../utils/uuid.js?v=release-20260830-1';
+import { generateUUID } from '../utils/uuid.js?v=release-20260830-3';
 
 /**
  * 从装备模板创建唯一实例

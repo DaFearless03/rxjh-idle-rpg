@@ -3,10 +3,12 @@
  * @desc 掉落系统：evaluate + 5个drop_*适配
  * @ref 09_economy_drops.md evaluation_flow / drop_adapters / drop_helpers
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260830-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
-import { QigongSystem } from './QigongSystem.js?v=release-20260830-1';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-3';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260830-3';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { QigongSystem } from './QigongSystem.js?v=release-20260830-3';
+import { creditSafeInteger } from '../utils/numbers.js?v=release-20260830-3';
 
 export class DropSystem {
   /**
@@ -15,8 +17,8 @@ export class DropSystem {
    * @param {Object} opts.equipmentsData 装备配置列表
    * @param {Object} opts.stonesData 石头配置（4类合并）
    */
-  constructor(opts) {
-    this._config = opts.config;
+  constructor(opts = {}) {
+    this._config = opts.config || {};
     this._equipments = opts.equipmentsData || [];
     this._stones = opts.stonesData || {};
     this._taskSys = opts.taskSystemRef || null;
@@ -34,7 +36,8 @@ export class DropSystem {
     const summary = {
       gold: 0,
     };
-    const levelDiff = player.level - monster.level;
+    if (!player || !monster) return summary;
+    const levelDiff = (Number(player.level) || 1) - (Number(monster.level) || 1);
     const mods = this._calcModifiers(levelDiff);
 
     // ===== 1. 经验 / 历练（Phase 1 已实现，这里仅记录 gold_modifier 用于 2a）=====
@@ -43,8 +46,8 @@ export class DropSystem {
     // ===== 1b. 历练掉落（100%获取，每次击杀1点，受 training_modifier 影响）=====
     if (mods.training_modifier > 0) {
       const finalTraining = Math.ceil(1 * mods.training_modifier);
-      this._dropTraining(player, finalTraining);
-      summary.training = (summary.training || 0) + finalTraining;
+      const creditedTraining = this._dropTraining(player, finalTraining);
+      summary.training = (summary.training || 0) + creditedTraining;
     }
 
     // ===== 2. 地图掉落池判定 =====
@@ -52,22 +55,28 @@ export class DropSystem {
       for (const roll of subZoneDrop.drop_rolls) {
         if (roll.trigger !== 'always') continue;
         if (roll.enabled === false || roll.enabled === 'false') continue;
-        for (let i = 0; i < roll.roll_count; i++) {
+        const rollCount = Number.isSafeInteger(Number(roll.roll_count)) && Number(roll.roll_count) > 0
+          ? Number(roll.roll_count)
+          : 0;
+        for (let i = 0; i < rollCount; i++) {
           // 2a. 金币掉落（10%概率）
           if (mods.gold_modifier > 0 && Math.random() < 0.10) {
             const [configuredMin, configuredMax] = subZone?.gold_range || subZoneDrop.gold_range || [8, 15];
             const minGold = Math.max(0, Math.floor(Number(configuredMin) || 0));
             const maxGold = Math.max(minGold, Math.floor(Number(configuredMax) || minGold));
             const baseGold = Math.floor(Math.random() * (maxGold - minGold + 1)) + minGold;
-            const finalGold = Math.floor(baseGold * (1 + (player.goldDropBonus || 0)) * mods.gold_modifier);
-            this._dropGold(player, finalGold);
-            summary.gold += finalGold;
+            const rawBonus = Number(player.goldDropBonus);
+            const goldMultiplier = Math.max(0, 1 + (Number.isFinite(rawBonus) ? rawBonus : 0));
+            const finalGold = Math.max(0, Math.floor(baseGold * goldMultiplier * mods.gold_modifier));
+            summary.gold += this._dropGold(player, finalGold);
           }
           // 2b. 装备掉落
           if (roll.equipment_pool && roll.equipment_pool.length > 0) {
             const selected = this._weightedRandom(roll.equipment_pool);
-            const actualRate = selected.drop_rate * (roll.drop_multiplier?.equipment_rate || 1.0) * mods.rate_modifier;
-            if (Math.random() < actualRate) {
+            const actualRate = Math.max(0, Math.min(1,
+              Number(selected?.drop_rate || 0) * Number(roll.drop_multiplier?.equipment_rate || 1) * mods.rate_modifier
+            ));
+            if (selected?.key && Math.random() < actualRate) {
               this._dropEquipment(player, selected.key);
             }
           }
@@ -75,8 +84,10 @@ export class DropSystem {
           // 2c. 石头掉落
           if (roll.stone_pool && roll.stone_pool.length > 0) {
             const selectedStone = this._weightedRandom(roll.stone_pool);
-            const actualStoneRate = selectedStone.drop_rate * (roll.drop_multiplier?.stone_rate || 1.0) * mods.rate_modifier;
-            if (Math.random() < actualStoneRate) {
+            const actualStoneRate = Math.max(0, Math.min(1,
+              Number(selectedStone?.drop_rate || 0) * Number(roll.drop_multiplier?.stone_rate || 1) * mods.rate_modifier
+            ));
+            if (selectedStone?.key && Math.random() < actualStoneRate) {
               this._dropStone(player, selectedStone.key);
             }
           }
@@ -95,7 +106,8 @@ export class DropSystem {
     const boxConfig = this._config.monster_drop_box;
     if (boxConfig && monster.map_key) {
       const boxKey = boxConfig.box_type_by_map?.[monster.map_key];
-      if (boxKey && Math.random() < boxConfig.drop_rate * mods.rate_modifier) {
+      const boxRate = Math.max(0, Math.min(1, Number(boxConfig.drop_rate || 0) * mods.rate_modifier));
+      if (boxKey && Math.random() < boxRate) {
         this._dropBox(player, boxKey);
       }
     }
@@ -109,16 +121,26 @@ export class DropSystem {
 
   _dropTraining(player, amount) {
     player.resources = player.resources || { gold: 0, training: 0, merit: 0 };
-    player.resources.training = (player.resources.training || 0) + amount;
+    const credit = creditSafeInteger(player.resources.training, amount);
+    player.resources.training = credit.value;
+    if (credit.added > 0) {
+      eventBus.emit('resources.changed', { player, resource: 'training', amount: credit.added, action: 'add' });
+    }
+    return credit.added;
   }
 
   _dropGold(player, amount) {
     player.resources = player.resources || { gold: 0, training: 0, merit: 0 };
-    player.resources.gold += amount;
     player.statistics = player.statistics || {};
-    player.statistics.total_gold_earned = (player.statistics.total_gold_earned || 0) + amount;
-    eventBus.emit('resources.changed', { player, resource: 'gold', amount, action: 'add' });
-    this._logDrop(`[掉落] 金币 +${amount}`);
+    const goldCredit = creditSafeInteger(player.resources.gold, amount);
+    const statisticsCredit = creditSafeInteger(player.statistics.total_gold_earned, amount);
+    const credited = Math.min(goldCredit.added, statisticsCredit.added);
+    player.resources.gold = goldCredit.value - goldCredit.added + credited;
+    player.statistics.total_gold_earned = statisticsCredit.value - statisticsCredit.added + credited;
+    if (credited <= 0) return 0;
+    eventBus.emit('resources.changed', { player, resource: 'gold', amount: credited, action: 'add' });
+    this._logDrop(`[掉落] 金币 +${credited}`);
+    return credited;
   }
 
   _dropEquipment(player, equipmentKey) {
@@ -147,7 +169,10 @@ export class DropSystem {
     let finalKey = stoneKey;
     if (stoneDef && stoneDef.attribute && stoneDef.attribute.pool && stoneDef.attribute.pool.length > 0) {
       const poolItem = this._weightedRandom(stoneDef.attribute.pool);
-      const [min, max] = poolItem.value_range || [0, 0];
+      if (!poolItem?.key) return;
+      const [rawMin, rawMax] = poolItem.value_range || [0, 0];
+      const min = Number.isFinite(Number(rawMin)) ? Number(rawMin) : 0;
+      const max = Number.isFinite(Number(rawMax)) ? Math.max(min, Number(rawMax)) : min;
       let value;
       if (min === max) {
         value = min;
@@ -173,10 +198,9 @@ export class DropSystem {
     // Phase 3: 任务物品掉落校验
     if (!this._taskSys) return false;
 
-    // quest_item_drop_condition
-    const activeQuest = this._taskSys._questTemplates ? null : null;
     // 查找是否有任务需要这个 item（当前 stage）
     const itemKey = dropItem.item_key;
+    if (typeof itemKey !== 'string' || !itemKey) return false;
 
     // 遍历已接任务检查
     const accepted = player.quests?.accepted || [];
@@ -184,13 +208,19 @@ export class DropSystem {
     let requiredCount = 0;
 
     for (const quest of accepted) {
-      const stageBlock = quest.objectives?.find(s => s.stage === quest.current_stage);
+      const currentStage = Number(quest?.current_stage);
+      if (!Number.isSafeInteger(currentStage) || currentStage <= 0) continue;
+      quest.current_stage = currentStage;
+      const stageBlock = quest.objectives?.find(s => Number(s?.stage) === currentStage);
       if (!stageBlock) continue;
       const item = stageBlock.items?.find(i => i.item_key === itemKey);
       if (item) {
-        matchedQuest = quest;
-        requiredCount = item.count;
-        break;
+        const count = Number(item.count);
+        if (!Number.isSafeInteger(count) || count <= 0) continue;
+        if (count > requiredCount) {
+          matchedQuest = quest;
+          requiredCount = count;
+        }
       }
     }
 
@@ -201,7 +231,8 @@ export class DropSystem {
     if (currentCount >= requiredCount) return false;  // 已够数
 
     // 判定掉率
-    const droprate = dropItem.droprate ?? 0.001;
+    const configuredRate = Number(dropItem.droprate ?? 0.001);
+    const droprate = Number.isFinite(configuredRate) ? Math.max(0, Math.min(1, configuredRate)) : 0;
     if (Math.random() >= droprate) return false;
 
     // 加入背包
@@ -220,9 +251,8 @@ export class DropSystem {
       current_count: currentCount,
       required_count: requiredCount,
     };
-    if (player.auto_play) {
-      player.auto_play.is_auto_play = false;
-    }
+    player._stopped_reason = 'inventory_full_quest_item';
+    AutoPlaySystem.stop(player, 'inventory_full_quest_item');
     this._logDrop(`[任务物品] ${itemKey} 无法保存（背包已满），已停止挂机`, 'warn');
     eventBus.emit('drop.discarded', { item_key: itemKey, item_name: itemKey, count: 1, reason: 'inventory_full_quest_item' });
     return false;
@@ -285,13 +315,18 @@ export class DropSystem {
   }
 
   _weightedRandom(pool) {
-    const totalWeight = pool.reduce((s, i) => s + (i.weight || 1), 0);
+    const candidates = (Array.isArray(pool) ? pool : []).filter(item => {
+      const weight = Number(item?.weight ?? 1);
+      return Number.isFinite(weight) && weight > 0;
+    });
+    const totalWeight = candidates.reduce((sum, item) => sum + Number(item.weight ?? 1), 0);
+    if (!Number.isFinite(totalWeight) || totalWeight <= 0) return null;
     let r = Math.random() * totalWeight;
-    for (const item of pool) {
-      r -= (item.weight || 1);
+    for (const item of candidates) {
+      r -= Number(item.weight ?? 1);
       if (r <= 0) return item;
     }
-    return pool[pool.length - 1];
+    return candidates[candidates.length - 1] || null;
   }
 
   _getStoneName(stoneKey) {

@@ -3,6 +3,27 @@
  * @desc 派生属性重算（base + hooks 聚合）
  * @ref 02_attributes.base_attributes / attribute_hooks / 02_attributes.派生属性聚合默认规则
  */
+const SUPPORTED_STONE_HOOKS = new Set([
+  'atkSelfAdd', 'defAdd', 'enhanceSuccessRateAdd', 'goldDropBonusAdd',
+  'hitAdd', 'maxHpAdd', 'missingAdd', 'weaponExtraDamageAdd', 'weaponSkillBonusAdd',
+]);
+
+function finiteNumber(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function addHook(hooks, key, value) {
+  const amount = finiteNumber(value, Number.NaN);
+  if (!Number.isFinite(amount)) return;
+  hooks[key] = finiteNumber(hooks[key]) + amount;
+}
+
+function clamp(value, min, max, fallback = min) {
+  const number = finiteNumber(value, fallback);
+  return Math.min(max, Math.max(min, number));
+}
+
 export class AttributeSystem {
   /**
    * @param {Object} opts
@@ -22,17 +43,18 @@ export class AttributeSystem {
    * @ref 02_attributes.派生属性聚合默认规则
    */
   recompute(player) {
-    const c = this._constants;
-    const level = player.level || 1;
+    const c = this._constants || {};
+    const level = Math.max(1, Math.floor(finiteNumber(player.level, 1)));
 
     // 四维直接来自 base_stats + attrGrow（已在 Player 构造时累积）
-    const str = player.str || 0;
-    const dex = player.dex || 0;
-    const sta = player.sta || 0;
-    const int = player.int || 0;
+    const str = finiteNumber(player.str);
+    const dex = finiteNumber(player.dex);
+    const sta = finiteNumber(player.sta);
+    const int = finiteNumber(player.int);
 
     // 钩子收集（来自已装备物品）
     const h = player._hooks || {};
+    player._hooks = h;
 
     // 重置钩子（避免残留）
     for (const key of Object.keys(h)) delete h[key];
@@ -51,77 +73,87 @@ export class AttributeSystem {
     }
 
     // maxHp: (baseHp + (level-1)*hpGrowth + sta*staToHp + sum(maxHpAdd)) * (1 + sum(maxHpPct))
-    const maxHpBase = (player.baseHp || 100) + (level - 1) * (player.hpGrowth || 60) + sta * c.staToHp;
+    const maxHpBase = finiteNumber(player.baseHp, 100)
+      + (level - 1) * finiteNumber(player.hpGrowth, 60)
+      + sta * finiteNumber(c.staToHp);
     const maxHpAdd = (h.maxHpAdd || 0);
     const maxHpPct = (h.maxHpPct || 0);
-    player.maxHp = Math.floor((maxHpBase + maxHpAdd) * (1 + maxHpPct));
+    player.maxHp = Math.max(1, Math.floor(finiteNumber((maxHpBase + maxHpAdd) * (1 + maxHpPct), 1)));
 
     // maxMp: (baseMp + (level-1)*mpGrowth + int*intToMp + sum(maxMpAdd)) * (1 + sum(maxMpPct))
-    const maxMpBase = (player.baseMp || 100) + (level - 1) * (player.mpGrowth || 20) + int * c.intToMp;
+    const maxMpBase = finiteNumber(player.baseMp, 100)
+      + (level - 1) * finiteNumber(player.mpGrowth, 20)
+      + int * finiteNumber(c.intToMp);
     const maxMpAdd = (h.maxMpAdd || 0);
     const maxMpPct = (h.maxMpPct || 0);
-    player.maxMp = Math.floor((maxMpBase + maxMpAdd) * (1 + maxMpPct));
+    player.maxMp = Math.max(1, Math.floor(finiteNumber((maxMpBase + maxMpAdd) * (1 + maxMpPct), 1)));
 
     // atkMin: (baseAtk + floor(str*0.8*strToAtk) + sum(atkMinAdd) + sum(atkSelfAdd)) * (1 + sum(atkMinPct) + sum(atkSelfPct))
     const atkSelfAdd = (h.atkSelfAdd || 0);
     const atkSelfPct = (h.atkSelfPct || 0);
-    player.atkMin = Math.floor(
-      (c.baseAtk + Math.floor(str * 0.8 * c.strToAtk) + (h.atkMinAdd || 0) + atkSelfAdd) *
+    player.atkMin = Math.max(0, Math.floor(finiteNumber(
+      (finiteNumber(c.baseAtk) + Math.floor(str * 0.8 * finiteNumber(c.strToAtk)) + (h.atkMinAdd || 0) + atkSelfAdd) *
       (1 + (h.atkMinPct || 0) + atkSelfPct)
-    );
+    )));
 
     // atkMax
-    player.atkMax = Math.floor(
-      (c.baseAtk + Math.floor(str * 1.0 * c.strToAtk) + (h.atkMaxAdd || 0) + atkSelfAdd) *
+    player.atkMax = Math.max(player.atkMin, Math.floor(finiteNumber(
+      (finiteNumber(c.baseAtk) + Math.floor(str * finiteNumber(c.strToAtk)) + (h.atkMaxAdd || 0) + atkSelfAdd) *
       (1 + (h.atkMaxPct || 0) + atkSelfPct)
-    );
+    )));
 
     // def: (baseDef + sta*staToDef + sum(defAdd)) * (1 + sum(defPct))
-    player.def = Math.floor(
-      (c.baseDef + sta * c.staToDef + (h.defAdd || 0)) * (1 + (h.defPct || 0))
-    );
+    player.def = Math.max(0, Math.floor(finiteNumber(
+      (finiteNumber(c.baseDef) + sta * finiteNumber(c.staToDef) + (h.defAdd || 0)) * (1 + (h.defPct || 0))
+    )));
 
     // matk: 当前武器攻击上限 * 系数 + 装备直接提供的武功攻击力
-    player.matk = Math.floor((h.weaponAtkMax || 0) * c.matk_weapon_ratio + (h.matkAdd || 0));
+    player.matk = Math.max(0, Math.floor(finiteNumber(
+      (h.weaponAtkMax || 0) * finiteNumber(c.matk_weapon_ratio) + (h.matkAdd || 0)
+    )));
 
     // mdef: 0 + sum(mdefAdd)
-    player.mdef = (h.mdefAdd || 0);
+    player.mdef = Math.max(0, finiteNumber(h.mdefAdd));
 
     // hit: max(0, (baseHit + dex*dexToHit + level*levelToHit + sum(hitAdd)) * (1 + sum(hitPct)))
-    player.hit = Math.max(0, Math.floor(
-      (c.baseHit + dex * c.dexToHit + level * c.levelToHit + (h.hitAdd || 0)) *
+    player.hit = Math.max(0, Math.floor(finiteNumber(
+      (finiteNumber(c.baseHit) + dex * finiteNumber(c.dexToHit) + level * finiteNumber(c.levelToHit) + (h.hitAdd || 0)) *
       (1 + (h.hitPct || 0))
-    ));
+    )));
 
     // missing: max(0, (baseMissing + dex*dexToMissing + level*levelToMissing + sum(missingAdd)) * (1 + sum(missingPct)))
-    player.missing = Math.max(0, Math.floor(
-      (c.baseMissing + dex * c.dexToMissing + level * c.levelToMissing + (h.missingAdd || 0)) *
+    player.missing = Math.max(0, Math.floor(finiteNumber(
+      (finiteNumber(c.baseMissing) + dex * finiteNumber(c.dexToMissing) + level * finiteNumber(c.levelToMissing) + (h.missingAdd || 0)) *
       (1 + (h.missingPct || 0))
-    ));
+    )));
 
     // 战斗属性（base_value 声明式写法，这里直接用常量）
-    player.critR = (player._baseCritR ?? 0.30) + (h.critRAdd || 0) + (h.critRLAdd || 0);
-    player.critB = (player._baseCritB ?? 1.5) + (h.critBAdd || 0) + (h.critBLAdd || 0);
-    player.skillCritRate = (player._baseSkillCritRate ?? 0) + (h.skillCritRateAdd || 0);
-    player.combo = (player._baseCombo ?? 0) + (h.comboAdd || 0);
-    player.shieldRate = (player._baseShieldRate ?? 0) + (h.shieldRateAdd || 0);
-    player.counterDamage = (player._baseCounterDamage ?? 0) + (h.counterDamageAdd || 0);
-    player.armorBreak = (player._baseArmorBreak ?? 0) + (h.armorBreakAdd || 0);
-    player.leech = (player._baseLeech ?? 0) + (h.leechAdd || 0);
+    player.critR = clamp(finiteNumber(player._baseCritR, 0.30) + finiteNumber(h.critRAdd) + finiteNumber(h.critRLAdd), 0, 1, 0.30);
+    player.critB = Math.max(1, finiteNumber(player._baseCritB, 1.5) + finiteNumber(h.critBAdd) + finiteNumber(h.critBLAdd));
+    player.skillCritRate = clamp(finiteNumber(player._baseSkillCritRate) + finiteNumber(h.skillCritRateAdd), 0, 1);
+    player.combo = clamp(finiteNumber(player._baseCombo) + finiteNumber(h.comboAdd), 0, 1);
+    player.shieldRate = clamp(finiteNumber(player._baseShieldRate) + finiteNumber(h.shieldRateAdd), 0, 1);
+    player.counterDamage = clamp(finiteNumber(player._baseCounterDamage) + finiteNumber(h.counterDamageAdd), 0, 1);
+    player.armorBreak = clamp(finiteNumber(player._baseArmorBreak) + finiteNumber(h.armorBreakAdd), 0, 1);
+    player.leech = clamp(finiteNumber(player._baseLeech) + finiteNumber(h.leechAdd), 0, 1);
 
     // 隐藏战斗属性
-    player.hpRecovery = (player._baseHpRecovery ?? 1) + (h.hpRecoveryAdd || 0);
-    player.mpRecovery = (player._baseMpRecovery ?? 1) + (h.mpRecoveryAdd || 0);
-    player.healBonus = (player._baseHealBonus ?? 0) + (h.healBonusAdd || 0);
-    player.mpCostReduce = (player._baseMpCostReduce ?? 0) + (h.mpCostReduceAdd || 0);
-    player.buffDuration = (player._baseBuffDuration ?? 0) + (h.buffDurationAdd || 0);
-    player.mpRecoveryBonus = (player._baseMpRecoveryBonus ?? 0) + (h.mpRecoveryBonusAdd || 0);
-    player.mf = (player._baseMf ?? 0) + (h.mfAdd || 0);
-    player.gf = (player._baseGf ?? 0) + (h.gfAdd || 0);
-    player.weaponSkillBonus = (player._baseWeaponSkillBonus ?? 0) + (h.weaponSkillBonusAdd || 0);
-    player.weaponExtraDamage = (player._baseWeaponExtraDamage ?? 0) + (h.weaponExtraDamageAdd || 0);
-    player.enhanceSuccessRate = (player._baseEnhanceSuccessRate ?? 0) + (h.enhanceSuccessRateAdd || 0);
-    player.goldDropBonus = (player._baseGoldDropBonus ?? 0) + (h.goldDropBonusAdd || 0);
+    player.hpRecovery = Math.max(0, finiteNumber(player._baseHpRecovery, 1) + finiteNumber(h.hpRecoveryAdd));
+    player.mpRecovery = Math.max(0, finiteNumber(player._baseMpRecovery, 1) + finiteNumber(h.mpRecoveryAdd));
+    player.healBonus = Math.max(-1, finiteNumber(player._baseHealBonus) + finiteNumber(h.healBonusAdd));
+    player.mpCostReduce = clamp(finiteNumber(player._baseMpCostReduce) + finiteNumber(h.mpCostReduceAdd), 0, 1);
+    player.buffDuration = Math.max(0, finiteNumber(player._baseBuffDuration) + finiteNumber(h.buffDurationAdd));
+    player.mpRecoveryBonus = Math.max(-1, finiteNumber(player._baseMpRecoveryBonus) + finiteNumber(h.mpRecoveryBonusAdd));
+    player.mf = clamp(finiteNumber(player._baseMf) + finiteNumber(h.mfAdd), 0, 1);
+    player.gf = Math.max(0, finiteNumber(player._baseGf) + finiteNumber(h.gfAdd));
+    player.weaponSkillBonus = Math.max(0, finiteNumber(player._baseWeaponSkillBonus) + finiteNumber(h.weaponSkillBonusAdd));
+    player.weaponExtraDamage = Math.max(0, finiteNumber(player._baseWeaponExtraDamage) + finiteNumber(h.weaponExtraDamageAdd));
+    player.enhanceSuccessRate = clamp(finiteNumber(player._baseEnhanceSuccessRate) + finiteNumber(h.enhanceSuccessRateAdd), 0, 1);
+    player.goldDropBonus = Math.max(0, finiteNumber(player._baseGoldDropBonus) + finiteNumber(h.goldDropBonusAdd));
+
+    // 最大值降低（卸装、重置气功、Buff 结束）后，当前值必须立即回到合法范围。
+    if (Number.isFinite(player.hp)) player.hp = Math.max(0, Math.min(player.hp, player.maxHp));
+    if (Number.isFinite(player.mp)) player.mp = Math.max(0, Math.min(player.mp, player.maxMp));
   }
 
   /**
@@ -133,6 +165,7 @@ export class AttributeSystem {
     const templates = player._equipTemplates || [];
     const ei = player.inventory?.equipment_instances || {};
     const equipped = player.equipped || {};
+    const seenInstances = new Set();
 
     for (const [slot, val] of Object.entries(equipped)) {
       if (!val) continue;
@@ -141,74 +174,78 @@ export class AttributeSystem {
       const slotItems = Array.isArray(val) ? val : [val];
 
       for (const item of slotItems) {
-        if (!item?.instance_id) continue;
-        const inst = ei[item.instance_id];
+        const instanceId = typeof item === 'string' ? item : item?.instance_id;
+        if (!instanceId || seenInstances.has(instanceId)) continue;
+        seenInstances.add(instanceId);
+        const inst = ei[instanceId];
         if (!inst) continue;
 
         const template = templates.find(t => t.key === inst.item_key);
-        if (!template?.base_stats) continue;
+        if (!template?.base_stats || template.slot !== slot) continue;
 
         const stats = template.base_stats;
-        const extraStats = inst.extra || template.extra_affixes || {};
-        const enhanceLevel = inst.enhance_level || 0;
-        const synthesisSlots = inst.synthesis_slots || [];
+        const extraStats = inst.extra && typeof inst.extra === 'object' && !Array.isArray(inst.extra)
+          ? inst.extra
+          : (template.extra_affixes || {});
+        const enhanceLevel = clamp(Math.floor(finiteNumber(inst.enhance_level)), 0, 10);
+        const synthesisSlots = Array.isArray(inst.synthesis_slots) ? inst.synthesis_slots : [];
 
         // base_stats → xxxAdd 钩子
         if (stats.atkMin !== undefined) {
-          h.atkMinAdd = (h.atkMinAdd || 0) + stats.atkMin + (slot === 'weapon' ? enhanceLevel * 6 : 0);
+          addHook(h, 'atkMinAdd', finiteNumber(stats.atkMin) + (slot === 'weapon' ? enhanceLevel * 6 : 0));
         }
         if (stats.atkMax !== undefined) {
-          const enhancedAtkMax = stats.atkMax + (slot === 'weapon' ? enhanceLevel * 8 : 0);
-          h.atkMaxAdd = (h.atkMaxAdd || 0) + enhancedAtkMax;
+          const enhancedAtkMax = finiteNumber(stats.atkMax) + (slot === 'weapon' ? enhanceLevel * 8 : 0);
+          addHook(h, 'atkMaxAdd', enhancedAtkMax);
           if (slot === 'weapon') {
-            h.weaponAtkMax = (h.weaponAtkMax || 0) + enhancedAtkMax;
+            addHook(h, 'weaponAtkMax', enhancedAtkMax);
           }
         }
         if (stats.def !== undefined) {
-          h.defAdd = (h.defAdd || 0) + stats.def + (slot !== 'weapon' ? enhanceLevel * 3 : 0);
+          addHook(h, 'defAdd', finiteNumber(stats.def) + (slot !== 'weapon' ? enhanceLevel * 3 : 0));
         }
         if (stats.maxHp !== undefined) {
-          h.maxHpAdd = (h.maxHpAdd || 0) + stats.maxHp;
+          addHook(h, 'maxHpAdd', stats.maxHp);
         }
         if (stats.maxMp !== undefined) {
-          h.maxMpAdd = (h.maxMpAdd || 0) + stats.maxMp;
+          addHook(h, 'maxMpAdd', stats.maxMp);
         }
         if (stats.hit !== undefined) {
-          h.hitAdd = (h.hitAdd || 0) + stats.hit;
+          addHook(h, 'hitAdd', stats.hit);
         }
         if (stats.missing !== undefined) {
-          h.missingAdd = (h.missingAdd || 0) + stats.missing;
+          addHook(h, 'missingAdd', stats.missing);
         }
         if (stats.matk !== undefined) {
-          h.matkAdd = (h.matkAdd || 0) + stats.matk;
+          addHook(h, 'matkAdd', stats.matk);
         }
         if (stats.mdef !== undefined) {
-          h.mdefAdd = (h.mdefAdd || 0) + stats.mdef;
+          addHook(h, 'mdefAdd', stats.mdef);
         }
         for (const [key, value] of Object.entries(extraStats)) {
-          const hook = `${key}Add`;
-          h[hook] = (h[hook] || 0) + Number(value || 0);
+          addHook(h, `${key}Add`, value);
         }
 
         // 合成石头加成（按 category 映射）
         for (const stoneKey of synthesisSlots) {
+          if (typeof stoneKey !== 'string' || !stoneKey) continue;
           const stoneAttribute = this._parseStoneAttribute(stoneKey);
           if (stoneAttribute) {
-            h[stoneAttribute.hook] = (h[stoneAttribute.hook] || 0) + stoneAttribute.value;
+            addHook(h, stoneAttribute.hook, stoneAttribute.value);
           } else if (stoneKey.includes('--skill_level_up--')) {
             // 技能等级由 QigongSystem 按绑定目标计算，不能再套用热血石 fallback。
             continue;
           } else if (stoneKey.startsWith('vajra')) {
-            h.atkMinAdd = (h.atkMinAdd || 0) + 5;
-            h.atkMaxAdd = (h.atkMaxAdd || 0) + 8;
+            addHook(h, 'atkMinAdd', 5);
+            addHook(h, 'atkMaxAdd', 8);
           } else if (stoneKey.startsWith('cold_jade')) {
-            h.defAdd = (h.defAdd || 0) + 3;
-            h.maxHpAdd = (h.maxHpAdd || 0) + 20;
+            addHook(h, 'defAdd', 3);
+            addHook(h, 'maxHpAdd', 20);
           } else if (stoneKey.startsWith('hot_blood')) {
-            h.critRLAdd = (h.critRLAdd || 0) + 0.01;
-            h.atkMinAdd = (h.atkMinAdd || 0) + 2;
+            addHook(h, 'critRLAdd', 0.01);
+            addHook(h, 'atkMinAdd', 2);
           } else if (stoneKey.startsWith('enhance_stone')) {
-            h.enhanceSuccessRateAdd = (h.enhanceSuccessRateAdd || 0) + 0.01;
+            addHook(h, 'enhanceSuccessRateAdd', 0.01);
           }
         }
       }
@@ -233,6 +270,8 @@ export class AttributeSystem {
       maxHpSelfAdd: 'maxHpAdd',
       hitSelfAdd: 'hitAdd',
     };
-    return { hook: aliases[hook] || hook, value };
+    const normalizedHook = aliases[hook] || hook;
+    if (!SUPPORTED_STONE_HOOKS.has(normalizedHook)) return null;
+    return { hook: normalizedHook, value };
   }
 }

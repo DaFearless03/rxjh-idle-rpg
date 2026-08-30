@@ -3,39 +3,39 @@
  * @desc Phase 4 启动序列：存档 + 离线模拟 + 角色管理 + 自动挂机
  * @ref 13_save.startup_sequence / character_creation_flow / OfflineSimulator
  */
-import { Game } from './core/Game.js?v=release-20260830-1';
-import { GameLoop } from './core/GameLoop.js?v=release-20260830-1';
-import { eventBus } from './core/EventBus.js?v=release-20260830-1';
-import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260830-1';
-import { BattleSystem } from './systems/BattleSystem.js?v=release-20260830-1';
-import { InventorySystem } from './systems/InventorySystem.js?v=release-20260830-1';
-import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260830-1';
-import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260830-1';
-import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260830-1';
-import { DropSystem } from './systems/DropSystem.js?v=release-20260830-1';
-import { BoxSystem } from './systems/BoxSystem.js?v=release-20260830-1';
-import { NPCSystem, UIState } from './systems/NPCSystem.js?v=release-20260830-1';
-import { ShopSystem } from './systems/ShopSystem.js?v=release-20260830-1';
-import { TaskSystem } from './systems/TaskSystem.js?v=release-20260830-1';
-import { QigongSystem } from './systems/QigongSystem.js?v=release-20260830-1';
-import { BuffSystem } from './systems/BuffSystem.js?v=release-20260830-1';
-import { Player } from './entities/Player.js?v=release-20260830-1';
-import { createEquipmentInstance } from './entities/EquipmentInstance.js?v=release-20260830-1';
-import { SaveManager } from './core/SaveManager.js?v=release-20260830-1';
-import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js?v=release-20260830-1';
-import { assertValidGameConfig } from './core/ConfigValidator.js?v=release-20260830-1';
-import { runCharacterCreationFlow, getBaseCareers } from './flows/character_creation_flow.js?v=release-20260830-1';
-import { getDeletionConfirmInfo, executeDeletion } from './flows/character_deletion_flow.js?v=release-20260830-1';
-import { exportSave as doExportSave, importSave } from './flows/save_transfer.js?v=release-20260830-1';
-import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260830-1';
-import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260830-1';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260830-1';
-import { storage } from './utils/storage.js?v=release-20260830-1';
-import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260830-1';
-import { UIManager } from './ui/UIManager.js?v=release-20260830-1';
-import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260830-1';
-import { buildMapList, switchToZoneView, switchToTownView } from './ui/MapListPanelUI.js?v=release-20260830-1';
-import { openTownNPCDialog, showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260830-1';
+import { Game } from './core/Game.js?v=release-20260830-3';
+import { GameLoop } from './core/GameLoop.js?v=release-20260830-3';
+import { eventBus } from './core/EventBus.js?v=release-20260830-3';
+import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260830-3';
+import { BattleSystem } from './systems/BattleSystem.js?v=release-20260830-3';
+import { InventorySystem } from './systems/InventorySystem.js?v=release-20260830-3';
+import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260830-3';
+import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260830-3';
+import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260830-3';
+import { DropSystem } from './systems/DropSystem.js?v=release-20260830-3';
+import { BoxSystem } from './systems/BoxSystem.js?v=release-20260830-3';
+import { NPCSystem } from './systems/NPCSystem.js?v=release-20260830-3';
+import { ShopSystem } from './systems/ShopSystem.js?v=release-20260830-3';
+import { TaskSystem } from './systems/TaskSystem.js?v=release-20260830-3';
+import { QigongSystem } from './systems/QigongSystem.js?v=release-20260830-3';
+import { BuffSystem } from './systems/BuffSystem.js?v=release-20260830-3';
+import { Player } from './entities/Player.js?v=release-20260830-3';
+import { SaveManager } from './core/SaveManager.js?v=release-20260830-3';
+import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js?v=release-20260830-3';
+import { assertValidGameConfig } from './core/ConfigValidator.js?v=release-20260830-3';
+import { runCharacterCreationFlow } from './flows/character_creation_flow.js?v=release-20260830-3';
+import { getDeletionConfirmInfo, executeDeletion } from './flows/character_deletion_flow.js?v=release-20260830-3';
+import { executeSlotUnlock } from './flows/slot_unlock_flow.js?v=release-20260830-3';
+import { exportSave as doExportSave, importSave as doImportSave } from './flows/save_transfer.js?v=release-20260830-3';
+import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260830-3';
+import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260830-3';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260830-3';
+import { storage } from './utils/storage.js?v=release-20260830-3';
+import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260830-3';
+import { addCappedNonNegative } from './utils/numbers.js?v=release-20260830-3';
+import { UIManager } from './ui/UIManager.js?v=release-20260830-3';
+import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260830-3';
+import { showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260830-3';
 import {
   hideOfflineRewardLoading,
   showMultiSaveUI,
@@ -43,13 +43,13 @@ import {
   showOfflineRewardLoading,
   showOfflineRewardUI,
   updateOfflineRewardProgress,
-} from './ui/MultiSaveUI.js?v=release-20260830-1';
-import './ui/BottomBarUI.js?v=release-20260830-1';
+} from './ui/MultiSaveUI.js?v=release-20260830-3';
+import './ui/BottomBarUI.js?v=release-20260830-3';
 
 // ========================
 // 数据加载
 // ========================
-const DATA_VERSION = 'release-20260830-1';
+const DATA_VERSION = 'release-20260830-3';
 const fetchData = async (path) => {
   const response = await fetch(`${path}?v=${DATA_VERSION}`, { cache: 'no-store' });
   if (!response.ok) {
@@ -105,6 +105,7 @@ const potionKeys = npcsData
 const boxKeys = [...new Set(Object.values(monsterDropBoxData?.box_type_by_map || {}))];
 
 assertValidGameConfig({
+  config,
   careersData,
   monstersData,
   equipmentsData,
@@ -138,9 +139,8 @@ InventorySystem.setItemClassMap({
   boxKeys,
   questItemKeys: Object.keys(questsData.quest_items || {}),
 });
-AutoPlaySystem.setPotionShopItems(
-  npcsData.find(npc => npc.shop_type === 'potion')?.items || []
-);
+const potionShop = npcsData.find(npc => npc.shop_type === 'potion');
+AutoPlaySystem.setPotionShopItems(potionShop?.items || [], potionShop?.price_multiplier ?? 1);
 AutoPlaySystem.setMartialArtsData(martialArtsData);
 
 // 暴露全局配置供 UI/GM 使用
@@ -178,9 +178,9 @@ let game = null;
 let loop = null;
 let currentSlotIndex = null;
 let currentGlobalSave = null;
-let creationFlow = null;
 let runtimeEventUnsubscribers = [];
 let lastLifecycleSaveAt = 0;
+let lastSyncLifecycleSaveAt = 0;
 let lifecycleSaveInFlight = null;
 let mainScreenUIBuilt = false;
 let mainScreenEventListenersBound = false;
@@ -228,6 +228,11 @@ function syncGMGlobals() {
   window.Game = {
     get currentPlayer() { return game?.player ?? null; },
     get currentSlotIndex() { return currentSlotIndex; },
+    rebuildCareerFields(player = game?.player) {
+      if (!player || !careersData.some(career => career.key === player.career)) return false;
+      applyCareerRuntimeFields(player, careersData);
+      return true;
+    },
   };
   window.GameConfig = gmGameConfig;
   window.SaveManager = SaveManager;
@@ -264,6 +269,7 @@ function syncGMGlobals() {
   document.documentElement.dataset.gmGlobalsReady = 'true';
   document.documentElement.dataset.gmRequiredGlobals = [
     'Game.currentPlayer',
+    'Game.rebuildCareerFields',
     'GameConfig',
     'SaveManager.save',
     'EventBus.emit',
@@ -329,48 +335,51 @@ function setupPageLifecycleAutoSave() {
     saveCurrentPlayerNow('window_blur');
   });
 
-  window.addEventListener('pagehide', () => {
-    if (game?.player && currentSlotIndex) {
-      SaveManager.savePlayerStateSync(game.player, currentSlotIndex);
-    }
-  });
-
-  window.addEventListener('beforeunload', () => {
-    if (game?.player && currentSlotIndex) {
-      SaveManager.savePlayerStateSync(game.player, currentSlotIndex);
-    }
-  });
+  const saveBeforeExit = () => {
+    if (!game?.player || !currentSlotIndex) return;
+    const now = Date.now();
+    if (now - lastSyncLifecycleSaveAt < 250) return;
+    lastSyncLifecycleSaveAt = now;
+    SaveManager.savePlayerStateSync(game.player, currentSlotIndex);
+  };
+  window.addEventListener('pagehide', saveBeforeExit);
+  window.addEventListener('beforeunload', saveBeforeExit);
 }
 
 async function cleanupCurrentRuntime({ save = true, saveMode = 'async' } = {}) {
   const playerToSave = game?.player || null;
   const slotToSave = currentSlotIndex;
+  const activeLoop = loop;
+  const shouldResumeOnFailure = !!activeLoop?.isRunning;
 
-  if (loop) {
-    loop.stop();
-    loop = null;
+  activeLoop?.stop();
+
+  if (save && playerToSave && slotToSave) {
+    let saved;
+    if (saveMode === 'sync') {
+      saved = SaveManager.savePlayerStateSync(playerToSave, slotToSave);
+    } else {
+      saved = await SaveManager.savePlayerState(playerToSave, slotToSave);
+    }
+    if (!saved) {
+      console.warn(saveMode === 'sync' ? '[存档] 同步快照保存失败' : '[存档] 运行时清理保存失败');
+      if (shouldResumeOnFailure) activeLoop.start();
+      return false;
+    }
   }
+
+  if (loop === activeLoop) loop = null;
   game?.battle?.destroy?.();
   clearRuntimeEventHandlers();
   AutoPlaySystem.resetRuntimeState();
   NPCSystem.closeDialog();
   window._currentNpc = null;
-
-  if (save && playerToSave && slotToSave) {
-    if (saveMode === 'sync') {
-      const saved = SaveManager.savePlayerStateSync(playerToSave, slotToSave);
-      if (!saved) console.warn('[存档] 同步快照保存失败');
-    } else {
-      const saved = await SaveManager.savePlayerState(playerToSave, slotToSave);
-      if (!saved) console.warn('[存档] 运行时清理保存失败');
-    }
-  }
-
   game = null;
   attrSys = null;
   dropSys = null;
   currentSlotIndex = null;
   syncGMGlobals();
+  return true;
 }
 
 setupPageLifecycleAutoSave();
@@ -419,14 +428,6 @@ function buildMainScreen() {
   window._uiManager = UIManager;
 
   bindMainScreenEventListenersOnce();
-
-  // 城镇 NPC
-  const npcContainer = document.getElementById('npc-list-container');
-  if (npcContainer) refreshTownNPCs();
-
-  // 地图列表
-  const mapContainer = document.getElementById('map-list-container');
-  if (mapContainer) buildMapList(mapContainer, game?.player?.location?.current_sub_zone_key);
 
   // 刷新 top bar
   UIManager._refreshTopBar();
@@ -519,7 +520,12 @@ function bindMainScreenEventListenersOnce() {
     if (isOfflineSimulationActive()) return;
     const monsterName = d.monsterName || monstersData.find(monster => monster.key === d.monsterKey)?.name || d.monsterKey;
     UIManager._addCombatLog('monster_died', { monster_name: monsterName });
-    UIManager.addRewardLog('monster_kill_reward', { monster_name: monsterName, exp: d.exp || 0, gold: d.gold || 0 });
+    UIManager.addRewardLog('monster_kill_reward', {
+      monster_name: monsterName,
+      exp: d.exp || 0,
+      gold: d.gold || 0,
+      training: d.training || 0,
+    });
   });
   eventBus.on('player.death', (d) => {
     if (isOfflineSimulationActive()) return;
@@ -565,47 +571,6 @@ function bindMainScreenEventListenersOnce() {
   });
 }
 
-function refreshMapList(currentSubZoneKey) {
-  const mapContainer = document.getElementById('map-list-container');
-  if (mapContainer) buildMapList(mapContainer, currentSubZoneKey);
-}
-
-function refreshTownNPCs() {
-  const npcContainer = document.getElementById('npc-list-container');
-  if (!npcContainer || !npcsData) return;
-  npcContainer.innerHTML = npcsData.map(npc => `
-    <div class="npc-item" onclick="window._openNPC('${npc.key}')">
-      <div class="npc-icon">🏪</div>
-      <div class="npc-name">${npc.name || npc.key}</div>
-    </div>
-  `).join('');
-
-  window._openNPC = (npcKey) => {
-    openTownNPCDialog(npcKey);
-  };
-}
-
-function getNPCTypeLabel(type) {
-  const labels = { quest:'任务', shop:'商店', enhance:'强化', warehouse:'仓库', synthesis:'合成', shop_and_enhance:'商店+强化' };
-  return labels[type] || type;
-}
-
-// ========================
-// 角色创建流程
-// ========================
-async function runCreateCharacterFlow(targetSlotIndex) {
-  creationFlow = runCharacterCreationFlow({
-    careersData,
-    globalSave: currentGlobalSave,
-    attributeConstants: config.attribute_constants,
-    onComplete: async (player, slotIndex) => {
-      await initGameForPlayer(player, slotIndex);
-    }
-  });
-  console.log('[创建] 可用职业:', getBaseCareers());
-  console.log('调用 game.createCharacter("warrior_blade", "角色名", slotIndex?) 开始创建');
-}
-
 // ========================
 // 进入角色（加载存档 + 初始化游戏）
 // ========================
@@ -614,7 +579,10 @@ async function enterCharacter(slotIndex) {
   const enterVersion = ++enterCharacterVersion;
   const enterStartedAt = nowMs();
   if (game || loop || runtimeEventUnsubscribers.length > 0) {
-    await cleanupCurrentRuntime({ save: true });
+    if (!await cleanupCurrentRuntime({ save: true })) {
+      UIManager.toast?.('当前角色保存失败，已取消切换', 'error');
+      return false;
+    }
   }
   if (enterVersion !== enterCharacterVersion || returningToSaveList) return;
 
@@ -623,6 +591,11 @@ async function enterCharacter(slotIndex) {
   if (!save) {
     console.log(`[错误] 槽位 ${slotIndex} 无有效存档`);
     return;
+  }
+  if (!careersData.some(career => career.key === save.player?.career)) {
+    console.error(`[存档] 槽位 ${slotIndex} 的职业已失效: ${save.player?.career}`);
+    UIManager.toast?.('角色职业数据已失效，无法进入', 'error');
+    return false;
   }
 
   UIManager.closeAllModals();
@@ -726,11 +699,15 @@ async function returnToSaveListRuntime() {
   if (returningToSaveList) return loadAllCharacters();
   returningToSaveList = true;
   enterCharacterVersion++;
+  const wasAutoPlaying = !!game?.player?.auto_play?.is_auto_play;
   try {
-    if (game?.player?.auto_play?.is_auto_play) {
+    if (wasAutoPlaying) {
       AutoPlaySystem.stop(game.player, 'return_to_save_list');
     }
-    await cleanupCurrentRuntime({ save: true, saveMode: 'sync' });
+    if (!await cleanupCurrentRuntime({ save: true, saveMode: 'sync' })) {
+      if (wasAutoPlaying && game?.player) AutoPlaySystem.start(game.player);
+      throw new Error('当前角色保存失败，已取消返回角色列表');
+    }
     currentGlobalSave = SaveManager.restoreGlobalState() || currentGlobalSave || { ...globalSaveInit };
     window._currentGlobalSave = currentGlobalSave;
     window._careersData = careersData;
@@ -770,6 +747,12 @@ async function initGameForPlayer(player, slotIndex) {
   currentSlotIndex = slotIndex;
 
   const currentSubZone = subZonesData.find(sz => sz.key === player.location?.current_sub_zone_key) || null;
+  if (player.location?.current_sub_zone_key && !currentSubZone) {
+    player.location.current_sub_zone_key = null;
+    player.location.current_map_key = 'town_xuanbo';
+    if (player.auto_play) player.auto_play.is_auto_play = false;
+    UIManager.toast?.('存档中的地图已失效，角色已安全返回城镇', 'warning');
+  }
   game.battle = new BattleSystem({
     config,
     player,
@@ -783,7 +766,7 @@ async function initGameForPlayer(player, slotIndex) {
     buffSystemRef: BuffSystem
   });
 
-  loop = new GameLoop({ tickIntervalMs: 100 });
+  loop = new GameLoop({ tickIntervalMs: 100, maxDeltaMs: 1000 });
   game.loop = loop;
   AutoPlaySystem.syncFromPlayer(player);
   syncGMGlobals();
@@ -795,7 +778,7 @@ async function initGameForPlayer(player, slotIndex) {
     while (remainingMs > 0) {
       const delta = Math.min(100, remainingMs);
       player.statistics = player.statistics || {};
-      player.statistics.total_playtime_ms = (player.statistics.total_playtime_ms || 0) + delta;
+      player.statistics.total_playtime_ms = addCappedNonNegative(player.statistics.total_playtime_ms, delta);
       game.battle.tick(delta);
       AutoPlaySystem.tick(player, delta, (source, zone) => TeleportSystem.teleport(zone, source, player, game));
 
@@ -848,13 +831,21 @@ async function initGameForPlayer(player, slotIndex) {
   onRuntimeEvent('quest.accepted', (data) => console.log(`[事件] quest.accepted: ${data.name}`));
   onRuntimeEvent('quest.completed', (data) => console.log(`[事件] quest.completed: ${data.questKey}`));
   onRuntimeEvent('quest.stage_advance', (data) => console.log(`[事件] quest.stage_advance: ${data.questKey} 进入第 ${data.stage} 阶段`));
-  onRuntimeEvent('player.career_transfer', (data) => console.log(`[事件] player.career_transfer: ${data.from_career}→${data.to_career}`));
+  onRuntimeEvent('player.career_transfer', (data) => {
+    applyCareerRuntimeFields(player, careersData);
+    attrSys.recompute(player);
+    eventBus.emit('battle.player_status_changed', { player, reason: 'career_transfer' });
+    console.log(`[事件] player.career_transfer: ${data.from_career}→${data.to_career}`);
+    saveCurrentPlayerNow('career_transfer', { force: true });
+  });
   onRuntimeEvent('buff.applied', (data) => {
     attrSys.recompute(data.player || player);
+    eventBus.emit('battle.player_status_changed', { player: data.player || player, reason: 'buff_applied' });
     console.log(`[事件] buff.applied: ${data.name}`);
   });
   onRuntimeEvent('buff.expired', (data) => {
     attrSys.recompute(data.player || player);
+    eventBus.emit('battle.player_status_changed', { player: data.player || player, reason: 'buff_expired' });
     console.log(`[事件] buff.expired: ${data.buffKey}`);
   });
   onRuntimeEvent('autoplay.start', () => console.log('[系统] 开始挂机'));
@@ -865,25 +856,6 @@ async function initGameForPlayer(player, slotIndex) {
   showGameCommands();
   game.battle.ensureInitialSpawn?.();
   UIManager._refreshAll();
-}
-
-function showOfflineSummary(summary) {
-  console.log('========== 离线收益总结 ==========');
-  const h = (summary.elapsed_s / 3600).toFixed(1);
-  console.log(`离线时长: ${h} 小时`);
-  if (summary.stopped_reason) {
-    console.log(`停止原因: ${summary.stopped_reason}`);
-  }
-  console.log(`击杀: ${summary.kills} 只`);
-  console.log(`经验: +${summary.exp_gained}`);
-  console.log(`金币: +${summary.gold_gained}`);
-  if (summary.level_ups.length > 0) {
-    const first = summary.level_ups[0];
-    const last = summary.level_ups[summary.level_ups.length - 1];
-    const totalPoints = summary.level_ups.reduce((s, l) => s + (l.gained_points || 1), 0);
-    console.log(`升级: ${summary.level_ups.length} 次 Lv${first.from_level}→Lv${last.to_level}（+${totalPoints}气功点）`);
-  }
-  console.log('=================================');
 }
 
 function showGameCommands() {
@@ -921,6 +893,7 @@ window.game = {
   async createCharacter(careerKey, name, targetSlotIndex) {
     const flow = runCharacterCreationFlow({
       careersData,
+      equipmentsData,
       globalSave: currentGlobalSave,
       attributeConstants: config.attribute_constants,
     });
@@ -949,7 +922,9 @@ window.game = {
     if (!game?.player?.auto_play?.is_auto_play || !game.player.location?.current_sub_zone_key) {
       return { success: false, message: '当前角色没有进行中的野外挂机' };
     }
-    await cleanupCurrentRuntime({ save: true, saveMode: 'sync' });
+    if (!await cleanupCurrentRuntime({ save: true, saveMode: 'sync' })) {
+      return { success: false, message: '当前角色保存失败，已取消离线挂机' };
+    }
     return { success: true, characters: await loadAllCharacters() };
   },
 
@@ -961,18 +936,25 @@ window.game = {
     const info = getDeletionConfirmInfo(slotIndex, parsed.data || parsed, careersData);
     console.log(info.confirmBody);
     console.log('确认删除？调用 game.confirmDeleteCharacter(' + slotIndex + ')');
-    window._pendingDeleteSlot = slotIndex;
-    window._pendingDeleteData = parsed.data || parsed;
   },
 
   async confirmDeleteCharacter(slotIndex, opts = {}) {
     const deletingCurrentCharacter = slotIndex === currentSlotIndex;
     if (deletingCurrentCharacter) {
-      await cleanupCurrentRuntime({ save: false });
+      if (!await cleanupCurrentRuntime({ save: true, saveMode: 'sync' })) {
+        const message = '当前角色保存失败，已取消删除';
+        UIManager.toast?.(message, 'error');
+        return { success: false, globalSave: currentGlobalSave, message };
+      }
     }
 
     const r = await executeDeletion(slotIndex, currentGlobalSave);
-    if (!r.success) return;
+    if (!r.success) {
+      console.warn(`[删除] ${r.message || '角色删除失败'}`);
+      UIManager.toast?.(r.message || '角色删除失败', 'error');
+      if (deletingCurrentCharacter) await enterCharacter(slotIndex);
+      return r;
+    }
 
     currentGlobalSave = r.globalSave;
     window._currentGlobalSave = currentGlobalSave;
@@ -1006,60 +988,20 @@ window.game = {
     if (slotUnlockInFlight) return { success: false, message: '正在解锁栏位，请稍候' };
     slotUnlockInFlight = true;
     try {
-      const unlocked = currentGlobalSave?.character_slots?.unlocked_count ?? 3;
-      if (slotIndex <= unlocked) return { success: false, message: '该槽位已经解锁' };
-      if (slotIndex > 10) return { success: false, message: '角色槽位已达到上限' };
-      if (slotIndex !== unlocked + 1) {
-        return { success: false, message: `请先解锁第 ${unlocked + 1} 号位` };
-      }
-
-      const cost = 100;
       const activePlayer = game?.player || null;
       const payerSlot = currentSlotIndex
         || currentGlobalSave?.character_slots?.last_used_slot
         || null;
-      if (!payerSlot) return { success: false, message: '请先进入任意角色后再解锁栏位' };
-
-      const payerSave = activePlayer ? null : await SaveManager.restorePlayerFromSave(payerSlot);
-      if (!activePlayer && !payerSave) {
-        return { success: false, message: '支付角色存档不可用，请重新进入角色后再试' };
+      const result = await executeSlotUnlock(slotIndex, currentGlobalSave, {
+        activePlayer,
+        payerSlot,
+      });
+      if (result.success) {
+        currentGlobalSave = result.globalSave;
+        window._currentGlobalSave = currentGlobalSave;
+        console.log(`[解锁] 第 ${slotIndex} 槽位已解锁，支付槽位 ${result.payerSlot}，剩余金币 ${result.remainingGold}`);
       }
-      const resources = activePlayer?.resources || payerSave.resources || (payerSave.resources = {});
-      if ((resources.gold || 0) < cost) {
-        return { success: false, message: `金币不足（需要 ${cost}）` };
-      }
-
-      const previousGold = resources.gold || 0;
-      const previousUnlocked = currentGlobalSave.character_slots.unlocked_count;
-      resources.gold -= cost;
-      let payerSaved;
-      if (activePlayer) {
-        eventBus.emit('resources.changed', { player: activePlayer, resource: 'gold', amount: cost, action: 'remove' });
-        payerSaved = await SaveManager.savePlayerState(activePlayer, payerSlot);
-      } else {
-        payerSaved = await SaveManager.savePlayerSnapshot(payerSave, payerSlot, { preserveOfflineTimestamp: true });
-      }
-      if (!payerSaved) {
-        resources.gold = previousGold;
-        if (activePlayer) eventBus.emit('resources.changed', { player: activePlayer, resource: 'gold', amount: cost, action: 'add' });
-        return { success: false, message: '金币扣除存档失败，请稍后重试' };
-      }
-
-      currentGlobalSave.character_slots.unlocked_count = slotIndex;
-      if (!await SaveManager.saveGlobalState(currentGlobalSave)) {
-        currentGlobalSave.character_slots.unlocked_count = previousUnlocked;
-        resources.gold = previousGold;
-        if (activePlayer) {
-          eventBus.emit('resources.changed', { player: activePlayer, resource: 'gold', amount: cost, action: 'add' });
-          await SaveManager.savePlayerState(activePlayer, payerSlot);
-        } else {
-          await SaveManager.savePlayerSnapshot(payerSave, payerSlot, { preserveOfflineTimestamp: true });
-        }
-        return { success: false, message: '栏位状态写入失败，金币已退回' };
-      }
-      window._currentGlobalSave = currentGlobalSave;
-      console.log(`[解锁] 第 ${slotIndex} 槽位已解锁，支付槽位 ${payerSlot}，剩余金币 ${resources.gold}`);
-      return { success: true, message: `第 ${slotIndex} 号位已解锁，消耗 ${cost} 金币` };
+      return result;
     } finally {
       slotUnlockInFlight = false;
     }
@@ -1121,15 +1063,18 @@ window.game = {
 
   // ---------- 传送 ----------
   teleport(subZoneKey) {
-    if (!game?.player) return;
-    TeleportSystem.teleport(subZoneKey, 'player_click', game.player, game);
-    console.log(`[传送] 到达 ${subZoneKey}`);
+    if (!game?.player) return false;
+    const teleported = TeleportSystem.teleport(subZoneKey, 'player_click', game.player, game);
+    if (teleported) console.log(`[传送] 到达 ${subZoneKey}`);
+    else console.warn(`[传送] 目标区域无效：${subZoneKey}`);
+    return teleported;
   },
 
   town() {
-    if (!game?.player) return;
-    TeleportSystem.teleport(null, 'player_click', game.player, game);
-    console.log('[传送] 回城');
+    if (!game?.player) return false;
+    const teleported = TeleportSystem.teleport(null, 'player_click', game.player, game);
+    if (teleported) console.log('[传送] 回城');
+    return teleported;
   },
 
   // ---------- 存档 ----------
@@ -1156,14 +1101,29 @@ window.game = {
     return pack;
   },
 
-  importSave(base64Str) {
-    importSave(base64Str).then(r => {
-      console.log(`[导入] ${r.message}`);
-      if (r.success) {
-        console.log('[导入] 3秒后刷新页面...');
-        setTimeout(() => location.reload(), 3000);
-      }
-    });
+  async importSave(base64Str) {
+    const pausedLoop = loop;
+    pausedLoop?.stop();
+    let result;
+    try {
+      result = await doImportSave(base64Str);
+    } catch (error) {
+      console.error('[导入] 未预期的导入错误:', error);
+      result = { success: false, message: '导入失败：存档处理异常' };
+    }
+
+    console.log(`[导入] ${result.message}`);
+    if (!result.success) {
+      pausedLoop?.start();
+      UIManager.toast?.(result.message, 'error');
+      return result;
+    }
+
+    // 导入成功后立即销毁旧角色运行时，避免刷新前的自动存档覆盖刚导入的数据。
+    await cleanupCurrentRuntime({ save: false });
+    UIManager.toast?.('导入成功，正在重新载入', 'success');
+    setTimeout(() => location.reload(), 300);
+    return result;
   },
 
   // ---------- 测试 ----------
@@ -1378,6 +1338,3 @@ window.game = {
     }
   },
 };
-
-// 保持运行
-setTimeout(() => {}, 60000);

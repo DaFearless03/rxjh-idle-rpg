@@ -3,21 +3,28 @@
  * @desc 4步角色创建流程
  * @ref 13_save.character_creation_flow
  */
-import { storage } from '../utils/storage.js?v=release-20260830-1';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260830-1';
-import { generateUUID } from '../utils/uuid.js?v=release-20260830-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { storage } from '../utils/storage.js?v=release-20260830-3';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260830-3';
+import { generateUUID } from '../utils/uuid.js?v=release-20260830-3';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
 
 const BASE_CAREERS = ['warrior_blade', 'warrior_sword', 'warrior_spear', 'healer'];
+const STARTING_WEAPON_BY_FAMILY = {
+  blade: 'blade_base_001',
+  sword: 'sword_base_001',
+  spear: 'spear_base_001',
+  staff: 'staff_base_001',
+};
+const PERSISTING_SLOTS = new Set();
 
 /**
  * @param {Object} opts
  * @param {Object} opts.careersData   职业配置列表
  * @param {Object} opts.globalSave   当前全局存档
- * @param {Function} opts.onComplete 创建完成回调（传入 player 对象）
  */
 export function runCharacterCreationFlow(opts) {
-  const { careersData, globalSave, attributeConstants = {}, onComplete } = opts;
+  const { careersData, equipmentsData = [], globalSave, attributeConstants = {} } = opts;
 
   // 返回 step 函数供外部调用（console 环境下直接执行）
   return {
@@ -28,14 +35,13 @@ export function runCharacterCreationFlow(opts) {
       return { success: true, selectedCareer: careerKey };
     },
 
-    step2_inputName: (name) => {
-      if (!name || name.length === 0) return { success: false, message: '角色名不能为空' };
-      if (name.length > 10) return { success: false, message: '角色名不超过 10 个字符' };
-      if (!/^[\u4e00-\u9fa5a-zA-Z0-9_]+$/.test(name)) return { success: false, message: '仅支持中文/英文/数字/下划线' };
-      return { success: true, name };
-    },
+    step2_inputName: validateCharacterName,
 
     step3_initializeSave: (careerKey, name, targetSlotIndex) => {
+      const careerSelection = BASE_CAREERS.includes(careerKey);
+      if (!careerSelection) return { success: false, message: '无效职业，仅支持 4 个 base 职业' };
+      const nameValidation = validateCharacterName(name);
+      if (!nameValidation.success) return nameValidation;
       const career = careersData.find(c => c.key === careerKey);
       if (!career) return { success: false, message: '职业不存在' };
 
@@ -108,26 +114,62 @@ export function runCharacterCreationFlow(opts) {
         offline: { last_save_timestamp: now },
         statistics: { total_kills: 0, total_playtime_ms: 0, total_gold_earned: 0, total_deaths: 0 },
       };
+      if (!addStartingWeapon(newSave, career, equipmentsData)) {
+        return { success: false, message: '初始武器配置缺失，无法创建角色' };
+      }
 
       return { success: true, save: newSave, slotIndex };
     },
 
     step4_persist: async (save, slotIndex, updatedGlobalSave) => {
-      const previousLastUsedSlot = updatedGlobalSave.character_slots.last_used_slot;
-      // 写入玩家存档
-      const playerSaved = await SaveManager.savePlayerState(buildPlayerFromSave(save), slotIndex);
-      if (!playerSaved) return { success: false, message: '角色存档写入失败' };
-      // 更新全局存档
-      updatedGlobalSave.character_slots.last_used_slot = slotIndex;
-      const globalSaved = await SaveManager.saveGlobalState(updatedGlobalSave);
-      if (!globalSaved) {
-        updatedGlobalSave.character_slots.last_used_slot = previousLastUsedSlot;
-        storage.remove(`player-${slotIndex}`);
-        storage.remove(`player-${slotIndex}-bak`);
-        return { success: false, message: '全局存档写入失败' };
+      const slot = Number(slotIndex);
+      const normalizedGlobalSave = SaveManager.normalizeGlobalState(updatedGlobalSave);
+      if (!Number.isInteger(slot) || slot < 1 || slot > 10
+        || !normalizedGlobalSave
+        || slot > normalizedGlobalSave.character_slots.unlocked_count
+        || !BASE_CAREERS.includes(save?.player?.career)
+        || !careersData.some(career => career.key === save?.player?.career && career.stage === 'base')
+        || !SaveManager.isValidPlayerSaveData(save)) {
+        return { success: false, message: '角色或全局存档结构无效' };
       }
-      eventBus.emit('character.created', { slotIndex, name: save.player.name });
-      return { success: true, slotIndex };
+      if (PERSISTING_SLOTS.has(slot)) {
+        return { success: false, message: `槽位 ${slot} 正在创建角色，请稍候` };
+      }
+      PERSISTING_SLOTS.add(slot);
+      try {
+        updatedGlobalSave.character_slots = normalizedGlobalSave.character_slots;
+        updatedGlobalSave.schema_version = normalizedGlobalSave.schema_version;
+        const previousLastUsedSlot = updatedGlobalSave.character_slots.last_used_slot;
+        const primaryKey = `player-${slot}`;
+        const shadowKey = `${primaryKey}-bak`;
+        const previousPrimary = storage.get(primaryKey);
+        const previousShadow = storage.get(shadowKey);
+        if (previousPrimary != null || previousShadow != null) {
+          return { success: false, message: `槽位 ${slot} 已有角色` };
+        }
+        // 写入玩家存档
+        const playerSaved = await SaveManager.savePlayerState(buildPlayerFromSave(save), slot);
+        if (!playerSaved) return { success: false, message: '角色存档写入失败' };
+        // 更新全局存档
+        updatedGlobalSave.character_slots.last_used_slot = slot;
+        const globalSaved = await SaveManager.saveGlobalState(updatedGlobalSave);
+        if (!globalSaved) {
+          updatedGlobalSave.character_slots.last_used_slot = previousLastUsedSlot;
+          SaveManager.invalidatePendingPlayerWrites(slot);
+          const primaryRestored = restoreStorageValue(primaryKey, previousPrimary);
+          const shadowRestored = restoreStorageValue(shadowKey, previousShadow);
+          return {
+            success: false,
+            message: primaryRestored && shadowRestored
+              ? '全局存档写入失败'
+              : '全局存档写入失败，且角色存档未能完整恢复',
+          };
+        }
+        eventBus.emit('character.created', { slotIndex: slot, name: save.player.name });
+        return { success: true, slotIndex: slot };
+      } finally {
+        PERSISTING_SLOTS.delete(slot);
+      }
     }
   };
 }
@@ -138,19 +180,41 @@ export function runCharacterCreationFlow(opts) {
 function resolveSlotIndex(targetSlotIndex, globalSave) {
   const unlocked = globalSave?.character_slots?.unlocked_count ?? 3;
   if (targetSlotIndex != null) {
-    if (targetSlotIndex < 1 || targetSlotIndex > unlocked) {
+    const slotIndex = Number(targetSlotIndex);
+    if (!Number.isInteger(slotIndex) || slotIndex < 1 || slotIndex > unlocked) {
       throw new Error(`槽位 ${targetSlotIndex} 未解锁`);
     }
-    if (storage.get(`player-${targetSlotIndex}`) || storage.get(`player-${targetSlotIndex}-bak`)) {
-      throw new Error(`槽位 ${targetSlotIndex} 已有角色`);
+    if (storage.get(`player-${slotIndex}`) || storage.get(`player-${slotIndex}-bak`)) {
+      throw new Error(`槽位 ${slotIndex} 已有角色`);
     }
-    return targetSlotIndex;
+    return slotIndex;
   }
   // 找第一个空槽
   for (let i = 1; i <= unlocked; i++) {
     if (!storage.get(`player-${i}`) && !storage.get(`player-${i}-bak`)) return i;
   }
   throw new Error('没有可用的角色槽位');
+}
+
+function validateCharacterName(name) {
+  if (typeof name !== 'string' || name.length === 0) return { success: false, message: '角色名不能为空' };
+  if (name.length > 10) return { success: false, message: '角色名不超过 10 个字符' };
+  if (!/^[\u4e00-\u9fa5a-zA-Z0-9_]+$/.test(name)) return { success: false, message: '仅支持中文/英文/数字/下划线' };
+  return { success: true, name };
+}
+
+function addStartingWeapon(save, career, equipmentsData) {
+  const weaponKey = STARTING_WEAPON_BY_FAMILY[career?.career_family];
+  const template = equipmentsData.find(item => item.key === weaponKey);
+  if (!template) return false;
+  const instance = createEquipmentInstance(template);
+  save.inventory.equipment_instances[instance.instance_id] = instance;
+  save.inventory.slots.push({ item_key: instance.item_key, count: 1, instance_id: instance.instance_id });
+  return true;
+}
+
+function restoreStorageValue(key, value) {
+  return value == null ? storage.remove(key) : storage.set(key, value);
 }
 
 function buildPlayerFromSave(save) {

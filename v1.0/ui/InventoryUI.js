@@ -3,8 +3,10 @@
  * @desc 背包页渲染：装备摘要 + demo 风格背包格子。
  */
 
-import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260830-1';
-import { buildEquipmentDetailView, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260830-1';
+import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260830-3';
+import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260830-3';
+import { buildEquipmentDetailView, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260830-3';
+import { generateUUID } from '../utils/uuid.js?v=release-20260830-3';
 
 const ITEM_META = {
   hp_potion_grade1: { icon: '🍶', name: '金创药(小)', desc: '恢复70点生命值' },
@@ -28,12 +30,7 @@ function escapeHtml(value) {
 function classifyItem(slot, player) {
   if (slot.instance_id) return 'equipment';
   const key = slot.item_key || slot.key || '';
-  if (getEquipmentTemplate(player, { item_key: key })) return 'equipment';
-  if (key.startsWith('box_')) return 'boxes';
-  if (key.startsWith('cold_jade') || key.startsWith('vajra') || key.startsWith('enhance_stone') || key.startsWith('hot_blood')) return 'stones';
-  if (key.includes('_potion_')) return 'consumables';
-  if (player?.quests?.accepted?.some(q => JSON.stringify(q).includes(key))) return 'quest_items';
-  return 'unknown';
+  return InventorySystem._getItemClass(key, player);
 }
 
 function parseStoneAttr(key) {
@@ -186,7 +183,7 @@ export function renderBagTile(slot, player, options = {}) {
   ].filter(Boolean).join(' ');
 
   return `<div class="${classes}" data-key="${escapeHtml(craftKey)}" data-icon="${escapeHtml(display.icon)}" data-name="${escapeHtml(display.name)}" data-class="${display.itemClass}" data-count="${count}" ${Number.isInteger(options.bagIndex) ? `data-bag-index="${options.bagIndex}"` : ''} ${isQuest ? 'data-quest="1"' : ''} ${slot.instance_id ? `data-instance-id="${escapeHtml(slot.instance_id)}"` : ''} ${craftAttrs}>
-    <div class="bt-icon">${display.icon}</div>
+    <div class="bt-icon">${escapeHtml(display.icon)}</div>
     <div class="bt-name">${escapeHtml(display.name)}</div>
     <div class="bt-sub">${escapeHtml(equipped ? '已穿戴' : equipFail || display.sub || '')}</div>
     ${display.enhance > 0 ? `<div class="bt-enh">+${display.enhance}</div>` : ''}
@@ -309,10 +306,13 @@ export function normalizeLegacyEquipmentSlots(player) {
   if (!player.inventory.equipment_instances) player.inventory.equipment_instances = {};
   let changed = false;
 
-  slots.forEach((slot, index) => {
+  slots.forEach((slot) => {
     const itemKey = slot?.item_key || slot?.key;
     if (!itemKey || slot.instance_id || !getEquipmentTemplate(player, { item_key: itemKey })) return;
-    const instanceId = `legacy_${Date.now().toString(36)}_${index}`;
+    let instanceId;
+    do {
+      instanceId = `legacy_${generateUUID()}`;
+    } while (player.inventory.equipment_instances[instanceId]);
     player.inventory.equipment_instances[instanceId] = {
       instance_id: instanceId,
       item_key: itemKey,
@@ -425,7 +425,13 @@ function openItemPopup(container, player, bagIndex, setTarget) {
   modal.dataset.bagIndex = String(bagIndex);
   modal.dataset.itemKey = slot.item_key || slot.key || '';
   modal.dataset.itemClass = display.itemClass || '';
-  setTarget({ type: 'item', bagIndex, max, itemClass: display.itemClass });
+  setTarget({
+    type: 'item',
+    bagIndex,
+    itemKey: slot.item_key || slot.key || '',
+    max,
+    itemClass: display.itemClass,
+  });
   modal.querySelector('[data-field="icon"]').textContent = display.icon;
   modal.querySelector('[data-field="name"]').textContent = display.name;
   modal.querySelector('[data-field="tags"]').innerHTML = `<span class="ed-tag ${getItemClassTag(display.itemClass)}">${getItemClassLabel(display.itemClass)}</span>`;
@@ -489,19 +495,31 @@ function handleModalAction(container, player, action, popupTarget, setTarget) {
   if (action === 'discard-item' && popupTarget?.type === 'item') {
     if (popupTarget.itemClass === 'quest_items') return;
     const slot = player.inventory?.slots?.[popupTarget.bagIndex];
-    if (!slot) return;
+    if (!slot || slot.instance_id || slot.item_key !== popupTarget.itemKey) {
+      closeInventoryModals(container);
+      setTarget(null);
+      finishEquipmentAction(container, player, { success: false, message: '物品位置已变化，请重试' });
+      return;
+    }
     const qty = getPopupQty(container, popupTarget.max);
     const name = getSlotDisplay(slot, player).name;
-    slot.count = Math.max(0, Number(slot.count || 0) - qty);
-    if (slot.count <= 0) clearBagSlot(slot);
+    const removed = InventorySystem.remove(player, popupTarget.itemKey, qty);
     closeInventoryModals(container);
     setTarget(null);
-    finishEquipmentAction(container, player, { success: true, message: `已丢弃「${name}」×${qty}` });
+    finishEquipmentAction(container, player, {
+      success: removed,
+      message: removed ? `已丢弃「${name}」×${qty}` : '物品数量已变化，请重试',
+    });
     return;
   }
   if (action === 'open-box' && popupTarget?.type === 'item') {
     const slot = player.inventory?.slots?.[popupTarget.bagIndex];
-    if (!slot?.item_key) return;
+    if (!slot || slot.instance_id || slot.item_key !== popupTarget.itemKey) {
+      closeInventoryModals(container);
+      setTarget(null);
+      finishEquipmentAction(container, player, { success: false, message: '物品位置已变化，请重试' });
+      return;
+    }
     const result = BoxSystem.openBox(player, slot.item_key, getPopupQty(container, popupTarget.max));
     closeInventoryModals(container);
     setTarget(null);
@@ -516,8 +534,29 @@ function handleModalAction(container, player, action, popupTarget, setTarget) {
     const instanceId = modal.dataset.instanceId;
     const inst = player.inventory?.equipment_instances?.[instanceId];
     const tpl = getEquipmentTemplate(player, inst);
-    if (modal.dataset.source === 'bag') clearBagSlot(player.inventory.slots[Number(modal.dataset.bagIndex)]);
-    else setEquippedSlot(player, modal.dataset.slot, Number(modal.dataset.index || 0), null);
+    if (!inst) {
+      closeInventoryModals(container);
+      finishEquipmentAction(container, player, { success: false, message: '装备数据已变化，请重试' });
+      return;
+    }
+    if (modal.dataset.source === 'bag') {
+      const sourceSlot = player.inventory?.slots?.find(slot => slot?.instance_id === instanceId);
+      if (!sourceSlot) {
+        closeInventoryModals(container);
+        finishEquipmentAction(container, player, { success: false, message: '装备位置已变化，请重试' });
+        return;
+      }
+      clearBagSlot(sourceSlot);
+    } else {
+      const slot = modal.dataset.slot;
+      const index = Number(modal.dataset.index || 0);
+      if (getInstanceId(getEquippedSlot(player, slot, index)) !== instanceId) {
+        closeInventoryModals(container);
+        finishEquipmentAction(container, player, { success: false, message: '装备位置已变化，请重试' });
+        return;
+      }
+      setEquippedSlot(player, slot, index, null);
+    }
     delete player.inventory.equipment_instances[instanceId];
     closeInventoryModals(container);
     finishEquipmentAction(container, player, { success: true, message: `已丢弃「${tpl?.name || inst?.item_key || '装备'}」` });
@@ -771,11 +810,11 @@ function getEquipFailReason(player, instanceId) {
 }
 
 function getTransferCount(player) {
-  if (Number.isFinite(Number(player?.transfer_count))) return Number(player.transfer_count);
-  const historyCount = Array.isArray(player?.career_history) ? Math.max(0, player.career_history.length - 1) : 0;
-  if (historyCount > 0) return historyCount;
-  const match = String(player?.career || '').match(/transfer_(\d)/);
-  return match ? Number(match[1]) : 0;
+  return [player?.career, ...(Array.isArray(player?.career_history) ? player.career_history : [])]
+    .reduce((maxTransfer, career) => {
+      const match = String(career || '').match(/_transfer_(\d+)/);
+      return Math.max(maxTransfer, match ? Number(match[1]) : 0);
+    }, 0);
 }
 
 function finishEquipmentAction(container, player, result) {
@@ -788,7 +827,8 @@ function finishEquipmentAction(container, player, result) {
   player.hp = Math.min(player.hp, player.maxHp);
   player.mp = Math.min(player.mp, player.maxMp);
   window.game?.saveNow?.();
-  window.game?.eventBus?.emit?.('player.equipment_changed', { player });
+  window.EventBus?.emit?.('inventory.changed', { player, action: 'inventory_action' });
+  window.EventBus?.emit?.('battle.player_status_changed', { player, reason: 'inventory_action' });
   container.innerHTML = renderInventoryPanel(player);
   bindInventoryInteractions(container, player);
   animateStatChanges(container, previousStats, player);

@@ -17,9 +17,13 @@
       function showBootError(title, detail) {
         var root = document.getElementById('ui-root');
         if (!root) return;
-        root.innerHTML = '<div style="margin:24px;padding:16px;border:2px solid #b34;background:#fff8f3;color:#4a1f12;font-family:var(--pixel-font);white-space:pre-wrap;">'
-          + '<b>' + title + '</b>\n\n' + String(detail || 'Unknown error')
-          + '</div>';
+        var box = document.createElement('div');
+        box.style.cssText = 'margin:24px;padding:16px;border:2px solid #b34;background:#fff8f3;color:#4a1f12;font-family:var(--pixel-font);white-space:pre-wrap;';
+        var heading = document.createElement('b');
+        heading.textContent = title;
+        box.appendChild(heading);
+        box.appendChild(document.createTextNode('\n\n' + String(detail || 'Unknown error')));
+        root.replaceChildren(box);
       }
       window.addEventListener('error', function (event) {
         showBootError('启动错误', event.message + '\n' + (event.filename || '') + ':' + (event.lineno || 0) + ':' + (event.colno || 0));
@@ -30,7 +34,7 @@
       });
     }());
   </script>
-  <script type="module" src="main.js?v=release-20260830-1"></script>
-  <script src="gm.js?v=release-20260612-4"></script>
+  <script type="module" src="main.js?v=release-20260830-3"></script>
+  <script src="gm.js?v=release-20260830-3"></script>
 </body>
 </html>

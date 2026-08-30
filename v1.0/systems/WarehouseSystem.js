@@ -3,32 +3,41 @@
  * @desc 仓库系统：deposit / withdraw
  * @ref 11_inventory.md warehouse_operation_limit / forbidden_types
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
 
 export const WarehouseSystem = {
   FORBIDDEN_TYPES: ['quest_items'],
 
   _ensureContainers(player) {
+    if (!player || typeof player !== 'object') return false;
     player.inventory = player.inventory || { capacity: 50, slots: [], equipment_instances: {} };
-    player.inventory.slots = player.inventory.slots || [];
-    player.inventory.equipment_instances = player.inventory.equipment_instances || {};
+    player.inventory.slots = Array.isArray(player.inventory.slots) ? player.inventory.slots : [];
+    player.inventory.equipment_instances = player.inventory.equipment_instances && typeof player.inventory.equipment_instances === 'object'
+      && !Array.isArray(player.inventory.equipment_instances) ? player.inventory.equipment_instances : {};
+    player.inventory.capacity = InventorySystem._normalizeCapacity(player.inventory.capacity);
     player.warehouse = player.warehouse || { capacity: 50, slots: [], equipment_instances: {} };
-    player.warehouse.slots = player.warehouse.slots || [];
-    player.warehouse.equipment_instances = player.warehouse.equipment_instances || {};
+    player.warehouse.slots = Array.isArray(player.warehouse.slots) ? player.warehouse.slots : [];
+    player.warehouse.equipment_instances = player.warehouse.equipment_instances && typeof player.warehouse.equipment_instances === 'object'
+      && !Array.isArray(player.warehouse.equipment_instances) ? player.warehouse.equipment_instances : {};
+    player.warehouse.capacity = InventorySystem._normalizeCapacity(player.warehouse.capacity);
+    return true;
   },
 
   _hasFreeSlot(container) {
     const slots = container.slots || [];
-    return slots.some(slot => (slot.count || 0) <= 0) || slots.length < (container.capacity || 50);
+    return slots.some(slot => !slot?.item_key || Number(slot.count) <= 0) || slots.length < container.capacity;
   },
 
   _putInstanceSlot(container, instance) {
+    if (!instance?.instance_id || !instance?.item_key || container.equipment_instances[instance.instance_id]
+      || container.slots.some(slot => slot?.instance_id === instance.instance_id)) return false;
     const slot = { item_key: instance.item_key, instance_id: instance.instance_id, count: 1 };
-    const emptyIndex = container.slots.findIndex(entry => (entry.count || 0) <= 0);
+    const emptyIndex = container.slots.findIndex(entry => !entry?.item_key || Number(entry.count) <= 0);
     if (emptyIndex >= 0) container.slots[emptyIndex] = slot;
     else container.slots.push(slot);
     container.equipment_instances[instance.instance_id] = instance;
+    return true;
   },
 
   _isEquipped(player, instanceId) {
@@ -54,7 +63,9 @@ export const WarehouseSystem = {
    * @returns {{ success: boolean, deposited: number }}
    */
   deposit(player, itemKey, count, { instanceId = null } = {}) {
-    this._ensureContainers(player);
+    if (!this._ensureContainers(player) || typeof itemKey !== 'string' || !itemKey) {
+      return { success: false, deposited: 0 };
+    }
     const itemClass = this._getItemClass(itemKey, player);
     if (this.FORBIDDEN_TYPES.includes(itemClass)) {
       return { success: false, deposited: 0 };
@@ -63,22 +74,29 @@ export const WarehouseSystem = {
     if (instanceId) {
       const instance = player.inventory.equipment_instances[instanceId];
       const sourceSlot = player.inventory.slots.find(slot => slot.instance_id === instanceId);
-      if (!instance || !sourceSlot || this._isEquipped(player, instanceId) || !this._hasFreeSlot(player.warehouse)) {
+      if (!instance || !sourceSlot || sourceSlot.item_key !== itemKey || instance.item_key !== itemKey
+        || this._isEquipped(player, instanceId) || !this._hasFreeSlot(player.warehouse)
+        || player.warehouse.equipment_instances[instanceId]
+        || player.warehouse.slots.some(slot => slot?.instance_id === instanceId)) {
         return { success: false, deposited: 0 };
       }
-      this._putInstanceSlot(player.warehouse, instance);
-      this._removeInstanceSlot(player.inventory, instanceId);
+      if (!this._putInstanceSlot(player.warehouse, instance) || !this._removeInstanceSlot(player.inventory, instanceId)) {
+        this._removeInstanceSlot(player.warehouse, instanceId);
+        return { success: false, deposited: 0 };
+      }
       eventBus.emit('inventory.changed', { player, item_key: itemKey, action: 'warehouse_deposit', changed_count: 1, count: 0 });
       return { success: true, deposited: 1 };
     }
 
-    const normalizedCount = Math.max(1, Math.floor(Number(count) || 0));
+    if (itemClass === 'equipment') return { success: false, deposited: 0 };
+    const normalizedCount = InventorySystem._normalizeCount(count);
+    if (!normalizedCount) return { success: false, deposited: 0 };
     if (InventorySystem.count(player, itemKey) < normalizedCount) {
       return { success: false, deposited: 0 };
     }
     const candidate = {
       ...player.warehouse,
-      slots: player.warehouse.slots.filter(slot => (slot.count || 0) > 0).map(slot => ({ ...slot })),
+      slots: player.warehouse.slots.map(slot => ({ ...slot })),
     };
     const result = InventorySystem.addToContainer(candidate, itemKey, normalizedCount);
     if (!result.success) return { success: false, deposited: 0 };
@@ -86,6 +104,13 @@ export const WarehouseSystem = {
       return { success: false, deposited: 0 };
     }
     player.warehouse.slots = candidate.slots;
+    eventBus.emit('inventory.changed', {
+      player,
+      item_key: itemKey,
+      action: 'warehouse_deposit',
+      changed_count: normalizedCount,
+      count: InventorySystem.count(player, itemKey),
+    });
     return { success: true, deposited: normalizedCount };
   },
 
@@ -97,24 +122,36 @@ export const WarehouseSystem = {
    * @returns {{ success: boolean, withdrawn: number }}
    */
   withdraw(player, itemKey, count, { instanceId = null } = {}) {
-    this._ensureContainers(player);
+    if (!this._ensureContainers(player) || typeof itemKey !== 'string' || !itemKey) {
+      return { success: false, withdrawn: 0 };
+    }
     if (instanceId) {
       const instance = player.warehouse.equipment_instances[instanceId];
       const sourceSlot = player.warehouse.slots.find(slot => slot.instance_id === instanceId);
-      if (!instance || !sourceSlot || !this._hasFreeSlot(player.inventory)) {
+      if (!instance || !sourceSlot || sourceSlot.item_key !== itemKey || instance.item_key !== itemKey
+        || !this._hasFreeSlot(player.inventory)
+        || player.inventory.equipment_instances[instanceId]
+        || player.inventory.slots.some(slot => slot?.instance_id === instanceId)) {
         return { success: false, withdrawn: 0 };
       }
-      this._putInstanceSlot(player.inventory, instance);
-      this._removeInstanceSlot(player.warehouse, instanceId);
+      if (!this._putInstanceSlot(player.inventory, instance) || !this._removeInstanceSlot(player.warehouse, instanceId)) {
+        this._removeInstanceSlot(player.inventory, instanceId);
+        return { success: false, withdrawn: 0 };
+      }
       eventBus.emit('inventory.changed', { player, item_key: itemKey, action: 'warehouse_withdraw', changed_count: 1, count: 1 });
       return { success: true, withdrawn: 1 };
     }
 
-    const normalizedCount = Math.max(1, Math.floor(Number(count) || 0));
+    if (this._getItemClass(itemKey, player) === 'equipment') return { success: false, withdrawn: 0 };
+    const normalizedCount = InventorySystem._normalizeCount(count);
+    if (!normalizedCount) return { success: false, withdrawn: 0 };
     const whSlots = player.warehouse?.slots || [];
     let available = 0;
     for (const s of whSlots) {
-      if (s.item_key === itemKey && !s.instance_id) available += s.count;
+      if (s.item_key === itemKey && !s.instance_id) {
+        const slotCount = Number(s.count);
+        if (Number.isFinite(slotCount) && slotCount > 0) available += Math.floor(slotCount);
+      }
     }
     if (available < normalizedCount) return { success: false, withdrawn: 0 };
 
@@ -123,7 +160,7 @@ export const WarehouseSystem = {
       slots: player.inventory.slots.map(slot => ({ ...slot })),
       equipment_instances: { ...player.inventory.equipment_instances },
     };
-    const addResult = InventorySystem.add({ inventory: candidateInventory }, itemKey, normalizedCount);
+    const addResult = InventorySystem.addToContainer(candidateInventory, itemKey, normalizedCount);
     if (!addResult.success) return { success: false, withdrawn: 0 };
 
     let remaining = normalizedCount;

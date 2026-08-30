@@ -2,13 +2,13 @@
  * @file ui/UIManager.js
  * @desc UI 总控 + modal 层级管理 + toast
  */
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
-import { storage } from '../utils/storage.js?v=release-20260830-1';
-import { refreshMonsterList } from './MonsterListUI.js?v=release-20260830-1';
-import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260830-1';
-import { appendCombatLog, formatCombatLog, renderCombatLog } from './CombatLogUI.js?v=release-20260830-1';
-import { appendRewardLog, formatRewardLog, renderRewardLog } from './RewardLogUI.js?v=release-20260830-1';
-import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { storage } from '../utils/storage.js?v=release-20260830-3';
+import { refreshMonsterList } from './MonsterListUI.js?v=release-20260830-3';
+import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260830-3';
+import { appendCombatLog, formatCombatLog, renderCombatLog } from './CombatLogUI.js?v=release-20260830-3';
+import { appendRewardLog, formatRewardLog, renderRewardLog } from './RewardLogUI.js?v=release-20260830-3';
+import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260830-3';
 
 function isOfflineSimulationActive() {
   return globalThis.__rxjhOfflineSimulation === true;
@@ -39,8 +39,12 @@ class UIManagerClass {
       if (isOfflineSimulationActive()) return;
       this._refreshAll();
     });
-    eventBus.on('player.career_transfer', () => this._refreshAll());
+    eventBus.on('player.career_transfer', () => {
+      if (isOfflineSimulationActive()) return;
+      this._refreshAll();
+    });
     const refreshQuestState = () => {
+      if (isOfflineSimulationActive()) return;
       this._refreshAll();
       window._refreshActiveQuestPanel?.();
     };
@@ -76,13 +80,23 @@ class UIManagerClass {
       this._refreshAllThrottled();
       window._refreshOpenInventorySurfaces?.();
     });
-    eventBus.on('buff.applied', () => this._refreshAll());
-    eventBus.on('buff.expired', () => this._refreshAll());
+    eventBus.on('buff.applied', () => {
+      if (isOfflineSimulationActive()) return;
+      this._refreshAll();
+    });
+    eventBus.on('buff.expired', () => {
+      if (isOfflineSimulationActive()) return;
+      this._refreshAll();
+    });
     eventBus.on('autoplay.start', () => {
+      if (isOfflineSimulationActive()) return;
       this._homeSession = { startedAt: Date.now(), kills: 0, exp: 0, gold: 0, drops: 0 };
       this._refreshAll();
     });
-    eventBus.on('autoplay.stop', () => this._refreshAll());
+    eventBus.on('autoplay.stop', () => {
+      if (isOfflineSimulationActive()) return;
+      this._refreshAll();
+    });
     eventBus.on('autoplay.auto_sell', summary => {
       const parts = [];
       if (summary.stones_sold) parts.push(`${summary.stones_sold} 个石头`);
@@ -118,8 +132,12 @@ class UIManagerClass {
     });
 
     this._refreshIdleIndicator();
-    eventBus.on('autoplay.start', () => this._refreshIdleIndicator());
-    eventBus.on('autoplay.stop', () => this._refreshIdleIndicator());
+    eventBus.on('autoplay.start', () => {
+      if (!isOfflineSimulationActive()) this._refreshIdleIndicator();
+    });
+    eventBus.on('autoplay.stop', () => {
+      if (!isOfflineSimulationActive()) this._refreshIdleIndicator();
+    });
 
     // ESC 关闭 modal
     document.addEventListener('keydown', (e) => {
@@ -329,7 +347,20 @@ class UIManagerClass {
     const buffsEl = document.getElementById('home-wild-buffs');
     if (buffsEl) {
       const buffs = player.buffs || [];
-      buffsEl.innerHTML = buffs.map(buff => `<span class="buff-chip">${buff.name || buff.key || '增益'}${buff.remaining != null ? `<span class="timer">${Math.ceil(buff.remaining / 1000)}s</span>` : ''}</span>`).join('');
+      const chips = buffs.map(buff => {
+        const chip = document.createElement('span');
+        chip.className = 'buff-chip';
+        chip.append(document.createTextNode(String(buff.name || buff.key || '增益')));
+        if (buff.remaining != null) {
+          const timer = document.createElement('span');
+          timer.className = 'timer';
+          const remaining = Number(buff.remaining);
+          timer.textContent = `${Number.isFinite(remaining) ? Math.max(0, Math.ceil(remaining / 1000)) : 0}s`;
+          chip.append(timer);
+        }
+        return chip;
+      });
+      buffsEl.replaceChildren(...chips);
     }
   }
 
@@ -421,10 +452,6 @@ class UIManagerClass {
   _refreshMonsterList() {
     const battle = window.game?.battle;
     refreshMonsterList(battle);
-  }
-
-  _refreshMapList() {
-    // 地图列表高亮由 MapListPanelUI 自己管理
   }
 
   _refreshIdleIndicator() {

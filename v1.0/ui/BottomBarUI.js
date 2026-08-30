@@ -2,25 +2,36 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260830-1';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260830-1';
-import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260830-1';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260830-1';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260830-1';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260830-1';
-import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260830-1';
-import { AutoPlaySystem } from '../systems/AutoPlaySystem.js?v=release-20260830-1';
-import { mountCharacterPanel } from './CharacterUI.js?v=release-20260830-1';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260830-1';
-import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260830-1';
-import { mountQuestPanel } from './TaskUI.js?v=release-20260830-1';
-import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260830-1';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260830-1';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260830-1';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260830-1';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260830-1';
-import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260830-1';
-import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260830-1';
+import { UIManager } from './UIManager.js?v=release-20260830-3';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260830-3';
+import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260830-3';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260830-3';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260830-3';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260830-3';
+import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260830-3';
+import { AutoPlaySystem } from '../systems/AutoPlaySystem.js?v=release-20260830-3';
+import { mountCharacterPanel } from './CharacterUI.js?v=release-20260830-3';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260830-3';
+import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260830-3';
+import { mountQuestPanel } from './TaskUI.js?v=release-20260830-3';
+import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260830-3';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260830-3';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260830-3';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260830-3';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260830-3';
+import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260830-3';
+import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { isMartialArtUsable, meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260830-3';
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 window._openPanel = (panelId) => {
   UIManager.openPanel(panelId);
@@ -49,26 +60,11 @@ window._returnToTown = () => {
   UIManager.openPanel('home');
 };
 
-window._exitCombat = () => {
-  window.game?.town();
-  UIManager.closePanel();
-  UIManager.openPanel('home');
-};
-
 window._switchCharTab = (tab) => {
   renderCharacterTabContent(tab);
 };
 
 window._openNPC = openTownNPCDialog;
-
-window._openShop = (shopType) => {
-  const backdrop = document.getElementById('shopBackdrop');
-  if (!backdrop) return;
-  const titles = { weapon: '⚔️ 武器商店', armor: '🛡️ 防具商店', potion: '🧪 药水商店' };
-  document.getElementById('shopTitle').textContent = titles[shopType] || '🏪 商店';
-  document.getElementById('shopGold').textContent = (window.game?.player?.resources?.gold || 0).toLocaleString();
-  backdrop.classList.add('open');
-};
 
 let _djxCurrentTab = 'weapon';
 window._openDjxShop = (tab) => {
@@ -231,7 +227,7 @@ function updateDjxCraftButton(type) {
   const slots = window._djxSlots[type] || {};
   const confirmBtn = document.querySelector(`#djx-${type}-content .craft-confirm`);
   if (!confirmBtn) return;
-  confirmBtn.disabled = type === 'synth' ? !(slots.equip && slots.stone) : !slots.equip;
+  confirmBtn.disabled = !(slots.equip && slots.stone);
 }
 
 function getSynthesisStoneAttribute(key) {
@@ -346,8 +342,8 @@ window._djxSelectItem = (key, type) => {
     targetZone.classList.add('filled');
     const icon = stoneKey ? '💎' : '⚔️';
     targetZone.innerHTML = `
-      <div class="dz-icon" style="font-size:1.8rem">${meta.icon || icon}</div>
-      <div class="dz-name" style="font-size:0.75rem;font-weight:bold;margin-top:0.2rem">${meta.name}</div>
+      <div class="dz-icon" style="font-size:1.8rem">${escapeHtml(meta.icon || icon)}</div>
+      <div class="dz-name" style="font-size:0.75rem;font-weight:bold;margin-top:0.2rem">${escapeHtml(meta.name)}</div>
       <div class="dz-clear" style="position:absolute;top:0.2rem;right:0.3rem;font-size:1rem;opacity:0.5;cursor:pointer">×</div>
     `;
     // 点击 × 清空该槽
@@ -390,27 +386,6 @@ window._djxClearAll = (type) => {
   if (warnEl) { warnEl.innerHTML = ''; warnEl.classList.add('hidden'); }
   if (type === 'synth') updateSynthesisWorkbench();
   if (type === 'enhance') updateEnhanceWorkbench();
-};
-
-window._djxBuy = (itemKey, price) => {
-  const p = window.game?.player;
-  if (!p) return;
-  const hasConfiguredItem =
-    window._itemMetaByKey?.[itemKey] ||
-    window._equipTemplates?.some(item => item.key === itemKey);
-  if (!hasConfiguredItem) { window._showToast('物品配置不存在'); return; }
-  if ((p.resources?.gold || 0) < price) { window._showToast('金币不足'); return; }
-  const npcData = { type: 'shop', items: [{ item_key: itemKey, buy_price: price }] };
-  const r = ShopSystem.buy(p, npcData, itemKey, 1);
-  if (r && r.success) {
-    window._showToast('购买成功');
-    const goldText = (p.resources?.gold || 0).toLocaleString();
-    const djxGold = document.getElementById('djxShopGold');
-    if (djxGold) djxGold.textContent = goldText;
-    window._renderDjxShop?.();
-    window._renderYjlShop?.();
-    window._renderPszShop?.();
-  } else { window._showToast(r.message); }
 };
 
 let _shopQuantityState = null;
@@ -479,7 +454,7 @@ function _confirmShopQuantity() {
   if (state.mode === 'buy') {
     result = ShopSystem.buy(player, { type: 'shop', items: [{ item_key: state.itemKey, name: state.name, buy_price: state.price }] }, state.itemKey, count);
   } else if (state.instanceId) {
-    result = ShopSystem.sellEquipmentInstance(player, state.instanceId, state.price);
+    result = ShopSystem.sellEquipmentInstance(player, state.instanceId);
   } else {
     result = ShopSystem.sell(player, { type: 'shop', items: [] }, state.itemKey, count);
   }
@@ -494,11 +469,11 @@ function _confirmShopQuantity() {
 window._djxDoCraft = (type) => {
   const slots = window._djxSlots[type];
   if (!slots.equip) { showCraftResultToast(type, '请放入装备', false); return; }
-  if (type === 'synth' && !slots.stone) { showCraftResultToast(type, '请放入合成石', false); return; }
+  if (!slots.stone) { showCraftResultToast(type, type === 'synth' ? '请放入合成石' : '请放入强化石', false); return; }
   const p = window.game?.player;
   const result = type === 'synth'
     ? SynthesisSystem.synthesize(p, slots.equip, slots.stone)
-    : EnhanceSystem.enhance(p, slots.equip);
+    : EnhanceSystem.enhance(p, slots.equip, slots.stone);
   window._djxClearAll(type);
   if (result?.success !== false) {
     window._attrSys?.recompute?.(p);
@@ -776,32 +751,6 @@ window._openWarehouse = () => {
 
 const WH_CAPACITY = 50;
 
-// Helper: render tile from dataset (module scope)
-function _whRenderTile(t) {
-  const c = parseInt(t.dataset.count, 10);
-  let h = '<div class="bt-icon">' + t.dataset.icon + '</div><div class="bt-name">' + t.dataset.name + '</div>';
-  if (t.dataset.quest) h += '<div class="bt-badge cross quest">任务</div>';
-  if (c > 1) h += '<div class="bt-badge">×' + c + '</div>';
-  t.innerHTML = h;
-}
-
-// Helper: make a bag-tile element from data object
-function _whMakeTile(d) {
-  const t = document.createElement('div');
-  t.className = 'bag-tile' + (d.quest ? ' cross' : '');
-  t.dataset.key = d.key;
-  t.dataset.icon = d.icon || '📦';
-  t.dataset.name = d.name || d.key;
-  t.dataset.count = d.count;
-  if (d.quest) t.dataset.quest = '1';
-  const c = parseInt(d.count, 10);
-  let h = '<div class="bt-icon">' + (d.icon || '📦') + '</div><div class="bt-name">' + (d.name || d.key) + '</div>';
-  if (d.quest) h += '<div class="bt-badge cross quest">任务</div>';
-  if (c > 1) h += '<div class="bt-badge">×' + c + '</div>';
-  t.innerHTML = h;
-  return t;
-}
-
 function _renderWarehouse() {
   const p = window.game?.player;
   if (!p) return;
@@ -810,7 +759,7 @@ function _renderWarehouse() {
 
 // Warehouse popup state
 let _whMode = 'deposit';
-let _whSrcGrid, _whDstGrid, _whTile, _whName, _whMaxQ = 1;
+let _whTile, _whName, _whMaxQ = 1;
 let _whEquipMode = 'deposit';
 let _whEquipTile = null;
 let _warehousePopupEventsBound = false;
@@ -884,16 +833,14 @@ function _whOpenPopup(tile, mode) {
   _whTile = tile;
   _whName = tile.dataset.name;
 
-  _whSrcGrid = mode === 'deposit'
-    ? document.getElementById('whBagGrid')
-    : document.getElementById('whWarehouseGrid');
-  _whDstGrid = mode === 'deposit'
+  const destinationGrid = mode === 'deposit'
     ? document.getElementById('whWarehouseGrid')
     : document.getElementById('whBagGrid');
+  if (!destinationGrid) return;
 
   _whMaxQ = tile.dataset.instanceId ? 1 : parseInt(tile.dataset.count, 10);
 
-  const dstUsed = [..._whDstGrid.querySelectorAll('.bag-tile:not(.empty)')].length;
+  const dstUsed = [...destinationGrid.querySelectorAll('.bag-tile:not(.empty)')].length;
 
   document.getElementById('whIcon').textContent = tile.dataset.icon;
   document.getElementById('whName').textContent = _whName;
@@ -1169,10 +1116,6 @@ function syncCharacterHeader(player) {
   refreshPlayerStatusBar(player, { prefix: 'char' });
 }
 
-function renderQigongGrid(player) {
-  renderCharacterPanel(player);
-}
-
 function renderCharacterTabContent(tab) {
   window._characterActiveTab = tab;
   renderCharacterPanel(window.game?.player);
@@ -1221,13 +1164,13 @@ function renderAutoplayPanel(player) {
     '<button class="autoplay-toggle ' + (enabled ? 'on' : 'off') + '" onclick="' + action + '"' + (disabled ? ' disabled' : '') + '>' + (enabled ? 'ON' : 'OFF') + '</button>';
 
   const learnedSkills = (window._martialArtsData || []).filter(skill =>
-    skill.type === 'damage' && p.learned_martial_arts?.includes(skill.key)
+    skill.type === 'damage' && isMartialArtUsable(p, skill)
   );
   const learnedHealSkills = (window._martialArtsData || []).filter(skill =>
-    skill.type === 'heal' && p.learned_martial_arts?.includes(skill.key)
+    skill.type === 'heal' && isMartialArtUsable(p, skill)
   );
   const learnedBuffSkills = (window._martialArtsData || []).filter(skill =>
-    skill.type === 'buff' && p.learned_martial_arts?.includes(skill.key)
+    skill.type === 'buff' && isMartialArtUsable(p, skill)
   );
   const selectedAttackSkill = learnedSkills.some(skill => skill.key === attackCfg.selected_skill_key)
     ? attackCfg.selected_skill_key
@@ -1543,7 +1486,7 @@ window._setAutoAttackType = (attackType) => {
     config.attack_type = attackType === 'skill' ? 'skill' : 'normal';
     if (config.attack_type === 'skill' && !config.selected_skill_key) {
       config.selected_skill_key = (window._martialArtsData || []).find(skill =>
-        skill.type === 'damage' && window.game?.player?.learned_martial_arts?.includes(skill.key)
+        skill.type === 'damage' && isMartialArtUsable(window.game?.player, skill)
       )?.key || null;
     }
   });
@@ -1575,7 +1518,7 @@ window._toggleAutoSupportSkill = (kind) => {
     if (config.enabled && !config.selected_skill_key) {
       const type = kind === 'buff' ? 'buff' : 'heal';
       config.selected_skill_key = (window._martialArtsData || []).find(skill =>
-        skill.type === type && window.game?.player?.learned_martial_arts?.includes(skill.key)
+        skill.type === type && isMartialArtUsable(window.game?.player, skill)
       )?.key || null;
     }
   });
@@ -1863,6 +1806,7 @@ window._resetQigong = () => {
   const r = QigongSystem.resetQigong(p);
   if (r && r.success) {
     window._attrSys?.recompute(p);
+    window.game?.saveNow?.();
     UIManager.toast('气功已重置', 'success');
     renderCharacterPanel(p, { preserveScroll: true });
   } else {
@@ -1876,6 +1820,7 @@ window._investQigong = (key, pts) => {
   const r = QigongSystem.investQigong(p, key, pts);
   if (r && r.success) {
     window._attrSys?.recompute(p);
+    window.game?.saveNow?.();
     renderCharacterPanel(p, { preserveScroll: true });
   } else {
     UIManager.toast(r?.message || '分配失败', 'error');
@@ -1903,13 +1848,15 @@ window._learnMartial = (key) => {
     UIManager.toast('该武功已经掌握', 'info');
     return;
   }
-  const req = martial.requirement || {};
-  const transferCount = Math.max(0, (player.career_history?.length || 1) - 1);
-  if ((player.level || 1) < (req.level || 1) || transferCount < (req.min_transfer || 0)) {
+  if (!meetsMartialArtRequirements(player, martial)) {
     UIManager.toast('尚未满足武功学习条件', 'error');
     return;
   }
-  const trainingCost = martial.learning_cost?.training || 0;
+  const trainingCost = Number(martial.learning_cost?.training);
+  if (!Number.isSafeInteger(trainingCost) || trainingCost < 0) {
+    UIManager.toast('武功学习费用配置无效', 'error');
+    return;
+  }
   player.resources = player.resources || { gold: 0, training: 0, merit: 0 };
   if ((player.resources.training || 0) < trainingCost) {
     UIManager.toast('历练点不足', 'error');
@@ -1917,6 +1864,7 @@ window._learnMartial = (key) => {
   }
   player.resources.training -= trainingCost;
   player.learned_martial_arts.push(key);
+  eventBus.emit('resources.changed', { player, resource: 'training', amount: trainingCost, action: 'remove' });
   window.game?.saveNow?.();
   UIManager.toast(`学会武功：${martial.name}`, 'success');
   renderCharacterPanel(player);
@@ -1949,7 +1897,6 @@ window._questAcceptHint = () => {
   UIManager.toast('请到泫渤派门主处接取任务', 'info');
 };
 
-window._stopAutoplay = () => { window.game?.stopAutoPlay(); UIManager.closePanel(); };
 window._toggleZoneAutoplay = () => {
   if (window.game?.player?.auto_play?.is_auto_play) {
     window.game?.stopAutoPlay();
@@ -2049,7 +1996,7 @@ const MAP_SHEET_DATA = [
     meta: 'L68+ · 2 区（高危）',
     zones: [
       { key: 'nanminghu_lake', name: '南明湖', level: 'L68-71', badge: '前往' },
-      { key: 'nanminghu_cave', name: '南明洞', level: 'L71-75', badge: '空区域', isEmpty: true },
+      { key: 'nanminghu_cave', name: '南明洞', level: 'L71-75', badge: '前往' },
     ]
   },
 ];
@@ -2068,14 +2015,10 @@ function renderMapSheetList(currentSubZoneKey) {
         ${group.zones.map(sz => {
           const isCurrent = currentSubZoneKey ? sz.key === currentSubZoneKey : !!sz.isTown;
           const isTown = sz.isTown;
-          const isEmpty = sz.isEmpty;
           const badge = isCurrent ? '当前' : sz.badge;
-          const originalBadge = isTown ? '进入' : isEmpty ? '空区域' : sz.badge;
           return `
-            <div class="map-sub-item${isCurrent ? ' current' : ''}${isTown ? ' town' : ''}${isEmpty ? ' empty' : ''}"
+            <div class="map-sub-item${isCurrent ? ' current' : ''}${isTown ? ' town' : ''}"
               data-key="${sz.key}"
-              data-label="${sz.name} ${sz.level}"
-              data-original-badge="${originalBadge}"
               onclick="window._mapSheetSelect('${sz.key}', '${sz.name} ${sz.level}')">
               <span class="sub-name">${sz.name}</span>
               <span class="sub-level">${sz.level}</span>
@@ -2088,11 +2031,6 @@ function renderMapSheetList(currentSubZoneKey) {
   `).join('');
 }
 
-window._mapSheetTeleport = (subZoneKey) => {
-  window.game?.teleport(subZoneKey);
-  window._closeMapSheet();
-};
-
 window._mapSheetSelect = (key, name) => {
   const zoneNameEl = document.getElementById('zone-name');
   if (zoneNameEl) zoneNameEl.textContent = name;
@@ -2101,7 +2039,6 @@ window._mapSheetSelect = (key, name) => {
     i.classList.remove('current');
     const b = i.querySelector('.sub-badge');
     if (i.classList.contains('town')) b.textContent = '进入';
-    else if (i.classList.contains('empty')) b.textContent = '空区域';
     else b.textContent = '前往';
   });
   // 选中当前项
@@ -2110,17 +2047,12 @@ window._mapSheetSelect = (key, name) => {
     item.classList.add('current');
     item.querySelector('.sub-badge').textContent = '当前';
   }
-  // 城镇直接返回，empty 不响应，其他触发传送
+  // 城镇直接返回，其他区域触发传送。
   if (item?.classList.contains('town')) {
     window.game?.town();
-  } else if (!item?.classList.contains('empty')) {
+  } else {
     window.game?.teleport(key);
   }
-  window._closeMapSheet();
-};
-
-window._mapSheetTown = () => {
-  window.game?.town();
   window._closeMapSheet();
 };
 
@@ -2182,9 +2114,6 @@ document.addEventListener('click', (e) => {
   // 银娇龙/平十指 shop 关闭
   if (e.target.id === 'yjlShopBack' || e.target.id === 'yjlShopBackdrop') document.getElementById('yjlShopBackdrop')?.classList.remove('open');
   if (e.target.id === 'pszShopBack' || e.target.id === 'pszShopBackdrop') document.getElementById('pszShopBackdrop')?.classList.remove('open');
-  // Shop sheet close (通用)
-  if (e.target.id === 'shopBack') document.getElementById('shopBackdrop')?.classList.remove('open');
-  if (e.target.id === 'shopBackdrop') document.getElementById('shopBackdrop')?.classList.remove('open');
   // Warehouse sheet close
   if (e.target.id === 'warehouseBack') document.getElementById('warehouseBackdrop')?.classList.remove('open');
   if (e.target.id === 'warehouseBackdrop') document.getElementById('warehouseBackdrop')?.classList.remove('open');

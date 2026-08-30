@@ -3,12 +3,17 @@
  * @desc 1vN 战斗系统：刷怪 / target_lock / 普攻结算 / 死亡判定
  * @ref 06_battle.battle_flow / 06_battle.battle_loop
  */
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
-import { Monster } from '../entities/Monster.js?v=release-20260830-1';
-import { DamageSystem } from './DamageSystem.js?v=release-20260830-1';
-import { grantExp, onLevelUp, applyDeathExpLoss } from '../utils/formulas.js?v=release-20260830-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { Monster } from '../entities/Monster.js?v=release-20260830-3';
+import { DamageSystem } from './DamageSystem.js?v=release-20260830-3';
+import { grantExp, onLevelUp, applyDeathExpLoss } from '../utils/formulas.js?v=release-20260830-3';
+import { creditSafeInteger } from '../utils/numbers.js?v=release-20260830-3';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260830-3';
+import { isMartialArtUsable } from '../utils/martial_arts.js?v=release-20260830-3';
 
 const DEFAULT_ELITE_CAP_PER_ZONE = 1;
+const MIN_SPAWN_INTERVAL_MS = 10;
+const MIN_MONSTER_ATTACK_INTERVAL_MS = 10;
 
 export class BattleSystem {
   /**
@@ -42,7 +47,11 @@ export class BattleSystem {
 
     /** 刷怪计时（毫秒） */
     this._spawnTimerMs = 0;
-    this._spawnIntervalMs = (opts.config.battle_flow.battle_model.monster_spawn.spawn_interval_seconds || 1) * 1000;
+    const configuredSpawnSeconds = Number(opts.config.battle_flow.battle_model.monster_spawn.spawn_interval_seconds);
+    this._spawnIntervalMs = Number.isFinite(configuredSpawnSeconds)
+      && configuredSpawnSeconds * 1000 >= MIN_SPAWN_INTERVAL_MS
+      ? configuredSpawnSeconds * 1000
+      : 1000;
 
     /** 初始刷怪已完成 */
     this._initialSpawned = false;
@@ -90,7 +99,7 @@ export class BattleSystem {
       ...eliteMonsters.map(monster => ({ monster, weight: eliteWeight })),
     ];
     const totalWeight = weightedPool.reduce((sum, entry) => sum + entry.weight, 0);
-    if (totalWeight <= 0) return null;
+    if (!Number.isFinite(totalWeight) || totalWeight <= 0) return null;
 
     let roll = Math.random() * totalWeight;
     for (const entry of weightedPool) {
@@ -108,7 +117,13 @@ export class BattleSystem {
 
   _getEliteCapPerZone() {
     const cap = this._config?.battle_flow?.battle_model?.elite_cap_per_zone;
-    return Number.isFinite(cap) && cap >= 0 ? cap : DEFAULT_ELITE_CAP_PER_ZONE;
+    return Number.isSafeInteger(cap) && cap >= 0 ? cap : DEFAULT_ELITE_CAP_PER_ZONE;
+  }
+
+  _getMonsterCap() {
+    const model = this._config?.battle_flow?.battle_model || {};
+    const cap = model.same_zone_monster_cap ?? model.monster_spawn?.same_zone_monster_cap;
+    return Number.isSafeInteger(cap) && cap > 0 ? cap : 8;
   }
 
   _spawnMonster(template) {
@@ -118,6 +133,17 @@ export class BattleSystem {
     }
 
     const monster = new Monster(template);
+    const battleModel = this._config?.battle_flow?.battle_model || {};
+    const preheatSeconds = Number(battleModel.monster_spawn?.preheat_seconds);
+    const attackIntervalMs = Number(battleModel.monster_attack?.atk_interval_ms);
+    monster.preheatMs = Number.isFinite(preheatSeconds) && preheatSeconds >= 0
+      ? preheatSeconds * 1000
+      : 2000;
+    monster.preheatRemaining = monster.preheatMs;
+    monster._atkIntervalMs = Number.isFinite(attackIntervalMs)
+      && attackIntervalMs >= MIN_MONSTER_ATTACK_INTERVAL_MS
+      ? attackIntervalMs
+      : 1000;
     monster.map_key = this._currentSubZone?.parent_map_key || this._currentSubZone?.key || null;
     this.monsters.push(monster);
     return monster;
@@ -125,7 +151,7 @@ export class BattleSystem {
 
   /** 尝试生成一只怪物 */
   _trySpawn() {
-    const cap = this._config.battle_flow.battle_model.monster_spawn.same_zone_monster_cap ?? 8;
+    const cap = this._getMonsterCap();
     if (this.monsters.length >= cap) return;
 
     const template = this._pickRandomMonster();
@@ -133,7 +159,7 @@ export class BattleSystem {
 
     const monster = this._spawnMonster(template);
     if (!monster) return;
-    this._pushEvent(`[刷怪] ${monster.name} 出现（预热2秒）`);
+    this._pushEvent(`[刷怪] ${monster.name} 出现（预热${monster.preheatMs / 1000}秒）`);
     eventBus.emit('battle.monsters_changed', {
       reason: 'spawn',
       count: this.monsters.length,
@@ -143,8 +169,9 @@ export class BattleSystem {
 
   /** 初始刷怪 */
   _doInitialSpawn() {
-    const count = this._config.battle_flow.battle_model.monster_spawn.initial_spawn_count ?? 1;
-    const cap = this._config.battle_flow.battle_model.monster_spawn.same_zone_monster_cap ?? 8;
+    const configuredCount = this._config.battle_flow.battle_model.monster_spawn.initial_spawn_count;
+    const count = Number.isSafeInteger(configuredCount) && configuredCount >= 0 ? configuredCount : 1;
+    const cap = this._getMonsterCap();
     for (let i = 0; i < count && this.monsters.length < cap; i++) {
       const template = this._pickRandomMonster();
       this._spawnMonster(template);
@@ -197,7 +224,7 @@ export class BattleSystem {
       ? this._martialArtsData.find(item =>
         item.key === attackCfg.selected_skill_key
         && item.type === 'damage'
-        && this._player.learned_martial_arts?.includes(item.key)
+        && isMartialArtUsable(this._player, item)
       )
       : null;
     const mpCost = Math.max(0, Math.floor((skill?.cost?.mp || 0) * (1 - (this._player.mpCostReduce || 0))));
@@ -238,7 +265,7 @@ export class BattleSystem {
       if (result.isCrit) parts.push('暴击');
       if (result.isArmorBroken) parts.push('破甲');
       if (result.isShielded) parts.push('护身');
-      if (result.isCountered) parts.push(`反伤(${result.actualDmg})`);
+      if (result.isCountered) parts.push(`反伤(${result.reflectedDmg})`);
       if (result.isLeech) parts.push('汲取');
       this._pushEvent(parts.join(' '));
       eventBus.emit(skill ? 'battle.player_skill' : 'battle.player_hit', {
@@ -246,9 +273,10 @@ export class BattleSystem {
         skill_name: skill?.name,
         damage: result.actualDmg,
         crit_suffix: result.isCombo ? ' (连击!)' : result.isCrit ? ' (暴击!)' : '',
+        skill_crit_suffix: result.isCombo ? ' (连击!)' : result.isCrit ? ' (暴击!)' : '',
       });
 
-      if (result.isLeech) eventBus.emit('battle.leech', { target: target.name, damage: result.actualDmg, heal: Math.floor(result.actualDmg * 0.3) });
+      if (result.isLeech) eventBus.emit('battle.leech', { target: target.name, damage: result.actualDmg, heal: result.leechHeal });
       if (result.isArmorBroken) eventBus.emit('battle.armor_break', { target: target.name, damage: result.actualDmg });
 
       const dead = target.takeDamage(result.actualDmg);
@@ -257,10 +285,11 @@ export class BattleSystem {
         count: this.monsters.length,
         subZoneKey: this._currentSubZone?.key || null,
       });
+      const playerDied = this._player.hp <= 0;
       if (dead) {
         this._onMonsterDead(target);
       }
-      if (this._player.hp <= 0) {
+      if (playerDied) {
         this._onPlayerDeath();
         return false;
       }
@@ -310,13 +339,13 @@ export class BattleSystem {
           let parts = [`[普攻] ${monster.name} → 玩家 伤害 ${result.actualDmg}`];
           if (result.isCrit) parts.push('暴击');
           if (result.isShielded) parts.push('护身');
-          if (result.isCountered) parts.push(`反伤(${result.actualDmg})`);
+          if (result.isCountered) parts.push(`反伤(${result.reflectedDmg})`);
           if (result.isLeech) parts.push('汲取');
           this._pushEvent(parts.join(' '));
           this._player.hp = Math.max(0, this._player.hp - result.actualDmg);
           eventBus.emit('battle.monster_hit', { attacker: monster.name, damage: result.actualDmg, shield_suffix: result.isShielded ? ' (护身)' : '' });
           eventBus.emit('battle.player_status_changed', { reason: 'monster_hit' });
-          if (result.isCountered) eventBus.emit('battle.counter', { attacker: monster.name, damage: result.actualDmg, reflected: result.actualDmg });
+          if (result.isCountered) eventBus.emit('battle.counter', { attacker: monster.name, damage: result.actualDmg, reflected: result.reflectedDmg });
 
           const playerDied = this._player.hp <= 0;
           if (!monster.isAlive()) {
@@ -340,7 +369,7 @@ export class BattleSystem {
     const expReward = Math.max(0, Math.floor(monster.exp * expModifier));
     this._pushEvent(`[击杀] ${monster.name} 倒下，经验 +${expReward}`);
     this._player.statistics = this._player.statistics || {};
-    this._player.statistics.total_kills = (this._player.statistics.total_kills || 0) + 1;
+    this._player.statistics.total_kills = creditSafeInteger(this._player.statistics.total_kills, 1).value;
     // 移除
     this.monsters = this.monsters.filter(m => m !== monster);
     // 重置目标锁
@@ -357,7 +386,7 @@ export class BattleSystem {
         attribute_points: this._config.attribute_points
       },
       (player, fromLevel, toLevel) => {
-        onLevelUp(
+        const gainedPoints = onLevelUp(
           player,
           fromLevel,
           toLevel,
@@ -366,7 +395,6 @@ export class BattleSystem {
           },
           (p) => this._attrSys.recompute(p)
         );
-        const gainedPoints = this._config.attribute_points.gain_per_level[toLevel] ?? 1;
         eventBus.emit('player.level_up', { from_level: fromLevel, to_level: toLevel, gained_points: gainedPoints });
         this._pushEvent(`[升级] Lv${fromLevel} → Lv${toLevel}，HP/MP 回满，气功点 +${gainedPoints}`);
       }
@@ -382,11 +410,17 @@ export class BattleSystem {
     } else {
       // 无 DropSystem 时直接给少量金币（Phase 1 兼容）
       this._player.resources = this._player.resources || { gold: 0, training: 0, merit: 0 };
-      this._player.resources.gold += 5;
-      this._player.statistics.total_gold_earned = (this._player.statistics.total_gold_earned || 0) + 5;
-      eventBus.emit('resources.changed', { player: this._player, resource: 'gold', amount: 5, action: 'add' });
-      this._player.resources.training = (this._player.resources.training || 0) + 1;
-      dropSummary = { gold: 5, training: 1 };
+      const goldCredit = creditSafeInteger(this._player.resources.gold, 5);
+      const earnedCredit = creditSafeInteger(this._player.statistics.total_gold_earned, 5);
+      const creditedGold = Math.min(goldCredit.added, earnedCredit.added);
+      this._player.resources.gold = goldCredit.value - goldCredit.added + creditedGold;
+      this._player.statistics.total_gold_earned = earnedCredit.value - earnedCredit.added + creditedGold;
+      if (creditedGold > 0) {
+        eventBus.emit('resources.changed', { player: this._player, resource: 'gold', amount: creditedGold, action: 'add' });
+      }
+      const trainingCredit = creditSafeInteger(this._player.resources.training, 1);
+      this._player.resources.training = trainingCredit.value;
+      dropSummary = { gold: creditedGold, training: trainingCredit.added };
     }
 
     eventBus.emit('monster.death', {
@@ -416,11 +450,9 @@ export class BattleSystem {
     this._player.location.current_sub_zone_key = null;
     this._player.hp = this._player.maxHp;
     this._player.mp = this._player.maxMp;
-    if (this._player.auto_play) {
-      this._player.auto_play.is_auto_play = false;
-    }
+    AutoPlaySystem.stop(this._player, 'death');
     this._player.statistics = this._player.statistics || {};
-    this._player.statistics.total_deaths = (this._player.statistics.total_deaths || 0) + 1;
+    this._player.statistics.total_deaths = creditSafeInteger(this._player.statistics.total_deaths, 1).value;
     this._clearCombatField();
     this._currentSubZone = null;
     eventBus.emit('battle.player_status_changed', { reason: 'player_death' });
@@ -437,6 +469,7 @@ export class BattleSystem {
    * @param {number} deltaMs 实际上一次调用到现在经过的毫秒
    */
   tick(deltaMs) {
+    if (!Number.isFinite(deltaMs) || deltaMs <= 0) return;
     if (!this._currentSubZone) {
       this._clearCombatField();
       if (this._buffSys) {

@@ -21,6 +21,9 @@ export const NPCSystem = {
    * @param {Object} npcData npc.json 中的 NPC 对象（含 key / type / name 等）
    */
   openDialog(npcData) {
+    if (!npcData || typeof npcData !== 'object' || typeof npcData.key !== 'string' || !npcData.key) {
+      return null;
+    }
     UIState.active_npc = {
       npc_key: npcData.key,
       type: npcData.type,
@@ -52,13 +55,6 @@ export const NPCSystem = {
    * 是否在与 NPC 对话
    */
   isInDialog() {
-    return UIState.active_npc !== null;
-  },
-
-  /**
-   * 是否在城镇中（任意 NPC 对话中 = 在城镇）
-   */
-  isInTown() {
     return UIState.active_npc !== null;
   }
 };

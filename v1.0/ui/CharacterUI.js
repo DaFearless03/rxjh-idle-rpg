@@ -3,7 +3,8 @@
  * @desc 角色页：严格复用 ui_demo_role 的信息 / 气功 / 武功结构。
  */
 
-import { renderQigongPanel } from './QigongUI.js?v=release-20260830-1';
+import { renderQigongPanel } from './QigongUI.js?v=release-20260830-3';
+import { meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260830-3';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -20,6 +21,14 @@ function formatNumber(value) {
 
 function getCareerName(player) {
   return window._careersData?.find(career => career.key === player?.career)?.name || player?.career || '—';
+}
+
+function getTransferCount(player) {
+  return [player?.career, ...(Array.isArray(player?.career_history) ? player.career_history : [])]
+    .reduce((maxTransfer, career) => {
+      const match = String(career || '').match(/_transfer_(\d+)/);
+      return Math.max(maxTransfer, match ? Number(match[1]) : 0);
+    }, 0);
 }
 
 function renderTabBar(activeTab) {
@@ -56,7 +65,7 @@ function renderInfoPanel(player) {
   if (player.weaponSkillBonus) stats.push(['武功攻击加成', player.weaponSkillBonus]);
   if (player.weaponExtraDamage) stats.push(['追加伤害', player.weaponExtraDamage]);
   const faction = player.faction === 'positive' ? '正派' : player.faction === 'negative' ? '邪派' : '中立';
-  const transferCount = Math.max(0, (player.career_history?.length || 1) - 1);
+  const transferCount = getTransferCount(player);
 
   return `<div class="role-info">
     <div class="sec-panel">
@@ -85,7 +94,7 @@ function renderInfoPanel(player) {
 
 function renderMartialPanel(player) {
   const learned = new Set(player?.learned_martial_arts || []);
-  const transferCount = Math.max(0, (player.career_history?.length || 1) - 1);
+  const transferCount = getTransferCount(player);
   const martialArts = (window._martialArtsData || []).filter(ma => {
     const family = ma.requirement?.career_family;
     const faction = ma.requirement?.faction;
@@ -99,11 +108,14 @@ function renderMartialPanel(player) {
     const isLearned = learned.has(ma.key);
     const meetsLevel = (player.level || 1) >= (req.level || 1);
     const meetsTransfer = transferCount >= (req.min_transfer || 0);
+    const meetsRequirements = meetsMartialArtRequirements(player, ma);
     const cost = ma.learning_cost?.training || 0;
     const affordable = (player.resources?.training || 0) >= cost;
-    const canLearn = !isLearned && meetsLevel && meetsTransfer && affordable;
-    const state = isLearned ? 'learned' : canLearn ? 'learnable' : meetsLevel && meetsTransfer ? 'poor' : 'locked';
-    const badge = isLearned ? '已学习' : canLearn ? '可学习' : meetsLevel && meetsTransfer ? '历练不足' : '未解锁';
+    const canLearn = !isLearned && meetsRequirements && affordable;
+    const state = isLearned && meetsRequirements ? 'learned' : canLearn ? 'learnable' : meetsRequirements ? 'poor' : 'locked';
+    const badge = isLearned
+      ? (meetsRequirements ? '已学习' : '条件不足')
+      : canLearn ? '可学习' : meetsRequirements ? '历练不足' : '未解锁';
     const lockText = !meetsLevel ? `需要 Lv.${req.level}` : !meetsTransfer ? `需要 ${req.min_transfer} 转` : '';
     return `<div class="skill-card ${state}">
       <div class="skill-card-head">
@@ -118,9 +130,9 @@ function renderMartialPanel(player) {
       </div>
       ${lockText ? `<div class="ma-lock-cond">${lockText}</div>` : ''}
       <div class="ma-foot">${isLearned
-        ? (ma.type === 'heal' || ma.type === 'buff'
+        ? (meetsRequirements && (ma.type === 'heal' || ma.type === 'buff')
           ? `<button class="btn-3d green ma-learn" onclick="window._castMartialArt('${ma.key}')">施放武功</button>`
-          : '<div class="ma-learned-note">✓ 已掌握</div>')
+          : `<div class="ma-learned-note">${meetsRequirements ? '✓ 已掌握' : '当前不可使用'}</div>`)
         : `<button class="btn-3d green ma-learn" onclick="window._requestLearnMartial('${ma.key}')" ${canLearn ? '' : 'disabled'}>学习武功</button>`}</div>
     </div>`;
   }).join('')}</div>`;

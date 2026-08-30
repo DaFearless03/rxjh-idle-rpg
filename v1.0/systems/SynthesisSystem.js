@@ -3,9 +3,9 @@
  * @desc 合成系统：石头嵌入装备孔位
  * @ref 05_equipment.md 5.5.10 synthesis_system
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
-import { QigongSystem } from './QigongSystem.js?v=release-20260830-1';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { QigongSystem } from './QigongSystem.js?v=release-20260830-3';
 
 export const SynthesisSystem = {
   SUCCESS_RATE: {
@@ -59,12 +59,19 @@ export const SynthesisSystem = {
       return { success: false, message: `槽位 ${baseSlot} 无孔位` };
     }
 
+    if (typeof stoneItemKey !== 'string' || !stoneItemKey) {
+      return { success: false, message: '请选择合成石' };
+    }
+
     // 检查孔位是否已满
-    const currentStones = (ei.synthesis_slots || []).filter(Boolean);
+    if (!Array.isArray(ei.synthesis_slots)) ei.synthesis_slots = [];
+    const currentStones = ei.synthesis_slots.filter(Boolean);
     const occupiedCount = currentStones.length;
     if (occupiedCount >= capacity) {
       return { success: false, message: `孔位已满` };
     }
+    // 旧存档可能使用 [stone, null, ...] 表示空孔。先紧凑化，
+    // 否则 push 会追加到第 5 格，生成无法再保存的装备。
 
     // 找到背包中的石头槽位（按 item_key 查找，石头无 instance_id）
     const slots = player.inventory?.slots || [];
@@ -87,21 +94,26 @@ export const SynthesisSystem = {
     }
 
     // 获取装备模板（算费用）
-    const cost = (template?.required_level || 1) * 1000;
-    if ((player.resources?.gold || 0) < cost) {
+    const requiredLevel = Number(template?.required_level);
+    const cost = (Number.isFinite(requiredLevel) && requiredLevel > 0 ? Math.floor(requiredLevel) : 1) * 1000;
+    const gold = Number(player.resources?.gold);
+    if (!Number.isSafeInteger(gold) || gold < 0) return { success: false, message: '玩家金币数据异常' };
+    if (gold < cost) {
       return { success: false, message: `金币不足，需要 ${cost} 金币` };
     }
 
-    // 扣钱
-    player.resources.gold -= cost;
-
-    // 石头从背包移除（1个）
-    stoneSlot.count -= 1;
-    if (stoneSlot.count === 0) {
-      stoneSlot.item_key = null;
+    const boundStoneKey = QigongSystem.bindSkillLevelStone(player, stoneItemKey);
+    if (typeof boundStoneKey !== 'string'
+      || boundStoneKey.length === 0
+      || boundStoneKey.length > 256
+      || !/^[A-Za-z0-9_.:-]+$/.test(boundStoneKey)) {
+      return { success: false, message: '合成石数据无效' };
     }
 
-    eventBus.emit('inventory.changed', { player, item_key: stoneItemKey, action: 'remove', changed_count: 1, count: InventorySystem.count(player, stoneItemKey) });
+    if (!InventorySystem.remove(player, stoneItemKey, 1)) {
+      return { success: false, message: '合成石消耗失败' };
+    }
+    player.resources.gold = gold - cost;
     eventBus.emit('resources.changed', { player, resource: 'gold', amount: cost, action: 'remove' });
 
     const successRate = this.getSuccessRate(player, occupiedCount);
@@ -114,8 +126,7 @@ export const SynthesisSystem = {
     }
 
     // 石头 key 追加到装备 synthesis_slots
-    ei.synthesis_slots = ei.synthesis_slots || [];
-    ei.synthesis_slots.push(QigongSystem.bindSkillLevelStone(player, stoneItemKey));
+    ei.synthesis_slots = [...currentStones, boundStoneKey];
 
     return {
       success: true,
@@ -126,11 +137,13 @@ export const SynthesisSystem = {
 
   getSuccessRate(player, occupiedCount = 0) {
     const baseRate = this.SUCCESS_RATE[occupiedCount] ?? 0.05;
-    const bonusRate = Number(player?.enhanceSuccessRate || 0);
+    const rawBonus = Number(player?.enhanceSuccessRate);
+    const bonusRate = Number.isFinite(rawBonus) ? rawBonus : 0;
     return Math.max(0, Math.min(1, baseRate + bonusRate));
   },
 
   _getStoneCategory(stoneItemKey) {
+    if (typeof stoneItemKey !== 'string') return null;
     if (stoneItemKey.startsWith('vajra')) return 'vajra';
     if (stoneItemKey.startsWith('cold_jade')) return 'cold_jade';
     if (stoneItemKey.startsWith('hot_blood')) return 'hot_blood';

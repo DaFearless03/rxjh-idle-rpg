@@ -3,7 +3,7 @@
  * @desc 玩家实体（L1 刀客 warrior_blade）
  * @ref 02_attributes.base_attributes / 03_careers.warrior_blade
  */
-import { AttributeSystem } from '../systems/AttributeSystem.js?v=release-20260830-1';
+import { AttributeSystem } from '../systems/AttributeSystem.js?v=release-20260830-3';
 
 export class Player {
   /**
@@ -82,7 +82,7 @@ export class Player {
     };
 
     // 资源（13.1 save_data_structure）
-    // 新角色契约：起始 100 金币，v1.0 不赠送初始装备。
+    // 新角色契约：起始 100 金币；初始物品由角色创建流程统一写入存档。
     this.resources = { gold: 100, training: 0, merit: 0 };
 
     // 任务（已接取 / 已完成）
@@ -95,7 +95,7 @@ export class Player {
     this.learned_martial_arts = [];
 
     // 气功（Phase 3：invested 加点 / attribute_reset_count）
-    this.qigong = { invested: {}, attribute_reset_count: 0 };
+    this.qigong = { available_points: 1, invested: {}, attribute_reset_count: 0 };
 
     // 隐藏战斗属性 base_value
     this._baseCritR = 0.30;

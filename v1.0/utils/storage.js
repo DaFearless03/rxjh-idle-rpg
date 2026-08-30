@@ -40,7 +40,12 @@ export const storage = {
 
   keys() {
     try {
-      return Object.keys(localStorage);
+      const keys = [];
+      for (let index = 0; index < localStorage.length; index += 1) {
+        const key = localStorage.key(index);
+        if (key != null) keys.push(key);
+      }
+      return keys;
     } catch {
       return [];
     }

@@ -2,9 +2,9 @@
  * @file systems/AutoStoreSystem.js
  * @desc 自动回城时按配置将背包中的石头与装备存入仓库。
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260830-1';
-import { WarehouseSystem } from './WarehouseSystem.js?v=release-20260830-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-1';
+import { InventorySystem } from './InventorySystem.js?v=release-20260830-3';
+import { WarehouseSystem } from './WarehouseSystem.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
 
 const STONE_CATEGORY_PREFIXES = {
   enhance: 'enhance_stone_',
@@ -22,7 +22,7 @@ function parseStoneKey(itemKey) {
   if (category === 'enhance') {
     return { baseKey, category, attributeKey: null, value: null };
   }
-  if (parts.length !== 3) return null;
+  if (parts.length < 3) return null;
   const value = Number(parts[2]);
   if (!parts[1] || !Number.isFinite(value)) return null;
   return { baseKey, category, attributeKey: parts[1], value };

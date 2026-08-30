@@ -41,23 +41,6 @@ export function getEquipmentTemplate(player, inst) {
   return getTemplates(player).find(t => t.key === inst.item_key) || null;
 }
 
-function formatStats(stats = {}) {
-  const labels = {
-    atkMin: '攻下',
-    atkMax: '攻上',
-    def: '防御',
-    maxHp: '生命',
-    maxMp: '内力',
-    hit: '命中',
-    missing: '回避',
-    matk: '武功攻',
-    mdef: '武功防',
-  };
-  return Object.entries(stats)
-    .map(([key, value]) => `${labels[key] || key}+${value}`)
-    .join(' · ');
-}
-
 const STAT_LABELS = {
   atkMin: '最小攻击力',
   atkMax: '最大攻击力',
@@ -78,6 +61,7 @@ const STAT_LABELS = {
   weaponExtraDamageAdd: '追加伤害',
   enhanceSuccessRateAdd: '合成强化成功率',
   goldDropBonusAdd: '金币爆率',
+  qigong: '全部气功等级',
 };
 
 function parseSynthesisStone(stoneKey) {
@@ -209,9 +193,9 @@ export function buildEquipmentDetailView(player, instanceId) {
   if (!inst || !tpl) return { body: '<div class="ed-content">装备不存在</div>' };
   const stats = tpl.base_stats || {};
   const stones = inst.synthesis_slots || [];
-  const capacities = { weapon: 4, chest: 4, gloves: 4, boots: 4, inner_armor: 2, cape: 4 };
-  const stoneNames = { weapon: '金刚石', chest: '寒玉石', gloves: '寒玉石', boots: '寒玉石', inner_armor: '寒玉石', cape: '热血石' };
-  const stoneIcons = { weapon: '💠', chest: '🔷', gloves: '🔷', boots: '🔷', inner_armor: '🔷', cape: '❤️' };
+  const capacities = { weapon: 4, chest: 4, gloves: 4, boots: 4, inner_armor: 2, ring: 4, amulet: 4, earring: 4, cape: 4 };
+  const stoneNames = { weapon: '金刚石', chest: '寒玉石', gloves: '寒玉石', boots: '寒玉石', inner_armor: '寒玉石', ring: '寒玉石', amulet: '寒玉石', earring: '寒玉石', cape: '热血石' };
+  const stoneIcons = { weapon: '💠', chest: '🔷', gloves: '🔷', boots: '🔷', inner_armor: '🔷', ring: '🔷', amulet: '🔷', earring: '🔷', cape: '❤️' };
   const capacity = capacities[tpl.slot] || 0;
   const statLabels = STAT_LABELS;
   const enhance = Number(inst.enhance_level || 0);
@@ -220,8 +204,10 @@ export function buildEquipmentDetailView(player, instanceId) {
   const extraStats = inst.extra || tpl.extra_affixes || {};
   const isAccessory = ['ring', 'amulet', 'earring'].includes(tpl.slot);
   const allStats = { ...stats, ...extraStats };
-  const totalAtkMin = Number(stats.atkMin || 0) + Number(stoneTotals.atkMin || 0) + enhanceValue;
-  const totalAtkMax = Number(stats.atkMax || 0) + Number(stoneTotals.atkMax || 0) + enhanceValue;
+  const enhanceAtkMin = tpl.slot === 'weapon' ? enhance * 6 : 0;
+  const enhanceAtkMax = tpl.slot === 'weapon' ? enhance * 8 : 0;
+  const totalAtkMin = Number(stats.atkMin || 0) + Number(stoneTotals.atkMin || 0) + enhanceAtkMin;
+  const totalAtkMax = Number(stats.atkMax || 0) + Number(stoneTotals.atkMax || 0) + enhanceAtkMax;
   const totalDef = Number(stats.def || 0) + Number(stoneTotals.defAdd || stoneTotals.def || 0) + (tpl.slot === 'weapon' ? 0 : enhanceValue);
   let mainBar = '';
   if (isAccessory && Object.keys(allStats).length) {
@@ -251,9 +237,12 @@ export function buildEquipmentDetailView(player, instanceId) {
       : '<div class="ed-s-detail empty"><span class="esd-ico">○</span>空孔位</div>').join('')}
   </div>` : '';
   const enhanceable = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor'].includes(tpl.slot);
+  const enhanceLabel = tpl.slot === 'weapon'
+    ? `攻击力 +${enhanceAtkMin} ~ +${enhanceAtkMax}`
+    : `防御力 +${enhanceValue}`;
   const enhancePanel = enhance > 0 && enhanceable ? `<div class="ed-panel">
     <div class="ed-panel-hdr">强化 +${enhance}</div>
-    <div class="ed-enh-display"><span class="ed-enh-val">${tpl.slot === 'weapon' ? '攻击力' : '防御力'} +${enhanceValue}</span></div>
+    <div class="ed-enh-display"><span class="ed-enh-val">${enhanceLabel}</span></div>
   </div>` : '';
   return { mainBar, mainClass: '', body: `<div class="ed-content">${basePanel}${socketPanel}${enhancePanel}</div>` };
 }

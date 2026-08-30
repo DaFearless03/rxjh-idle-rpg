@@ -16,6 +16,15 @@ const DEFAULT_EQUIPPED = {
   cape: null,
 };
 
+function cloneSaveValue(value, fallback) {
+  const source = value ?? fallback;
+  try {
+    return JSON.parse(JSON.stringify(source));
+  } catch {
+    return JSON.parse(JSON.stringify(fallback));
+  }
+}
+
 /**
  * restore_player_from_save 契约：反序列化基础字段 → 重建职业运行时字段 → recompute → clamp → 清瞬态。
  */
@@ -32,21 +41,21 @@ export function restoreRuntimePlayerFromSave(save, opts = {}) {
     level: save.player?.level || 1,
     exp: save.player?.exp || 0,
     career: save.player?.career || 'warrior_blade',
-    career_history: save.player?.career_history || [],
+    career_history: cloneSaveValue(save.player?.career_history, []),
     faction: save.player?.faction || 'neutral',
     hp: save.player?.hp ?? 100,
     mp: save.player?.mp ?? 100,
-    resources: save.resources || { gold: 0, training: 0, merit: 0 },
-    qigong: save.qigong || { available_points: 1, invested: {}, attribute_reset_count: 0 },
-    learned_martial_arts: save.learned_martial_arts || [],
-    equipped: normalizeEquipped(save.equipped),
-    inventory: save.inventory || { capacity: 50, slots: [], equipment_instances: {} },
-    warehouse: save.warehouse || { capacity: 50, slots: [], equipment_instances: {} },
-    quests: save.quests || { accepted: [], completed: [] },
-    location: save.location || { current_map_key: 'town_xuanbo', current_sub_zone_key: null, last_wilderness_sub_zone: null },
+    resources: cloneSaveValue(save.resources, { gold: 0, training: 0, merit: 0 }),
+    qigong: cloneSaveValue(save.qigong, { available_points: 1, invested: {}, attribute_reset_count: 0 }),
+    learned_martial_arts: cloneSaveValue(save.learned_martial_arts, []),
+    equipped: normalizeEquipped(cloneSaveValue(save.equipped, DEFAULT_EQUIPPED)),
+    inventory: cloneSaveValue(save.inventory, { capacity: 50, slots: [], equipment_instances: {} }),
+    warehouse: cloneSaveValue(save.warehouse, { capacity: 50, slots: [], equipment_instances: {} }),
+    quests: cloneSaveValue(save.quests, { accepted: [], completed: [] }),
+    location: cloneSaveValue(save.location, { current_map_key: 'town_xuanbo', current_sub_zone_key: null, last_wilderness_sub_zone: null }),
     auto_play: normalizeAutoPlay(save.auto_play),
-    offline: save.offline || { last_save_timestamp: Date.now() },
-    statistics: save.statistics || { total_kills: 0, total_playtime_ms: 0, total_gold_earned: 0, total_deaths: 0 },
+    offline: cloneSaveValue(save.offline, { last_save_timestamp: Date.now() }),
+    statistics: cloneSaveValue(save.statistics, { total_kills: 0, total_playtime_ms: 0, total_gold_earned: 0, total_deaths: 0 }),
     _equipTemplates: equipmentsData,
     _isPlayer: true,
   };
@@ -134,6 +143,9 @@ function normalizeEquipped(equipped) {
 
 export function applyCareerRuntimeFields(player, careersData = []) {
   const currentCareer = careersData.find(c => c.key === player.career) || null;
+  if (careersData.length > 0 && !currentCareer) {
+    throw new Error(`职业配置不存在：${player.career}`);
+  }
   const careerFamily = currentCareer?.career_family || inferCareerFamily(player.career);
   const baseCareer = careersData.find(c => c.career_family === careerFamily && c.stage === 'base') || currentCareer || {};
   const baseStats = baseCareer.base_stats || currentCareer?.base_stats || {};
