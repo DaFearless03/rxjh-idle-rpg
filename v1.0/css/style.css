@@ -1038,10 +1038,10 @@ button, input, select, textarea {
 .menu-btn:active { background: var(--highlight, #fff8a8); transform: scale(0.95); }
 .menu-btn .icon { font-size: 18px; }
 .menu-btn .icon.icon-img {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   display: block;
-  flex: 0 0 32px;
+  flex: 0 0 40px;
   object-fit: contain;
   image-rendering: pixelated;
   -webkit-user-drag: none;
