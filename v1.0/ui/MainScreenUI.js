@@ -6,11 +6,11 @@
 import { renderZoneBattleArea } from './ZoneBattleAreaUI.js?v=release-20260830-3';
 
 const BOTTOM_NAV_ICONS = Object.freeze({
-  inventory: '<img class="icon icon-img" src="icons/nav-bag.png?v=20260922-icons-3" alt="" aria-hidden="true" draggable="false">',
-  character: '<img class="icon icon-img" src="icons/nav-character.png?v=20260922-icons-3" alt="" aria-hidden="true" draggable="false">',
-  home: '<img class="icon icon-img" src="icons/nav-home.png?v=20260922-icons-3" alt="" aria-hidden="true" draggable="false">',
-  quest: '<img class="icon icon-img" src="icons/nav-quest.png?v=20260922-icons-3" alt="" aria-hidden="true" draggable="false">',
-  settings: '<img class="icon icon-img" src="icons/nav-settings.png?v=20260922-icons-3" alt="" aria-hidden="true" draggable="false">',
+  inventory: '<img class="icon icon-img" src="icons/nav-bag.png?v=20260922-icons-4" alt="" aria-hidden="true" draggable="false">',
+  character: '<img class="icon icon-img" src="icons/nav-character.png?v=20260922-icons-4" alt="" aria-hidden="true" draggable="false">',
+  home: '<img class="icon icon-img" src="icons/nav-home.png?v=20260922-icons-4" alt="" aria-hidden="true" draggable="false">',
+  quest: '<img class="icon icon-img" src="icons/nav-quest.png?v=20260922-icons-4" alt="" aria-hidden="true" draggable="false">',
+  settings: '<img class="icon icon-img" src="icons/nav-settings.png?v=20260922-icons-4" alt="" aria-hidden="true" draggable="false">',
 });
 
 let mainScreenKeydownBound = false;
