@@ -5,6 +5,14 @@
 
 import { renderZoneBattleArea } from './ZoneBattleAreaUI.js?v=release-20260830-3';
 
+const BOTTOM_NAV_ICONS = Object.freeze({
+  inventory: '<img class="icon icon-img" src="icons/nav-bag.png" alt="" aria-hidden="true" draggable="false">',
+  character: '<img class="icon icon-img" src="icons/nav-character.png" alt="" aria-hidden="true" draggable="false">',
+  home: '<img class="icon icon-img" src="icons/nav-home.png" alt="" aria-hidden="true" draggable="false">',
+  quest: '<img class="icon icon-img" src="icons/nav-quest.png" alt="" aria-hidden="true" draggable="false">',
+  settings: '<img class="icon icon-img" src="icons/nav-settings.png" alt="" aria-hidden="true" draggable="false">',
+});
+
 let mainScreenKeydownBound = false;
 
 export function buildMainScreenUI(container) {
@@ -160,19 +168,19 @@ export function buildMainScreenUI(container) {
         <!-- 底部导航 -->
         <div class="bottom-menu" id="home-bottom-menu">
           <button class="menu-btn" data-panel="inventory" onclick="window._openPanel('inventory')">
-            <div class="icon">🎒</div>背包
+            ${BOTTOM_NAV_ICONS.inventory}背包
           </button>
           <button class="menu-btn" data-panel="character" onclick="window._openPanel('character')">
-            <div class="icon">👤</div>角色
+            ${BOTTOM_NAV_ICONS.character}角色
           </button>
           <button class="menu-btn active" data-panel="home">
-            <div class="icon">🏠</div>主页
+            ${BOTTOM_NAV_ICONS.home}主页
           </button>
           <button class="menu-btn" data-panel="quest" onclick="window._openPanel('quest')">
-            <div class="icon">📜</div>任务
+            ${BOTTOM_NAV_ICONS.quest}任务
           </button>
           <button class="menu-btn" data-panel="settings" onclick="window._openPanel('settings')">
-            <div class="icon">⚙</div>设置
+            ${BOTTOM_NAV_ICONS.settings}设置
           </button>
         </div>
 
@@ -202,11 +210,11 @@ export function buildMainScreenUI(container) {
           <div class="panel-content" id="character-panel-content"></div>
         </div>
         <div class="bottom-menu">
-          <button class="menu-btn" onclick="window._openPanel('inventory')"><div class="icon">🎒</div>背包</button>
-          <button class="menu-btn active"><div class="icon">👤</div>角色</button>
-          <button class="menu-btn" onclick="window._openPanel('home')"><div class="icon">🏠</div>主页</button>
-          <button class="menu-btn" onclick="window._openPanel('quest')"><div class="icon">📜</div>任务</button>
-          <button class="menu-btn" onclick="window._openPanel('settings')"><div class="icon">⚙</div>设置</button>
+          <button class="menu-btn" onclick="window._openPanel('inventory')">${BOTTOM_NAV_ICONS.inventory}背包</button>
+          <button class="menu-btn active">${BOTTOM_NAV_ICONS.character}角色</button>
+          <button class="menu-btn" onclick="window._openPanel('home')">${BOTTOM_NAV_ICONS.home}主页</button>
+          <button class="menu-btn" onclick="window._openPanel('quest')">${BOTTOM_NAV_ICONS.quest}任务</button>
+          <button class="menu-btn" onclick="window._openPanel('settings')">${BOTTOM_NAV_ICONS.settings}设置</button>
         </div>
       </div>
 
@@ -220,11 +228,11 @@ export function buildMainScreenUI(container) {
           <div class="panel-content" id="inventory-panel-content"></div>
         </div>
         <div class="bottom-menu">
-          <button class="menu-btn active"><div class="icon">🎒</div>背包</button>
-          <button class="menu-btn" onclick="window._openPanel('character')"><div class="icon">👤</div>角色</button>
-          <button class="menu-btn" onclick="window._openPanel('home')"><div class="icon">🏠</div>主页</button>
-          <button class="menu-btn" onclick="window._openPanel('quest')"><div class="icon">📜</div>任务</button>
-          <button class="menu-btn" onclick="window._openPanel('settings')"><div class="icon">⚙</div>设置</button>
+          <button class="menu-btn active">${BOTTOM_NAV_ICONS.inventory}背包</button>
+          <button class="menu-btn" onclick="window._openPanel('character')">${BOTTOM_NAV_ICONS.character}角色</button>
+          <button class="menu-btn" onclick="window._openPanel('home')">${BOTTOM_NAV_ICONS.home}主页</button>
+          <button class="menu-btn" onclick="window._openPanel('quest')">${BOTTOM_NAV_ICONS.quest}任务</button>
+          <button class="menu-btn" onclick="window._openPanel('settings')">${BOTTOM_NAV_ICONS.settings}设置</button>
         </div>
       </div>
 
@@ -240,11 +248,11 @@ export function buildMainScreenUI(container) {
           <div class="panel-content" id="autoplay-panel-content"></div>
         </div>
         <div class="bottom-menu">
-          <button class="menu-btn" onclick="window._openPanel('inventory')"><div class="icon">🎒</div>背包</button>
-          <button class="menu-btn" onclick="window._openPanel('character')"><div class="icon">👤</div>角色</button>
-          <button class="menu-btn active" onclick="window._openPanel('home')"><div class="icon">🏠</div>主页</button>
-          <button class="menu-btn" onclick="window._openPanel('quest')"><div class="icon">📜</div>任务</button>
-          <button class="menu-btn" onclick="window._openPanel('settings')"><div class="icon">⚙</div>设置</button>
+          <button class="menu-btn" onclick="window._openPanel('inventory')">${BOTTOM_NAV_ICONS.inventory}背包</button>
+          <button class="menu-btn" onclick="window._openPanel('character')">${BOTTOM_NAV_ICONS.character}角色</button>
+          <button class="menu-btn active" onclick="window._openPanel('home')">${BOTTOM_NAV_ICONS.home}主页</button>
+          <button class="menu-btn" onclick="window._openPanel('quest')">${BOTTOM_NAV_ICONS.quest}任务</button>
+          <button class="menu-btn" onclick="window._openPanel('settings')">${BOTTOM_NAV_ICONS.settings}设置</button>
         </div>
       </div>
 
@@ -258,11 +266,11 @@ export function buildMainScreenUI(container) {
           <div class="panel-content" id="quest-panel-content"></div>
         </div>
         <div class="bottom-menu">
-          <button class="menu-btn" onclick="window._openPanel('inventory')"><div class="icon">🎒</div>背包</button>
-          <button class="menu-btn" onclick="window._openPanel('character')"><div class="icon">👤</div>角色</button>
-          <button class="menu-btn" onclick="window._openPanel('home')"><div class="icon">🏠</div>主页</button>
-          <button class="menu-btn active"><div class="icon">📜</div>任务</button>
-          <button class="menu-btn" onclick="window._openPanel('settings')"><div class="icon">⚙</div>设置</button>
+          <button class="menu-btn" onclick="window._openPanel('inventory')">${BOTTOM_NAV_ICONS.inventory}背包</button>
+          <button class="menu-btn" onclick="window._openPanel('character')">${BOTTOM_NAV_ICONS.character}角色</button>
+          <button class="menu-btn" onclick="window._openPanel('home')">${BOTTOM_NAV_ICONS.home}主页</button>
+          <button class="menu-btn active">${BOTTOM_NAV_ICONS.quest}任务</button>
+          <button class="menu-btn" onclick="window._openPanel('settings')">${BOTTOM_NAV_ICONS.settings}设置</button>
         </div>
       </div>
 
@@ -339,11 +347,11 @@ export function buildMainScreenUI(container) {
           </div>
         </div>
         <div class="bottom-menu">
-          <button class="menu-btn" onclick="window._openPanel('inventory')"><div class="icon">🎒</div>背包</button>
-          <button class="menu-btn" onclick="window._openPanel('character')"><div class="icon">👤</div>角色</button>
-          <button class="menu-btn" onclick="window._openPanel('home')"><div class="icon">🏠</div>主页</button>
-          <button class="menu-btn" onclick="window._openPanel('quest')"><div class="icon">📜</div>任务</button>
-          <button class="menu-btn active"><div class="icon">⚙</div>设置</button>
+          <button class="menu-btn" onclick="window._openPanel('inventory')">${BOTTOM_NAV_ICONS.inventory}背包</button>
+          <button class="menu-btn" onclick="window._openPanel('character')">${BOTTOM_NAV_ICONS.character}角色</button>
+          <button class="menu-btn" onclick="window._openPanel('home')">${BOTTOM_NAV_ICONS.home}主页</button>
+          <button class="menu-btn" onclick="window._openPanel('quest')">${BOTTOM_NAV_ICONS.quest}任务</button>
+          <button class="menu-btn active">${BOTTOM_NAV_ICONS.settings}设置</button>
         </div>
       </div>
 
@@ -401,11 +409,11 @@ export function buildMainScreenUI(container) {
 
         <!-- 底部动作菜单 -->
         <div class="bottom-menu">
-          <button class="menu-btn" onclick="window._openPanel('inventory')"><span class="icon">🎒</span>背包</button>
-          <button class="menu-btn" onclick="window._openPanel('character')"><span class="icon">👤</span>角色</button>
-          <button class="menu-btn" onclick="window._openPanel('home')"><span class="icon">🏠</span>主页</button>
-          <button class="menu-btn" onclick="window._openPanel('quest')"><span class="icon">📋</span>任务</button>
-          <button class="menu-btn" onclick="window._openPanel('settings')"><span class="icon">⚙</span>设置</button>
+          <button class="menu-btn" onclick="window._openPanel('inventory')">${BOTTOM_NAV_ICONS.inventory}背包</button>
+          <button class="menu-btn" onclick="window._openPanel('character')">${BOTTOM_NAV_ICONS.character}角色</button>
+          <button class="menu-btn" onclick="window._openPanel('home')">${BOTTOM_NAV_ICONS.home}主页</button>
+          <button class="menu-btn" onclick="window._openPanel('quest')">${BOTTOM_NAV_ICONS.quest}任务</button>
+          <button class="menu-btn" onclick="window._openPanel('settings')">${BOTTOM_NAV_ICONS.settings}设置</button>
         </div>
       </div><!-- end page-combat -->
 
