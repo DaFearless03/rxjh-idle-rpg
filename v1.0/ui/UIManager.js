@@ -9,6 +9,7 @@ import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } fr
 import { appendCombatLog, formatCombatLog, renderCombatLog } from './CombatLogUI.js?v=release-20260830-3';
 import { appendRewardLog, formatRewardLog, renderRewardLog } from './RewardLogUI.js?v=release-20260830-3';
 import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260830-3';
+import { CharacterEntryGate } from './CharacterEntryGate.js?v=release-20260830-3';
 
 function isOfflineSimulationActive() {
   return globalThis.__rxjhOfflineSimulation === true;
@@ -21,6 +22,7 @@ function getCareerDisplayName(player) {
 class UIManagerClass {
   constructor() {
     this._modals = [];        // modal 栈
+    this._characterEntryGate = new CharacterEntryGate();
     this._toasts = [];
     this._elements = {};      // 缓存 DOM 引用
     this._combatLog = [];    // 环形缓冲 200 条
@@ -139,10 +141,32 @@ class UIManagerClass {
       if (!isOfflineSimulationActive()) this._refreshIdleIndicator();
     });
 
-    // ESC 关闭 modal
+    document.addEventListener('click', (e) => {
+      if (!this.isCharacterEntryActive() && !this._isEntryModalTarget(e)) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    }, true);
+    // 入口未解锁时，键盘只能操作当前的角色选择/创建弹窗。
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') this._closeTopModal();
-    });
+      if (e.key === 'Escape') {
+        if (!this.isCharacterEntryActive()) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (this.getCharacterEntryState() !== 'entering') this.requestCloseTopModal();
+          return;
+        }
+        this._closeTopModal();
+        return;
+      }
+      if (!this.isCharacterEntryActive() && !this._isEntryModalTarget(e)) {
+        if (e.key === 'Tab'
+          && this.getCharacterEntryState() !== 'entering'
+          && this._modals.some(modal => this._characterEntryGate.isEntryModalInteractive(modal.id))) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    }, true);
   }
 
   // ========================
@@ -179,6 +203,57 @@ class UIManagerClass {
   // ========================
   // Modal 管理
   // ========================
+  setCharacterEntryState(state) {
+    const revision = this._characterEntryGate.setState(state);
+    this._syncEntryInteractivity();
+    return revision;
+  }
+
+  getCharacterEntryState() {
+    return this._characterEntryGate.state;
+  }
+
+  isCharacterEntryActive() {
+    return this._characterEntryGate.isActive();
+  }
+
+  beginCharacterEntry() {
+    const revision = this._characterEntryGate.beginEntryAttempt();
+    if (revision !== null) this._syncEntryInteractivity();
+    return revision;
+  }
+
+  isCurrentCharacterEntry(revision) {
+    return this._characterEntryGate.isCurrentEntryAttempt(revision);
+  }
+
+  _isEntryModalTarget(event) {
+    const path = typeof event.composedPath === 'function' ? event.composedPath() : [event.target];
+    return path.some(node => node?.id && this._characterEntryGate.isEntryModalInteractive(node.id));
+  }
+
+  _syncEntryInteractivity() {
+    if (typeof document === 'undefined') return;
+    const locked = !this.isCharacterEntryActive();
+    document.querySelectorAll('.page-panel').forEach(panel => {
+      panel.inert = locked;
+      if (locked) panel.setAttribute('aria-hidden', 'true');
+      else panel.removeAttribute('aria-hidden');
+    });
+    document.querySelectorAll('.sheet-backdrop, #npcDialogBackdrop, #qtyBackdrop, .modal-overlay')
+      .forEach(overlay => {
+        const allowed = !locked || this._characterEntryGate.isEntryModalInteractive(overlay.id);
+        overlay.inert = !allowed;
+        if (!allowed) overlay.setAttribute('aria-hidden', 'true');
+        else overlay.removeAttribute('aria-hidden');
+        if (overlay.id === 'modal-create') {
+          overlay.setAttribute('aria-busy', String(this.getCharacterEntryState() === 'entering'));
+        } else if (!locked) {
+          overlay.removeAttribute('aria-busy');
+        }
+      });
+  }
+
   pushModal(modalEl) {
     if (!modalEl) return;
     this._modals = this._modals.filter(modal => modal !== modalEl);
@@ -187,9 +262,28 @@ class UIManagerClass {
     }
     modalEl.classList.add('active');
     this._modals.push(modalEl);
+    this._syncEntryInteractivity();
+  }
+
+  replaceTopModal(modalEl) {
+    if (!modalEl) return;
+    const top = this._modals[this._modals.length - 1];
+    if (top) top.classList.remove('active', 'open');
+    this._modals.pop();
+    this._modals = this._modals.filter(modal => modal !== modalEl);
+    if (this._modals.length > 0) {
+      this._modals[this._modals.length - 1].classList.add('active');
+    }
+    modalEl.classList.add('active');
+    this._modals.push(modalEl);
+    this._syncEntryInteractivity();
   }
 
   popModal() {
+    return this.requestCloseTopModal();
+  }
+
+  _removeTopModal() {
     const top = this._modals.pop();
     if (top) {
       top.classList.remove('active', 'open');
@@ -197,37 +291,74 @@ class UIManagerClass {
     if (this._modals.length > 0) {
       this._modals[this._modals.length - 1].classList.add('active');
     }
+    this._syncEntryInteractivity();
+    return top || null;
+  }
+
+  requestCloseTopModal() {
+    const top = this._modals[this._modals.length - 1];
+    if (!top) return false;
+    const action = this._characterEntryGate.modalCloseAction(top.id);
+    if (action === 'block') return false;
+    if (action === 'return-to-list') {
+      if (typeof top._entryCloseHandler !== 'function') return false;
+      top._entryCloseHandler();
+      return true;
+    }
+    return !!this._removeTopModal();
   }
 
   closeModal(modalEl) {
     if (!modalEl) return;
+    if (!this.isCharacterEntryActive()) {
+      const action = this._characterEntryGate.modalCloseAction(modalEl.id);
+      if (action === 'return-to-list') {
+        if (typeof modalEl._entryCloseHandler !== 'function') return false;
+        modalEl._entryCloseHandler();
+        return true;
+      }
+      if (action !== 'close') return false;
+    }
+    if (this._modals[this._modals.length - 1] === modalEl) {
+      this._removeTopModal();
+      return true;
+    }
     this._modals = this._modals.filter(modal => modal !== modalEl);
     modalEl.classList.remove('active', 'open');
     if (this._modals.length > 0) {
       this._modals[this._modals.length - 1].classList.add('active');
     }
+    this._syncEntryInteractivity();
+    return true;
   }
 
   _closeTopModal() {
-    if (this._modals.length > 0) {
-      if (this._modals[this._modals.length - 1]?.id === 'modal-offline') return;
-      this.popModal();
-    }
+    return this.requestCloseTopModal();
   }
 
   closeAllModals() {
-    while (this._modals.length > 0) this.popModal();
+    if (!this.isCharacterEntryActive()) {
+      const kept = this._modals.filter(modal => this._characterEntryGate.isEntryModalInteractive(modal.id));
+      this._modals.filter(modal => !kept.includes(modal)).forEach(modal => modal.classList.remove('active', 'open'));
+      this._modals = kept;
+      this._modals.forEach((modal, index) => modal.classList.toggle('active', index === this._modals.length - 1));
+      this._syncEntryInteractivity();
+      return;
+    }
+    while (this._modals.length > 0) this._removeTopModal();
     document.querySelectorAll('.modal-overlay.active, .modal-overlay.open, .save-modal-overlay.active, .save-modal-overlay.open')
       .forEach(modal => modal.classList.remove('active', 'open'));
     document.querySelectorAll('.offline-loading-overlay.open')
       .forEach(overlay => overlay.classList.remove('open'));
     this._modals = [];
+    this._syncEntryInteractivity();
   }
 
   // ========================
   // Panel 管理（主面板切换）
   // ========================
   openPanel(panelId) {
+    if (!this.isCharacterEntryActive()) return false;
     // 关闭所有 panel
     document.querySelectorAll('.panel, .page-panel').forEach(p => p.classList.remove('active'));
     // 支持 home/main 互转
@@ -244,6 +375,7 @@ class UIManagerClass {
       const homeBtn = document.querySelector('.menu-btn[data-panel="home"]') || document.getElementById('btn-home');
       if (homeBtn) homeBtn.classList.add('active');
     }
+    return true;
   }
 
   closePanel() {

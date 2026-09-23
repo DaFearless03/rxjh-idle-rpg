@@ -184,7 +184,6 @@ let lastSyncLifecycleSaveAt = 0;
 let lifecycleSaveInFlight = null;
 let mainScreenUIBuilt = false;
 let mainScreenEventListenersBound = false;
-let enterCharacterVersion = 0;
 let returningToSaveList = false;
 let slotUnlockInFlight = false;
 
@@ -574,31 +573,74 @@ function bindMainScreenEventListenersOnce() {
 // ========================
 // 进入角色（加载存档 + 初始化游戏）
 // ========================
+async function failCharacterEntry(entryAttempt, message, { restoreRunningRuntime = false } = {}) {
+  if (!UIManager.isCurrentCharacterEntry(entryAttempt)) return false;
+  if (message) UIManager.toast?.(message, 'error');
+  if (restoreRunningRuntime && game?.player) {
+    UIManager.setCharacterEntryState('active');
+    return false;
+  }
+  if (game || loop || runtimeEventUnsubscribers.length > 0 || currentSlotIndex != null) {
+    await cleanupCurrentRuntime({ save: false });
+  }
+  if (!UIManager.isCurrentCharacterEntry(entryAttempt)) return false;
+  attrSys = null;
+  dropSys = null;
+  currentGlobalSave = SaveManager.restoreGlobalState() || currentGlobalSave || { ...globalSaveInit };
+  window._currentGlobalSave = currentGlobalSave;
+  window._careersData = careersData;
+  let characters = [];
+  try {
+    characters = await loadAllCharacters();
+  } catch (error) {
+    console.error('[角色列表] 读取角色失败:', error);
+  }
+  if (!UIManager.isCurrentCharacterEntry(entryAttempt)) return false;
+  showMultiSaveUI(currentGlobalSave, characters, careersData, { replaceTopModal: true });
+  return false;
+}
+
 async function enterCharacter(slotIndex) {
-  if (returningToSaveList) return;
-  const enterVersion = ++enterCharacterVersion;
+  if (returningToSaveList) return false;
+  const hadActiveRuntime = UIManager.isCharacterEntryActive() && !!game?.player;
+  const hadRuntime = !!(game || loop || runtimeEventUnsubscribers.length > 0);
+  const entryAttempt = UIManager.beginCharacterEntry();
+  if (entryAttempt === null) return false;
   const enterStartedAt = nowMs();
-  if (game || loop || runtimeEventUnsubscribers.length > 0) {
+  let save;
+  try {
+    save = await SaveManager.restorePlayerFromSave(slotIndex);
+  } catch (error) {
+    console.error('[角色入口] 读取角色存档失败:', error);
+    return failCharacterEntry(entryAttempt, '读取角色存档失败，请重试', { restoreRunningRuntime: hadActiveRuntime });
+  }
+  if (!UIManager.isCurrentCharacterEntry(entryAttempt)) return false;
+  if (!save) {
+    console.warn('[角色入口] 槽位 ' + slotIndex + ' 没有有效角色存档');
+    return failCharacterEntry(entryAttempt, '角色存档不存在或已损坏', { restoreRunningRuntime: hadActiveRuntime });
+  }
+  if (!careersData.some(career => career.key === save.player?.career)) {
+    console.error('[存档] 槽位 ' + slotIndex + ' 的职业已失效: ' + (save.player?.career || '未知'));
+    return failCharacterEntry(entryAttempt, '角色职业数据已失效，无法进入', { restoreRunningRuntime: hadActiveRuntime });
+  }
+  if (hadRuntime) {
     if (!await cleanupCurrentRuntime({ save: true })) {
       UIManager.toast?.('当前角色保存失败，已取消切换', 'error');
+      if (UIManager.isCurrentCharacterEntry(entryAttempt)) UIManager.setCharacterEntryState('active');
       return false;
     }
   }
-  if (enterVersion !== enterCharacterVersion || returningToSaveList) return;
-
-  const save = await SaveManager.restorePlayerFromSave(slotIndex);
-  if (enterVersion !== enterCharacterVersion || returningToSaveList) return;
-  if (!save) {
-    console.log(`[错误] 槽位 ${slotIndex} 无有效存档`);
-    return;
+  if (!UIManager.isCurrentCharacterEntry(entryAttempt)) return false;
+  if (hadRuntime) {
+    try {
+      save = await SaveManager.restorePlayerFromSave(slotIndex);
+    } catch (error) {
+      console.error('[角色入口] 切换后读取角色存档失败:', error);
+      return failCharacterEntry(entryAttempt, '读取角色存档失败，请重试');
+    }
+    if (!UIManager.isCurrentCharacterEntry(entryAttempt)) return false;
+    if (!save) return failCharacterEntry(entryAttempt, '角色存档不存在或已损坏');
   }
-  if (!careersData.some(career => career.key === save.player?.career)) {
-    console.error(`[存档] 槽位 ${slotIndex} 的职业已失效: ${save.player?.career}`);
-    UIManager.toast?.('角色职业数据已失效，无法进入', 'error');
-    return false;
-  }
-
-  UIManager.closeAllModals();
   currentSlotIndex = slotIndex;
   save.offline = save.offline || {};
   const lastSaveTimestamp = save.offline.last_save_timestamp || Date.now();
@@ -619,7 +661,13 @@ async function enterCharacter(slotIndex) {
   });
 
   // 恢复玩家对象
-  const player = restorePlayerFromSave(save);
+  let player;
+  try {
+    player = restorePlayerFromSave(save);
+  } catch (error) {
+    console.error('[角色入口] 恢复玩家数据失败:', error);
+    return failCharacterEntry(entryAttempt, '角色数据无法恢复，请检查存档');
+  }
 
   // 检查离线收益
   const elapsed = Date.now() - lastSaveTimestamp;
@@ -635,6 +683,10 @@ async function enterCharacter(slotIndex) {
     logOfflineDebug(`[离线] 检测到 ${offlineHours.toFixed(1)} 小时离线收益，开始结算...`);
     showOfflineRewardLoading(0);
     await waitForNextPaint();
+    if (!UIManager.isCurrentCharacterEntry(entryAttempt)) {
+      hideOfflineRewardLoading();
+      return false;
+    }
     offlineStartedAt = nowMs();
     try {
       offlineSummary = await OfflineSimulator.settle_offline_rewards({
@@ -663,9 +715,9 @@ async function enterCharacter(slotIndex) {
       hideOfflineRewardLoading();
       UIManager.toast?.('离线收益结算失败，已使用上次存档', 'error');
     }
-    if (enterVersion !== enterCharacterVersion || returningToSaveList) {
+    if (!UIManager.isCurrentCharacterEntry(entryAttempt)) {
       hideOfflineRewardLoading();
-      return;
+      return false;
     }
     offlineFinishedAt = nowMs();
     if (offlineSummary) {
@@ -676,12 +728,16 @@ async function enterCharacter(slotIndex) {
   }
 
   const initStartedAt = nowMs();
-  await initGameForPlayer(player, slotIndex);
-  if (enterVersion !== enterCharacterVersion || returningToSaveList) {
-    await cleanupCurrentRuntime({ save: true, saveMode: 'sync' });
-    return;
+  let initialized;
+  try {
+    initialized = await initGameForPlayer(player, slotIndex, entryAttempt);
+  } catch (error) {
+    console.error('[角色入口] 游戏运行时初始化失败:', error);
+    return failCharacterEntry(entryAttempt, '游戏初始化失败，请重新选择角色');
   }
+  if (!initialized || !UIManager.isCurrentCharacterEntry(entryAttempt)) return false;
   const initFinishedAt = nowMs();
+  UIManager.setCharacterEntryState('active');
   UIManager.closeAllModals();
   if (offlineSummary) {
     showOfflineRewardUI(offlineSummary);
@@ -693,12 +749,13 @@ async function enterCharacter(slotIndex) {
     const offlineMs = offlineStartedAt && offlineFinishedAt ? Math.round(offlineFinishedAt - offlineStartedAt) : 0;
     console.log(`[进入角色耗时] 离线结算=${offlineMs}ms 初始化=${Math.round(initFinishedAt - initStartedAt)}ms 总计=${Math.round(totalMs)}ms`);
   }
+  return true;
 }
 
 async function returnToSaveListRuntime() {
   if (returningToSaveList) return loadAllCharacters();
   returningToSaveList = true;
-  enterCharacterVersion++;
+  UIManager.setCharacterEntryState('selecting');
   const wasAutoPlaying = !!game?.player?.auto_play?.is_auto_play;
   try {
     if (wasAutoPlaying) {
@@ -706,6 +763,7 @@ async function returnToSaveListRuntime() {
     }
     if (!await cleanupCurrentRuntime({ save: true, saveMode: 'sync' })) {
       if (wasAutoPlaying && game?.player) AutoPlaySystem.start(game.player);
+      UIManager.setCharacterEntryState('active');
       throw new Error('当前角色保存失败，已取消返回角色列表');
     }
     currentGlobalSave = SaveManager.restoreGlobalState() || currentGlobalSave || { ...globalSaveInit };
@@ -731,7 +789,7 @@ function restorePlayerFromSave(save) {
 /**
  * 初始化 Game + BattleSystem + GameLoop
  */
-async function initGameForPlayer(player, slotIndex) {
+async function initGameForPlayer(player, slotIndex, entryAttempt) {
   game?.battle?.destroy?.();
   game = new Game();
   game.config = config;
@@ -768,6 +826,8 @@ async function initGameForPlayer(player, slotIndex) {
 
   loop = new GameLoop({ tickIntervalMs: 100, maxDeltaMs: 1000 });
   game.loop = loop;
+  const initializedGame = game;
+  const initializedLoop = loop;
   AutoPlaySystem.syncFromPlayer(player);
   syncGMGlobals();
 
@@ -813,6 +873,11 @@ async function initGameForPlayer(player, slotIndex) {
       console.warn('[存档] 最近角色槽位写入失败');
     }
   }
+  if (!UIManager.isCurrentCharacterEntry(entryAttempt)
+    || game !== initializedGame
+    || loop !== initializedLoop) {
+    return false;
+  }
 
   // 事件监听
   onRuntimeEvent('player.level_up', (data) => {
@@ -856,6 +921,7 @@ async function initGameForPlayer(player, slotIndex) {
   showGameCommands();
   game.battle.ensureInitialSpawn?.();
   UIManager._refreshAll();
+  return true;
 }
 
 function showGameCommands() {
@@ -907,11 +973,11 @@ window.game = {
     if (!r4.success) return console.log('[错误]', r4.message);
     window._currentGlobalSave = currentGlobalSave;
     console.log(`[创建] 角色「${name}」创建成功，槽位 ${r4.slotIndex}`);
-    await enterCharacter(r4.slotIndex);
+    return enterCharacter(r4.slotIndex);
   },
 
   async switchCharacter(slotIndex) {
-    await enterCharacter(slotIndex);
+    return enterCharacter(slotIndex);
   },
 
   async returnToSaveList() {
@@ -919,13 +985,23 @@ window.game = {
   },
 
   async startOfflineAutoplay() {
+    if (returningToSaveList) {
+      return { success: false, message: '正在返回角色列表，请稍候' };
+    }
     if (!game?.player?.auto_play?.is_auto_play || !game.player.location?.current_sub_zone_key) {
       return { success: false, message: '当前角色没有进行中的野外挂机' };
     }
-    if (!await cleanupCurrentRuntime({ save: true, saveMode: 'sync' })) {
-      return { success: false, message: '当前角色保存失败，已取消离线挂机' };
+    returningToSaveList = true;
+    UIManager.setCharacterEntryState('selecting');
+    try {
+      if (!await cleanupCurrentRuntime({ save: true, saveMode: 'sync' })) {
+        UIManager.setCharacterEntryState('active');
+        return { success: false, message: '当前角色保存失败，已取消离线挂机' };
+      }
+      return { success: true, characters: await loadAllCharacters() };
+    } finally {
+      returningToSaveList = false;
     }
-    return { success: true, characters: await loadAllCharacters() };
   },
 
   deleteCharacter(slotIndex) {
@@ -941,9 +1017,11 @@ window.game = {
   async confirmDeleteCharacter(slotIndex, opts = {}) {
     const deletingCurrentCharacter = slotIndex === currentSlotIndex;
     if (deletingCurrentCharacter) {
+      UIManager.setCharacterEntryState('selecting');
       if (!await cleanupCurrentRuntime({ save: true, saveMode: 'sync' })) {
         const message = '当前角色保存失败，已取消删除';
         UIManager.toast?.(message, 'error');
+        UIManager.setCharacterEntryState('active');
         return { success: false, globalSave: currentGlobalSave, message };
       }
     }
@@ -963,8 +1041,10 @@ window.game = {
     const characters = await loadAllCharacters();
     if (characters.length === 0) {
       console.log('[删除] 所有角色已删除，请创建新角色');
-      UIManager.closeAllModals?.();
-      showCharacterCreationUI(currentGlobalSave, null);
+      showCharacterCreationUI(currentGlobalSave, null, {
+        replaceTopModal: true,
+        onCancel: () => showMultiSaveUI(currentGlobalSave, [], careersData, { replaceTopModal: true }),
+      });
       return;
     }
 
@@ -972,7 +1052,6 @@ window.game = {
       const nextSlot = characters[0]?.slotIndex;
       if (nextSlot) {
         console.log(`[删除] 已自动切换到槽位 ${nextSlot}`);
-        UIManager.closeAllModals?.();
         await enterCharacter(nextSlot);
       }
       return;

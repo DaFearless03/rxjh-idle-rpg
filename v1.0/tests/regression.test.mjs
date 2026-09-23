@@ -35,6 +35,7 @@ import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260830-3';
 import { TeleportSystem } from '../systems/TeleportSystem.js?v=release-20260830-3';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260830-3';
 import { buildShopItems } from '../ui/ShopUI.js?v=release-20260830-3';
+import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260830-3';
 import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260830-3';
 import { base64Decode, base64Encode } from '../utils/crypto.js?v=release-20260830-3';
 import { applyDeathExpLoss, assignQigongPoint, grantExp, onLevelUp } from '../utils/formulas.js?v=release-20260830-3';
@@ -211,6 +212,37 @@ afterEach(() => {
   AutoPlaySystem.resetRuntimeState();
   UIState.active_npc = null;
   localStorage.clear();
+});
+
+test('角色入口门禁阻止关闭必需弹窗并废弃过期进入请求', () => {
+  const gate = new CharacterEntryGate();
+  assert.equal(gate.state, 'selecting');
+  assert.equal(gate.modalCloseAction('modal-multi-save'), 'block');
+  assert.equal(gate.modalCloseAction('modal-delete-confirm'), 'close');
+  assert.equal(gate.isEntryModalInteractive('modal-multi-save'), true);
+  assert.equal(gate.isEntryModalInteractive('modal-create'), false);
+
+  gate.setState('creating');
+  assert.equal(gate.modalCloseAction('modal-create'), 'return-to-list');
+  assert.equal(gate.modalCloseAction('modal-multi-save'), 'block');
+  assert.equal(gate.isEntryModalInteractive('modal-create'), true);
+  assert.equal(gate.isEntryModalInteractive('modal-multi-save'), false);
+
+  const attempt = gate.beginEntryAttempt();
+  assert.equal(gate.state, 'entering');
+  assert.equal(gate.isCurrentEntryAttempt(attempt), true);
+  assert.equal(gate.beginEntryAttempt(), null);
+  assert.equal(gate.modalCloseAction('modal-create'), 'block');
+  assert.equal(gate.isEntryModalInteractive('modal-create'), false);
+  assert.equal(gate.modalCloseAction('modal-offline'), 'block');
+
+  gate.setState('selecting');
+  assert.equal(gate.isCurrentEntryAttempt(attempt), false);
+  assert.equal(gate.modalCloseAction('modal-multi-save'), 'block');
+  gate.setState('active');
+  assert.equal(gate.modalCloseAction('modal-settings'), 'close');
+  assert.equal(gate.modalCloseAction('modal-offline'), 'block');
+  assert.throws(() => gate.setState('unknown'), RangeError);
 });
 
 test('内部 ES 模块统一发布标识，物品分类单例可跨系统共享', async () => {

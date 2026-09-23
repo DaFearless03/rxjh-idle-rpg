@@ -67,7 +67,8 @@ function getCareerMeta(careerKey, careersData) {
   };
 }
 
-export function showMultiSaveUI(globalSave, characters, careersData) {
+export function showMultiSaveUI(globalSave, characters, careersData, { replaceTopModal = false } = {}) {
+  UIManager.setCharacterEntryState('selecting');
   const unlocked = globalSave?.character_slots?.unlocked_count ?? 3;
   const lastUsed = globalSave?.character_slots?.last_used_slot;
   const maxPreviewSlots = Math.min(10, Math.max(unlocked + 1, 5));
@@ -154,14 +155,22 @@ export function showMultiSaveUI(globalSave, characters, careersData) {
   if (el) el.innerHTML = html;
 
   const modal = document.getElementById('modal-multi-save');
-  if (modal) UIManager.pushModal(modal);
+  if (modal) {
+    if (replaceTopModal) UIManager.replaceTopModal(modal);
+    else UIManager.pushModal(modal);
+  }
 
   // 绑定全局操作
   window._ui_switchCharacter = (slotIndex) => {
-    if (window.__characterSwitching) return;
+    if (window.__characterSwitching) return Promise.resolve(false);
     window.__characterSwitching = true;
     const switcher = window._switchCharacterFromSaveList || window.game?.switchCharacter;
-    Promise.resolve(switcher?.(slotIndex))
+    return Promise.resolve(switcher?.(slotIndex))
+      .catch((error) => {
+        console.error('[角色列表] 进入角色失败:', error);
+        UIManager.toast('进入角色失败，请重试', 'error');
+        return false;
+      })
       .finally(() => {
         window.__characterSwitching = false;
       });
@@ -176,15 +185,18 @@ export function showMultiSaveUI(globalSave, characters, careersData) {
     document.getElementById('delete-confirm-msg').textContent = info.confirmBody;
     const modal = document.getElementById('modal-delete-confirm');
     document.getElementById('confirm-delete-btn').onclick = async () => {
-      UIManager.closeAllModals();
+      UIManager.closeModal(modal);
       await window.game?.confirmDeleteCharacter(slotIndex, { refreshList: true });
     };
     UIManager.pushModal(modal);
   };
 
   window._ui_createCharacter = (slotIndex) => {
-    UIManager.popModal();
-    setTimeout(() => showCharacterCreationUI(window._currentGlobalSave, slotIndex), 100);
+    const closeToList = () => showMultiSaveUI(globalSave, characters, careersData, { replaceTopModal: true });
+    showCharacterCreationUI(window._currentGlobalSave || globalSave, slotIndex, {
+      replaceTopModal: true,
+      onCancel: closeToList,
+    });
   };
 
   window._ui_lockedSlot = async (slotIndex) => {
@@ -196,7 +208,8 @@ export function showMultiSaveUI(globalSave, characters, careersData) {
   };
 }
 
-export function showCharacterCreationUI(globalSave, targetSlotIndex) {
+export function showCharacterCreationUI(globalSave, targetSlotIndex, { replaceTopModal = false, onCancel } = {}) {
+  UIManager.setCharacterEntryState('creating');
   const careers = getBaseCareers();
 
   const html = `
@@ -243,7 +256,12 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
   const el = document.getElementById('create-content');
   if (el) el.innerHTML = html;
   const modal = document.getElementById('modal-create');
-  if (modal) UIManager.pushModal(modal);
+  if (modal) {
+    modal._entryCloseHandler = onCancel
+      || (() => showMultiSaveUI(globalSave, [], window._careersData || [], { replaceTopModal: true }));
+    if (replaceTopModal) UIManager.replaceTopModal(modal);
+    else UIManager.pushModal(modal);
+  }
 
   window._selectedCareer = null;
   window._targetSlotIndex = targetSlotIndex;
@@ -303,6 +321,7 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
     }
   }
 
+  let createInFlight = false;
   window._doCreate = async () => {
     const name = (document.getElementById('create-name-input')?.value || '').trim();
     const errEl = document.getElementById('create-name-error');
@@ -319,14 +338,28 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex) {
     const r3 = flow.step3_initializeSave(window._selectedCareer, name, window._targetSlotIndex);
     if (!r3.success) { errEl.textContent = r3.message; return; }
 
-    const persisted = await flow.step4_persist(r3.save, r3.slotIndex, window._currentGlobalSave);
-    if (!persisted.success) {
-      errEl.textContent = persisted.message || '角色创建失败';
-      return;
+    if (createInFlight) return false;
+    createInFlight = true;
+    const confirmButton = document.getElementById('confirm-create-btn');
+    if (confirmButton) confirmButton.disabled = true;
+    try {
+      const persisted = await flow.step4_persist(r3.save, r3.slotIndex, window._currentGlobalSave || globalSave);
+      if (!persisted.success) {
+        errEl.textContent = persisted.message || '角色创建失败';
+        createInFlight = false;
+        if (confirmButton) confirmButton.disabled = false;
+        return false;
+      }
+    } catch (error) {
+      console.error('[角色创建] 存档写入失败:', error);
+      errEl.textContent = '角色创建失败，请重试';
+      createInFlight = false;
+      if (confirmButton) confirmButton.disabled = false;
+      return false;
     }
-    UIManager.popModal();
     UIManager.toast(`角色「${name}」创建成功！`, 'success');
-    setTimeout(() => (window._switchCharacterFromSaveList || window.game?.switchCharacter)?.(r3.slotIndex), 300);
+    const switcher = window._switchCharacterFromSaveList || window.game?.switchCharacter;
+    return switcher?.(r3.slotIndex);
   };
 }
 

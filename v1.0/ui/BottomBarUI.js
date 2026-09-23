@@ -35,11 +35,12 @@ function escapeHtml(value) {
 }
 
 window._openPanel = (panelId) => {
-  UIManager.openPanel(panelId);
+  if (!UIManager.openPanel(panelId)) return false;
   // 主面板的 panel 内容需要按需渲染
   if (panelId !== 'main' && panelId !== 'combat') {
     renderPanelContent(panelId);
   }
+  return true;
 };
 
 function getCurrentSubZoneKey() {
@@ -56,9 +57,11 @@ window._closePanel = () => {
 };
 
 window._returnToTown = () => {
+  if (!UIManager.isCharacterEntryActive()) return false;
   window.game?.town();
   UIManager.closePanel();
   UIManager.openPanel('home');
+  return true;
 };
 
 window._switchCharTab = (tab) => {
@@ -957,7 +960,7 @@ window._closeNPCDialog = () => {
 };
 
 window._closeModal = () => {
-  UIManager.popModal();
+  return UIManager.requestCloseTopModal();
 };
 
 window._confirmOfflineReward = () => {
