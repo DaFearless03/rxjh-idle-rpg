@@ -41,12 +41,12 @@ export function buildMainScreenUI(container) {
             <div class="header-avatar" id="home-avatar" aria-hidden="true"></div>
             <div class="stat-bars-compact">
               <div class="stat-row">
-                <span class="stat-label hp">${pixelIcon('hp')}生命值</span>
+                <span class="stat-label hp">生命值</span>
                 <div class="gba-bar"><div class="gba-bar-fill fill-hp" id="home-hp-fill" style="width:100%"></div><div class="gba-bar-pct" id="home-hp-pct">100%</div></div>
                 <span class="stat-num" id="home-hp-text">—/—</span>
               </div>
               <div class="stat-row">
-                <span class="stat-label mp">${pixelIcon('mp')}内功值</span>
+                <span class="stat-label mp">内功值</span>
                 <div class="gba-bar"><div class="gba-bar-fill fill-mp" id="home-mp-fill" style="width:100%"></div><div class="gba-bar-pct" id="home-mp-pct">100%</div></div>
                 <span class="stat-num" id="home-mp-text">—/—</span>
               </div>
@@ -375,12 +375,12 @@ export function buildMainScreenUI(container) {
             <div class="header-avatar" id="combat-avatar" aria-hidden="true"></div>
             <div class="stat-bars-compact">
               <div class="stat-row">
-                <span class="stat-label hp">${pixelIcon('hp')}生命值</span>
+                <span class="stat-label hp">生命值</span>
                 <div class="gba-bar"><div class="gba-bar-fill fill-hp" id="combat-hp-fill" style="width:100%"></div><span class="gba-bar-pct" id="combat-hp-pct">100%</span></div>
                 <span class="stat-num" id="combat-hp-text">—/—</span>
               </div>
               <div class="stat-row">
-                <span class="stat-label mp">${pixelIcon('mp')}内功值</span>
+                <span class="stat-label mp">内功值</span>
                 <div class="gba-bar"><div class="gba-bar-fill fill-mp" id="combat-mp-fill" style="width:100%"></div><span class="gba-bar-pct" id="combat-mp-pct">100%</span></div>
                 <span class="stat-num" id="combat-mp-text">—/—</span>
               </div>
