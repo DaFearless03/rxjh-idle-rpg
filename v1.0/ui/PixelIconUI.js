@@ -3,7 +3,7 @@
  * @desc Shared pixel icon markup for the 64px source / existing-size display rule.
  */
 
-const PIXEL_ICON_VERSION = '20260923-icons-5';
+const PIXEL_ICON_VERSION = '20260923-icons-6';
 const PIXEL_ICON_NAMES = new Set([
   'boss', 'combat', 'defense', 'elite', 'enhance', 'gold', 'hp', 'map', 'mp',
   'nav-bag', 'nav-character', 'nav-home', 'nav-quest', 'nav-settings',
