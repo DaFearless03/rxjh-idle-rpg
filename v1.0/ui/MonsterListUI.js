@@ -3,6 +3,8 @@
  * @desc 战斗区怪物列表渲染：最多 8 只，保留生成顺序，展示精英/预热/死亡状态。
  */
 
+import { pixelIcon } from './PixelIconUI.js?v=release-20260830-3';
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -26,8 +28,8 @@ function getMonsterIcon(monster) {
   if ((monster?.preheatRemaining || 0) > 0) return '…';
   const key = String(monster?.key || '');
   const name = String(monster?.name || '');
-  if (monster?.monster_type === 'boss') return '♛';
-  if (monster?.monster_type === 'elite') return '⚔';
+  if (monster?.monster_type === 'boss') return pixelIcon('boss');
+  if (monster?.monster_type === 'elite') return pixelIcon('elite');
   if (/cat|猫/.test(key + name)) return '🐱';
   if (/toad|蛤蟆/.test(key + name)) return '🐸';
   if (/fox|狐狸/.test(key + name)) return '🦊';

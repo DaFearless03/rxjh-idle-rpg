@@ -4,9 +4,11 @@
  */
 import { getBagSlotsInOrder } from './InventoryUI.js?v=release-20260830-3';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260830-3';
+import { pixelIcon, resolvePixelIcon } from './PixelIconUI.js?v=release-20260830-3';
 
 const CAREER_NAME = { blade: '刀客', sword: '剑客', staff: '医师', spear: '枪客' };
 const CAREER_ICON = { blade: '🗡️', sword: '⚔️', staff: '🪄', spear: '🔱' };
+const CAREER_PIXEL_ICON = { blade: 'combat', sword: 'combat', staff: 'qigong', spear: 'combat' };
 
 export function buildShopItems(npcsData, equipmentsData, shopType) {
   const npc = (Array.isArray(npcsData) ? npcsData : []).find(entry => entry?.shop_type === shopType);
@@ -67,8 +69,8 @@ function getCareerFamily(player) {
   return ['blade', 'sword', 'staff', 'spear'].find(key => career.includes(key)) || 'blade';
 }
 
-function sectionLabel(label) {
-  return `<div class="shop-section-label">${escapeHtml(label)}</div>`;
+function sectionLabel(label, icon = '') {
+  return `<div class="shop-section-label">${icon ? pixelIcon(icon) : ''}${escapeHtml(label)}</div>`;
 }
 
 function getStoneBaseKey(itemKey) {
@@ -98,20 +100,20 @@ function getStoneAttributeLabel(itemKey) {
 }
 
 function renderGold(player) {
-  return `💰 金币: <b>${(player?.resources?.gold || 0).toLocaleString()}</b>`;
+  return `${pixelIcon('gold')} 金币: <b>${(player?.resources?.gold || 0).toLocaleString()}</b>`;
 }
 
 function renderItems(items, options = {}) {
-  const iconMap = { chest: '👕', gloves: '🧤', boots: '👟' };
+  const iconMap = { chest: 'defense', gloves: 'defense', boots: 'defense' };
   return items.map(item => {
     const locked = options.locked ? ' locked' : '';
-    const icon = item.icon || iconMap[item.slot] || '📦';
+    const icon = resolvePixelIcon(item.icon || iconMap[item.slot], item.item_key, item.slot ? 'equipment' : '');
     return `<div class="shop-item">
       <div class="shop-item-info">
-        <div class="shop-item-icon">${escapeHtml(icon)}</div>
+        <div class="shop-item-icon">${pixelIcon(icon)}</div>
         <div>
           <div class="shop-item-name">${escapeHtml(item.name)}</div>
-          <div class="shop-item-price">💰 ${Number(item.buy_price || 0).toLocaleString()}</div>
+          <div class="shop-item-price">${pixelIcon('gold')} ${Number(item.buy_price || 0).toLocaleString()}</div>
         </div>
       </div>
       <button class="btn-buy${locked}"${locked ? ' disabled' : ''} onclick="window._openShopQuantity('buy','${escapeInlineJsString(item.item_key)}',${Number(item.buy_price || 0)},'${escapeInlineJsString(item.name)}','${escapeInlineJsString(icon)}')">购买</button>
@@ -139,7 +141,7 @@ function renderSellInventory(player) {
     const instance = slot.instance_id ? player?.inventory?.equipment_instances?.[slot.instance_id] : null;
     const enhance = Number(instance?.enhance_level || 0);
     const name = meta.name || itemKey;
-    const icon = meta.icon || (slot.instance_id ? '⚔️' : '📦');
+    const icon = resolvePixelIcon(meta.icon, itemKey, itemClass || (slot.instance_id ? 'equipment' : ''));
     const sub = itemClass === 'stones' ? getStoneAttributeLabel(itemKey) : '';
     const badge = itemClass === 'quest_items'
       ? `<div class="bt-badge cross quest">任务</div>${slot.count > 1 ? `<div class="bt-badge">×${slot.count}</div>` : ''}`
@@ -148,12 +150,12 @@ function renderSellInventory(player) {
     const action = noSell ? `window._showToast('该物品不可出售')`
       : `window._openShopQuantity('sell','${escapeInlineJsString(itemKey)}',${price},'${escapeInlineJsString(name)}','${escapeInlineJsString(icon)}',${slot.count || 1},'${escapeInlineJsString(slot.instance_id || '')}')`;
     return `<button class="bag-tile${slot.instance_id ? ' equip' : ''}${noSell ? ' nosell' : ''}${itemClass === 'quest_items' ? ' cross' : ''}" onclick="${action}" title="${escapeHtml(name)} · ${noSell ? '不可出售' : `出售 ${price} 金币`}">
-      <div class="bt-icon">${escapeHtml(icon)}</div><div class="bt-name">${escapeHtml(name)}</div>${sub ? `<div class="bt-sub">${escapeHtml(sub)}</div>` : ''}${enhance > 0 ? `<div class="bt-enh">+${enhance}</div>` : ''}${badge}
+      <div class="bt-icon">${pixelIcon(icon)}</div><div class="bt-name">${escapeHtml(name)}</div>${sub ? `<div class="bt-sub">${escapeHtml(sub)}</div>` : ''}${enhance > 0 ? `<div class="bt-enh">+${enhance}</div>` : ''}${badge}
     </button>`;
   });
   while (cells.length < 50) cells.push('<div class="bag-tile empty"></div>');
   return `<div class="shop-sell-pane">
-    <div class="wh-pane-head"><span class="wh-title">背包</span><span class="wh-count">${slots.length} / ${player?.inventory?.capacity || 50}</span><span class="wh-gold push">🪙 ${(player?.resources?.gold || 0).toLocaleString()}</span><button class="wh-sort" onclick="window._sortShopInventory()">整理</button></div>
+    <div class="wh-pane-head"><span class="wh-title">背包</span><span class="wh-count">${slots.length} / ${player?.inventory?.capacity || 50}</span><span class="wh-gold push">${pixelIcon('gold')} ${(player?.resources?.gold || 0).toLocaleString()}</span><button class="wh-sort" onclick="window._sortShopInventory()">整理</button></div>
     <div class="shop-sell-scroll"><div class="bag-grid">${cells.join('')}</div></div>
   </div>`;
 }
@@ -173,9 +175,9 @@ export function renderWeaponShop(player) {
   const careerName = CAREER_NAME[careerFamily] || '本职业';
 
   return renderShopLayout(player, `
-    ${sectionLabel(`${CAREER_ICON[careerFamily] || '⚔️'} ${careerName} · 可穿戴`)}
+    ${sectionLabel(`${careerName} · 可穿戴`, CAREER_PIXEL_ICON[careerFamily] || 'combat')}
     ${renderItems(sameCareer)}
-    ${otherCareer.length ? sectionLabel('📦 其他职业 · 可购买（不可穿戴）') + renderItems(otherCareer) : ''}
+    ${otherCareer.length ? sectionLabel('其他职业 · 可购买（不可穿戴）', 'warehouse') + renderItems(otherCareer) : ''}
   `, '商店仅售 base 段武器；t1+ 武器需打怪 / 任务获得');
 }
 
@@ -189,9 +191,9 @@ export function renderArmorShop(player) {
 
   return renderShopLayout(player, `
     ${renderGold(player)}
-    ${sameCareer.length ? sectionLabel(`${CAREER_ICON[careerFamily] || '📦'} ${careerName}可穿戴`) + renderItems(sameCareer) : ''}
-    ${universal.length ? sectionLabel('🧤 护手 · 靴子 · 通用可穿戴') + renderItems(universal) : ''}
-    ${otherCareer.length ? sectionLabel('📦 其他职业 · 可购买（不可穿戴）') + renderItems(otherCareer, { locked: true }) : ''}
+    ${sameCareer.length ? sectionLabel(`${careerName}可穿戴`, CAREER_PIXEL_ICON[careerFamily] || 'combat') + renderItems(sameCareer) : ''}
+    ${universal.length ? sectionLabel('护手 · 靴子 · 通用可穿戴', 'defense') + renderItems(universal) : ''}
+    ${otherCareer.length ? sectionLabel('其他职业 · 可购买（不可穿戴）', 'warehouse') + renderItems(otherCareer, { locked: true }) : ''}
   `, 'v1.0 商店仅售 base 段防具；t2+ 防具需打怪 / 任务获得');
 }
 
@@ -199,9 +201,9 @@ export function renderPotionShop(player) {
   const items = getConfiguredShopItems('potion');
   return renderShopLayout(player, `
     ${renderGold(player)}
-    ${sectionLabel('❤ 生命药剂')}
+    ${sectionLabel('生命药剂', 'hp')}
     ${renderItems(items.filter(item => item.item_key.startsWith('hp_')))}
-    ${sectionLabel('💧 内功药剂')}
+    ${sectionLabel('内功药剂', 'mp')}
     ${renderItems(items.filter(item => item.item_key.startsWith('mp_')))}
   `);
 }

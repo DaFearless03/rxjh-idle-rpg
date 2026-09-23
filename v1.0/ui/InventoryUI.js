@@ -7,15 +7,16 @@ import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260830-3';
 import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260830-3';
 import { buildEquipmentDetailView, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260830-3';
 import { generateUUID } from '../utils/uuid.js?v=release-20260830-3';
+import { pixelIcon, resolvePixelIcon } from './PixelIconUI.js?v=release-20260830-3';
 
 const ITEM_META = {
-  hp_potion_grade1: { icon: '🍶', name: '金创药(小)', desc: '恢复70点生命值' },
-  hp_potion_grade2: { icon: '🍶', name: '金创药(中)', desc: '恢复160点生命值' },
-  hp_potion_grade3: { icon: '🍶', name: '金创药(大)', desc: '恢复300点生命值' },
-  mp_potion_grade1: { icon: '🌿', name: '人参', desc: '恢复70点内功值' },
-  mp_potion_grade2: { icon: '🌿', name: '野山参', desc: '恢复160点内功值' },
-  mp_potion_grade3: { icon: '🌿', name: '雪原参', desc: '恢复320点内功值' },
-  enhance_stone_01: { icon: '🪨', name: '强化石' },
+  hp_potion_grade1: { icon: 'potion-hp', name: '金创药(小)', desc: '恢复70点生命值' },
+  hp_potion_grade2: { icon: 'potion-hp', name: '金创药(中)', desc: '恢复160点生命值' },
+  hp_potion_grade3: { icon: 'potion-hp', name: '金创药(大)', desc: '恢复300点生命值' },
+  mp_potion_grade1: { icon: 'mp', name: '人参', desc: '恢复70点内功值' },
+  mp_potion_grade2: { icon: 'mp', name: '野山参', desc: '恢复160点内功值' },
+  mp_potion_grade3: { icon: 'mp', name: '雪原参', desc: '恢复320点内功值' },
+  enhance_stone_01: { icon: 'synthesis', name: '强化石' },
 };
 
 function escapeHtml(value) {
@@ -102,17 +103,17 @@ function getSlotDisplay(slot, player) {
 
 function getEquipmentIcon(slot) {
   const map = {
-    weapon: '⚔',
-    chest: '👕',
-    gloves: '🧤',
-    boots: '👟',
-    inner_armor: '🛡',
-    cape: '🧣',
-    ring: '💍',
-    amulet: '📿',
-    earring: '📿',
+    weapon: 'combat',
+    chest: 'defense',
+    gloves: 'defense',
+    boots: 'defense',
+    inner_armor: 'defense',
+    cape: 'defense',
+    ring: 'qigong',
+    amulet: 'qigong',
+    earring: 'qigong',
   };
-  return map[slot] || '⚔';
+  return map[slot] || 'combat';
 }
 
 function getEquipmentSlotLabel(slot) {
@@ -151,11 +152,11 @@ export function getBagSlotsInOrder(player) {
 }
 
 function getItemIcon(key, itemClass) {
-  if (itemClass === 'boxes') return '🎁';
-  if (itemClass === 'stones') return key.startsWith('vajra') ? '💠' : '🔷';
-  if (itemClass === 'consumables') return key.startsWith('mp_') ? '🌿' : '🍶';
-  if (itemClass === 'quest_items') return '📜';
-  return '📦';
+  if (itemClass === 'boxes') return 'warehouse';
+  if (itemClass === 'stones') return 'synthesis';
+  if (itemClass === 'consumables') return key.startsWith('mp_') ? 'mp' : 'potion-hp';
+  if (itemClass === 'quest_items') return 'nav-quest';
+  return 'warehouse';
 }
 
 export function renderBagTile(slot, player, options = {}) {
@@ -182,8 +183,9 @@ export function renderBagTile(slot, player, options = {}) {
     equipFail && !equipped ? 'locked' : '',
   ].filter(Boolean).join(' ');
 
-  return `<div class="${classes}" data-key="${escapeHtml(craftKey)}" data-icon="${escapeHtml(display.icon)}" data-name="${escapeHtml(display.name)}" data-class="${display.itemClass}" data-count="${count}" ${Number.isInteger(options.bagIndex) ? `data-bag-index="${options.bagIndex}"` : ''} ${isQuest ? 'data-quest="1"' : ''} ${slot.instance_id ? `data-instance-id="${escapeHtml(slot.instance_id)}"` : ''} ${craftAttrs}>
-    <div class="bt-icon">${escapeHtml(display.icon)}</div>
+  const iconName = resolvePixelIcon(display.icon, display.key, display.itemClass);
+  return `<div class="${classes}" data-key="${escapeHtml(craftKey)}" data-icon="${escapeHtml(iconName)}" data-name="${escapeHtml(display.name)}" data-class="${display.itemClass}" data-count="${count}" ${Number.isInteger(options.bagIndex) ? `data-bag-index="${options.bagIndex}"` : ''} ${isQuest ? 'data-quest="1"' : ''} ${slot.instance_id ? `data-instance-id="${escapeHtml(slot.instance_id)}"` : ''} ${craftAttrs}>
+    <div class="bt-icon">${pixelIcon(iconName)}</div>
     <div class="bt-name">${escapeHtml(display.name)}</div>
     <div class="bt-sub">${escapeHtml(equipped ? '已穿戴' : equipFail || display.sub || '')}</div>
     ${display.enhance > 0 ? `<div class="bt-enh">+${display.enhance}</div>` : ''}
@@ -199,7 +201,7 @@ export function renderCraftBagPanel(player, craftType, getExtraData = () => '') 
   }));
   while (tiles.length < (player?.inventory?.capacity || 50)) tiles.push('<div class="bag-tile empty"></div>');
   return `<div class="shop-sell-pane craft-inventory-pane">
-    <div class="wh-pane-head"><span class="wh-title">背包</span><span class="wh-count">${bagSlots.length} / ${player?.inventory?.capacity || 50}</span><span class="wh-gold push">🪙 ${(player?.resources?.gold || 0).toLocaleString()}</span><button class="wh-sort" onclick="window._sortShopInventory()">整理</button></div>
+    <div class="wh-pane-head"><span class="wh-title">背包</span><span class="wh-count">${bagSlots.length} / ${player?.inventory?.capacity || 50}</span><span class="wh-gold push">${pixelIcon('gold')} ${(player?.resources?.gold || 0).toLocaleString()}</span><button class="wh-sort" onclick="window._sortShopInventory()">整理</button></div>
     <div class="shop-sell-scroll"><div class="bag-grid">${tiles.join('')}</div></div>
   </div>`;
 }
@@ -217,7 +219,7 @@ function renderBagGrid(player) {
     <div class="bag-head">
       <span class="bh-title">背包</span>
       <span class="bh-count">已用 <b>${used}</b>/${capacity}</span>
-      <span class="bh-gold" title="当前角色金币">💰 ${gold.toLocaleString()}</span>
+      <span class="bh-gold" title="当前角色金币">${pixelIcon('gold')} ${gold.toLocaleString()}</span>
       <button class="wh-sort" onclick="window._sortInventory()">整理</button>
     </div>
     <div class="bag-scroll" id="inventoryBagScroll">
@@ -230,7 +232,7 @@ function renderInventoryModals() {
   return `<div class="item-backdrop inventory-item-modal" data-modal="item">
     <div class="item-box">
       <div class="ed-hdr">
-        <div class="ed-ico-frame"><span data-field="icon">📦</span></div>
+        <div class="ed-ico-frame"><span data-field="icon">${pixelIcon('warehouse')}</span></div>
         <div class="ed-title-wrap">
           <div class="ed-title-name" data-field="name">物品</div>
           <div class="ed-title-tags" data-field="tags"></div>
@@ -264,7 +266,7 @@ function renderInventoryModals() {
   <div class="item-backdrop inventory-equip-modal" data-modal="equip">
     <div class="item-box">
       <div class="ed-hdr">
-        <div class="ed-ico-frame" data-field="icon-frame"><span data-field="icon">⚔</span></div>
+        <div class="ed-ico-frame" data-field="icon-frame"><span data-field="icon">${pixelIcon('combat')}</span></div>
         <div class="ed-title-wrap">
           <div class="ed-title-name" data-field="name">装备</div>
           <div class="ed-title-tags" data-field="tags"></div>
@@ -432,7 +434,7 @@ function openItemPopup(container, player, bagIndex, setTarget) {
     max,
     itemClass: display.itemClass,
   });
-  modal.querySelector('[data-field="icon"]').textContent = display.icon;
+  modal.querySelector('[data-field="icon"]').innerHTML = pixelIcon(resolvePixelIcon(display.icon, display.key, display.itemClass));
   modal.querySelector('[data-field="name"]').textContent = display.name;
   modal.querySelector('[data-field="tags"]').innerHTML = `<span class="ed-tag ${getItemClassTag(display.itemClass)}">${getItemClassLabel(display.itemClass)}</span>`;
   const mainBar = modal.querySelector('[data-field="main-bar"]');
@@ -466,7 +468,7 @@ function openEquipmentPopup(container, player, target) {
   modal.dataset.bagIndex = target.bagIndex ?? '';
   modal.dataset.slot = target.slot ?? '';
   modal.dataset.index = target.index ?? 0;
-  modal.querySelector('[data-field="icon"]').textContent = getEquipmentIcon(tpl.slot);
+  modal.querySelector('[data-field="icon"]').innerHTML = pixelIcon(getEquipmentIcon(tpl.slot));
   modal.querySelector('[data-field="name"]').textContent = tpl.name || inst.item_key;
   const iconFrame = modal.querySelector('[data-field="icon-frame"]');
   iconFrame.querySelector('.ed-badge')?.remove();

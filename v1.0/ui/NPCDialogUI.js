@@ -5,6 +5,7 @@
 import { UIManager } from './UIManager.js?v=release-20260830-3';
 import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260830-3';
 import { NPCSystem } from '../systems/NPCSystem.js?v=release-20260830-3';
+import { pixelIcon } from './PixelIconUI.js?v=release-20260830-3';
 
 const TOWN_NPC_DATA = {
   leader: {
@@ -12,7 +13,7 @@ const TOWN_NPC_DATA = {
     name: '泫渤派门主',
     type: 'quest',
     tag: '任务',
-    avatar: '📜',
+    avatar: 'nav-quest',
     line: '初出茅庐的后生，想在江湖立足，先去证明你的实力吧。',
     quests: [
       { key: 'quest_transfer_1' },
@@ -28,17 +29,17 @@ const TOWN_NPC_DATA = {
     type: 'shop_and_enhance',
     name: '刀剑笑',
     tag: '武器 · 强化 · 合成',
-    avatar: '⚔',
+    avatar: 'combat',
     line: '「少侠，要趁手的新兵器，还是把旧兵刃磨得更利？想镶石头，我这儿也成。」',
     funcs: [
-      { key: '武器商店', label: '购买', icon: '🛒' },
-      { key: '强化', label: '强化', icon: '⚒' },
-      { key: '合成', label: '合成', icon: '💎' },
+      { key: '武器商店', label: '购买', icon: 'combat' },
+      { key: '强化', label: '强化', icon: 'enhance' },
+      { key: '合成', label: '合成', icon: 'synthesis' },
     ],
   },
-  yjl: { key: 'shop_armor', type: 'shop', name: '银娇龙', tag: '防具商', avatar: '👤', line: '本店的护具品质一流，童叟无欺！', funcs: ['防具商店'] },
-  psz: { key: 'shop_potion', type: 'shop', name: '平十指', tag: '药剂商', avatar: '👤', line: '平价药剂，童叟无欺！', funcs: ['药水商店'] },
-  wdb: { key: 'warehouse_npc', type: 'warehouse', name: '韦大宝', tag: '仓库', avatar: '👤', line: '存什么东西都行，找我就对了！', funcs: ['打开仓库'] },
+  yjl: { key: 'shop_armor', type: 'shop', name: '银娇龙', tag: '防具商', avatar: 'defense', line: '本店的护具品质一流，童叟无欺！', funcs: ['防具商店'] },
+  psz: { key: 'shop_potion', type: 'shop', name: '平十指', tag: '药剂商', avatar: 'potion-hp', line: '平价药剂，童叟无欺！', funcs: ['药水商店'] },
+  wdb: { key: 'warehouse_npc', type: 'warehouse', name: '韦大宝', tag: '仓库', avatar: 'warehouse', line: '存什么东西都行，找我就对了！', funcs: ['打开仓库'] },
 };
 
 function escapeHtml(value) {
@@ -57,7 +58,7 @@ export function openTownNPCDialog(npcKey) {
   const backdrop = document.getElementById('npcDialogBackdrop');
   if (!npc || !backdrop) return;
 
-  document.getElementById('npcDialogAvatar').textContent = npc.avatar;
+  document.getElementById('npcDialogAvatar').innerHTML = pixelIcon(npc.avatar);
   document.getElementById('npcDialogName').textContent = npc.name;
   document.getElementById('npcDialogTag').textContent = npc.tag;
   document.getElementById('npcDialogLine').textContent = npc.line;
@@ -76,7 +77,7 @@ export function openTownNPCDialog(npcKey) {
     document.getElementById('npcDialogClose').textContent = townKey === 'djx' ? '离开' : '关 闭';
     funcRow.innerHTML = npc.funcs.map(func => {
       const item = typeof func === 'string' ? { key: func, label: func, icon: '' } : func;
-      return `<button class="npc-func-btn" data-npc="${townKey}" data-func="${item.key}">${item.icon ? `<span class="f-icon">${item.icon}</span>` : ''}${item.label}</button>`;
+      return `<button class="npc-func-btn" data-npc="${townKey}" data-func="${item.key}">${item.icon ? `<span class="f-icon">${pixelIcon(item.icon)}</span>` : ''}${item.label}</button>`;
     }).join('');
   }
   backdrop.classList.add('open');
@@ -108,7 +109,7 @@ function renderTownLeaderQuestDialog(tab = 'accept') {
 
   const renderRows = (quests, kind) => quests.length ? quests.map(quest => `
     <div class="mz-quest-row">
-      <span class="mq-icon">📜</span>
+      <span class="mq-icon">${pixelIcon('nav-quest')}</span>
       <div class="mq-info">
         <div class="mq-name">${escapeHtml(quest.name || quest.key)}</div>
         <div class="mq-sub">${escapeHtml(questTransferSummary(quest, kind === 'submit'))}</div>

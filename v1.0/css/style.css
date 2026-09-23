@@ -52,6 +52,44 @@ body {
   letter-spacing: 0.5px;
 }
 
+/* Pixel icon sources are 64×64; each context below keeps its existing visual size. */
+.ui-icon-img {
+  display: inline-block;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  vertical-align: middle;
+  -webkit-user-drag: none;
+}
+.town-banner .town-icon .ui-icon-img { width: 3.6rem; height: 3.6rem; }
+.action-card .ac-icon .ui-icon-img { width: 1.8rem; height: 1.8rem; flex: 0 0 1.8rem; }
+.npc-card .npc-avatar .ui-icon-img { width: 2rem; height: 2rem; }
+.npc-card.featured .npc-avatar .ui-icon-img { width: 2.2rem; height: 2.2rem; }
+.npc-dialog-avatar .ui-icon-img { width: 2.4rem; height: 2.4rem; }
+.npc-func-btn .f-icon .ui-icon-img { width: 1.6rem; height: 1.6rem; }
+.map-group-header .group-icon .ui-icon-img { width: 1.4rem; height: 1.4rem; }
+.sheet-title .ui-icon-img { width: 1.1rem; height: 1.1rem; }
+.qty-icon .ui-icon-img { width: 2rem; height: 2rem; }
+.shop-item-icon .ui-icon-img { width: 1.8rem; height: 1.8rem; }
+.monster-cell .icon-big .ui-icon-img { width: 1.8rem; height: 1.8rem; }
+.bag-tile .bt-icon .ui-icon-img { width: 2rem; height: 2rem; }
+.drag-ghost .bt-icon .ui-icon-img { width: 2rem; height: 2rem; }
+.ed-ico-frame .ui-icon-img { width: 2.6rem; height: 2.6rem; }
+.eq-slot .es-ico .ui-icon-img,
+.eq-slot .es-ph-ico .ui-icon-img { width: 1.8rem; height: 1.8rem; }
+.mz-quest-row .mq-icon .ui-icon-img { width: 1.6rem; height: 1.6rem; }
+.shop-section-label .ui-icon-img,
+.wh-gold .ui-icon-img { width: 1em; height: 1em; }
+.dz-icon .ui-icon-img { width: 1.8rem; height: 1.8rem; }
+.synth-slot .ui-icon-img { width: 1em; height: 1em; }
+.shop-item-price .ui-icon-img,
+.bh-gold .ui-icon-img,
+.v.cost .ui-icon-img,
+.esd-ico .ui-icon-img { width: 1em; height: 1em; }
+.panel-title .ui-icon-img,
+.auto-sell-group-title .ui-icon-img { width: 1em; height: 1em; flex: 0 0 1em; }
+.stat-label .ui-icon-img { width: 0.72rem; height: 0.72rem; }
+
 button, input, select, textarea {
   font-family: inherit;
 }

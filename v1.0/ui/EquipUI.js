@@ -3,16 +3,18 @@
  * @desc 装备穿戴展示区：demo 风格人形槽位 + 战斗属性摘要。
  */
 
+import { pixelIcon } from './PixelIconUI.js?v=release-20260830-3';
+
 const SLOT_META = {
-  weapon: { label: '武器', icon: '⚔', pos: 'slot-weapon' },
-  chest: { label: '胸甲', icon: '👕', pos: 'slot-chest' },
-  gloves: { label: '护手', icon: '🧤', pos: 'slot-gloves' },
-  boots: { label: '鞋子', icon: '👟', pos: 'slot-boots' },
-  inner_armor: { label: '内甲', icon: '🛡', pos: 'slot-inner' },
-  cape: { label: '披风', icon: '🧣', pos: 'slot-cape' },
-  amulet: { label: '项链', icon: '📿', pos: 'slot-amulet' },
-  ring: { label: '戒指', icon: '💍', pos: 'slot-ring' },
-  earring: { label: '耳环', icon: '💎', pos: 'slot-earring' },
+  weapon: { label: '武器', icon: 'combat', pos: 'slot-weapon' },
+  chest: { label: '胸甲', icon: 'defense', pos: 'slot-chest' },
+  gloves: { label: '护手', icon: 'defense', pos: 'slot-gloves' },
+  boots: { label: '鞋子', icon: 'defense', pos: 'slot-boots' },
+  inner_armor: { label: '内甲', icon: 'defense', pos: 'slot-inner' },
+  cape: { label: '披风', icon: 'defense', pos: 'slot-cape' },
+  amulet: { label: '项链', icon: 'qigong', pos: 'slot-amulet' },
+  ring: { label: '戒指', icon: 'qigong', pos: 'slot-ring' },
+  earring: { label: '耳环', icon: 'qigong', pos: 'slot-earring' },
 };
 
 function escapeHtml(value) {
@@ -110,7 +112,7 @@ function synthesisBonuses(stones) {
 
 function renderSlot(player, slotKey, options = {}) {
   const { index = 0, className = '' } = options;
-  const meta = SLOT_META[slotKey] || { label: slotKey, icon: '□', pos: '' };
+  const meta = SLOT_META[slotKey] || { label: slotKey, icon: 'warehouse', pos: '' };
   const inst = getEquipmentInstance(player, slotKey, index);
   const tpl = getEquipmentTemplate(player, inst);
   const enhance = inst?.enhance_level || 0;
@@ -118,13 +120,13 @@ function renderSlot(player, slotKey, options = {}) {
 
   if (!filled) {
     return `<div class="eq-slot empty ${meta.pos} ${className}" data-slot="${slotKey}" data-index="${index}">
-      <div class="es-ph-ico">${meta.icon}</div>
+      <div class="es-ph-ico">${pixelIcon(meta.icon)}</div>
       <div class="es-ph-name">${meta.label}</div>
     </div>`;
   }
 
   return `<div class="eq-slot filled ${meta.pos} ${className}" data-slot="${slotKey}" data-index="${index}" data-instance-id="${escapeHtml(inst.instance_id)}">
-    <div class="es-ico">${meta.icon}</div>
+    <div class="es-ico">${pixelIcon(meta.icon)}</div>
     <div class="es-name">${escapeHtml(tpl?.name || inst.item_key)}</div>
     ${enhance > 0 ? `<div class="es-enh">+${enhance}</div>` : ''}
   </div>`;
@@ -195,7 +197,7 @@ export function buildEquipmentDetailView(player, instanceId) {
   const stones = inst.synthesis_slots || [];
   const capacities = { weapon: 4, chest: 4, gloves: 4, boots: 4, inner_armor: 2, ring: 4, amulet: 4, earring: 4, cape: 4 };
   const stoneNames = { weapon: '金刚石', chest: '寒玉石', gloves: '寒玉石', boots: '寒玉石', inner_armor: '寒玉石', ring: '寒玉石', amulet: '寒玉石', earring: '寒玉石', cape: '热血石' };
-  const stoneIcons = { weapon: '💠', chest: '🔷', gloves: '🔷', boots: '🔷', inner_armor: '🔷', ring: '🔷', amulet: '🔷', earring: '🔷', cape: '❤️' };
+  const stoneIcons = { weapon: 'synthesis', chest: 'synthesis', gloves: 'synthesis', boots: 'synthesis', inner_armor: 'synthesis', ring: 'synthesis', amulet: 'synthesis', earring: 'synthesis', cape: 'synthesis' };
   const capacity = capacities[tpl.slot] || 0;
   const statLabels = STAT_LABELS;
   const enhance = Number(inst.enhance_level || 0);
@@ -233,7 +235,7 @@ export function buildEquipmentDetailView(player, instanceId) {
   const socketPanel = capacity > 0 ? `<div class="ed-panel">
     <div class="ed-panel-hdr">合成石 <span class="ed-pcnt">${stones.filter(Boolean).length}/${capacity}</span></div>
     ${Array.from({ length: capacity }, (_, index) => stones[index]
-      ? `<div class="ed-s-detail"><span class="esd-ico">${stoneIcons[tpl.slot] || '💠'}</span>${stoneNames[tpl.slot] || '石头'} ${escapeHtml(parseSynthesisStone(stones[index]).label)}</div>`
+      ? `<div class="ed-s-detail"><span class="esd-ico">${pixelIcon(stoneIcons[tpl.slot] || 'synthesis')}</span>${stoneNames[tpl.slot] || '石头'} ${escapeHtml(parseSynthesisStone(stones[index]).label)}</div>`
       : '<div class="ed-s-detail empty"><span class="esd-ico">○</span>空孔位</div>').join('')}
   </div>` : '';
   const enhanceable = ['weapon', 'chest', 'gloves', 'boots', 'inner_armor'].includes(tpl.slot);

@@ -4,13 +4,14 @@
  */
 
 import { renderZoneBattleArea } from './ZoneBattleAreaUI.js?v=release-20260830-3';
+import { pixelIcon } from './PixelIconUI.js?v=release-20260830-3';
 
 const BOTTOM_NAV_ICONS = Object.freeze({
-  inventory: '<img class="icon icon-img" src="icons/nav-bag.png?v=20260922-icons-4" alt="" aria-hidden="true" draggable="false">',
-  character: '<img class="icon icon-img" src="icons/nav-character.png?v=20260922-icons-4" alt="" aria-hidden="true" draggable="false">',
-  home: '<img class="icon icon-img" src="icons/nav-home.png?v=20260922-icons-4" alt="" aria-hidden="true" draggable="false">',
-  quest: '<img class="icon icon-img" src="icons/nav-quest.png?v=20260922-icons-4" alt="" aria-hidden="true" draggable="false">',
-  settings: '<img class="icon icon-img" src="icons/nav-settings.png?v=20260922-icons-4" alt="" aria-hidden="true" draggable="false">',
+  inventory: '<img class="icon icon-img" src="icons/nav-bag.png?v=20260923-icons-5" alt="" aria-hidden="true" draggable="false">',
+  character: '<img class="icon icon-img" src="icons/nav-character.png?v=20260923-icons-5" alt="" aria-hidden="true" draggable="false">',
+  home: '<img class="icon icon-img" src="icons/nav-home.png?v=20260923-icons-5" alt="" aria-hidden="true" draggable="false">',
+  quest: '<img class="icon icon-img" src="icons/nav-quest.png?v=20260923-icons-5" alt="" aria-hidden="true" draggable="false">',
+  settings: '<img class="icon icon-img" src="icons/nav-settings.png?v=20260923-icons-5" alt="" aria-hidden="true" draggable="false">',
 });
 
 let mainScreenKeydownBound = false;
@@ -40,12 +41,12 @@ export function buildMainScreenUI(container) {
             <div class="header-avatar" id="home-avatar" aria-hidden="true"></div>
             <div class="stat-bars-compact">
               <div class="stat-row">
-                <span class="stat-label hp">生命值</span>
+                <span class="stat-label hp">${pixelIcon('hp')}生命值</span>
                 <div class="gba-bar"><div class="gba-bar-fill fill-hp" id="home-hp-fill" style="width:100%"></div><div class="gba-bar-pct" id="home-hp-pct">100%</div></div>
                 <span class="stat-num" id="home-hp-text">—/—</span>
               </div>
               <div class="stat-row">
-                <span class="stat-label mp">内功值</span>
+                <span class="stat-label mp">${pixelIcon('mp')}内功值</span>
                 <div class="gba-bar"><div class="gba-bar-fill fill-mp" id="home-mp-fill" style="width:100%"></div><div class="gba-bar-pct" id="home-mp-pct">100%</div></div>
                 <span class="stat-num" id="home-mp-text">—/—</span>
               </div>
@@ -64,7 +65,7 @@ export function buildMainScreenUI(container) {
 
           <!-- 城镇横幅 -->
           <div class="town-banner" id="town-banner">
-            <div class="town-icon">🏠</div>
+            <div class="town-icon">${pixelIcon('town')}</div>
             <div class="town-info">
               <div class="town-name" id="town-name">泫渤派</div>
               <div class="town-desc" id="town-desc">自动恢复生命和内力</div>
@@ -77,7 +78,7 @@ export function buildMainScreenUI(container) {
             <div class="panel-title">快速行动</div>
             <div class="quick-action-row town-actions">
               <div class="action-card clickable" id="ac-map" onclick="window._openMapSheet()">
-                <div class="ac-icon">🗺️</div>
+                <div class="ac-icon">${pixelIcon('map')}</div>
                 <div class="ac-body">
                   <div class="ac-label">地图</div>
                   <div class="ac-sub">选择区域</div>
@@ -91,7 +92,7 @@ export function buildMainScreenUI(container) {
             <div class="panel-title">NPC</div>
             <div class="npc-grid">
               <div class="npc-card featured has-notice" id="home-leader-card" onclick="window._openNPC('leader')">
-                <div class="npc-avatar">📜</div>
+                <div class="npc-avatar">${pixelIcon('nav-quest')}</div>
                 <div class="npc-info">
                   <div class="npc-name">泫渤派门主</div>
                   <div class="npc-type" id="home-leader-meta">任务 · 可接 0 个 / 可交 0 个</div>
@@ -100,7 +101,7 @@ export function buildMainScreenUI(container) {
               </div>
 
               <div class="npc-card" onclick="window._openNPC('djx')">
-                <div class="npc-avatar">⚔</div>
+                <div class="npc-avatar">${pixelIcon('combat')}</div>
                 <div class="npc-info">
                   <div class="npc-name">刀剑笑</div>
                   <div class="npc-type">武器 · 强化 · 合成</div>
@@ -108,7 +109,7 @@ export function buildMainScreenUI(container) {
               </div>
 
               <div class="npc-card" onclick="window._openNPC('yjl')">
-                <div class="npc-avatar">🛡</div>
+                <div class="npc-avatar">${pixelIcon('defense')}</div>
                 <div class="npc-info">
                   <div class="npc-name">银娇龙</div>
                   <div class="npc-type">防具 · 披风</div>
@@ -116,7 +117,7 @@ export function buildMainScreenUI(container) {
               </div>
 
               <div class="npc-card" onclick="window._openNPC('psz')">
-                <div class="npc-avatar">🧪</div>
+                <div class="npc-avatar">${pixelIcon('potion-hp')}</div>
                 <div class="npc-info">
                   <div class="npc-name">平十指</div>
                   <div class="npc-type">药剂商</div>
@@ -124,7 +125,7 @@ export function buildMainScreenUI(container) {
               </div>
 
               <div class="npc-card" onclick="window._openNPC('wdb')">
-                <div class="npc-avatar">📦</div>
+                <div class="npc-avatar">${pixelIcon('warehouse')}</div>
                 <div class="npc-info">
                   <div class="npc-name">韦大宝</div>
                   <div class="npc-type">仓库 · 50 格</div>
@@ -146,10 +147,10 @@ export function buildMainScreenUI(container) {
             <div class="panel">
               <div class="panel-title"><span>⚡ 快速行动</span></div>
               <div class="quick-action-row wild-actions">
-                <div class="action-card success" id="home-wild-combat-action" onclick="window._returnToActiveCombat()"><span class="ac-icon">⚔</span><div class="ac-body"><div class="ac-label">返回战斗</div><div class="ac-sub">查看当前挂机区域</div></div></div>
+                <div class="action-card success" id="home-wild-combat-action" onclick="window._returnToActiveCombat()"><span class="ac-icon">${pixelIcon('combat')}</span><div class="ac-body"><div class="ac-label">返回战斗</div><div class="ac-sub">查看当前挂机区域</div></div></div>
                 <div class="action-card offline" onclick="window._startOfflineAutoplay()"><span class="ac-icon">🌙</span><div class="ac-body"><div class="ac-label">开始离线挂机</div><div class="ac-sub">返回角色列表</div></div></div>
-                <div class="action-card info" onclick="window._returnToTown()"><span class="ac-icon">🏯</span><div class="ac-body"><div class="ac-label">回城补给</div><div class="ac-sub">泫渤派</div></div></div>
-                <div class="action-card" onclick="window._openMapSheet()"><span class="ac-icon">⌂</span><div class="ac-body"><div class="ac-label">切换地图</div><div class="ac-sub">选择区域</div></div></div>
+                <div class="action-card info" onclick="window._returnToTown()"><span class="ac-icon">${pixelIcon('town')}</span><div class="ac-body"><div class="ac-label">回城补给</div><div class="ac-sub">泫渤派</div></div></div>
+                <div class="action-card" onclick="window._openMapSheet()"><span class="ac-icon">${pixelIcon('map')}</span><div class="ac-body"><div class="ac-label">切换地图</div><div class="ac-sub">选择区域</div></div></div>
               </div>
             </div>
             <div class="panel">
@@ -200,8 +201,8 @@ export function buildMainScreenUI(container) {
           <div class="stat-bars-area">
             <div class="header-avatar" id="char-avatar" aria-hidden="true"></div>
             <div class="stat-bars-compact">
-              <div class="stat-row"><span class="stat-label hp">生命值</span><div class="gba-bar"><div class="gba-bar-fill fill-hp" id="char-hp-fill"></div><span class="gba-bar-pct" id="char-hp-pct">100%</span></div><span class="stat-num" id="char-hp-text">0/0</span></div>
-              <div class="stat-row"><span class="stat-label mp">内功值</span><div class="gba-bar"><div class="gba-bar-fill fill-mp" id="char-mp-fill"></div><span class="gba-bar-pct" id="char-mp-pct">100%</span></div><span class="stat-num" id="char-mp-text">0/0</span></div>
+              <div class="stat-row"><span class="stat-label hp">${pixelIcon('hp')}生命值</span><div class="gba-bar"><div class="gba-bar-fill fill-hp" id="char-hp-fill"></div><span class="gba-bar-pct" id="char-hp-pct">100%</span></div><span class="stat-num" id="char-hp-text">0/0</span></div>
+              <div class="stat-row"><span class="stat-label mp">${pixelIcon('mp')}内功值</span><div class="gba-bar"><div class="gba-bar-fill fill-mp" id="char-mp-fill"></div><span class="gba-bar-pct" id="char-mp-pct">100%</span></div><span class="stat-num" id="char-mp-text">0/0</span></div>
               <div class="stat-row"><span class="stat-label exp">经验值</span><div class="gba-bar"><div class="gba-bar-fill fill-exp" id="char-exp-fill"></div><span class="gba-bar-pct" id="char-exp-pct">0%</span></div><span class="stat-num" id="char-exp-text">0/0</span></div>
             </div>
           </div>
@@ -374,12 +375,12 @@ export function buildMainScreenUI(container) {
             <div class="header-avatar" id="combat-avatar" aria-hidden="true"></div>
             <div class="stat-bars-compact">
               <div class="stat-row">
-                <span class="stat-label hp">生命值</span>
+                <span class="stat-label hp">${pixelIcon('hp')}生命值</span>
                 <div class="gba-bar"><div class="gba-bar-fill fill-hp" id="combat-hp-fill" style="width:100%"></div><span class="gba-bar-pct" id="combat-hp-pct">100%</span></div>
                 <span class="stat-num" id="combat-hp-text">—/—</span>
               </div>
               <div class="stat-row">
-                <span class="stat-label mp">内功值</span>
+                <span class="stat-label mp">${pixelIcon('mp')}内功值</span>
                 <div class="gba-bar"><div class="gba-bar-fill fill-mp" id="combat-mp-fill" style="width:100%"></div><span class="gba-bar-pct" id="combat-mp-pct">100%</span></div>
                 <span class="stat-num" id="combat-mp-text">—/—</span>
               </div>
@@ -422,7 +423,7 @@ export function buildMainScreenUI(container) {
         <div class="bottom-sheet" onclick="event.stopPropagation()">
           <div class="sheet-handle"></div>
           <div class="sheet-header">
-            <span class="sheet-title">⌂ 地图选择</span>
+            <span class="sheet-title">${pixelIcon('map')} 地图选择</span>
             <button class="sheet-close" id="mapSheetClose" onclick="window._closeMapSheet()">×</button>
           </div>
           <div class="sheet-list" id="map-sheet-list"></div>
@@ -433,7 +434,7 @@ export function buildMainScreenUI(container) {
       <div class="npc-dialog-backdrop" id="npcDialogBackdrop">
         <div class="npc-dialog" id="npcDialogBox">
           <div class="npc-dialog-head" id="npcDialogHead">
-            <div class="npc-dialog-avatar" id="npcDialogAvatar">👤</div>
+            <div class="npc-dialog-avatar" id="npcDialogAvatar">${pixelIcon('nav-character')}</div>
             <div>
               <div class="npc-dialog-name" id="npcDialogName">刀剑笑</div>
               <div class="npc-dialog-tag" id="npcDialogTag">武器商 / 强化</div>
@@ -449,7 +450,7 @@ export function buildMainScreenUI(container) {
       <div class="qty-backdrop" id="qtyBackdrop">
         <div class="qty-box">
           <div class="qty-head">
-            <div class="qty-icon" id="qtyIcon">🧪</div>
+            <div class="qty-icon" id="qtyIcon">${pixelIcon('potion-hp')}</div>
             <div>
               <div class="qty-name" id="qtyName">小生命药剂</div>
               <div class="qty-unit">单价: <b id="qtyUnitPrice">10</b> 金币 / 个</div>
@@ -481,7 +482,7 @@ export function buildMainScreenUI(container) {
           <div class="sheet-handle"></div>
           <div class="sheet-header with-back">
             <button class="sheet-back" id="warehouseBack">←</button>
-            <span class="sheet-title">📦 韦大宝 · 仓库</span>
+            <span class="sheet-title">${pixelIcon('warehouse')} 韦大宝 · 仓库</span>
           </div>
           <div class="wh-body">
             <div class="wh-pane top">
@@ -540,7 +541,7 @@ export function buildMainScreenUI(container) {
       <div class="qty-backdrop" id="whPopup">
         <div class="qty-box" onclick="event.stopPropagation()">
           <div class="qty-head">
-            <div class="qty-icon" id="whIcon">🍶</div>
+            <div class="qty-icon" id="whIcon">${pixelIcon('potion-hp')}</div>
             <div>
               <div class="qty-name" id="whName">物品</div>
               <div class="qty-unit" id="whMeta">背包 ×1 · 仓库 0/50</div>
@@ -567,7 +568,7 @@ export function buildMainScreenUI(container) {
       <div class="qty-backdrop" id="whEquipPopup">
         <div class="qty-box" onclick="event.stopPropagation()">
           <div class="qty-head">
-            <div class="qty-icon" id="whEquipIcon">⚔</div>
+            <div class="qty-icon" id="whEquipIcon">${pixelIcon('combat')}</div>
             <div>
               <div class="qty-name" id="whEquipName">装备</div>
               <div class="qty-unit" id="whEquipSub">装备</div>
@@ -604,7 +605,7 @@ export function buildMainScreenUI(container) {
           <div class="sheet-handle"></div>
           <div class="sheet-header with-back">
             <button class="sheet-back" id="djxShopBack">←</button>
-            <span class="sheet-title" id="djxShopTitle">⚔️ 刀剑笑</span>
+            <span class="sheet-title" id="djxShopTitle">${pixelIcon('combat')} 刀剑笑</span>
             <div class="shop-tabs">
               <span class="shop-tab active" id="tab-weapon" onclick="window._switchDjxTab('weapon')">武器商店</span>
               <span class="shop-tab" id="tab-synth" onclick="window._switchDjxTab('synth')">装备合成</span>
@@ -624,7 +625,7 @@ export function buildMainScreenUI(container) {
           <div class="sheet-handle"></div>
           <div class="sheet-header with-back">
             <button class="sheet-back" id="craftBack">←</button>
-            <span class="sheet-title" id="craftTitle">⚒️ 强化</span>
+            <span class="sheet-title" id="craftTitle">${pixelIcon('enhance')} 强化</span>
           </div>
           <div class="craft-body">
             <div class="craft-work" id="craft-work"></div>
@@ -639,7 +640,7 @@ export function buildMainScreenUI(container) {
           <div class="sheet-handle"></div>
           <div class="sheet-header with-back">
             <button class="sheet-back" id="yjlShopBack">←</button>
-            <span class="sheet-title">🛡️ 银娇龙</span>
+            <span class="sheet-title">${pixelIcon('defense')} 银娇龙</span>
           </div>
           <div class="single-shop-content" id="yjl-weapon-content"></div>
         </div>
@@ -651,7 +652,7 @@ export function buildMainScreenUI(container) {
           <div class="sheet-handle"></div>
           <div class="sheet-header with-back">
             <button class="sheet-back" id="pszShopBack">←</button>
-            <span class="sheet-title">🧪 平十指</span>
+            <span class="sheet-title">${pixelIcon('potion-hp')} 平十指</span>
           </div>
           <div class="single-shop-content" id="psz-weapon-content"></div>
         </div>

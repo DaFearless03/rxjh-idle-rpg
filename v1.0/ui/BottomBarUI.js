@@ -23,6 +23,7 @@ import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } fr
 import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260830-3';
 import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
 import { isMartialArtUsable, meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260830-3';
+import { pixelIcon, pixelIconMarkup } from './PixelIconUI.js?v=release-20260830-3';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -94,7 +95,11 @@ function updateDjxShell(tab) {
   const title = document.getElementById('djxShopTitle');
   const tabs = document.querySelector('#djxShopBackdrop .shop-tabs');
   const outerGold = document.querySelector('#djxShopBackdrop .djx-shop-gold');
-  if (title) title.textContent = synthesisOnly ? '💎 合成 · 镶嵌' : tab === 'enhance' ? '⚒ 强化' : '🛒 武器商店';
+  if (title) title.innerHTML = synthesisOnly
+    ? `${pixelIcon('synthesis')} 合成 · 镶嵌`
+    : tab === 'enhance'
+      ? `${pixelIcon('enhance')} 强化`
+      : `${pixelIcon('combat')} 武器商店`;
   if (tabs) tabs.style.display = '';
   if (outerGold) outerGold.style.display = synthesisOnly ? 'none' : '';
 }
@@ -218,7 +223,7 @@ function getCraftTileMeta(key, type) {
   const safeKey = String(key || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
   const tile = document.querySelector(`#djx-${type}-content .bag-tile[data-key="${safeKey}"]`);
   return {
-    icon: tile?.dataset.icon || (isCraftStoneKey(key) ? '💎' : '⚔️'),
+    icon: tile?.dataset.icon || (isCraftStoneKey(key) ? 'synthesis' : 'combat'),
     name: tile?.dataset.name || key,
   };
 }
@@ -268,13 +273,13 @@ function updateSynthesisWorkbench() {
   grid.innerHTML = Array.from({ length: 4 }, (_, index) => {
     if (index >= capacity) return '<div class="synth-slot empty inactive">＋</div>';
     const stone = filled[index];
-    if (stone) return `<div class="synth-slot filled">💠<span class="slot-val">${getSynthesisStoneAttribute(stone)}</span></div>`;
+    if (stone) return `<div class="synth-slot filled">${pixelIcon('synthesis')}<span class="slot-val">${getSynthesisStoneAttribute(stone)}</span></div>`;
     const staged = index === filled.length && slots.stone;
-    return `<div class="synth-slot ${staged ? 'filled staged' : 'empty'}" data-idx="${index}">${staged ? `💎<span class="slot-val">${getSynthesisStoneAttribute(slots.stone)}</span>` : '＋'}</div>`;
+    return `<div class="synth-slot ${staged ? 'filled staged' : 'empty'}" data-idx="${index}">${staged ? `${pixelIcon('synthesis')}<span class="slot-val">${getSynthesisStoneAttribute(slots.stone)}</span>` : '＋'}</div>`;
   }).join('');
   if (result) {
     const costValue = result.querySelector('.v.cost');
-    if (costValue) costValue.textContent = `💰 ${Number(equipTile.dataset.cost || 0).toLocaleString()}`;
+    if (costValue) costValue.innerHTML = `${pixelIcon('gold')} ${Number(equipTile.dataset.cost || 0).toLocaleString()}`;
   }
   if (confirm && filled.length >= capacity) {
     confirm.disabled = true;
@@ -308,8 +313,8 @@ function updateEnhanceWorkbench() {
   }
   const costValue = document.querySelector('#djx-enhance-cost .v.cost');
   if (costValue) {
-    costValue.textContent = equipTile
-      ? `💰 ${Number(equipTile.dataset.cost || 0).toLocaleString()}`
+    costValue.innerHTML = equipTile
+      ? `${pixelIcon('gold')} ${Number(equipTile.dataset.cost || 0).toLocaleString()}`
       : '--';
   }
 }
@@ -340,9 +345,9 @@ window._djxSelectItem = (key, type) => {
   const targetZone = stoneKey ? zoneStone : zoneEquip;
   if (targetZone) {
     targetZone.classList.add('filled');
-    const icon = stoneKey ? '💎' : '⚔️';
+    const icon = stoneKey ? 'synthesis' : 'combat';
     targetZone.innerHTML = `
-      <div class="dz-icon" style="font-size:1.8rem">${escapeHtml(meta.icon || icon)}</div>
+      <div class="dz-icon">${pixelIcon(meta.icon || icon)}</div>
       <div class="dz-name" style="font-size:0.75rem;font-weight:bold;margin-top:0.2rem">${escapeHtml(meta.name)}</div>
       <div class="dz-clear" style="position:absolute;top:0.2rem;right:0.3rem;font-size:1rem;opacity:0.5;cursor:pointer">×</div>
     `;
@@ -410,7 +415,7 @@ window._openShopQuantity = (mode, itemKey, price, name, icon, maxCount = 999, in
     return;
   }
   _setupShopQuantityPopup();
-  document.getElementById('qtyIcon').textContent = icon || '📦';
+  document.getElementById('qtyIcon').innerHTML = pixelIconMarkup(icon || 'warehouse', itemKey);
   document.getElementById('qtyName').textContent = name || itemKey;
   document.getElementById('qtyUnitPrice').textContent = Number(price || 0).toLocaleString();
   document.getElementById('qtyInput').value = '1';
@@ -793,7 +798,7 @@ function _whOpenEquipmentDetail(tile, mode) {
   }
   _whEquipMode = mode;
   _whEquipTile = tile;
-  document.getElementById('whEquipIcon').textContent = tile.dataset.icon || '⚔';
+  document.getElementById('whEquipIcon').innerHTML = pixelIconMarkup(tile.dataset.icon || 'combat', tile.dataset.key, 'equipment');
   document.getElementById('whEquipName').textContent = `${template.name}${instance.enhance_level > 0 ? ` +${instance.enhance_level}` : ''}`;
   document.getElementById('whEquipSub').textContent = `装备 · ${template.slot}`;
   document.getElementById('whEquipBody').innerHTML = renderEquipmentDetail(detailPlayer, instanceId);
@@ -842,7 +847,7 @@ function _whOpenPopup(tile, mode) {
 
   const dstUsed = [...destinationGrid.querySelectorAll('.bag-tile:not(.empty)')].length;
 
-  document.getElementById('whIcon').textContent = tile.dataset.icon;
+  document.getElementById('whIcon').innerHTML = pixelIconMarkup(tile.dataset.icon || 'warehouse', tile.dataset.key, tile.dataset.class || '');
   document.getElementById('whName').textContent = _whName;
   document.getElementById('whMeta').textContent =
     (mode === 'deposit' ? '背包 ×' : '仓库 ×') + _whMaxQ +
@@ -1243,7 +1248,7 @@ function renderAutoplayPanel(player) {
         <input class="auto-sell-value" type="number" min="0" max="${attribute.max}" step="1" value="${Number(rule.max_value ?? 0)}" onchange="window._setAutoSellRule('${category}','${attribute.key}','max_value',this.value)">
       </label>`;
     }).join('');
-    return `<div class="auto-sell-group"><div class="auto-sell-group-title"><span>${icon} ${title}</span><span>出售属性值 ≤ X</span></div>${rows}</div>`;
+    return `<div class="auto-sell-group"><div class="auto-sell-group-title"><span>${pixelIcon(icon)} ${title}</span><span>出售属性值 ≤ X</span></div>${rows}</div>`;
   };
 
   const equipmentFilterGroup = () => {
@@ -1271,7 +1276,7 @@ function renderAutoplayPanel(player) {
     const controlsDisabled = !autoSell.enabled;
     return `<div class="auto-sell-group auto-sell-equipment">
       <div class="auto-sell-group-title">
-        <span>⚔ 装备出售过滤清单</span>
+        <span>${pixelIcon('combat')} 装备出售过滤清单</span>
         ${toggleBtn('auto-sell-equipment', autoSell.enabled && equipmentFilter.enabled, 'window._toggleAutoSellEquipment()', controlsDisabled)}
       </div>
       <div class="auto-sell-equipment-controls${controlsDisabled || !equipmentFilter.enabled ? ' disabled' : ''}">
@@ -1328,7 +1333,7 @@ function renderAutoplayPanel(player) {
       return `${categoryLabels[rule.category] || rule.category}·${attribute?.name || rule.attribute_key}${rule.value}`;
     }).join('；');
     return `<div class="auto-sell-group auto-store-group">
-      <div class="auto-sell-group-title"><span>💎 石头存仓库清单</span><span>精确匹配属性与数值</span></div>
+      <div class="auto-sell-group-title"><span>${pixelIcon('synthesis')} 石头存仓库清单</span><span>精确匹配属性与数值</span></div>
       <div class="auto-sell-equipment-controls${enabled ? '' : ' disabled'}">
         <label><span>石头类型</span>${customDropdown(Object.keys(categoryLabels).map(key => ({ value: key, label: categoryLabels[key] })), category, '_setAutoStoreStoneSelection', { kind: 'category', enabled, compact: true })}</label>
         <label><span>属性类型</span>${customDropdown(attributeOptions.length ? attributeOptions.map(item => ({ value: item.key, label: item.name })) : [{ value: '', label: '无属性' }], attributeKey, '_setAutoStoreStoneSelection', { kind: 'attributeKey', enabled: enabled && hasAttributes, compact: true })}</label>
@@ -1362,7 +1367,7 @@ function renderAutoplayPanel(player) {
     const enabled = !!autoStore.enabled;
     const configuredNames = autoStoreEquipmentKeys.map(key => templates.find(item => item.key === key)?.name || key).join('；');
     return `<div class="auto-sell-group auto-sell-equipment auto-store-group">
-      <div class="auto-sell-group-title"><span>⚔ 装备存仓库清单</span><span>匹配装备名称</span></div>
+      <div class="auto-sell-group-title"><span>${pixelIcon('combat')} 装备存仓库清单</span><span>匹配装备名称</span></div>
       <div class="auto-sell-equipment-controls${enabled ? '' : ' disabled'}">
         <label><span>装备类型</span>${customDropdown(Object.keys(slotLabels).map(key => ({ value: key, label: slotLabels[key] })), slot, '_setAutoStoreEquipmentSelection', { kind: 'slot', enabled, compact: true })}</label>
         <label><span>职业</span>${customDropdown(Object.keys(careerLabels).map(key => ({ value: key, label: careerLabels[key] })), career, '_setAutoStoreEquipmentSelection', { kind: 'career', enabled, compact: true })}</label>
@@ -1378,7 +1383,7 @@ function renderAutoplayPanel(player) {
 
   el.innerHTML = `
     <div class="sec-panel">
-      <div class="panel-title"><span>⚔ 自动打怪</span></div>
+      <div class="panel-title"><span>${pixelIcon('combat')} 自动打怪</span></div>
       <div class="stat-line"><span class="sl-k">攻击方式</span>
         <div class="auto-attack-methods">
           <button class="btn-3d ${useSkillAttack ? '' : 'green'}" onclick="window._setAutoAttackType('normal')">普通攻击</button>
@@ -1392,7 +1397,7 @@ function renderAutoplayPanel(player) {
     </div>
 
     <div class="sec-panel">
-      <div class="panel-title"><span>✨ 自动辅助武功</span></div>
+      <div class="panel-title"><span>${pixelIcon('qigong')} 自动辅助武功</span></div>
       <div class="stat-line"><span class="sl-k">自动治疗</span>
         ${toggleBtn('heal-skill', healCfg.enabled, "window._toggleAutoSupportSkill('heal')", !learnedHealSkills.length)}
       </div>
@@ -1406,7 +1411,7 @@ function renderAutoplayPanel(player) {
     </div>
 
     <div class="sec-panel">
-      <div class="panel-title"><span>💊 自动喝药</span></div>
+      <div class="panel-title"><span>${pixelIcon('potion-hp')} 自动喝药</span></div>
       <!-- HP -->
       <div class="stat-line"><span class="sl-k">生命药剂</span>
         ${toggleBtn('hp', hpCfg.enabled, "window._toggleAutoPotion('hp')")}
@@ -1423,7 +1428,7 @@ function renderAutoplayPanel(player) {
     </div>
 
     <div class="sec-panel">
-      <div class="panel-title"><span>📦 自动补给</span></div>
+      <div class="panel-title"><span>${pixelIcon('warehouse')} 自动补给</span></div>
       <p class="hang-settings-note" style="margin:0 0 0.6rem;font-size:0.7rem">🔁 药剂低于触发数量 → 自动回城购买 → 返回挂机</p>
       <!-- HP Resupply -->
       <div class="stat-line"><span class="sl-k">生命补给</span>
@@ -1443,7 +1448,7 @@ function renderAutoplayPanel(player) {
     </div>
 
     <div class="sec-panel auto-store-panel">
-      <div class="panel-title"><span>📦 自动存仓库</span>${toggleBtn('auto-store', autoStore.enabled, 'window._toggleAutoStore()')}</div>
+      <div class="panel-title"><span>${pixelIcon('warehouse')} 自动存仓库</span>${toggleBtn('auto-store', autoStore.enabled, 'window._toggleAutoStore()')}</div>
       <p class="hang-settings-note">包满自动回城，自动存仓库后再自动出售、自动补给</p>
       <div class="${autoStore.enabled ? '' : 'auto-sell-disabled'}">
         ${autoStoreStoneGroup()}
@@ -1452,11 +1457,11 @@ function renderAutoplayPanel(player) {
     </div>
 
     <div class="sec-panel auto-sell-panel">
-      <div class="panel-title"><span>💰 自动出售</span>${toggleBtn('auto-sell', autoSell.enabled, 'window._toggleAutoSell()')}</div>
+      <div class="panel-title"><span>${pixelIcon('gold')} 自动出售</span>${toggleBtn('auto-sell', autoSell.enabled, 'window._toggleAutoSell()')}</div>
       <p class="hang-settings-note">包满自动回城，自动出售后再自动补给</p>
       <div class="${autoSell.enabled ? '' : 'auto-sell-disabled'}">
-        ${autoSellGroup('vajra', '金刚石', '💠')}
-        ${autoSellGroup('cold_jade', '寒玉石', '🔷')}
+        ${autoSellGroup('vajra', '金刚石', 'synthesis')}
+        ${autoSellGroup('cold_jade', '寒玉石', 'synthesis')}
         ${equipmentFilterGroup()}
       </div>
     </div>
@@ -1923,7 +1928,7 @@ window._returnToActiveCombat = () => {
 const MAP_SHEET_DATA = [
   {
     name: '泫渤派城镇',
-    icon: '🏠',
+    icon: 'town',
     meta: '补给点',
     zones: [
       { key: 'town_xuanbo', name: '泫渤派', level: '城镇', badge: '进入', isTown: true },
@@ -1931,7 +1936,7 @@ const MAP_SHEET_DATA = [
   },
   {
     name: '泫渤派郊外',
-    icon: '🌾',
+    icon: 'map',
     meta: 'L3-35 · 6 区',
     zones: [
       { key: 'xuanbo_village', name: '村庄周围', level: 'L3-5', badge: '前往' },
@@ -1944,7 +1949,7 @@ const MAP_SHEET_DATA = [
   },
   {
     name: '柳正关',
-    icon: '⛩',
+    icon: 'teleport',
     meta: 'L35-59 · 7 区',
     zones: [
       { key: 'liuzheng_forest', name: '关外山林', level: 'L35-37', badge: '前往' },
@@ -1958,7 +1963,7 @@ const MAP_SHEET_DATA = [
   },
   {
     name: '神武门',
-    icon: '🏯',
+    icon: 'town',
     meta: 'L60-67 · 3 区',
     zones: [
       { key: 'shenwu_tiger_valley', name: '虎峡谷', level: 'L60-61', badge: '前往' },
@@ -1968,7 +1973,7 @@ const MAP_SHEET_DATA = [
   },
   {
     name: '三邪关',
-    icon: '🗡',
+    icon: 'teleport',
     meta: 'L35-59 · 7 区',
     zones: [
       { key: 'sanxie_forest', name: '关外山林', level: 'L35-37', badge: '前往' },
@@ -1982,7 +1987,7 @@ const MAP_SHEET_DATA = [
   },
   {
     name: '柳善提督府',
-    icon: '🏛',
+    icon: 'town',
     meta: 'L60-67 · 3 区',
     zones: [
       { key: 'liushan_snake_valley', name: '蛇谷', level: 'L60-61', badge: '前往' },
@@ -1992,7 +1997,7 @@ const MAP_SHEET_DATA = [
   },
   {
     name: '南明湖',
-    icon: '🌊',
+    icon: 'map',
     meta: 'L68+ · 2 区（高危）',
     zones: [
       { key: 'nanminghu_lake', name: '南明湖', level: 'L68-71', badge: '前往' },
@@ -2007,7 +2012,7 @@ function renderMapSheetList(currentSubZoneKey) {
   listEl.innerHTML = MAP_SHEET_DATA.map(group => `
     <div class="map-group">
       <div class="map-group-header">
-        <span class="group-icon">${group.icon}</span>
+        <span class="group-icon">${pixelIcon(group.icon, 'map-group-icon')}</span>
         <span>${group.name}</span>
         ${group.meta ? `<span class="group-meta">${group.meta}</span>` : ''}
       </div>
