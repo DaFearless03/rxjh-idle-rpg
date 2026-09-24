@@ -1,0 +1,35 @@
+@font-face {
+  font-family: 'RPG Cubic';
+  src: url('../fonts/Cubic_11.woff2') format('woff2');
+  font-display: swap;
+}
+.rpg-ui {
+  --rpg-bg: #f0e8d8;
+  --rpg-surface: #fffef8;
+  --rpg-subtle: #f6f3e9;
+  --rpg-text: #303048;
+  --rpg-muted: #656575;
+  --rpg-blue: #365ca5;
+  --rpg-border: #6878a8;
+  --rpg-outer: #303048;
+  --rpg-success: #28633c;
+  --rpg-warning: #805915;
+  --rpg-danger: #a23432;
+  --rpg-hp: #58a86b;
+  --rpg-mp: #527cc6;
+  --rpg-exp: #b79b4b;
+  --rpg-space-1: 4px;
+  --rpg-space-2: 8px;
+  --rpg-space-3: 12px;
+  --rpg-space-4: 16px;
+  --rpg-space-6: 24px;
+  --rpg-font-title: 18px;
+  --rpg-font-panel: 15px;
+  --rpg-font-body: 13px;
+  --rpg-font-note: 12px;
+  --rpg-font-small: 11px;
+  --rpg-font-input: 16px;
+  font: var(--rpg-font-body)/1.6 'RPG Cubic', system-ui, sans-serif;
+  color: var(--rpg-text);
+  background: var(--rpg-bg);
+}
