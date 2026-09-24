@@ -42,17 +42,17 @@ export function buildMainScreenUI(container) {
             <div class="stat-bars-compact">
               <div class="stat-row">
                 <span class="stat-label hp">生命值</span>
-                <div class="gba-bar"><div class="gba-bar-fill fill-hp" id="home-hp-fill" style="width:100%"></div><div class="gba-bar-pct" id="home-hp-pct">100%</div></div>
+                <div class="gba-bar" aria-hidden="true"><div class="gba-bar-fill fill-hp" id="home-hp-fill" style="width:100%"></div></div>
                 <span class="stat-num" id="home-hp-text">—/—</span>
               </div>
               <div class="stat-row">
                 <span class="stat-label mp">内功值</span>
-                <div class="gba-bar"><div class="gba-bar-fill fill-mp" id="home-mp-fill" style="width:100%"></div><div class="gba-bar-pct" id="home-mp-pct">100%</div></div>
+                <div class="gba-bar" aria-hidden="true"><div class="gba-bar-fill fill-mp" id="home-mp-fill" style="width:100%"></div></div>
                 <span class="stat-num" id="home-mp-text">—/—</span>
               </div>
               <div class="stat-row">
                 <span class="stat-label exp">经验值</span>
-                <div class="gba-bar"><div class="gba-bar-fill fill-exp" id="home-exp-fill" style="width:0%"></div><div class="gba-bar-pct" id="home-exp-pct">0%</div></div>
+                <div class="gba-bar" aria-hidden="true"><div class="gba-bar-fill fill-exp" id="home-exp-fill" style="width:0%"></div></div>
                 <span class="stat-num" id="home-exp-text">—/—</span>
               </div>
             </div>
@@ -77,13 +77,13 @@ export function buildMainScreenUI(container) {
           <div class="panel">
             <div class="panel-title">快速行动</div>
             <div class="quick-action-row town-actions">
-              <div class="action-card clickable" id="ac-map" onclick="window._openMapSheet()">
-                <div class="ac-icon">${pixelIcon('map')}</div>
-                <div class="ac-body">
-                  <div class="ac-label">地图</div>
-                  <div class="ac-sub">选择区域</div>
-                </div>
-              </div>
+              <button type="button" class="action-card clickable" id="ac-map" onclick="window._openMapSheet()">
+                <span class="ac-icon">${pixelIcon('map')}</span>
+                <span class="ac-body">
+                  <span class="ac-label">地图</span>
+                  <span class="ac-sub">选择区域</span>
+                </span>
+              </button>
             </div>
           </div>
 
@@ -91,53 +91,53 @@ export function buildMainScreenUI(container) {
           <div class="panel">
             <div class="panel-title">NPC</div>
             <div class="npc-grid">
-              <div class="npc-card featured has-notice" id="home-leader-card" onclick="window._openNPC('leader')">
-                <div class="npc-avatar">${pixelIcon('nav-quest')}</div>
-                <div class="npc-info">
-                  <div class="npc-name">泫渤派门主</div>
-                  <div class="npc-type" id="home-leader-meta">任务 · 可接 0 个 / 可交 0 个</div>
-                </div>
+              <button type="button" class="npc-card featured has-notice" id="home-leader-card" onclick="window._openNPC('leader')">
+                <span class="npc-avatar">${pixelIcon('nav-quest')}</span>
+                <span class="npc-info">
+                  <span class="npc-name">泫渤派门主</span>
+                  <span class="npc-type" id="home-leader-meta">任务 · 可接 0 个 / 可交 0 个</span>
+                </span>
                 <span class="npc-cta">交谈</span>
-              </div>
+              </button>
 
-              <div class="npc-card" onclick="window._openNPC('djx')">
-                <div class="npc-avatar">${pixelIcon('combat')}</div>
-                <div class="npc-info">
-                  <div class="npc-name">刀剑笑</div>
-                  <div class="npc-type">武器 · 强化 · 合成</div>
-                </div>
-              </div>
+              <button type="button" class="npc-card" onclick="window._openNPC('djx')">
+                <span class="npc-avatar">${pixelIcon('combat')}</span>
+                <span class="npc-info">
+                  <span class="npc-name">刀剑笑</span>
+                  <span class="npc-type">武器 · 强化 · 合成</span>
+                </span>
+              </button>
 
-              <div class="npc-card" onclick="window._openNPC('yjl')">
-                <div class="npc-avatar">${pixelIcon('defense')}</div>
-                <div class="npc-info">
-                  <div class="npc-name">银娇龙</div>
-                  <div class="npc-type">防具 · 披风</div>
-                </div>
-              </div>
+              <button type="button" class="npc-card" onclick="window._openNPC('yjl')">
+                <span class="npc-avatar">${pixelIcon('defense')}</span>
+                <span class="npc-info">
+                  <span class="npc-name">银娇龙</span>
+                  <span class="npc-type">防具 · 披风</span>
+                </span>
+              </button>
 
-              <div class="npc-card" onclick="window._openNPC('psz')">
-                <div class="npc-avatar">${pixelIcon('potion-hp')}</div>
-                <div class="npc-info">
-                  <div class="npc-name">平十指</div>
-                  <div class="npc-type">药剂商</div>
-                </div>
-              </div>
+              <button type="button" class="npc-card" onclick="window._openNPC('psz')">
+                <span class="npc-avatar">${pixelIcon('potion-hp')}</span>
+                <span class="npc-info">
+                  <span class="npc-name">平十指</span>
+                  <span class="npc-type">药剂商</span>
+                </span>
+              </button>
 
-              <div class="npc-card" onclick="window._openNPC('wdb')">
-                <div class="npc-avatar">${pixelIcon('warehouse')}</div>
-                <div class="npc-info">
-                  <div class="npc-name">韦大宝</div>
-                  <div class="npc-type">仓库 · 50 格</div>
-                </div>
-              </div>
+              <button type="button" class="npc-card" onclick="window._openNPC('wdb')">
+                <span class="npc-avatar">${pixelIcon('warehouse')}</span>
+                <span class="npc-info">
+                  <span class="npc-name">韦大宝</span>
+                  <span class="npc-type">仓库 · 50 格</span>
+                </span>
+              </button>
             </div>
           </div>
           </div>
 
           <div class="home-state-content" id="home-wild-content" hidden>
             <div class="wild-banner">
-              <div class="wild-icon">🌳</div>
+              <div class="wild-icon">${pixelIcon('map')}</div>
               <div class="wild-info">
                 <div class="wild-name" id="home-wild-name">野外区域</div>
                 <div class="wild-desc" id="home-wild-desc">江湖野外 · 持续战斗</div>
@@ -145,16 +145,16 @@ export function buildMainScreenUI(container) {
               <div class="idle-badge" id="home-wild-idle">挂机中</div>
             </div>
             <div class="panel">
-              <div class="panel-title"><span>⚡ 快速行动</span></div>
+              <div class="panel-title">快速行动</div>
               <div class="quick-action-row wild-actions">
-                <div class="action-card success" id="home-wild-combat-action" onclick="window._returnToActiveCombat()"><span class="ac-icon">${pixelIcon('combat')}</span><div class="ac-body"><div class="ac-label">返回战斗</div><div class="ac-sub">查看当前挂机区域</div></div></div>
-                <div class="action-card offline" onclick="window._startOfflineAutoplay()"><span class="ac-icon">🌙</span><div class="ac-body"><div class="ac-label">开始离线挂机</div><div class="ac-sub">返回角色列表</div></div></div>
-                <div class="action-card info" onclick="window._returnToTown()"><span class="ac-icon">${pixelIcon('town')}</span><div class="ac-body"><div class="ac-label">回城补给</div><div class="ac-sub">泫渤派</div></div></div>
-                <div class="action-card" onclick="window._openMapSheet()"><span class="ac-icon">${pixelIcon('map')}</span><div class="ac-body"><div class="ac-label">切换地图</div><div class="ac-sub">选择区域</div></div></div>
+                <button type="button" class="action-card success" id="home-wild-combat-action" onclick="window._returnToActiveCombat()"><span class="ac-icon">${pixelIcon('combat')}</span><span class="ac-body"><span class="ac-label">返回战斗</span><span class="ac-sub">查看当前挂机区域</span></span></button>
+                <button type="button" class="action-card offline" onclick="window._startOfflineAutoplay()"><span class="ac-icon">${pixelIcon('combat')}</span><span class="ac-body"><span class="ac-label">开始离线挂机</span><span class="ac-sub">返回角色列表</span></span></button>
+                <button type="button" class="action-card info" onclick="window._returnToTown()"><span class="ac-icon">${pixelIcon('town')}</span><span class="ac-body"><span class="ac-label">回城补给</span><span class="ac-sub">泫渤派</span></span></button>
+                <button type="button" class="action-card" onclick="window._openMapSheet()"><span class="ac-icon">${pixelIcon('map')}</span><span class="ac-body"><span class="ac-label">切换地图</span><span class="ac-sub">选择区域</span></span></button>
               </div>
             </div>
             <div class="panel">
-              <div class="panel-title"><span>📊 本次挂机简报</span><span class="home-session-note" id="home-session-note">已 0分0秒</span></div>
+              <div class="panel-title"><span>本次挂机简报</span><span class="home-session-note" id="home-session-note">已 0分0秒</span></div>
               <div class="session-stats">
                 <div class="stat-cell kill"><span class="num" id="home-wild-kills">0</span><span class="label">击杀</span></div>
                 <div class="stat-cell exp"><span class="num" id="home-wild-exp">0</span><span class="label">经验</span></div>
@@ -174,7 +174,7 @@ export function buildMainScreenUI(container) {
           <button class="menu-btn" data-panel="character" onclick="window._openPanel('character')">
             ${BOTTOM_NAV_ICONS.character}角色
           </button>
-          <button class="menu-btn active" data-panel="home">
+          <button class="menu-btn active" data-panel="home" aria-current="page">
             ${BOTTOM_NAV_ICONS.home}主页
           </button>
           <button class="menu-btn" data-panel="quest" onclick="window._openPanel('quest')">

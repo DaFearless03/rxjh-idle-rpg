@@ -34,7 +34,7 @@ import { storage } from './utils/storage.js?v=release-20260830-3';
 import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260830-3';
 import { addCappedNonNegative } from './utils/numbers.js?v=release-20260830-3';
 import { UIManager } from './ui/UIManager.js?v=release-20260830-3';
-import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260830-3';
+import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260924-home-1';
 import { showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260830-3';
 import {
   hideOfflineRewardLoading,

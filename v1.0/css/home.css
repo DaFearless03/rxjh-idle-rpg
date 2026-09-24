@@ -1,0 +1,373 @@
+/* Formal home page skin. Keep these rules scoped so other panels can migrate independently. */
+body { margin: 0 auto; }
+
+.page-home {
+  --home-bg: #f0e8d8;
+  --home-surface: #fffef8;
+  --home-subtle: #f6f3e9;
+  --home-text: #303048;
+  --home-muted: #656575;
+  --home-blue: #365ca5;
+  --home-border: #6878a8;
+  --home-outer: #303048;
+  --home-success: #28633c;
+  --home-warning: #805915;
+  --home-danger: #a23432;
+  --home-hp: #58a86b;
+  --home-mp: #527cc6;
+  --home-exp: #b79b4b;
+  color: var(--home-text);
+  background: var(--home-bg);
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+
+/* The common shell is shared by every screen, so remove the faux-device frame consistently. */
+@media (min-width: 481px) {
+  .phone-frame {
+    width: min(480px, 100%);
+    height: min(900px, 100dvh);
+    max-height: 100dvh;
+    padding: 0;
+    border: 1px solid #6878a8;
+    border-radius: 4px;
+    box-shadow: none;
+  }
+
+  .phone-frame::before { display: none; }
+}
+
+@media (max-width: 900px) and (max-height: 500px) {
+  .phone-frame {
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px);
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+.page-home > .top-bar {
+  gap: 0;
+  padding: 12px;
+  background: var(--home-surface);
+  border: 0;
+  border-bottom: 1px solid var(--home-border);
+}
+
+.page-home .top-row-1 { margin: 0 0 8px; }
+
+.page-home .player-bar {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.page-home .player-bar .name {
+  max-width: min(140px, 36vw);
+  color: var(--home-text);
+}
+
+.page-home .player-bar .sep { color: var(--home-muted); }
+.page-home .player-bar .level,
+.page-home .player-bar .career { color: var(--home-blue); }
+.page-home .player-bar .faction { border-radius: 2px; padding: 1px 6px; }
+.page-home .player-bar .faction.neutral { color: var(--home-muted); background: var(--home-subtle); }
+.page-home .player-bar .faction.positive { color: var(--home-success); background: #edf5ee; }
+.page-home .player-bar .faction.negative { color: var(--home-danger); background: #f8eeee; }
+
+.page-home .stat-bars-area { gap: 8px; align-items: center; }
+.page-home .header-avatar { width: 26px; height: 38px; }
+.page-home .stat-bars-compact { gap: 4px; }
+.page-home .stat-row {
+  grid-template-columns: 52px minmax(24px, 1fr) minmax(58px, auto);
+  gap: 6px;
+  font-size: 12px;
+}
+
+.page-home .stat-label {
+  font-size: 12px;
+  font-weight: normal;
+  white-space: nowrap;
+}
+
+.page-home .stat-label.hp { color: var(--home-hp); }
+.page-home .stat-label.mp { color: var(--home-mp); }
+.page-home .stat-label.exp { color: var(--home-warning); }
+.page-home .gba-bar {
+  height: 10px;
+  border: 1px solid #8b8b8e;
+  border-radius: 2px;
+  background: #e2dfd4;
+}
+
+.page-home .gba-bar-fill { border-radius: 0; }
+.page-home .gba-bar-fill::after { display: none; }
+.page-home .gba-bar-pct { display: none; }
+.page-home .fill-hp { background: var(--home-hp); }
+.page-home .fill-hp.warn { background: #b47b24; }
+.page-home .fill-hp.danger { background: var(--home-danger); }
+.page-home .fill-mp { background: var(--home-mp); }
+.page-home .fill-exp { background: var(--home-exp); }
+.page-home .stat-num {
+  min-width: 0;
+  color: var(--home-text);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.page-home > .main-scroll {
+  gap: 12px;
+  padding: 12px;
+  background: var(--home-bg);
+}
+
+.page-home .home-state-content { display: grid; gap: 12px; }
+.page-home .home-state-content[hidden] { display: none; }
+
+.page-home .town-banner,
+.page-home .wild-banner {
+  min-width: 0;
+  min-height: 68px;
+  gap: 12px;
+  padding: 12px;
+  color: var(--home-text);
+  background: var(--home-surface);
+  border: 1px solid var(--home-border);
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+.page-home .town-icon,
+.page-home .wild-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  background: var(--home-subtle);
+  border: 1px solid #d6d3cb;
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+.page-home .town-icon .ui-icon-img { width: 36px; height: 36px; }
+.page-home .wild-icon .ui-icon-img { width: 20px; height: 20px; }
+.page-home .town-info,
+.page-home .wild-info { flex: 1; min-width: 0; }
+.page-home .town-name,
+.page-home .wild-name { color: var(--home-text); font-size: 18px; line-height: 1.4; }
+.page-home .town-desc,
+.page-home .wild-desc { color: var(--home-muted); font-size: 12px; line-height: 1.5; margin-top: 2px; }
+
+.page-home .restore-badge,
+.page-home .idle-badge {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  color: var(--home-success);
+  background: #edf5ee;
+  border: 1px solid #a9c9ad;
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.page-home .restore-badge::before { content: none; }
+.page-home .idle-badge::before { content: ''; }
+.page-home .idle-badge { color: var(--home-warning); background: #fbf4e3; border-color: #d8c18c; }
+
+.page-home .panel {
+  min-width: 0;
+  padding: 12px;
+  color: var(--home-text);
+  background: var(--home-surface);
+  border: 1px solid var(--home-border);
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+.page-home .panel-title {
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0 0 8px;
+  color: var(--home-text);
+  border: 0;
+  border-bottom: 1px solid #d6d3cb;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.page-home .npc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.page-home .npc-card,
+.page-home .action-card {
+  appearance: none;
+  min-width: 0;
+  min-height: 56px;
+  margin: 0;
+  color: var(--home-text);
+  background: var(--home-subtle);
+  border: 1px solid #c9c6bd;
+  border-radius: 3px;
+  box-shadow: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 100ms ease, border-color 100ms ease;
+}
+
+.page-home .npc-card {
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 8px;
+  padding: 8px;
+}
+
+.page-home .npc-card.featured {
+  grid-column: 1 / -1;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  padding: 8px;
+  background: #f3f6fc;
+  border-color: var(--home-border);
+}
+
+.page-home .npc-avatar,
+.page-home .npc-card.featured .npc-avatar {
+  width: 36px;
+  height: 36px;
+  background: #f1eadb;
+  border: 1px solid #d6d3cb;
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+.page-home .npc-card .npc-avatar .ui-icon-img { width: 20px; height: 20px; }
+.page-home .npc-card.featured .npc-avatar .ui-icon-img { width: 22px; height: 22px; }
+.page-home .npc-info { display: grid; align-content: center; min-width: 0; }
+.page-home .npc-name { color: var(--home-text); font-size: 13px; line-height: 1.5; }
+.page-home .npc-type { color: var(--home-muted); font-size: 12px; line-height: 1.5; margin-top: 2px; }
+.page-home .npc-card.featured .npc-name { color: var(--home-blue); font-size: 14px; }
+.page-home .npc-card.featured .npc-type { color: var(--home-muted); font-weight: normal; }
+.page-home .npc-cta {
+  padding: 6px 8px;
+  color: var(--home-blue);
+  background: var(--home-surface);
+  border: 1px solid var(--home-border);
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: normal;
+  white-space: nowrap;
+}
+
+.page-home .npc-card.has-notice::after {
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--home-surface);
+  background: var(--home-danger);
+  box-shadow: none;
+}
+
+.page-home .quick-action-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.page-home .action-card { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
+.page-home .town-actions .action-card { width: 100%; }
+.page-home .action-card .ac-icon { display: grid; place-items: center; flex: 0 0 18px; width: 18px; height: 18px; font-size: 13px; }
+.page-home .action-card .ac-icon .ui-icon-img { width: 18px; height: 18px; flex: 0 0 18px; }
+.page-home .action-card .ac-body { display: grid; gap: 2px; min-width: 0; line-height: 1.5; }
+.page-home .action-card .ac-label { color: var(--home-text); font-size: 13px; font-weight: bold; }
+.page-home .action-card .ac-sub { color: var(--home-muted); font-size: 12px; }
+.page-home .town-actions .action-card { background: #f3f6fc; border-color: var(--home-border); }
+.page-home .town-actions .ac-label { color: var(--home-blue); }
+
+.page-home .wild-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.page-home .wild-actions #home-wild-combat-action { grid-column: 1 / -1; min-height: 56px; background: var(--home-blue); border-color: var(--home-outer); }
+.page-home .wild-actions #home-wild-combat-action .ac-label { color: #fff; }
+.page-home .wild-actions #home-wild-combat-action .ac-sub { color: #e4eaf7; }
+.page-home .wild-actions #home-wild-combat-action .ui-icon-img { filter: brightness(0) invert(1); }
+.page-home .wild-actions .action-card.offline { background: #f6f3e9; border-color: #c9c6bd; }
+.page-home .wild-actions .action-card.info { background: #edf5ee; border-color: #a9c9ad; }
+.page-home .wild-actions .action-card:not(.success) .ac-label { color: var(--home-text); }
+
+.page-home .session-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.page-home .stat-cell {
+  min-width: 0;
+  padding: 8px 4px;
+  background: var(--home-subtle);
+  border: 1px solid #d6d3cb;
+  border-radius: 2px;
+}
+
+.page-home .stat-cell .num { color: var(--home-text); font-size: 15px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.page-home .stat-cell .label { color: var(--home-muted); font-size: 11px; margin-top: 2px; }
+.page-home .stat-cell.gold .num { color: var(--home-warning); }
+.page-home .stat-cell.exp .num { color: var(--home-mp); }
+.page-home .stat-cell.kill .num { color: var(--home-success); }
+.page-home .home-session-note { color: var(--home-muted); font-size: 12px; }
+.page-home .buff-row { gap: 4px; margin-top: 8px; }
+.page-home .buff-chip { padding: 3px 8px; color: var(--home-warning); background: #fbf4e3; border: 1px solid #d8c18c; border-radius: 2px; font-size: 12px; }
+.page-home .buff-chip .timer { color: var(--home-muted); margin-left: 4px; }
+
+.page-home .bottom-menu {
+  gap: 0;
+  padding: 4px 8px max(4px, env(safe-area-inset-bottom, 0px));
+  background: var(--home-surface);
+  border: 0;
+  border-top: 1px solid var(--home-border);
+}
+
+.page-home .menu-btn {
+  max-width: none;
+  min-width: 0;
+  min-height: 64px;
+  padding: 6px 2px;
+  color: var(--home-text);
+  background: transparent;
+  border: 0;
+  border-right: 1px solid #d6d3cb;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.page-home .menu-btn:last-child { border-right: 0; }
+.page-home .menu-btn .icon.icon-img { width: 32px; height: 32px; flex: 0 0 32px; }
+.page-home .menu-btn.active { color: #fff; background: var(--home-blue); border-color: var(--home-blue); font-weight: normal; }
+.page-home .menu-btn.has-notice::after { top: 4px; right: 6px; width: 7px; height: 7px; background: var(--home-danger); box-shadow: none; }
+
+.page-home button:focus-visible {
+  outline: 3px solid var(--home-blue);
+  outline-offset: 2px;
+  z-index: 1;
+}
+
+.page-home .npc-card:hover,
+.page-home .action-card:hover { background-color: #edf2fc; border-color: var(--home-blue); }
+.page-home .npc-card:active,
+.page-home .action-card:active,
+.page-home .menu-btn:active { transform: translateY(1px); }
+.page-home .menu-btn.active:hover { background: #2f5297; }
+
+@media (max-width: 360px) {
+  .page-home > .top-bar { padding: 8px; }
+  .page-home .stat-row { grid-template-columns: 48px minmax(20px, 1fr) minmax(52px, auto); gap: 4px; }
+  .page-home .stat-num { font-size: 10px; }
+  .page-home > .main-scroll { padding: 8px; }
+  .page-home .town-banner,
+  .page-home .wild-banner { gap: 8px; padding: 8px; }
+  .page-home .npc-card { grid-template-columns: 32px minmax(0, 1fr); gap: 6px; padding: 6px; }
+  .page-home .npc-card.featured { grid-template-columns: 34px minmax(0, 1fr) auto; }
+  .page-home .npc-avatar,
+  .page-home .npc-card.featured .npc-avatar { width: 32px; height: 32px; }
+  .page-home .npc-card .npc-type { font-size: 11px; }
+  .page-home .session-stats { gap: 4px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-home .npc-card,
+  .page-home .action-card { transition: none; }
+}

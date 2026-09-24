@@ -54,10 +54,10 @@ body {
 .page-home > .main-scroll { flex: 1 !important; min-height: 0 !important; overflow-y: auto !important; }
 .page-home > .bottom-menu { flex-shrink: 0 !important; overflow: hidden !important; }
 
-/* === 手机外壳模拟（含灵动岛）=== */
+/* === 公共状态栏布局基线 === */
 .top-bar {
   background: var(--bg-window) !important;
-  border-bottom: 0.3rem solid var(--border-outer) !important;
+  border-bottom: 0.3rem solid var(--border-outer);
   padding: 0.6rem 1rem 0.8rem !important;
   flex-shrink: 0 !important;
   display: flex !important;

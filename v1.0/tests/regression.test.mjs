@@ -44,6 +44,7 @@ import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=relea
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260830-3';
+const MAIN_SCREEN_VERSION = 'release-20260924-home-1';
 
 class MemoryStorage {
   constructor() {
@@ -245,6 +246,24 @@ test('角色入口门禁阻止关闭必需弹窗并废弃过期进入请求', ()
   assert.throws(() => gate.setState('unknown'), RangeError);
 });
 
+test('主页卡片可键盘操作，状态信息和原有跳转保持完整', () => {
+  const source = readFileSync(join(ROOT, 'ui', 'MainScreenUI.js'), 'utf8');
+  const style = readFileSync(join(ROOT, 'css', 'home.css'), 'utf8');
+  const index = readFileSync(join(ROOT, 'index.html'), 'utf8');
+  const homeMarkup = source.slice(source.indexOf('id="page-home"'), source.indexOf('end page-home'));
+
+  assert.ok(homeMarkup.length > 0, '主页模板应存在');
+  assert.doesNotMatch(homeMarkup, /<div\b[^>]*\bonclick=/, '主页点击入口必须使用原生按钮');
+  assert.equal((homeMarkup.match(/<button type="button" class="npc-card\b/g) || []).length, 5);
+  assert.match(homeMarkup, /window\._openMapSheet\(\)/);
+  assert.match(homeMarkup, /window\._openNPC\('leader'\)/);
+  assert.match(homeMarkup, /window\._startOfflineAutoplay\(\)/);
+  assert.doesNotMatch(homeMarkup, /id="home-(?:hp|mp|exp)-pct"/, '主页血量条不显示重复百分比');
+  assert.match(homeMarkup, /data-panel="home" aria-current="page"/);
+  assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
+  assert.match(index, /css\/home\.css\?v=release-20260924-home-3/);
+});
+
 test('内部 ES 模块统一发布标识，物品分类单例可跨系统共享', async () => {
   for (const file of walkFiles(ROOT, '.js')) {
     const source = readFileSync(file, 'utf8');
@@ -252,7 +271,10 @@ test('内部 ES 模块统一发布标识，物品分类单例可跨系统共享'
       if (line.includes('@type')) continue;
       const matches = line.matchAll(/(?:from\s+|^\s*import\s+|import\s*\(\s*)['"]([^'"]+\.js)(?:\?v=([^'"]+))?['"]/g);
       for (const match of matches) {
-        assert.equal(match[2], MODULE_VERSION, `${file}: ${match[1]} 发布标识不一致`);
+        const expectedVersion = file === join(ROOT, 'main.js') && match[1] === './ui/MainScreenUI.js'
+          ? MAIN_SCREEN_VERSION
+          : MODULE_VERSION;
+        assert.equal(match[2], expectedVersion, `${file}: ${match[1]} 发布标识不一致`);
       }
     }
   }
