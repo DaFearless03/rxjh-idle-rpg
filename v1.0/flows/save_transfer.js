@@ -3,9 +3,9 @@
  * @desc 导出 base64 / 全量导入 / 单角色导入 / import_in_progress 事务
  * @ref 13_save.save_transfer
  */
-import { storage } from '../utils/storage.js?v=release-20260830-3';
-import { base64Encode, base64Decode, computeChecksum } from '../utils/crypto.js?v=release-20260830-3';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260830-3';
+import { storage } from '../utils/storage.js?v=release-20260926-slot-state-1';
+import { base64Encode, base64Decode, computeChecksum } from '../utils/crypto.js?v=release-20260926-slot-state-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260926-slot-state-1';
 
 const SAVE_VERSION = '1.0';
 const PLAYER_KEY_RE = /^player-([1-9]|10)$/;

@@ -3,13 +3,13 @@
  * @desc 1vN 战斗系统：刷怪 / target_lock / 普攻结算 / 死亡判定
  * @ref 06_battle.battle_flow / 06_battle.battle_loop
  */
-import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
-import { Monster } from '../entities/Monster.js?v=release-20260830-3';
-import { DamageSystem } from './DamageSystem.js?v=release-20260830-3';
-import { grantExp, onLevelUp, applyDeathExpLoss } from '../utils/formulas.js?v=release-20260830-3';
-import { creditSafeInteger } from '../utils/numbers.js?v=release-20260830-3';
-import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260830-3';
-import { isMartialArtUsable } from '../utils/martial_arts.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
+import { Monster } from '../entities/Monster.js?v=release-20260926-slot-state-1';
+import { DamageSystem } from './DamageSystem.js?v=release-20260926-slot-state-1';
+import { grantExp, onLevelUp, applyDeathExpLoss } from '../utils/formulas.js?v=release-20260926-slot-state-1';
+import { creditSafeInteger } from '../utils/numbers.js?v=release-20260926-slot-state-1';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260926-slot-state-1';
+import { isMartialArtUsable } from '../utils/martial_arts.js?v=release-20260926-slot-state-1';
 
 const DEFAULT_ELITE_CAP_PER_ZONE = 1;
 const MIN_SPAWN_INTERVAL_MS = 10;

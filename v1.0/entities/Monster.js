@@ -3,7 +3,7 @@
  * @desc 怪物实体
  * @ref 07_monsters.monster_template
  */
-import { generateUUID } from '../utils/uuid.js?v=release-20260830-3';
+import { generateUUID } from '../utils/uuid.js?v=release-20260926-slot-state-1';
 
 export class Monster {
   /**

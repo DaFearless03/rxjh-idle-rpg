@@ -4,55 +4,60 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { EventBus, eventBus } from '../core/EventBus.js?v=release-20260830-3';
-import { GameLoop } from '../core/GameLoop.js?v=release-20260830-3';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260830-3';
-import { runStartupSequence } from '../core/StartupSequence.js?v=release-20260830-3';
-import { validateGameConfig } from '../core/ConfigValidator.js?v=release-20260830-3';
-import { Monster } from '../entities/Monster.js?v=release-20260830-3';
-import { runCharacterCreationFlow } from '../flows/character_creation_flow.js?v=release-20260830-3';
-import { executeDeletion } from '../flows/character_deletion_flow.js?v=release-20260830-3';
-import { executeSlotUnlock } from '../flows/slot_unlock_flow.js?v=release-20260830-3';
-import { exportSave, importSave } from '../flows/save_transfer.js?v=release-20260830-3';
-import { AttributeSystem } from '../systems/AttributeSystem.js?v=release-20260830-3';
-import { AutoPlaySystem } from '../systems/AutoPlaySystem.js?v=release-20260830-3';
-import { AutoSellSystem } from '../systems/AutoSellSystem.js?v=release-20260830-3';
-import { AutoStoreSystem } from '../systems/AutoStoreSystem.js?v=release-20260830-3';
-import { BattleSystem } from '../systems/BattleSystem.js?v=release-20260830-3';
-import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260830-3';
-import { BuffSystem } from '../systems/BuffSystem.js?v=release-20260830-3';
-import { ConsumableSystem } from '../systems/ConsumableSystem.js?v=release-20260830-3';
-import { DamageSystem } from '../systems/DamageSystem.js?v=release-20260830-3';
-import { DropSystem } from '../systems/DropSystem.js?v=release-20260830-3';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260830-3';
-import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260830-3';
-import { UIState } from '../systems/NPCSystem.js?v=release-20260830-3';
-import { OfflineSimulator } from '../systems/OfflineSimulator.js?v=release-20260830-3';
-import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260830-3';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260830-3';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260830-3';
-import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260830-3';
-import { TeleportSystem } from '../systems/TeleportSystem.js?v=release-20260830-3';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260830-3';
-import { buildShopItems } from '../ui/ShopUI.js?v=release-20260830-3';
-import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260830-3';
-import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260830-3';
-import { base64Decode, base64Encode } from '../utils/crypto.js?v=release-20260830-3';
-import { applyDeathExpLoss, assignQigongPoint, grantExp, onLevelUp } from '../utils/formulas.js?v=release-20260830-3';
-import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260830-3';
+import { EventBus, eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
+import { GameLoop } from '../core/GameLoop.js?v=release-20260926-slot-state-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260926-slot-state-1';
+import { runStartupSequence } from '../core/StartupSequence.js?v=release-20260926-slot-state-1';
+import { validateGameConfig } from '../core/ConfigValidator.js?v=release-20260926-slot-state-1';
+import { Monster } from '../entities/Monster.js?v=release-20260926-slot-state-1';
+import { runCharacterCreationFlow } from '../flows/character_creation_flow.js?v=release-20260926-slot-state-1';
+import { executeDeletion } from '../flows/character_deletion_flow.js?v=release-20260926-slot-state-1';
+import { executeSlotUnlock } from '../flows/slot_unlock_flow.js?v=release-20260926-slot-state-1';
+import { exportSave, importSave } from '../flows/save_transfer.js?v=release-20260926-slot-state-1';
+import { AttributeSystem } from '../systems/AttributeSystem.js?v=release-20260926-slot-state-1';
+import { AutoPlaySystem } from '../systems/AutoPlaySystem.js?v=release-20260926-slot-state-1';
+import { AutoSellSystem } from '../systems/AutoSellSystem.js?v=release-20260926-slot-state-1';
+import { AutoStoreSystem } from '../systems/AutoStoreSystem.js?v=release-20260926-slot-state-1';
+import { BattleSystem } from '../systems/BattleSystem.js?v=release-20260926-slot-state-1';
+import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260926-slot-state-1';
+import { BuffSystem } from '../systems/BuffSystem.js?v=release-20260926-slot-state-1';
+import { ConsumableSystem } from '../systems/ConsumableSystem.js?v=release-20260926-slot-state-1';
+import { DamageSystem } from '../systems/DamageSystem.js?v=release-20260926-slot-state-1';
+import { DropSystem } from '../systems/DropSystem.js?v=release-20260926-slot-state-1';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260926-slot-state-1';
+import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260926-slot-state-1';
+import { UIState } from '../systems/NPCSystem.js?v=release-20260926-slot-state-1';
+import { OfflineSimulator } from '../systems/OfflineSimulator.js?v=release-20260926-slot-state-1';
+import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260926-slot-state-1';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260926-slot-state-1';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260926-slot-state-1';
+import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260926-slot-state-1';
+import { TeleportSystem } from '../systems/TeleportSystem.js?v=release-20260926-slot-state-1';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260926-slot-state-1';
+import { buildShopItems } from '../ui/ShopUI.js?v=release-20260926-slot-state-1';
+import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260926-slot-state-1';
+import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260926-slot-state-1';
+import { base64Decode, base64Encode } from '../utils/crypto.js?v=release-20260926-slot-state-1';
+import { applyDeathExpLoss, assignQigongPoint, grantExp, onLevelUp } from '../utils/formulas.js?v=release-20260926-slot-state-1';
+import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260926-slot-state-1';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = join(ROOT, 'data');
-const MODULE_VERSION = 'release-20260830-3';
+const MODULE_VERSION = 'release-20260926-slot-state-1';
 const MAIN_SCREEN_VERSION = 'release-20260924-home-1';
 
 class MemoryStorage {
   constructor() {
     Object.defineProperty(this, '_failKey', { value: null, writable: true, enumerable: false });
+    Object.defineProperty(this, '_failReadKey', { value: null, writable: true, enumerable: false });
     Object.defineProperty(this, '_failRemoveKey', { value: null, writable: true, enumerable: false });
   }
 
   getItem(key) {
+    if (this._failReadKey === key) {
+      this._failReadKey = null;
+      throw new Error(`forced read failure: ${key}`);
+    }
     return Object.prototype.hasOwnProperty.call(this, key) ? this[key] : null;
   }
 
@@ -74,6 +79,13 @@ class MemoryStorage {
 
   clear() {
     for (const key of Object.keys(this)) delete this[key];
+    this._failKey = null;
+    this._failReadKey = null;
+    this._failRemoveKey = null;
+  }
+
+  failReadOnce(key) {
+    this._failReadKey = key;
   }
 
   failOnce(key) {
@@ -208,6 +220,28 @@ function createBattle({ player, config = battleConfig(), monstersData = [], mart
   });
 }
 
+function createCharacterCreationFlow(lockManager = createSerialLockManager()) {
+  return runCharacterCreationFlow({
+    careersData: loadJson('careers.json').careers,
+    equipmentsData: loadJson('equipments.json').equipments,
+    attributeConstants: loadJson('config.json').attribute_constants,
+    globalSave: { character_slots: { unlocked_count: 3, last_used_slot: null } },
+    lockManager,
+  });
+}
+
+function createSerialLockManager() {
+  let tail = Promise.resolve();
+  return {
+    request(_name, options, callback) {
+      assert.equal(options.mode, 'exclusive');
+      const current = tail.then(() => callback({ name: _name, mode: options.mode }));
+      tail = current.then(() => undefined, () => undefined);
+      return current;
+    },
+  };
+}
+
 afterEach(() => {
   eventBus.clear();
   AutoPlaySystem.resetRuntimeState();
@@ -279,7 +313,7 @@ test('内部 ES 模块统一发布标识，物品分类单例可跨系统共享'
     }
   }
   const bottomBarSource = readFileSync(join(ROOT, 'ui', 'BottomBarUI.js'), 'utf8');
-  assert.match(bottomBarSource, /import \{ AutoPlaySystem \} from ['"]\.\.\/systems\/AutoPlaySystem\.js\?v=release-20260830-3['"]/);
+  assert.match(bottomBarSource, /import \{ AutoPlaySystem \} from ['"]\.\.\/systems\/AutoPlaySystem\.js\?v=release-20260926-slot-state-1['"]/);
   assert.match(bottomBarSource, /AutoPlaySystem\.castSupportSkill\(/);
 
   InventorySystem.setItemClassMap({
@@ -2141,6 +2175,106 @@ test('新角色以满生命内功创建，并由统一流程发放职业初始�
     globalSave: { character_slots: { unlocked_count: 3, last_used_slot: null } },
   });
   assert.equal(missingWeaponFlow.step3_initializeSave('warrior_blade', '缺少武器', 2).success, false);
+});
+
+test('角色槽位异常存档不会显示为空槽，也不会被新建覆盖', async () => {
+  const flow = createCharacterCreationFlow();
+  localStorage.setItem('player-1', '{broken');
+
+  assert.deepEqual(SaveManager.getPlayerSlotDisplayState(1, []), { type: 'blocked', reason: 'needs_review' });
+  const inspected = await SaveManager.inspectPlayerSlot(1);
+  assert.equal(inspected.status, 'damaged');
+
+  const initialized = flow.step3_initializeSave('warrior_blade', '不会覆盖', 1);
+  assert.equal(initialized.success, false);
+  assert.match(initialized.message, /异常数据/);
+  assert.equal(localStorage.getItem('player-1'), '{broken');
+  assert.equal(localStorage.getItem('player-1-bak'), null);
+});
+
+test('最终写入前会重新检查槽位并保留并发出现的异常数据', async () => {
+  const flow = createCharacterCreationFlow();
+  const initialized = flow.step3_initializeSave('warrior_blade', '并发保护', 1);
+  assert.equal(initialized.success, true);
+  localStorage.setItem('player-1-bak', '{changed-after-list}');
+
+  const result = await flow.step4_persist(initialized.save, 1, {
+    character_slots: { unlocked_count: 3, last_used_slot: null },
+  });
+  assert.equal(result.success, false);
+  assert.match(result.message, /存档异常/);
+  assert.equal(localStorage.getItem('player-1'), null);
+  assert.equal(localStorage.getItem('player-1-bak'), '{changed-after-list}');
+  assert.equal(localStorage.getItem('game'), null);
+});
+
+test('槽位读取失败不被误判为空槽', () => {
+  localStorage.failReadOnce('player-1');
+  assert.equal(SaveManager.readPlayerSlotRawState(1).status, 'read_error');
+  localStorage.failReadOnce('player-1');
+  assert.deepEqual(SaveManager.getPlayerSlotDisplayState(1, []), { type: 'blocked', reason: 'read_error' });
+});
+
+test('有效影子存档占用槽位，且列表显示现有角色', async () => {
+  const flow = createCharacterCreationFlow();
+  const initialized = flow.step3_initializeSave('healer', '影子角色', 1);
+  assert.equal(initialized.success, true);
+  assert.equal(await SaveManager.savePlayerSnapshot(initialized.save, 1), true);
+
+  const shadow = localStorage.getItem('player-1-bak');
+  localStorage.removeItem('player-1');
+  assert.equal((await SaveManager.inspectPlayerSlot(1)).status, 'occupied');
+  assert.deepEqual(SaveManager.getPlayerSlotDisplayState(1, [{ slotIndex: 1, ...initialized.save }]), {
+    type: 'character',
+    character: { slotIndex: 1, ...initialized.save },
+  });
+
+  const blocked = flow.step3_initializeSave('warrior_blade', '不能复用', 1);
+  assert.equal(blocked.success, false);
+  assert.match(blocked.message, /已有存档或异常数据/);
+  assert.equal(localStorage.getItem('player-1-bak'), shadow);
+});
+
+test('角色创建需要跨标签页互斥锁，并发创建不会覆盖先写入的角色', async () => {
+  const lockManager = createSerialLockManager();
+  const firstFlow = createCharacterCreationFlow(lockManager);
+  const secondModuleUrl = new URL('../flows/character_creation_flow.js?v=release-20260926-slot-state-1', import.meta.url);
+  secondModuleUrl.searchParams.set('isolated', String(Date.now()));
+  const secondModule = await import(secondModuleUrl.href);
+  const secondFlow = secondModule.runCharacterCreationFlow({
+    careersData: loadJson('careers.json').careers,
+    equipmentsData: loadJson('equipments.json').equipments,
+    attributeConstants: loadJson('config.json').attribute_constants,
+    globalSave: { character_slots: { unlocked_count: 3, last_used_slot: null } },
+    lockManager,
+  });
+  const first = firstFlow.step3_initializeSave('warrior_blade', '甲角色', 1);
+  const second = secondFlow.step3_initializeSave('healer', '乙角色', 1);
+  assert.equal(first.success, true);
+  assert.equal(second.success, true);
+
+  const results = await Promise.all([
+    firstFlow.step4_persist(first.save, first.slotIndex, { character_slots: { unlocked_count: 3, last_used_slot: null } }),
+    secondFlow.step4_persist(second.save, second.slotIndex, { character_slots: { unlocked_count: 3, last_used_slot: null } }),
+  ]);
+  assert.equal(results.filter(result => result.success).length, 1);
+  assert.equal(results.filter(result => /已有角色/.test(result.message || '')).length, 1);
+  const stored = await SaveManager.restorePlayerFromSave(1);
+  assert.ok(['甲角色', '乙角色'].includes(stored.player.name));
+  assert.equal(localStorage.getItem('player-1'), localStorage.getItem('player-1-bak'));
+});
+
+test('浏览器不支持跨标签页锁时角色创建失败关闭', async () => {
+  const flow = createCharacterCreationFlow(null);
+  const initialized = flow.step3_initializeSave('warrior_blade', '锁缺失', 1);
+  assert.equal(initialized.success, true);
+  const persisted = await flow.step4_persist(initialized.save, 1, {
+    character_slots: { unlocked_count: 3, last_used_slot: null },
+  });
+  assert.equal(persisted.success, false);
+  assert.match(persisted.message, /无法安全锁定/);
+  assert.equal(localStorage.getItem('player-1'), null);
+  assert.equal(localStorage.getItem('player-1-bak'), null);
 });
 
 test('合成与强化的每次结果提示不展示成功概率', async () => {

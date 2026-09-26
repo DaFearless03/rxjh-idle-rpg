@@ -3,9 +3,9 @@
  * @desc 3步角色删除流程
  * @ref 13_save.character_deletion_flow
  */
-import { storage } from '../utils/storage.js?v=release-20260830-3';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260830-3';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { storage } from '../utils/storage.js?v=release-20260926-slot-state-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260926-slot-state-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
 
 /**
  * 触发删除前的二次确认信息

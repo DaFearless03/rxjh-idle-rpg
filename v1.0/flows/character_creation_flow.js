@@ -3,13 +3,14 @@
  * @desc 4步角色创建流程
  * @ref 13_save.character_creation_flow
  */
-import { storage } from '../utils/storage.js?v=release-20260830-3';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260830-3';
-import { generateUUID } from '../utils/uuid.js?v=release-20260830-3';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260830-3';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { storage } from '../utils/storage.js?v=release-20260926-slot-state-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260926-slot-state-1';
+import { generateUUID } from '../utils/uuid.js?v=release-20260926-slot-state-1';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260926-slot-state-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
 
 const BASE_CAREERS = ['warrior_blade', 'warrior_sword', 'warrior_spear', 'healer'];
+const CHARACTER_CREATION_LOCK_NAME = 'rxjh-character-creation';
 const STARTING_WEAPON_BY_FAMILY = {
   blade: 'blade_base_001',
   sword: 'sword_base_001',
@@ -25,6 +26,7 @@ const PERSISTING_SLOTS = new Set();
  */
 export function runCharacterCreationFlow(opts) {
   const { careersData, equipmentsData = [], globalSave, attributeConstants = {} } = opts;
+  const lockManager = opts.lockManager === undefined ? globalThis.navigator?.locks : opts.lockManager;
 
   // 返回 step 函数供外部调用（console 环境下直接执行）
   return {
@@ -137,36 +139,43 @@ export function runCharacterCreationFlow(opts) {
       }
       PERSISTING_SLOTS.add(slot);
       try {
-        updatedGlobalSave.character_slots = normalizedGlobalSave.character_slots;
-        updatedGlobalSave.schema_version = normalizedGlobalSave.schema_version;
-        const previousLastUsedSlot = updatedGlobalSave.character_slots.last_used_slot;
-        const primaryKey = `player-${slot}`;
-        const shadowKey = `${primaryKey}-bak`;
-        const previousPrimary = storage.get(primaryKey);
-        const previousShadow = storage.get(shadowKey);
-        if (previousPrimary != null || previousShadow != null) {
-          return { success: false, message: `槽位 ${slot} 已有角色` };
-        }
-        // 写入玩家存档
-        const playerSaved = await SaveManager.savePlayerState(buildPlayerFromSave(save), slot);
-        if (!playerSaved) return { success: false, message: '角色存档写入失败' };
-        // 更新全局存档
-        updatedGlobalSave.character_slots.last_used_slot = slot;
-        const globalSaved = await SaveManager.saveGlobalState(updatedGlobalSave);
-        if (!globalSaved) {
-          updatedGlobalSave.character_slots.last_used_slot = previousLastUsedSlot;
-          SaveManager.invalidatePendingPlayerWrites(slot);
-          const primaryRestored = restoreStorageValue(primaryKey, previousPrimary);
-          const shadowRestored = restoreStorageValue(shadowKey, previousShadow);
-          return {
-            success: false,
-            message: primaryRestored && shadowRestored
-              ? '全局存档写入失败'
-              : '全局存档写入失败，且角色存档未能完整恢复',
-          };
-        }
-        eventBus.emit('character.created', { slotIndex: slot, name: save.player.name });
-        return { success: true, slotIndex: slot };
+        return await withCharacterCreationLock(lockManager, async () => {
+          const slotState = await SaveManager.inspectPlayerSlot(slot);
+          if (slotState.status !== 'empty') {
+            return {
+              success: false,
+              message: getOccupiedSlotMessage(slot, slotState.status),
+            };
+          }
+
+          updatedGlobalSave.character_slots = normalizedGlobalSave.character_slots;
+          updatedGlobalSave.schema_version = normalizedGlobalSave.schema_version;
+          const previousLastUsedSlot = updatedGlobalSave.character_slots.last_used_slot;
+          const { primaryRaw: previousPrimary, shadowRaw: previousShadow } = slotState;
+          const primaryKey = `player-${slot}`;
+          const shadowKey = `${primaryKey}-bak`;
+
+          const playerSaved = await SaveManager.savePlayerState(buildPlayerFromSave(save), slot);
+          if (!playerSaved) return { success: false, message: '角色存档写入失败' };
+
+          updatedGlobalSave.character_slots.last_used_slot = slot;
+          const globalSaved = await SaveManager.saveGlobalState(updatedGlobalSave);
+          if (!globalSaved) {
+            updatedGlobalSave.character_slots.last_used_slot = previousLastUsedSlot;
+            SaveManager.invalidatePendingPlayerWrites(slot);
+            const primaryRestored = restoreStorageValue(primaryKey, previousPrimary);
+            const shadowRestored = restoreStorageValue(shadowKey, previousShadow);
+            return {
+              success: false,
+              message: primaryRestored && shadowRestored
+                ? '全局存档写入失败'
+                : '全局存档写入失败，且角色存档未能完整恢复',
+            };
+          }
+
+          eventBus.emit('character.created', { slotIndex: slot, name: save.player.name });
+          return { success: true, slotIndex: slot };
+        });
       } finally {
         PERSISTING_SLOTS.delete(slot);
       }
@@ -184,16 +193,59 @@ function resolveSlotIndex(targetSlotIndex, globalSave) {
     if (!Number.isInteger(slotIndex) || slotIndex < 1 || slotIndex > unlocked) {
       throw new Error(`槽位 ${targetSlotIndex} 未解锁`);
     }
-    if (storage.get(`player-${slotIndex}`) || storage.get(`player-${slotIndex}-bak`)) {
-      throw new Error(`槽位 ${slotIndex} 已有角色`);
-    }
+    assertSlotIsReadableAndEmpty(slotIndex);
     return slotIndex;
   }
   // 找第一个空槽
   for (let i = 1; i <= unlocked; i++) {
-    if (!storage.get(`player-${i}`) && !storage.get(`player-${i}-bak`)) return i;
+    const state = SaveManager.readPlayerSlotRawState(i);
+    if (state.status === 'read_error') {
+      throw new Error(`槽位 ${i} 存档读取失败，请刷新后重试`);
+    }
+    if (state.status === 'empty') return i;
   }
   throw new Error('没有可用的角色槽位');
+}
+
+function assertSlotIsReadableAndEmpty(slotIndex) {
+  const state = SaveManager.readPlayerSlotRawState(slotIndex);
+  if (state.status === 'read_error') {
+    throw new Error(`槽位 ${slotIndex} 存档读取失败，请刷新后重试`);
+  }
+  if (state.status !== 'empty') {
+    throw new Error(`槽位 ${slotIndex} 已有存档或异常数据，已阻止覆盖；请刷新列表检查`);
+  }
+}
+
+async function withCharacterCreationLock(lockManager, callback) {
+  if (typeof lockManager?.request !== 'function') {
+    return { success: false, message: '当前浏览器无法安全锁定角色存档，请使用支持的浏览器后重试' };
+  }
+  let callbackStarted = false;
+  try {
+    return await lockManager.request(
+      CHARACTER_CREATION_LOCK_NAME,
+      { mode: 'exclusive' },
+      async (lock) => {
+        callbackStarted = true;
+        return callback(lock);
+      },
+    );
+  } catch (error) {
+    if (callbackStarted) throw error;
+    console.warn('[角色创建] 获取存档互斥锁失败:', error);
+    return { success: false, message: '角色存档锁定失败，已取消创建，请刷新后重试' };
+  }
+}
+
+function getOccupiedSlotMessage(slotIndex, status) {
+  if (status === 'read_error') {
+    return `槽位 ${slotIndex} 存档读取失败，已取消创建，请刷新后重试`;
+  }
+  if (status === 'damaged') {
+    return `槽位 ${slotIndex} 存档异常，已阻止覆盖；请先备份并处理异常存档`;
+  }
+  return `槽位 ${slotIndex} 已有角色，已取消创建`;
 }
 
 function validateCharacterName(name) {

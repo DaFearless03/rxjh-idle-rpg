@@ -3,15 +3,15 @@
  * @desc 离线模拟引擎：settle_offline_rewards + is_in_offline_simulation flag
  * @ref 13_save.simulation_flow
  */
-import { SaveManager } from '../core/SaveManager.js?v=release-20260830-3';
-import { AttributeSystem } from './AttributeSystem.js?v=release-20260830-3';
-import { BattleSystem } from './BattleSystem.js?v=release-20260830-3';
-import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260830-3';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260830-3';
-import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260830-3';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
-import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260830-3';
-import { addCappedNonNegative } from '../utils/numbers.js?v=release-20260830-3';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260926-slot-state-1';
+import { AttributeSystem } from './AttributeSystem.js?v=release-20260926-slot-state-1';
+import { BattleSystem } from './BattleSystem.js?v=release-20260926-slot-state-1';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260926-slot-state-1';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260926-slot-state-1';
+import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260926-slot-state-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
+import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260926-slot-state-1';
+import { addCappedNonNegative } from '../utils/numbers.js?v=release-20260926-slot-state-1';
 
 export const OfflineSimulator = {
   is_in_offline_simulation: false,

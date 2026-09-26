@@ -2,9 +2,9 @@
  * @file ui/ShopUI.js
  * @desc 城镇商店列表渲染：武器、防具、药店。
  */
-import { getBagSlotsInOrder } from './InventoryUI.js?v=release-20260830-3';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260830-3';
-import { pixelIcon, resolvePixelIcon } from './PixelIconUI.js?v=release-20260830-3';
+import { getBagSlotsInOrder } from './InventoryUI.js?v=release-20260926-slot-state-1';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260926-slot-state-1';
+import { pixelIcon, resolvePixelIcon } from './PixelIconUI.js?v=release-20260926-slot-state-1';
 
 const CAREER_NAME = { blade: '刀客', sword: '剑客', staff: '医师', spear: '枪客' };
 const CAREER_ICON = { blade: '🗡️', sword: '⚔️', staff: '🪄', spear: '🔱' };

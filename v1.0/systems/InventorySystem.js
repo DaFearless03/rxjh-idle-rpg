@@ -3,7 +3,7 @@
  * @desc 背包系统：count / add / remove / addEquipmentInstance
  * @ref 11_inventory.md InventorySystem 标准函数
  */
-import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
 
 function isSafeIdentifier(value, maxLength = 256) {
   return typeof value === 'string'

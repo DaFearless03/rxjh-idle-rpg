@@ -3,7 +3,7 @@
  * @desc 100ms tick 游戏循环
  * @ref 06_battle.battle_loop.interval
  */
-import { eventBus } from './EventBus.js?v=release-20260830-3';
+import { eventBus } from './EventBus.js?v=release-20260926-slot-state-1';
 
 export class GameLoop {
   /**

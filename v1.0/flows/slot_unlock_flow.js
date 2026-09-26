@@ -2,9 +2,9 @@
  * @file flows/slot_unlock_flow.js
  * @desc 角色槽位解锁事务：玩家金币与全局槽位必须同时持久化
  */
-import { SaveManager } from '../core/SaveManager.js?v=release-20260830-3';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
-import { storage } from '../utils/storage.js?v=release-20260830-3';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260926-slot-state-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
+import { storage } from '../utils/storage.js?v=release-20260926-slot-state-1';
 
 const UNLOCKING_SLOTS = new Set();
 

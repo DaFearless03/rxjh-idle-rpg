@@ -3,11 +3,11 @@
  * @desc 背包页渲染：装备摘要 + demo 风格背包格子。
  */
 
-import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260830-3';
-import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260830-3';
-import { buildEquipmentDetailView, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260830-3';
-import { generateUUID } from '../utils/uuid.js?v=release-20260830-3';
-import { pixelIcon, resolvePixelIcon } from './PixelIconUI.js?v=release-20260830-3';
+import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260926-slot-state-1';
+import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260926-slot-state-1';
+import { buildEquipmentDetailView, renderEquipmentSummary, getEquipmentTemplate } from './EquipUI.js?v=release-20260926-slot-state-1';
+import { generateUUID } from '../utils/uuid.js?v=release-20260926-slot-state-1';
+import { pixelIcon, resolvePixelIcon } from './PixelIconUI.js?v=release-20260926-slot-state-1';
 
 const ITEM_META = {
   hp_potion_grade1: { icon: 'potion-hp', name: '金创药(小)', desc: '恢复70点生命值' },

@@ -3,9 +3,9 @@
  * @desc 任务系统：接取过滤 / stage_advance_check / submit_quest
  * @ref 08_maps_npc_quests / 09_economy_drops
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260830-3';
-import { UIState } from './NPCSystem.js?v=release-20260830-3';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
+import { InventorySystem } from './InventorySystem.js?v=release-20260926-slot-state-1';
+import { UIState } from './NPCSystem.js?v=release-20260926-slot-state-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
 
 export const TaskSystem = {
   /**

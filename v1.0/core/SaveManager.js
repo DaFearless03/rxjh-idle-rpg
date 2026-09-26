@@ -3,8 +3,8 @@
  * @desc 存档管理：save_player_state / save_global_state / restore_player_from_save
  * @ref 13_save.save_player_state / 13_save.restore_player_from_save / 13_save.redundancy
  */
-import { storage } from '../utils/storage.js?v=release-20260830-3';
-import { computeChecksum } from '../utils/crypto.js?v=release-20260830-3';
+import { storage } from '../utils/storage.js?v=release-20260926-slot-state-1';
+import { computeChecksum } from '../utils/crypto.js?v=release-20260926-slot-state-1';
 
 const SAVE_VERSION = '1.0';
 const PRIMARY_KEY = (slot) => `player-${slot}`;
@@ -425,6 +425,58 @@ export const SaveManager = {
     return valid?.data || null;
   },
 
+  readPlayerSlotRawState(slotIndex) {
+    const slot = this._normalizeSlotIndex(slotIndex);
+    if (slot === null) return { status: 'invalid_slot' };
+
+    const primaryRead = storage.read(PRIMARY_KEY(slot));
+    const shadowRead = storage.read(SHADOW_KEY(slot));
+    if (!primaryRead.ok || !shadowRead.ok) return { status: 'read_error' };
+
+    const primaryRaw = primaryRead.value;
+    const shadowRaw = shadowRead.value;
+    if (primaryRaw === null && shadowRaw === null) {
+      return { status: 'empty', primaryRaw, shadowRaw };
+    }
+    return { status: 'has_data', primaryRaw, shadowRaw };
+  },
+
+  getPlayerSlotDisplayState(slotIndex, characters = []) {
+    const rawState = this.readPlayerSlotRawState(slotIndex);
+    if (rawState.status === 'read_error') return { type: 'blocked', reason: 'read_error' };
+    if (rawState.status === 'empty') return { type: 'empty' };
+
+    const character = characters.find(item => item.slotIndex === slotIndex);
+    if (character) return { type: 'character', character };
+    return { type: 'blocked', reason: 'needs_review' };
+  },
+
+  async inspectPlayerSlot(slotIndex) {
+    const rawState = this.readPlayerSlotRawState(slotIndex);
+    if (rawState.status !== 'has_data') return rawState;
+
+    const [primary, shadow] = await Promise.all([
+      this._validatePlayerPayload(rawState.primaryRaw),
+      this._validatePlayerPayload(rawState.shadowRaw),
+    ]);
+    if (!primary.valid && !shadow.valid) return { ...rawState, status: 'damaged' };
+
+    const useShadow = shadow.valid && (!primary.valid || shadow.savedAt > primary.savedAt);
+    const chosen = useShadow ? shadow : primary;
+    return {
+      ...rawState,
+      status: 'occupied',
+      data: chosen.data,
+      payload: chosen.payload,
+      raw: chosen.raw,
+      primaryValid: primary.valid,
+      shadowValid: shadow.valid,
+      primaryValidatedRaw: primary.raw,
+      shadowValidatedRaw: shadow.raw,
+      recoveredFromShadow: useShadow,
+    };
+  },
+
   /**
    * 读取带外层包装的有效存档；主存档损坏时自动使用影子副本修复。
    */
@@ -433,32 +485,34 @@ export const SaveManager = {
     if (slot === null) return null;
     const primaryKey = PRIMARY_KEY(slot);
     const shadowKey = SHADOW_KEY(slot);
-    const primaryRaw = storage.get(primaryKey);
-    const shadowRaw = storage.get(shadowKey);
-    const [primary, shadow] = await Promise.all([
-      this._validatePlayerPayload(primaryRaw),
-      this._validatePlayerPayload(shadowRaw),
-    ]);
+    const inspection = await this.inspectPlayerSlot(slot);
+    if (inspection.status !== 'occupied') return null;
 
-    if (!primary.valid && !shadow.valid) return null;
-
-    const useShadow = shadow.valid && (!primary.valid || shadow.savedAt > primary.savedAt);
-    const chosen = useShadow ? shadow : primary;
+    const {
+      primaryRaw,
+      raw,
+      data,
+      payload,
+      primaryValid,
+      shadowValid,
+      shadowValidatedRaw,
+      recoveredFromShadow: useShadow,
+    } = inspection;
     if (useShadow) {
-      console.warn(primary.valid
+      console.warn(primaryValid
         ? '[存档] 影子存档较新，已恢复最新快照'
         : '[存档] 检测到主存档损坏，已从影子存档恢复');
-      if (repairPrimary && primaryRaw !== chosen.raw && !storage.set(primaryKey, chosen.raw)) {
+      if (repairPrimary && primaryRaw !== raw && !storage.set(primaryKey, raw)) {
         console.warn('[存档] 影子存档有效，但主存档修复写入失败');
       }
-    } else if ((!shadow.valid || shadow.raw !== chosen.raw) && !storage.set(shadowKey, chosen.raw)) {
+    } else if ((!shadowValid || shadowValidatedRaw !== raw) && !storage.set(shadowKey, raw)) {
       console.warn('[存档] 主存档有效，但影子存档修复写入失败');
     }
 
     return {
-      data: chosen.data,
-      payload: chosen.payload,
-      raw: chosen.raw,
+      data,
+      payload,
+      raw,
       recoveredFromShadow: useShadow,
     };
   },

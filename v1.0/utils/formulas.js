@@ -3,7 +3,7 @@
  * @desc 经验/升级相关公式
  * @ref 02_attributes.grant_exp / on_level_up / apply_death_exp_loss
  */
-import { creditSafeInteger } from './numbers.js?v=release-20260830-3';
+import { creditSafeInteger } from './numbers.js?v=release-20260926-slot-state-1';
 
 
 /**

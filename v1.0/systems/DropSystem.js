@@ -3,12 +3,12 @@
  * @desc 掉落系统：evaluate + 5个drop_*适配
  * @ref 09_economy_drops.md evaluation_flow / drop_adapters / drop_helpers
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260830-3';
-import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260830-3';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260830-3';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
-import { QigongSystem } from './QigongSystem.js?v=release-20260830-3';
-import { creditSafeInteger } from '../utils/numbers.js?v=release-20260830-3';
+import { InventorySystem } from './InventorySystem.js?v=release-20260926-slot-state-1';
+import { AutoPlaySystem } from './AutoPlaySystem.js?v=release-20260926-slot-state-1';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260926-slot-state-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
+import { QigongSystem } from './QigongSystem.js?v=release-20260926-slot-state-1';
+import { creditSafeInteger } from '../utils/numbers.js?v=release-20260926-slot-state-1';
 
 export class DropSystem {
   /**

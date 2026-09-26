@@ -3,7 +3,7 @@
  * @desc 14.5 战斗区主体结构：怪物列表、战斗日志、掉落日志。
  */
 
-import { pixelIcon } from './PixelIconUI.js?v=release-20260830-3';
+import { pixelIcon } from './PixelIconUI.js?v=release-20260926-slot-state-1';
 
 export function renderZoneBattleArea() {
   return `

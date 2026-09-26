@@ -3,6 +3,14 @@
  * @desc localStorage 封装 + 写盘守卫
  */
 export const storage = {
+  read(key) {
+    try {
+      return { ok: true, value: localStorage.getItem(key) };
+    } catch {
+      return { ok: false, value: null };
+    }
+  },
+
   get(key) {
     try {
       return localStorage.getItem(key);

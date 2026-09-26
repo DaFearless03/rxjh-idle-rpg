@@ -3,10 +3,11 @@
  * @desc 多存档列表 UI
  * @ref 13_save.multi_save
  */
-import { storage } from '../utils/storage.js?v=release-20260830-3';
-import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260830-3';
-import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260830-3';
-import { UIManager } from './UIManager.js?v=release-20260830-3';
+import { storage } from '../utils/storage.js?v=release-20260926-slot-state-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260926-slot-state-1';
+import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260926-slot-state-1';
+import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260926-slot-state-1';
+import { UIManager } from './UIManager.js?v=release-20260926-slot-state-1';
 
 const CAREER_EMOJI = {
   warrior_blade: '⚔️',
@@ -73,11 +74,13 @@ export function showMultiSaveUI(globalSave, characters, careersData, { replaceTo
   const lastUsed = globalSave?.character_slots?.last_used_slot;
   const maxPreviewSlots = Math.min(10, Math.max(unlocked + 1, 5));
   const allSlots = [];
-  const used = characters.length;
+  let used = 0;
 
   for (let i = 1; i <= unlocked; i++) {
-    const char = characters.find(c => c.slotIndex === i);
-    if (char) {
+    const displayState = SaveManager.getPlayerSlotDisplayState(i, characters);
+    if (displayState.type === 'character') {
+      used += 1;
+      const char = displayState.character;
       const career = char.player?.career || 'warrior_blade';
       const meta = getCareerMeta(career, careersData);
       const inTown = !char.location?.current_sub_zone_key;
@@ -94,8 +97,15 @@ export function showMultiSaveUI(globalSave, characters, careersData, { replaceTo
         emoji: meta.emoji,
         isLastUsed: lastUsed === i,
       });
-    } else {
+    } else if (displayState.type === 'empty') {
       allSlots.push({ type: 'empty', slotIndex: i });
+    } else {
+      if (displayState.reason === 'needs_review') used += 1;
+      allSlots.push({
+        type: 'blocked',
+        reason: displayState.reason,
+        slotIndex: i,
+      });
     }
   }
   for (let i = unlocked + 1; i <= maxPreviewSlots; i++) {
@@ -136,6 +146,21 @@ export function showMultiSaveUI(globalSave, characters, careersData, { replaceTo
             </div>
           </div>`;
         }
+        if (slot.type === 'blocked') {
+          const readError = slot.reason === 'read_error';
+          return `
+          <div class="slot-warning" role="status">
+            <div class="slot-warning-icon">!</div>
+            <div class="save-info">
+              <div class="slot-title">${readError ? '存档读取失败' : '存档待检查'}</div>
+              <div class="slot-sub">${readError
+                ? '无法确认槽位状态，已禁止新建或覆盖。'
+                : '发现未能载入的存档或列表已过期，已禁止覆盖数据。'}</div>
+            </div>
+            <span class="save-slot-num">${slot.slotIndex}号位</span>
+            <button class="slot-refresh" onclick="window._ui_refreshSaveList()">刷新检查</button>
+          </div>`;
+        }
         return `
           <div class="slot-locked" onclick="window._ui_lockedSlot(${slot.slotIndex})">
             <div class="slot-lock">🔒</div>
@@ -147,7 +172,7 @@ export function showMultiSaveUI(globalSave, characters, careersData, { replaceTo
           </div>`;
       }).join('')}
       </div>
-      <div class="save-list-foot">选择角色进入游戏。删除角色需要二次确认，当前角色被删除时会自动切换到下一名角色。</div>
+      <div class="save-list-foot">选择角色进入游戏。异常或无法核验的存档不会显示为新建槽位，也不会被自动覆盖；可刷新列表重新检查。</div>
     </div>
   `;
 
@@ -197,6 +222,20 @@ export function showMultiSaveUI(globalSave, characters, careersData, { replaceTo
       replaceTopModal: true,
       onCancel: closeToList,
     });
+  };
+
+  window._ui_refreshSaveList = async () => {
+    try {
+      const characters = await window.game?.listCharacters?.();
+      if (!Array.isArray(characters)) {
+        UIManager.toast('暂时无法刷新角色列表，请稍后重试', 'error');
+        return;
+      }
+      showMultiSaveUI(window._currentGlobalSave || globalSave, characters, careersData, { replaceTopModal: true });
+    } catch (error) {
+      console.warn('[角色列表] 刷新失败:', error);
+      UIManager.toast('刷新角色列表失败，请稍后重试', 'error');
+    }
   };
 
   window._ui_lockedSlot = async (slotIndex) => {

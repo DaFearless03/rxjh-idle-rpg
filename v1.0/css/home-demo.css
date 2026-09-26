@@ -956,6 +956,7 @@ body {
 .save-list { display: flex; flex-direction: column; gap: 0.8rem; }
 .save-card,
 .slot-empty,
+.slot-warning,
 .slot-locked {
   display: flex;
   align-items: center;
@@ -1022,6 +1023,32 @@ body {
 .slot-empty {
   border-style: dashed;
   background: rgba(76, 160, 80, 0.08);
+}
+.slot-warning {
+  border-color: #9a4b36;
+  background: linear-gradient(135deg, #fff6ed, #f5e5d5);
+  cursor: default;
+}
+.slot-warning-icon {
+  width: 3.6rem;
+  height: 3.6rem;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 1rem;
+  background: rgba(154, 75, 54, 0.12);
+  color: #8c2c2c;
+  font-size: 2rem;
+  font-weight: 900;
+}
+.slot-refresh {
+  flex: 0 0 auto;
+  border: 0.2rem solid var(--border-outer);
+  border-radius: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--bg-window);
+  color: var(--text-main);
+  font-weight: 700;
 }
 .slot-locked {
   opacity: 0.72;
@@ -3846,6 +3873,7 @@ body {
 }
 #modal-multi-save .save-card,
 #modal-multi-save .slot-empty,
+#modal-multi-save .slot-warning,
 #modal-multi-save .slot-locked {
   border-radius: 0.8rem;
   border-width: 0.3rem;

@@ -3,7 +3,7 @@
  * @desc 战斗区怪物列表渲染：最多 8 只，保留生成顺序，展示精英/预热/死亡状态。
  */
 
-import { pixelIcon } from './PixelIconUI.js?v=release-20260830-3';
+import { pixelIcon } from './PixelIconUI.js?v=release-20260926-slot-state-1';
 
 function escapeHtml(value) {
   return String(value ?? '')

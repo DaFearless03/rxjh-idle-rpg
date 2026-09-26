@@ -3,10 +3,10 @@
  * @desc 商店买卖：价格倍率 / forbidden 检查
  * @ref 08_maps_npc_quests shop npc
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260830-3';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260830-3';
-import { eventBus } from '../core/EventBus.js?v=release-20260830-3';
-import { canCreditSafeInteger } from '../utils/numbers.js?v=release-20260830-3';
+import { InventorySystem } from './InventorySystem.js?v=release-20260926-slot-state-1';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260926-slot-state-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
+import { canCreditSafeInteger } from '../utils/numbers.js?v=release-20260926-slot-state-1';
 
 function getEmptySlotCount(player) {
   const slots = player.inventory?.slots || [];
