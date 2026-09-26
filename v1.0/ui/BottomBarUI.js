@@ -2,28 +2,28 @@
  * @file ui/BottomBarUI.js
  * @desc 底部导航 + 主面板切换桥接函数
  */
-import { UIManager } from './UIManager.js?v=release-20260926-slot-state-1';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260926-slot-state-1';
-import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260926-slot-state-1';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260926-slot-state-1';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260926-slot-state-1';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260926-slot-state-1';
-import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260926-slot-state-1';
-import { AutoPlaySystem } from '../systems/AutoPlaySystem.js?v=release-20260926-slot-state-1';
-import { mountCharacterPanel } from './CharacterUI.js?v=release-20260926-slot-state-1';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260926-slot-state-1';
-import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260926-slot-state-1';
-import { mountQuestPanel } from './TaskUI.js?v=release-20260926-slot-state-1';
-import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260926-slot-state-1';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260926-slot-state-1';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260926-slot-state-1';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260926-slot-state-1';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260926-slot-state-1';
-import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260926-slot-state-1';
-import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260926-slot-state-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
-import { isMartialArtUsable, meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260926-slot-state-1';
-import { pixelIcon, pixelIconMarkup } from './PixelIconUI.js?v=release-20260926-slot-state-1';
+import { UIManager } from './UIManager.js?v=release-20260926-save-compat-1';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260926-save-compat-1';
+import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260926-save-compat-1';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260926-save-compat-1';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260926-save-compat-1';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260926-save-compat-1';
+import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260926-save-compat-1';
+import { AutoPlaySystem } from '../systems/AutoPlaySystem.js?v=release-20260926-save-compat-1';
+import { mountCharacterPanel } from './CharacterUI.js?v=release-20260926-save-compat-1';
+import { mountInventoryPanel } from './InventoryUI.js?v=release-20260926-save-compat-1';
+import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260926-save-compat-1';
+import { mountQuestPanel } from './TaskUI.js?v=release-20260926-save-compat-1';
+import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260926-save-compat-1';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260926-save-compat-1';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260926-save-compat-1';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260926-save-compat-1';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260926-save-compat-1';
+import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260926-save-compat-1';
+import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260926-save-compat-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-save-compat-1';
+import { isMartialArtUsable, meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260926-save-compat-1';
+import { pixelIcon, pixelIconMarkup } from './PixelIconUI.js?v=release-20260926-save-compat-1';
 
 function escapeHtml(value) {
   return String(value ?? '')

@@ -3,11 +3,11 @@
  * @desc 多存档列表 UI
  * @ref 13_save.multi_save
  */
-import { storage } from '../utils/storage.js?v=release-20260926-slot-state-1';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260926-slot-state-1';
-import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260926-slot-state-1';
-import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260926-slot-state-1';
-import { UIManager } from './UIManager.js?v=release-20260926-slot-state-1';
+import { storage } from '../utils/storage.js?v=release-20260926-save-compat-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260926-save-compat-1';
+import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260926-save-compat-1';
+import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260926-save-compat-1';
+import { UIManager } from './UIManager.js?v=release-20260926-save-compat-1';
 
 const CAREER_EMOJI = {
   warrior_blade: '⚔️',

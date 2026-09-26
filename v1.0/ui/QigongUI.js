@@ -3,7 +3,7 @@
  * @desc 气功页渲染：严格复用 ui_demo_role 的气功卡结构。
  */
 
-import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260926-slot-state-1';
+import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260926-save-compat-1';
 
 function escapeHtml(value) {
   return String(value ?? '')

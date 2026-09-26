@@ -3,7 +3,7 @@
  * @desc 强化系统 +0~+10（成功/失败毁装备）
  * @ref 05_equipment.md 5.5.7 enhance_system
  */
-import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-save-compat-1';
 
 export const EnhanceSystem = {
   ENHANCEABLE_SLOTS: new Set(['weapon', 'chest', 'gloves', 'boots', 'inner_armor']),

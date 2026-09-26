@@ -3,9 +3,9 @@
  * @desc 开盒系统：按 openable_items.weight 加权随机，支持批量开盒。
  * @ref 12_boxes.md
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260926-slot-state-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260926-slot-state-1';
+import { InventorySystem } from './InventorySystem.js?v=release-20260926-save-compat-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-save-compat-1';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260926-save-compat-1';
 
 function toPositiveInt(value) {
   const count = Number(value);

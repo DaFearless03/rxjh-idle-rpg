@@ -3,13 +3,13 @@
  * @desc is_auto_play 状态机 + 12项清挂机规则 + auto_consume + auto_heal_skill + auto_resupply
  * @ref 10_consumables.auto_consume / auto_heal_skill / auto_resupply
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260926-slot-state-1';
-import { ConsumableSystem } from './ConsumableSystem.js?v=release-20260926-slot-state-1';
-import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260926-slot-state-1';
-import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260926-slot-state-1';
-import { BuffSystem } from './BuffSystem.js?v=release-20260926-slot-state-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
-import { isMartialArtUsable } from '../utils/martial_arts.js?v=release-20260926-slot-state-1';
+import { InventorySystem } from './InventorySystem.js?v=release-20260926-save-compat-1';
+import { ConsumableSystem } from './ConsumableSystem.js?v=release-20260926-save-compat-1';
+import { AutoSellSystem } from './AutoSellSystem.js?v=release-20260926-save-compat-1';
+import { AutoStoreSystem } from './AutoStoreSystem.js?v=release-20260926-save-compat-1';
+import { BuffSystem } from './BuffSystem.js?v=release-20260926-save-compat-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-save-compat-1';
+import { isMartialArtUsable } from '../utils/martial_arts.js?v=release-20260926-save-compat-1';
 
 function createCooldownState() {
   return { hp_potion: 0, mp_potion: 0, heal_skill: 0, buff_skill: 0 };

@@ -4,46 +4,46 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { EventBus, eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
-import { GameLoop } from '../core/GameLoop.js?v=release-20260926-slot-state-1';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260926-slot-state-1';
-import { runStartupSequence } from '../core/StartupSequence.js?v=release-20260926-slot-state-1';
-import { validateGameConfig } from '../core/ConfigValidator.js?v=release-20260926-slot-state-1';
-import { Monster } from '../entities/Monster.js?v=release-20260926-slot-state-1';
-import { runCharacterCreationFlow } from '../flows/character_creation_flow.js?v=release-20260926-slot-state-1';
-import { executeDeletion } from '../flows/character_deletion_flow.js?v=release-20260926-slot-state-1';
-import { executeSlotUnlock } from '../flows/slot_unlock_flow.js?v=release-20260926-slot-state-1';
-import { exportSave, importSave } from '../flows/save_transfer.js?v=release-20260926-slot-state-1';
-import { AttributeSystem } from '../systems/AttributeSystem.js?v=release-20260926-slot-state-1';
-import { AutoPlaySystem } from '../systems/AutoPlaySystem.js?v=release-20260926-slot-state-1';
-import { AutoSellSystem } from '../systems/AutoSellSystem.js?v=release-20260926-slot-state-1';
-import { AutoStoreSystem } from '../systems/AutoStoreSystem.js?v=release-20260926-slot-state-1';
-import { BattleSystem } from '../systems/BattleSystem.js?v=release-20260926-slot-state-1';
-import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260926-slot-state-1';
-import { BuffSystem } from '../systems/BuffSystem.js?v=release-20260926-slot-state-1';
-import { ConsumableSystem } from '../systems/ConsumableSystem.js?v=release-20260926-slot-state-1';
-import { DamageSystem } from '../systems/DamageSystem.js?v=release-20260926-slot-state-1';
-import { DropSystem } from '../systems/DropSystem.js?v=release-20260926-slot-state-1';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260926-slot-state-1';
-import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260926-slot-state-1';
-import { UIState } from '../systems/NPCSystem.js?v=release-20260926-slot-state-1';
-import { OfflineSimulator } from '../systems/OfflineSimulator.js?v=release-20260926-slot-state-1';
-import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260926-slot-state-1';
-import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260926-slot-state-1';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260926-slot-state-1';
-import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260926-slot-state-1';
-import { TeleportSystem } from '../systems/TeleportSystem.js?v=release-20260926-slot-state-1';
-import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260926-slot-state-1';
-import { buildShopItems } from '../ui/ShopUI.js?v=release-20260926-slot-state-1';
-import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260926-slot-state-1';
-import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260926-slot-state-1';
-import { base64Decode, base64Encode } from '../utils/crypto.js?v=release-20260926-slot-state-1';
-import { applyDeathExpLoss, assignQigongPoint, grantExp, onLevelUp } from '../utils/formulas.js?v=release-20260926-slot-state-1';
-import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260926-slot-state-1';
+import { EventBus, eventBus } from '../core/EventBus.js?v=release-20260926-save-compat-1';
+import { GameLoop } from '../core/GameLoop.js?v=release-20260926-save-compat-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260926-save-compat-1';
+import { runStartupSequence } from '../core/StartupSequence.js?v=release-20260926-save-compat-1';
+import { validateGameConfig } from '../core/ConfigValidator.js?v=release-20260926-save-compat-1';
+import { Monster } from '../entities/Monster.js?v=release-20260926-save-compat-1';
+import { runCharacterCreationFlow } from '../flows/character_creation_flow.js?v=release-20260926-save-compat-1';
+import { executeDeletion } from '../flows/character_deletion_flow.js?v=release-20260926-save-compat-1';
+import { executeSlotUnlock } from '../flows/slot_unlock_flow.js?v=release-20260926-save-compat-1';
+import { exportSave, importSave } from '../flows/save_transfer.js?v=release-20260926-save-compat-1';
+import { AttributeSystem } from '../systems/AttributeSystem.js?v=release-20260926-save-compat-1';
+import { AutoPlaySystem } from '../systems/AutoPlaySystem.js?v=release-20260926-save-compat-1';
+import { AutoSellSystem } from '../systems/AutoSellSystem.js?v=release-20260926-save-compat-1';
+import { AutoStoreSystem } from '../systems/AutoStoreSystem.js?v=release-20260926-save-compat-1';
+import { BattleSystem } from '../systems/BattleSystem.js?v=release-20260926-save-compat-1';
+import { BoxSystem } from '../systems/BoxSystem.js?v=release-20260926-save-compat-1';
+import { BuffSystem } from '../systems/BuffSystem.js?v=release-20260926-save-compat-1';
+import { ConsumableSystem } from '../systems/ConsumableSystem.js?v=release-20260926-save-compat-1';
+import { DamageSystem } from '../systems/DamageSystem.js?v=release-20260926-save-compat-1';
+import { DropSystem } from '../systems/DropSystem.js?v=release-20260926-save-compat-1';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260926-save-compat-1';
+import { InventorySystem } from '../systems/InventorySystem.js?v=release-20260926-save-compat-1';
+import { UIState } from '../systems/NPCSystem.js?v=release-20260926-save-compat-1';
+import { OfflineSimulator } from '../systems/OfflineSimulator.js?v=release-20260926-save-compat-1';
+import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260926-save-compat-1';
+import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260926-save-compat-1';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260926-save-compat-1';
+import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260926-save-compat-1';
+import { TeleportSystem } from '../systems/TeleportSystem.js?v=release-20260926-save-compat-1';
+import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260926-save-compat-1';
+import { buildShopItems } from '../ui/ShopUI.js?v=release-20260926-save-compat-1';
+import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260926-save-compat-1';
+import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260926-save-compat-1';
+import { base64Decode, base64Encode, computeChecksum } from '../utils/crypto.js?v=release-20260926-save-compat-1';
+import { applyDeathExpLoss, assignQigongPoint, grantExp, onLevelUp } from '../utils/formulas.js?v=release-20260926-save-compat-1';
+import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260926-save-compat-1';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = join(ROOT, 'data');
-const MODULE_VERSION = 'release-20260926-slot-state-1';
+const MODULE_VERSION = 'release-20260926-save-compat-1';
 const MAIN_SCREEN_VERSION = 'release-20260924-home-1';
 
 class MemoryStorage {
@@ -313,7 +313,7 @@ test('内部 ES 模块统一发布标识，物品分类单例可跨系统共享'
     }
   }
   const bottomBarSource = readFileSync(join(ROOT, 'ui', 'BottomBarUI.js'), 'utf8');
-  assert.match(bottomBarSource, /import \{ AutoPlaySystem \} from ['"]\.\.\/systems\/AutoPlaySystem\.js\?v=release-20260926-slot-state-1['"]/);
+  assert.match(bottomBarSource, /import \{ AutoPlaySystem \} from ['"]\.\.\/systems\/AutoPlaySystem\.js\?v=release-20260926-save-compat-1['"]/);
   assert.match(bottomBarSource, /AutoPlaySystem\.castSupportSkill\(/);
 
   InventorySystem.setItemClassMap({
@@ -1444,6 +1444,83 @@ test('双存档任一写入失败会回滚，并可从影子存档自愈和导�
   assert.equal(exported.players['player-1'].data.player.name, '可靠存档');
 });
 
+test('四个旧角色槽位可只读恢复，导出与正常保存升级为新格式', async () => {
+  for (let slot = 1; slot <= 4; slot++) {
+    const savedAt = 1000 + slot;
+    const data = SaveManager._buildPlayerSave(
+      makeBattlePlayer({ name: `旧角色${slot}`, offline: { last_save_timestamp: savedAt } }), savedAt,
+    );
+    delete data.auto_play.auto_heal_skill.threshold;
+    const checksum = slot === 4 ? await computeChecksum(data, '1.0', savedAt) : null;
+    const raw = JSON.stringify({ data, version: '1.0', saved_at: savedAt, checksum });
+    localStorage.setItem(`player-${slot}`, raw);
+    localStorage.setItem(`player-${slot}-bak`, raw);
+  }
+
+  for (let slot = 1; slot <= 4; slot++) {
+    const primary = localStorage.getItem(`player-${slot}`);
+    const backup = localStorage.getItem(`player-${slot}-bak`);
+    const inspected = await SaveManager.inspectPlayerSlot(slot);
+    assert.equal(inspected.status, 'occupied');
+    assert.equal(inspected.migratedFromLegacy, true);
+    const restored = await SaveManager.restorePlayerFromSave(slot);
+    assert.equal(restored.auto_play.auto_heal_skill.threshold, 0.5);
+    assert.equal(localStorage.getItem(`player-${slot}`), primary);
+    assert.equal(localStorage.getItem(`player-${slot}-bak`), backup);
+  }
+
+  await SaveManager.saveGlobalState({ character_slots: { unlocked_count: 4, last_used_slot: 1 } });
+  const exported = base64Decode(await exportSave({ include_all_characters: true }));
+  assert.equal(exported.players['player-4'].data.auto_play.auto_heal_skill.threshold, 0.5);
+  assert.equal(await SaveManager._validatePlayerPayload(JSON.stringify(exported.players['player-4'])).then(result => result.valid), true);
+  assert.equal(await SaveManager.savePlayerSnapshot((await SaveManager.restorePlayerFromSave(1)), 1), true);
+  assert.equal(JSON.parse(localStorage.getItem('player-1')).data.auto_play.auto_heal_skill.threshold, 0.5);
+});
+
+test('旧存档迁移先验原始校验和，并且不会覆盖另一份主备存档', async () => {
+  const savedAt = 2000;
+  const data = SaveManager._buildPlayerSave(makeBattlePlayer({ name: '旧主档' }), savedAt);
+  delete data.auto_play.auto_heal_skill.threshold;
+  const legacyRaw = JSON.stringify({ data, version: '1.0', saved_at: savedAt, checksum: await computeChecksum(data, '1.0', savedAt) });
+  localStorage.setItem('player-1', legacyRaw);
+  localStorage.setItem('player-1-bak', '{broken');
+  assert.equal((await SaveManager.readValidPlayerPayload(1)).data.player.name, '旧主档');
+  assert.equal(localStorage.getItem('player-1-bak'), '{broken');
+
+  localStorage.setItem('player-1', '{broken');
+  localStorage.setItem('player-1-bak', legacyRaw);
+  assert.equal((await SaveManager.readValidPlayerPayload(1)).recoveredFromShadow, true);
+  assert.equal(localStorage.getItem('player-1'), '{broken');
+
+  const tampered = JSON.parse(legacyRaw);
+  tampered.data.player.name = '被修改';
+  localStorage.setItem('player-1-bak', JSON.stringify(tampered));
+  assert.equal((await SaveManager.inspectPlayerSlot(1)).status, 'damaged');
+  assert.equal(localStorage.getItem('player-1'), '{broken');
+});
+
+test('仅迁移真正缺失的治疗阈值，旧格式导入也接受相同规则', async () => {
+  const savedAt = 3000;
+  const data = SaveManager._buildPlayerSave(makeBattlePlayer({ name: '导入旧档' }), savedAt);
+  delete data.auto_play.auto_heal_skill.threshold;
+  const legacy = { data, version: '1.0', saved_at: savedAt, checksum: null };
+  const pack = { include_all_characters: false, player: { slot_index: 1, data: legacy }, export_meta: { schema_version: '1.0' } };
+  assert.equal(await SaveManager.saveGlobalState({ character_slots: { unlocked_count: 3, last_used_slot: null } }), true);
+  assert.equal((await importSave(base64Encode(pack))).success, true);
+  assert.equal(JSON.parse(localStorage.getItem('player-1')).data.auto_play.auto_heal_skill.threshold, 0.5);
+
+  for (const invalid of [null, '0.5', -1]) {
+    const broken = structuredClone(legacy);
+    broken.data.auto_play.auto_heal_skill.threshold = invalid;
+    assert.equal((await SaveManager._validatePlayerPayload(JSON.stringify(broken))).valid, false);
+  }
+  for (const valid of [0, 1]) {
+    const current = structuredClone(legacy);
+    current.data.auto_play.auto_heal_skill.threshold = valid;
+    assert.equal((await SaveManager._validatePlayerPayload(JSON.stringify(current))).valid, true);
+  }
+});
+
 test('全局存档保留三个基础栏位，并拒绝非整数存档时间戳', async () => {
   const normalized = SaveManager.normalizeGlobalState({
     character_slots: { unlocked_count: 1, last_used_slot: 1 },
@@ -2238,7 +2315,7 @@ test('有效影子存档占用槽位，且列表显示现有角色', async () =>
 test('角色创建需要跨标签页互斥锁，并发创建不会覆盖先写入的角色', async () => {
   const lockManager = createSerialLockManager();
   const firstFlow = createCharacterCreationFlow(lockManager);
-  const secondModuleUrl = new URL('../flows/character_creation_flow.js?v=release-20260926-slot-state-1', import.meta.url);
+  const secondModuleUrl = new URL('../flows/character_creation_flow.js?v=release-20260926-save-compat-1', import.meta.url);
   secondModuleUrl.searchParams.set('isolated', String(Date.now()));
   const secondModule = await import(secondModuleUrl.href);
   const secondFlow = secondModule.runCharacterCreationFlow({

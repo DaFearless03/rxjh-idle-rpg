@@ -3,39 +3,39 @@
  * @desc Phase 4 启动序列：存档 + 离线模拟 + 角色管理 + 自动挂机
  * @ref 13_save.startup_sequence / character_creation_flow / OfflineSimulator
  */
-import { Game } from './core/Game.js?v=release-20260926-slot-state-1';
-import { GameLoop } from './core/GameLoop.js?v=release-20260926-slot-state-1';
-import { eventBus } from './core/EventBus.js?v=release-20260926-slot-state-1';
-import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260926-slot-state-1';
-import { BattleSystem } from './systems/BattleSystem.js?v=release-20260926-slot-state-1';
-import { InventorySystem } from './systems/InventorySystem.js?v=release-20260926-slot-state-1';
-import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260926-slot-state-1';
-import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260926-slot-state-1';
-import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260926-slot-state-1';
-import { DropSystem } from './systems/DropSystem.js?v=release-20260926-slot-state-1';
-import { BoxSystem } from './systems/BoxSystem.js?v=release-20260926-slot-state-1';
-import { NPCSystem } from './systems/NPCSystem.js?v=release-20260926-slot-state-1';
-import { ShopSystem } from './systems/ShopSystem.js?v=release-20260926-slot-state-1';
-import { TaskSystem } from './systems/TaskSystem.js?v=release-20260926-slot-state-1';
-import { QigongSystem } from './systems/QigongSystem.js?v=release-20260926-slot-state-1';
-import { BuffSystem } from './systems/BuffSystem.js?v=release-20260926-slot-state-1';
-import { Player } from './entities/Player.js?v=release-20260926-slot-state-1';
-import { SaveManager } from './core/SaveManager.js?v=release-20260926-slot-state-1';
-import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js?v=release-20260926-slot-state-1';
-import { assertValidGameConfig } from './core/ConfigValidator.js?v=release-20260926-slot-state-1';
-import { runCharacterCreationFlow } from './flows/character_creation_flow.js?v=release-20260926-slot-state-1';
-import { getDeletionConfirmInfo, executeDeletion } from './flows/character_deletion_flow.js?v=release-20260926-slot-state-1';
-import { executeSlotUnlock } from './flows/slot_unlock_flow.js?v=release-20260926-slot-state-1';
-import { exportSave as doExportSave, importSave as doImportSave } from './flows/save_transfer.js?v=release-20260926-slot-state-1';
-import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260926-slot-state-1';
-import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260926-slot-state-1';
-import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260926-slot-state-1';
-import { storage } from './utils/storage.js?v=release-20260926-slot-state-1';
-import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260926-slot-state-1';
-import { addCappedNonNegative } from './utils/numbers.js?v=release-20260926-slot-state-1';
-import { UIManager } from './ui/UIManager.js?v=release-20260926-slot-state-1';
+import { Game } from './core/Game.js?v=release-20260926-save-compat-1';
+import { GameLoop } from './core/GameLoop.js?v=release-20260926-save-compat-1';
+import { eventBus } from './core/EventBus.js?v=release-20260926-save-compat-1';
+import { AttributeSystem } from './systems/AttributeSystem.js?v=release-20260926-save-compat-1';
+import { BattleSystem } from './systems/BattleSystem.js?v=release-20260926-save-compat-1';
+import { InventorySystem } from './systems/InventorySystem.js?v=release-20260926-save-compat-1';
+import { WarehouseSystem } from './systems/WarehouseSystem.js?v=release-20260926-save-compat-1';
+import { EnhanceSystem } from './systems/EnhanceSystem.js?v=release-20260926-save-compat-1';
+import { SynthesisSystem } from './systems/SynthesisSystem.js?v=release-20260926-save-compat-1';
+import { DropSystem } from './systems/DropSystem.js?v=release-20260926-save-compat-1';
+import { BoxSystem } from './systems/BoxSystem.js?v=release-20260926-save-compat-1';
+import { NPCSystem } from './systems/NPCSystem.js?v=release-20260926-save-compat-1';
+import { ShopSystem } from './systems/ShopSystem.js?v=release-20260926-save-compat-1';
+import { TaskSystem } from './systems/TaskSystem.js?v=release-20260926-save-compat-1';
+import { QigongSystem } from './systems/QigongSystem.js?v=release-20260926-save-compat-1';
+import { BuffSystem } from './systems/BuffSystem.js?v=release-20260926-save-compat-1';
+import { Player } from './entities/Player.js?v=release-20260926-save-compat-1';
+import { SaveManager } from './core/SaveManager.js?v=release-20260926-save-compat-1';
+import { runStartupSequence, loadAllCharacters } from './core/StartupSequence.js?v=release-20260926-save-compat-1';
+import { assertValidGameConfig } from './core/ConfigValidator.js?v=release-20260926-save-compat-1';
+import { runCharacterCreationFlow } from './flows/character_creation_flow.js?v=release-20260926-save-compat-1';
+import { getDeletionConfirmInfo, executeDeletion } from './flows/character_deletion_flow.js?v=release-20260926-save-compat-1';
+import { executeSlotUnlock } from './flows/slot_unlock_flow.js?v=release-20260926-save-compat-1';
+import { exportSave as doExportSave, importSave as doImportSave } from './flows/save_transfer.js?v=release-20260926-save-compat-1';
+import { AutoPlaySystem } from './systems/AutoPlaySystem.js?v=release-20260926-save-compat-1';
+import { TeleportSystem } from './systems/TeleportSystem.js?v=release-20260926-save-compat-1';
+import { OfflineSimulator } from './systems/OfflineSimulator.js?v=release-20260926-save-compat-1';
+import { storage } from './utils/storage.js?v=release-20260926-save-compat-1';
+import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260926-save-compat-1';
+import { addCappedNonNegative } from './utils/numbers.js?v=release-20260926-save-compat-1';
+import { UIManager } from './ui/UIManager.js?v=release-20260926-save-compat-1';
 import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260924-home-1';
-import { showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260926-slot-state-1';
+import { showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260926-save-compat-1';
 import {
   hideOfflineRewardLoading,
   showMultiSaveUI,
@@ -43,13 +43,13 @@ import {
   showOfflineRewardLoading,
   showOfflineRewardUI,
   updateOfflineRewardProgress,
-} from './ui/MultiSaveUI.js?v=release-20260926-slot-state-1';
-import './ui/BottomBarUI.js?v=release-20260926-slot-state-1';
+} from './ui/MultiSaveUI.js?v=release-20260926-save-compat-1';
+import './ui/BottomBarUI.js?v=release-20260926-save-compat-1';
 
 // ========================
 // 数据加载
 // ========================
-const DATA_VERSION = 'release-20260926-slot-state-1';
+const DATA_VERSION = 'release-20260926-save-compat-1';
 const fetchData = async (path) => {
   const response = await fetch(`${path}?v=${DATA_VERSION}`, { cache: 'no-store' });
   if (!response.ok) {

@@ -3,8 +3,8 @@
  * @desc Buff 系统：apply_buff / expire / DOT/HOT tick / attribute_mods 注入钩子
  * @ref 04_skills_qigong_buff Buff 系统
  */
-import { createBuffInstance, isBuffExpired } from '../entities/Buff.js?v=release-20260926-slot-state-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
+import { createBuffInstance, isBuffExpired } from '../entities/Buff.js?v=release-20260926-save-compat-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-save-compat-1';
 
 export const BuffSystem = {
   _buffTemplates: {},

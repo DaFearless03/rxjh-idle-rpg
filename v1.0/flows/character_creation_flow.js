@@ -3,11 +3,11 @@
  * @desc 4步角色创建流程
  * @ref 13_save.character_creation_flow
  */
-import { storage } from '../utils/storage.js?v=release-20260926-slot-state-1';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260926-slot-state-1';
-import { generateUUID } from '../utils/uuid.js?v=release-20260926-slot-state-1';
-import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260926-slot-state-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
+import { storage } from '../utils/storage.js?v=release-20260926-save-compat-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260926-save-compat-1';
+import { generateUUID } from '../utils/uuid.js?v=release-20260926-save-compat-1';
+import { createEquipmentInstance } from '../entities/EquipmentInstance.js?v=release-20260926-save-compat-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-save-compat-1';
 
 const BASE_CAREERS = ['warrior_blade', 'warrior_sword', 'warrior_spear', 'healer'];
 const CHARACTER_CREATION_LOCK_NAME = 'rxjh-character-creation';

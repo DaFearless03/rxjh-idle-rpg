@@ -3,7 +3,7 @@
  * @desc 装备穿戴展示区：demo 风格人形槽位 + 战斗属性摘要。
  */
 
-import { pixelIcon } from './PixelIconUI.js?v=release-20260926-slot-state-1';
+import { pixelIcon } from './PixelIconUI.js?v=release-20260926-save-compat-1';
 
 const SLOT_META = {
   weapon: { label: '武器', icon: 'combat', pos: 'slot-weapon' },

@@ -3,8 +3,8 @@
  * @desc 主页面骨架（demo 风格）：phone-frame + top-bar + main-scroll + bottom-menu + 所有 panel
  */
 
-import { renderZoneBattleArea } from './ZoneBattleAreaUI.js?v=release-20260926-slot-state-1';
-import { pixelIcon } from './PixelIconUI.js?v=release-20260926-slot-state-1';
+import { renderZoneBattleArea } from './ZoneBattleAreaUI.js?v=release-20260926-save-compat-1';
+import { pixelIcon } from './PixelIconUI.js?v=release-20260926-save-compat-1';
 
 const BOTTOM_NAV_ICONS = Object.freeze({
   inventory: '<img class="icon icon-img" src="icons/nav-bag.png?v=20260923-icons-5" alt="" aria-hidden="true" draggable="false">',

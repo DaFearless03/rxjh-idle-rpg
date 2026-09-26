@@ -3,7 +3,7 @@
  * @desc 气功系统：投点 / 重置 / 装备热血石加成
  * @ref 04_skills_qigong_buff 4.2 气功系统
  */
-import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-save-compat-1';
 
 export const QigongSystem = {
   _qigongTemplates: [],

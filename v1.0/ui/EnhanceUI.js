@@ -3,9 +3,9 @@
  * @desc 刀剑笑强化工坊 UI。
  */
 
-import { getEquipmentTemplate } from './EquipUI.js?v=release-20260926-slot-state-1';
-import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260926-slot-state-1';
-import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260926-slot-state-1';
+import { getEquipmentTemplate } from './EquipUI.js?v=release-20260926-save-compat-1';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260926-save-compat-1';
+import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260926-save-compat-1';
 
 function getBagEquipmentChoices(player) {
   const equippedIds = new Set(Object.values(player?.equipped || {}).flat().filter(Boolean)

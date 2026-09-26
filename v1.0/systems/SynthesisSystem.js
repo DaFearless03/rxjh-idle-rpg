@@ -3,9 +3,9 @@
  * @desc 合成系统：石头嵌入装备孔位
  * @ref 05_equipment.md 5.5.10 synthesis_system
  */
-import { InventorySystem } from './InventorySystem.js?v=release-20260926-slot-state-1';
-import { eventBus } from '../core/EventBus.js?v=release-20260926-slot-state-1';
-import { QigongSystem } from './QigongSystem.js?v=release-20260926-slot-state-1';
+import { InventorySystem } from './InventorySystem.js?v=release-20260926-save-compat-1';
+import { eventBus } from '../core/EventBus.js?v=release-20260926-save-compat-1';
+import { QigongSystem } from './QigongSystem.js?v=release-20260926-save-compat-1';
 
 export const SynthesisSystem = {
   SUCCESS_RATE: {

@@ -3,9 +3,9 @@
  * @desc 刀剑笑合成镶嵌工坊 UI。
  */
 
-import { getEquipmentTemplate } from './EquipUI.js?v=release-20260926-slot-state-1';
-import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260926-slot-state-1';
-import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260926-slot-state-1';
+import { getEquipmentTemplate } from './EquipUI.js?v=release-20260926-save-compat-1';
+import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260926-save-compat-1';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260926-save-compat-1';
 
 function escapeHtml(value) {
   return String(value ?? '')

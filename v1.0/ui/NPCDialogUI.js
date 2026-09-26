@@ -2,10 +2,10 @@
  * @file ui/NPCDialogUI.js
  * @desc NPC 对话窗口
  */
-import { UIManager } from './UIManager.js?v=release-20260926-slot-state-1';
-import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260926-slot-state-1';
-import { NPCSystem } from '../systems/NPCSystem.js?v=release-20260926-slot-state-1';
-import { pixelIcon } from './PixelIconUI.js?v=release-20260926-slot-state-1';
+import { UIManager } from './UIManager.js?v=release-20260926-save-compat-1';
+import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260926-save-compat-1';
+import { NPCSystem } from '../systems/NPCSystem.js?v=release-20260926-save-compat-1';
+import { pixelIcon } from './PixelIconUI.js?v=release-20260926-save-compat-1';
 
 const TOWN_NPC_DATA = {
   leader: {

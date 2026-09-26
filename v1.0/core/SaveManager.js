@@ -3,8 +3,8 @@
  * @desc 存档管理：save_player_state / save_global_state / restore_player_from_save
  * @ref 13_save.save_player_state / 13_save.restore_player_from_save / 13_save.redundancy
  */
-import { storage } from '../utils/storage.js?v=release-20260926-slot-state-1';
-import { computeChecksum } from '../utils/crypto.js?v=release-20260926-slot-state-1';
+import { storage } from '../utils/storage.js?v=release-20260926-save-compat-1';
+import { computeChecksum } from '../utils/crypto.js?v=release-20260926-save-compat-1';
 
 const SAVE_VERSION = '1.0';
 const PRIMARY_KEY = (slot) => `player-${slot}`;
@@ -474,6 +474,7 @@ export const SaveManager = {
       primaryValidatedRaw: primary.raw,
       shadowValidatedRaw: shadow.raw,
       recoveredFromShadow: useShadow,
+      migratedFromLegacy: chosen.migratedFromLegacy,
     };
   },
 
@@ -497,15 +498,16 @@ export const SaveManager = {
       shadowValid,
       shadowValidatedRaw,
       recoveredFromShadow: useShadow,
+      migratedFromLegacy,
     } = inspection;
     if (useShadow) {
       console.warn(primaryValid
         ? '[存档] 影子存档较新，已恢复最新快照'
         : '[存档] 检测到主存档损坏，已从影子存档恢复');
-      if (repairPrimary && primaryRaw !== raw && !storage.set(primaryKey, raw)) {
+      if (!migratedFromLegacy && repairPrimary && primaryRaw !== raw && !storage.set(primaryKey, raw)) {
         console.warn('[存档] 影子存档有效，但主存档修复写入失败');
       }
-    } else if ((!shadowValid || shadowValidatedRaw !== raw) && !storage.set(shadowKey, raw)) {
+    } else if (!migratedFromLegacy && (!shadowValid || shadowValidatedRaw !== raw) && !storage.set(shadowKey, raw)) {
       console.warn('[存档] 主存档有效，但影子存档修复写入失败');
     }
 
@@ -525,25 +527,54 @@ export const SaveManager = {
       const savedAt = Number(parsed.saved_at);
       if (parsed.version !== SAVE_VERSION
         || !Number.isSafeInteger(savedAt)
-        || savedAt <= 0
-        || !this.isValidPlayerSaveData(parsed.data)) {
+        || savedAt <= 0) {
         return { valid: false, data: null, raw: null, payload: null, savedAt: 0 };
       }
-      if (parsed.checksum === null) {
-        return { valid: true, data: parsed.data, raw: JSON.stringify(parsed), payload: parsed, savedAt };
+      if (parsed.checksum !== null) {
+        const expected = await computeChecksum(parsed.data, parsed.version, parsed.saved_at);
+        if (expected !== parsed.checksum) {
+          return { valid: false, data: null, raw: null, payload: null, savedAt: 0 };
+        }
       }
-      const expected = await computeChecksum(parsed.data, parsed.version, parsed.saved_at);
-      const valid = expected === parsed.checksum;
+      const migratedData = this._migrateLegacyAutoHealThreshold(parsed.data);
+      const migratedFromLegacy = migratedData !== parsed.data;
+      if (!this.isValidPlayerSaveData(migratedData)) {
+        return { valid: false, data: null, raw: null, payload: null, savedAt: 0 };
+      }
+      const payload = migratedFromLegacy
+        ? {
+          ...parsed,
+          data: migratedData,
+          checksum: parsed.checksum === null
+            ? null
+            : await computeChecksum(migratedData, parsed.version, parsed.saved_at),
+        }
+        : parsed;
       return {
-        valid,
-        data: valid ? parsed.data : null,
-        raw: valid ? JSON.stringify(parsed) : null,
-        payload: valid ? parsed : null,
-        savedAt: valid ? savedAt : 0,
+        valid: true,
+        data: migratedData,
+        raw: JSON.stringify(parsed),
+        payload,
+        savedAt,
+        migratedFromLegacy,
       };
     } catch {
       return { valid: false, data: null, raw: null, payload: null, savedAt: 0 };
     }
+  },
+
+  _migrateLegacyAutoHealThreshold(data) {
+    const autoPlay = data?.auto_play;
+    const autoHealSkill = autoPlay?.auto_heal_skill;
+    if (!isRecord(data) || !isRecord(autoPlay) || !isRecord(autoHealSkill)
+      || Object.prototype.hasOwnProperty.call(autoHealSkill, 'threshold')) return data;
+    return {
+      ...data,
+      auto_play: {
+        ...autoPlay,
+        auto_heal_skill: { ...autoHealSkill, threshold: 0.5 },
+      },
+    };
   },
 
   /**

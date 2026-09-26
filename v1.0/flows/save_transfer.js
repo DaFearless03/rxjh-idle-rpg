@@ -3,9 +3,9 @@
  * @desc 导出 base64 / 全量导入 / 单角色导入 / import_in_progress 事务
  * @ref 13_save.save_transfer
  */
-import { storage } from '../utils/storage.js?v=release-20260926-slot-state-1';
-import { base64Encode, base64Decode, computeChecksum } from '../utils/crypto.js?v=release-20260926-slot-state-1';
-import { SaveManager } from '../core/SaveManager.js?v=release-20260926-slot-state-1';
+import { storage } from '../utils/storage.js?v=release-20260926-save-compat-1';
+import { base64Encode, base64Decode, computeChecksum } from '../utils/crypto.js?v=release-20260926-save-compat-1';
+import { SaveManager } from '../core/SaveManager.js?v=release-20260926-save-compat-1';
 
 const SAVE_VERSION = '1.0';
 const PLAYER_KEY_RE = /^player-([1-9]|10)$/;
@@ -334,36 +334,31 @@ async function normalizePlayerPayload(payload) {
     if (payload.version !== SAVE_VERSION) {
       return { success: false, message: `角色存档版本不匹配（导出:${payload.version} / 当前:${SAVE_VERSION}）` };
     }
-    const savedAt = Number(payload.saved_at);
-    if (!Number.isSafeInteger(savedAt) || savedAt <= 0 || !SaveManager.isValidPlayerSaveData(payload.data)) {
-      return { success: false, message: '角色数据结构无效' };
-    }
-    const checksum = await computeChecksum(payload.data, payload.version, payload.saved_at);
-    if (payload.checksum !== null && checksum !== payload.checksum) {
-      return { success: false, message: '角色存档校验失败' };
-    }
+    const validated = await SaveManager._validatePlayerPayload(JSON.stringify(payload));
+    if (!validated.valid) return { success: false, message: '角色数据结构或校验无效' };
     return {
       success: true,
       payload: {
-        data: payload.data,
+        data: validated.data,
         version: payload.version,
         saved_at: payload.saved_at,
-        checksum,
+        checksum: await computeChecksum(validated.data, payload.version, payload.saved_at),
       },
     };
   }
 
   // 兼容旧导出包：旧实现只导出了 data，导入前补回 SaveManager 外层包装。
-  if (!SaveManager.isValidPlayerSaveData(payload)) {
+  const data = SaveManager._migrateLegacyAutoHealThreshold(payload);
+  if (!SaveManager.isValidPlayerSaveData(data)) {
     return { success: false, message: '角色数据结构无效' };
   }
 
-  const savedAt = payload.offline?.last_save_timestamp || Date.now();
-  const checksum = await computeChecksum(payload, SAVE_VERSION, savedAt);
+  const savedAt = data.offline?.last_save_timestamp || Date.now();
+  const checksum = await computeChecksum(data, SAVE_VERSION, savedAt);
   return {
     success: true,
     payload: {
-      data: payload,
+      data,
       version: SAVE_VERSION,
       saved_at: savedAt,
       checksum,

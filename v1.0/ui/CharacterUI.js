@@ -3,8 +3,8 @@
  * @desc 角色页：严格复用 ui_demo_role 的信息 / 气功 / 武功结构。
  */
 
-import { renderQigongPanel } from './QigongUI.js?v=release-20260926-slot-state-1';
-import { meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260926-slot-state-1';
+import { renderQigongPanel } from './QigongUI.js?v=release-20260926-save-compat-1';
+import { meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260926-save-compat-1';
 
 function escapeHtml(value) {
   return String(value ?? '')

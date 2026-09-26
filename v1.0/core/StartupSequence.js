@@ -3,8 +3,8 @@
  * @desc 4步启动检测
  * @ref 13_save.startup_sequence
  */
-import { storage } from '../utils/storage.js?v=release-20260926-slot-state-1';
-import { SaveManager } from './SaveManager.js?v=release-20260926-slot-state-1';
+import { storage } from '../utils/storage.js?v=release-20260926-save-compat-1';
+import { SaveManager } from './SaveManager.js?v=release-20260926-save-compat-1';
 
 const IMPORT_MARKER = 'import_in_progress';
 const IMPORT_BACKUP_KEY = 'import_backup';
