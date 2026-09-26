@@ -45,6 +45,7 @@ const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
 const HOME_VERSION = 'release-20260926-town-shops-1';
+const HOME_CSS_VERSION = 'release-20260927-shop-quantity-1';
 
 class MemoryStorage {
   constructor() {
@@ -307,14 +308,15 @@ test('主页卡片可键盘操作，状态信息和原有跳转保持完整', ()
   assert.match(style, /\.page-home \.header-avatar \{ width: 48px; height: 60px; flex: 0 0 48px; \}/);
   assert.match(style, /\.page-home \.header-avatar \{ width: 40px; height: 50px; flex-basis: 40px; \}/);
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
-  assert.match(index, /css\/home\.css\?v=release-20260926-town-shops-1/);
+  assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
   assert.match(index, /main\.js\?v=release-20260926-town-shops-1/);
 });
 
-test('城镇商店以主页底部弹层展示并保留紧凑背包区', () => {
+test('城镇商店与购买数量弹窗沿用主页样式并保留紧凑背包区', () => {
   const mainScreen = readFileSync(join(ROOT, 'ui', 'MainScreenUI.js'), 'utf8');
   const shopUI = readFileSync(join(ROOT, 'ui', 'ShopUI.js'), 'utf8');
   const style = readFileSync(join(ROOT, 'css', 'home.css'), 'utf8');
+  const index = readFileSync(join(ROOT, 'index.html'), 'utf8');
   const app = readFileSync(join(ROOT, 'main.js'), 'utf8');
   const bottomBar = readFileSync(join(ROOT, 'ui', 'BottomBarUI.js'), 'utf8');
 
@@ -325,6 +327,11 @@ test('城镇商店以主页底部弹层展示并保留紧凑背包区', () => {
   assert.match(style, /#yjlShopBackdrop \.shop-buy-pane/);
   assert.match(style, /#pszShopBackdrop \.shop-sell-pane \.bag-grid/);
   assert.match(style, /\.shop-sell-pane \.bag-tile \.bt-icon \.ui-icon-img \{ width: 20px; height: 20px; \}/);
+  assert.match(style, /#qtyBackdrop\.qty-backdrop[\s\S]*background: rgba\(32, 35, 44, 0\.64\)/);
+  assert.match(style, /#qtyBackdrop \.qty-box[\s\S]*background: #fffef8[\s\S]*border: 2px solid #303048[\s\S]*border-radius: 3px/);
+  assert.match(style, /#qtyBackdrop \.qty-icon \.ui-icon-img \{ width: 20px; height: 20px; \}/);
+  assert.match(style, /#qtyBackdrop \.qty-confirm[\s\S]*background: #365ca5/);
+  assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
   assert.match(app, /MainScreenUI\.js\?v=release-20260926-town-shops-1/);
   assert.match(app, /BottomBarUI\.js\?v=release-20260926-town-shops-1/);

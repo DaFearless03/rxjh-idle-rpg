@@ -805,3 +805,107 @@ body { margin: 0 auto; }
   #yjlShopBackdrop .shop-sell-pane > .wh-pane-head,
   #pszShopBackdrop .shop-sell-pane > .wh-pane-head { gap: 4px; padding-inline: 8px; }
 }
+
+#qtyBackdrop.qty-backdrop {
+  z-index: 120;
+  padding: 16px;
+  background: rgba(32, 35, 44, 0.64);
+}
+#qtyBackdrop .qty-box {
+  width: min(360px, 100%);
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  padding: 16px;
+  color: #303048;
+  background: #fffef8;
+  border: 2px solid #303048;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px #6878a8, 0 8px 24px rgba(24, 28, 40, 0.32);
+}
+#qtyBackdrop .qty-head { gap: 10px; margin-bottom: 12px; }
+#qtyBackdrop .qty-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  color: #303048;
+  background: #f6f3e9;
+  border: 1px solid #c9c6bd;
+  border-radius: 2px;
+  font-size: 16px;
+}
+#qtyBackdrop .qty-icon .ui-icon-img { width: 20px; height: 20px; }
+#qtyBackdrop .qty-name { color: #303048; font-size: 15px; overflow-wrap: anywhere; }
+#qtyBackdrop .qty-unit { margin-top: 2px; color: #656575; font-size: 12px; }
+#qtyBackdrop .qty-unit b { color: #805915; }
+#qtyBackdrop .qty-stepper { gap: 8px; margin-bottom: 10px; }
+#qtyBackdrop .qty-step {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  color: #365ca5;
+  background: #f6f3e9;
+  border: 1px solid #6878a8;
+  border-radius: 2px;
+  font-size: 20px;
+}
+#qtyBackdrop .qty-input {
+  width: 88px;
+  height: 44px;
+  color: #303048;
+  background: #fffef8;
+  border: 1px solid #6878a8;
+  border-radius: 2px;
+  font-size: 16px;
+}
+#qtyBackdrop .qty-quick { gap: 6px; margin-bottom: 12px; }
+#qtyBackdrop .qty-quick button {
+  min-height: 44px;
+  padding: 6px 8px;
+  color: #365ca5;
+  background: #f3f6fc;
+  border: 1px solid #6878a8;
+  border-radius: 2px;
+  font-size: 12px;
+}
+#qtyBackdrop .qty-total {
+  min-height: 44px;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  color: #303048;
+  background: #f6f3e9;
+  border: 1px solid #c9c6bd;
+  border-radius: 2px;
+  font-size: 13px;
+}
+#qtyBackdrop .qty-total .qt-val { color: #805915; font-size: 15px; }
+#qtyBackdrop .qty-actions { gap: 8px; }
+#qtyBackdrop .qty-cancel,
+#qtyBackdrop .qty-confirm {
+  min-height: 44px;
+  padding: 6px 10px;
+  border-radius: 2px;
+  font-size: 13px;
+}
+#qtyBackdrop .qty-cancel {
+  color: #656575;
+  background: #f6f3e9;
+  border: 1px solid #6878a8;
+}
+#qtyBackdrop .qty-confirm {
+  color: #fff;
+  background: #365ca5;
+  border: 1px solid #303048;
+}
+#qtyBackdrop .qty-cancel:hover,
+#qtyBackdrop .qty-quick button:hover { background: #e8eefb; }
+#qtyBackdrop .qty-confirm:hover { background: #2f5297; }
+#qtyBackdrop button:focus-visible,
+#qtyBackdrop .qty-input:focus-visible {
+  outline: 3px solid #365ca5;
+  outline-offset: 2px;
+}
+
+@media (max-width: 360px) {
+  #qtyBackdrop.qty-backdrop { padding: 12px; }
+  #qtyBackdrop .qty-box { padding: 12px; }
+}
