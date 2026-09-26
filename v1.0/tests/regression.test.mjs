@@ -34,7 +34,7 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-2026092
 import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260926-save-compat-1';
 import { TeleportSystem } from '../systems/TeleportSystem.js?v=release-20260926-save-compat-1';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260926-save-compat-1';
-import { buildShopItems } from '../ui/ShopUI.js?v=release-20260926-save-compat-1';
+import { buildShopItems } from '../ui/ShopUI.js?v=release-20260926-town-shops-1';
 import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260926-save-compat-1';
 import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260926-save-compat-1';
 import { base64Decode, base64Encode, computeChecksum } from '../utils/crypto.js?v=release-20260926-save-compat-1';
@@ -44,7 +44,7 @@ import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=relea
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
-const HOME_VERSION = 'release-20260926-town-home-1';
+const HOME_VERSION = 'release-20260926-town-shops-1';
 
 class MemoryStorage {
   constructor() {
@@ -304,8 +304,31 @@ test('主页卡片可键盘操作，状态信息和原有跳转保持完整', ()
   assert.match(homeMarkup, /window\._startOfflineAutoplay\(\)/);
   assert.doesNotMatch(homeMarkup, /id="home-(?:hp|mp|exp)-pct"/, '主页血量条不显示重复百分比');
   assert.match(homeMarkup, /data-panel="home" aria-current="page"/);
+  assert.match(style, /\.page-home \.header-avatar \{ width: 48px; height: 60px; flex: 0 0 48px; \}/);
+  assert.match(style, /\.page-home \.header-avatar \{ width: 40px; height: 50px; flex-basis: 40px; \}/);
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
-  assert.match(index, /css\/home\.css\?v=release-20260926-town-home-1/);
+  assert.match(index, /css\/home\.css\?v=release-20260926-town-shops-1/);
+  assert.match(index, /main\.js\?v=release-20260926-town-shops-1/);
+});
+
+test('城镇商店以主页底部弹层展示并保留紧凑背包区', () => {
+  const mainScreen = readFileSync(join(ROOT, 'ui', 'MainScreenUI.js'), 'utf8');
+  const shopUI = readFileSync(join(ROOT, 'ui', 'ShopUI.js'), 'utf8');
+  const style = readFileSync(join(ROOT, 'css', 'home.css'), 'utf8');
+  const app = readFileSync(join(ROOT, 'main.js'), 'utf8');
+  const bottomBar = readFileSync(join(ROOT, 'ui', 'BottomBarUI.js'), 'utf8');
+
+  assert.match(mainScreen, /djx-shop-gold">\$\{pixelIcon\('gold'\)\} 金币:/);
+  assert.match(shopUI, /<div class="shop-gold-balance">\$\{renderGold\(player\)\}<\/div>/);
+  assert.match(style, /#yjlShopBackdrop \.shop-gold-balance,[\s\S]*#pszShopBackdrop \.shop-gold-balance[\s\S]*\.ui-icon-img \{ width: 12px; height: 12px; \}/);
+  assert.match(style, /#djxShopBackdrop \.bottom-sheet,[\s\S]*height: 88%;[\s\S]*max-height: 88%/);
+  assert.match(style, /#yjlShopBackdrop \.shop-buy-pane/);
+  assert.match(style, /#pszShopBackdrop \.shop-sell-pane \.bag-grid/);
+  assert.match(style, /\.shop-sell-pane \.bag-tile \.bt-icon \.ui-icon-img \{ width: 20px; height: 20px; \}/);
+  assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
+  assert.match(app, /MainScreenUI\.js\?v=release-20260926-town-shops-1/);
+  assert.match(app, /BottomBarUI\.js\?v=release-20260926-town-shops-1/);
+  assert.match(bottomBar, /ShopUI\.js\?v=release-20260926-town-shops-1/);
 });
 
 test('城镇任务提示只在确有可提交任务时显示', async () => {
@@ -328,7 +351,7 @@ test('城镇任务提示只在确有可提交任务时显示', async () => {
     addEventListener() {},
   };
   try {
-    const { UIManager } = await import('../ui/UIManager.js?v=release-20260926-town-home-1');
+    const { UIManager } = await import('../ui/UIManager.js?v=release-20260926-town-shops-1');
     const player = {
       quests: {
         accepted: [{ objectives: [{ stage: 1 }], completed_stages: [1], current_stage: 1 }],
@@ -355,7 +378,7 @@ test('内部 ES 模块统一发布标识，物品分类单例可跨系统共享'
       if (line.includes('@type')) continue;
       const matches = line.matchAll(/(?:from\s+|^\s*import\s+|import\s*\(\s*)['"]([^'"]+\.js)(?:\?v=([^'"]+))?['"]/g);
       for (const match of matches) {
-        const expectedVersion = ['MainScreenUI.js', 'UIManager.js'].some(name => match[1].endsWith(`/ui/${name}`) || match[1] === `./${name}`)
+        const expectedVersion = ['MainScreenUI.js', 'UIManager.js', 'BottomBarUI.js', 'ShopUI.js'].some(name => match[1].endsWith(`/ui/${name}`) || match[1] === `./${name}`)
           ? HOME_VERSION
           : MODULE_VERSION;
         assert.equal(match[2], expectedVersion, `${file}: ${match[1]} 发布标识不一致`);

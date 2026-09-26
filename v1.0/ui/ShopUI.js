@@ -190,7 +190,7 @@ export function renderArmorShop(player) {
   const careerName = CAREER_NAME[careerFamily] || '本职业';
 
   return renderShopLayout(player, `
-    ${renderGold(player)}
+    <div class="shop-gold-balance">${renderGold(player)}</div>
     ${sameCareer.length ? sectionLabel(`${careerName}可穿戴`, CAREER_PIXEL_ICON[careerFamily] || 'combat') + renderItems(sameCareer) : ''}
     ${universal.length ? sectionLabel('护手 · 靴子 · 通用可穿戴', 'defense') + renderItems(universal) : ''}
     ${otherCareer.length ? sectionLabel('其他职业 · 可购买（不可穿戴）', 'warehouse') + renderItems(otherCareer, { locked: true }) : ''}
@@ -200,7 +200,7 @@ export function renderArmorShop(player) {
 export function renderPotionShop(player) {
   const items = getConfiguredShopItems('potion');
   return renderShopLayout(player, `
-    ${renderGold(player)}
+    <div class="shop-gold-balance">${renderGold(player)}</div>
     ${sectionLabel('生命药剂', 'hp')}
     ${renderItems(items.filter(item => item.item_key.startsWith('hp_')))}
     ${sectionLabel('内功药剂', 'mp')}

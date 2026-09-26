@@ -51,10 +51,12 @@ body { margin: 0 auto; }
 
 .page-home > .top-bar {
   gap: 0;
-  padding: 12px;
+  margin: 8px 8px 0;
+  padding: 8px 10px;
   background: var(--home-surface);
-  border: 0;
-  border-bottom: 1px solid var(--home-border);
+  border: 2px solid var(--home-outer);
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px var(--home-border);
 }
 
 .page-home .top-row-1 { margin: 0 0 8px; }
@@ -82,7 +84,7 @@ body { margin: 0 auto; }
 .page-home .player-bar .faction.negative { color: var(--home-danger); background: #f8eeee; }
 
 .page-home .stat-bars-area { gap: 8px; align-items: center; }
-.page-home .header-avatar { width: 26px; height: 38px; }
+.page-home .header-avatar { width: 48px; height: 60px; flex: 0 0 48px; }
 .page-home .stat-bars-compact { gap: 4px; }
 .page-home .stat-row {
   grid-template-columns: 52px minmax(24px, 1fr) minmax(58px, auto);
@@ -455,7 +457,8 @@ body { margin: 0 auto; }
 .page-home .menu-btn.active:hover { background: #2f5297; }
 
 @media (max-width: 360px) {
-  .page-home > .top-bar { padding: 8px; }
+  .page-home > .top-bar { margin: 6px 6px 0; padding: 6px; }
+  .page-home .header-avatar { width: 40px; height: 50px; flex-basis: 40px; }
   .page-home .stat-row { grid-template-columns: 48px minmax(20px, 1fr) minmax(52px, auto); gap: 4px; }
   .page-home .stat-num { font-size: 10px; }
   .page-home > .main-scroll { padding: 8px; }
@@ -475,4 +478,330 @@ body { margin: 0 auto; }
 @media (prefers-reduced-motion: reduce) {
   .page-home .npc-card,
   .page-home .action-card { transition: none; }
+}
+
+/* Merchant sheets and NPC dialogue use the same compact pixel palette as town home. */
+#npcDialogBackdrop.npc-dialog-backdrop {
+  padding: 12px;
+  background: rgba(32, 35, 44, 0.5);
+}
+
+#npcDialogBackdrop .npc-dialog {
+  width: min(420px, 100%);
+  max-height: 82%;
+  overflow-y: auto;
+  padding: 12px;
+  color: #303048;
+  background: #fffef8;
+  border: 2px solid #303048;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px #6878a8, 0 8px 24px rgba(24, 28, 40, 0.28);
+}
+
+#npcDialogBackdrop .npc-dialog-head { gap: 8px; margin-bottom: 8px; }
+#npcDialogBackdrop .npc-dialog-avatar {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  background: #f6f3e9;
+  border: 1px solid #6878a8;
+  border-radius: 2px;
+  font-size: 16px;
+}
+#npcDialogBackdrop .npc-dialog-avatar .ui-icon-img { width: 22px; height: 22px; }
+#npcDialogBackdrop .npc-dialog-name { color: #303048; font-size: 15px; }
+#npcDialogBackdrop .npc-dialog-tag { margin-top: 2px; color: #656575; font-size: 12px; }
+#npcDialogBackdrop .npc-dialog-line {
+  margin-bottom: 10px;
+  padding: 8px;
+  color: #303048;
+  background: #f6f3e9;
+  border: 1px solid #c9c6bd;
+  border-radius: 2px;
+  font-size: 13px;
+}
+#npcDialogBackdrop .npc-func-row { gap: 8px; }
+#npcDialogBackdrop .npc-func-btn {
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 4px;
+  color: #365ca5;
+  background: #f3f6fc;
+  border: 1px solid #6878a8;
+  border-radius: 2px;
+  font-size: 12px;
+}
+#npcDialogBackdrop .npc-func-btn:only-child { grid-column: 1 / -1; }
+#npcDialogBackdrop .npc-func-btn .f-icon .ui-icon-img { width: 16px; height: 16px; }
+#npcDialogBackdrop .npc-dialog-close {
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 6px 8px;
+  color: #656575;
+  background: #f6f3e9;
+  border: 1px solid #6878a8;
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+#djxShopBackdrop.sheet-backdrop,
+#yjlShopBackdrop.sheet-backdrop,
+#pszShopBackdrop.sheet-backdrop { background: rgba(32, 35, 44, 0.5); }
+
+#djxShopBackdrop .bottom-sheet,
+#yjlShopBackdrop .bottom-sheet,
+#pszShopBackdrop .bottom-sheet {
+  height: 88%;
+  max-height: 88%;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color: #303048;
+  background: #fffef8;
+  border: 2px solid #303048;
+  border-bottom: 0;
+  border-radius: 3px 3px 0 0;
+  box-shadow: inset 0 0 0 1px #6878a8;
+}
+
+#djxShopBackdrop .sheet-handle,
+#yjlShopBackdrop .sheet-handle,
+#pszShopBackdrop .sheet-handle {
+  width: 40px;
+  height: 4px;
+  margin: 8px auto 4px;
+  background: #6878a8;
+  border-radius: 2px;
+}
+
+#djxShopBackdrop .sheet-header,
+#yjlShopBackdrop .sheet-header,
+#pszShopBackdrop .sheet-header {
+  gap: 8px;
+  padding: 4px 12px 8px;
+  border-bottom: 1px solid #6878a8;
+}
+
+#djxShopBackdrop .sheet-header.with-back .sheet-back,
+#yjlShopBackdrop .sheet-header.with-back .sheet-back,
+#pszShopBackdrop .sheet-header.with-back .sheet-back {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: #365ca5;
+  border: 0;
+  font-size: 22px;
+}
+
+#djxShopBackdrop .sheet-title,
+#yjlShopBackdrop .sheet-title,
+#pszShopBackdrop .sheet-title {
+  min-width: 0;
+  color: #303048;
+  font-size: 15px;
+}
+
+#djxShopBackdrop .shop-tabs {
+  min-width: 0;
+  gap: 4px;
+  margin-left: auto;
+}
+#djxShopBackdrop .shop-tab {
+  min-height: 40px;
+  padding: 4px 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #656575;
+  background: #f6f3e9;
+  border: 1px solid #c9c6bd;
+  border-radius: 2px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+#djxShopBackdrop .shop-tab.active {
+  color: #fff;
+  background: #365ca5;
+  border-color: #303048;
+}
+
+#djxShopBackdrop .djx-shop-gold {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  color: #656575;
+  background: #f6f3e9;
+  border-bottom: 1px solid #d6d3cb;
+  font-size: 12px;
+}
+#djxShopBackdrop .djx-shop-gold .ui-icon-img { width: 12px; height: 12px; }
+
+#yjlShopBackdrop .shop-gold-balance,
+#pszShopBackdrop .shop-gold-balance {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  margin: -8px -12px 6px;
+  padding: 6px 12px;
+  color: #805915;
+  background: #f6f3e9;
+  border-bottom: 1px solid #d6d3cb;
+  font-size: 12px;
+}
+#yjlShopBackdrop .shop-gold-balance .ui-icon-img,
+#pszShopBackdrop .shop-gold-balance .ui-icon-img { width: 12px; height: 12px; }
+
+#djxShopBackdrop .djx-tab-content#djx-weapon-content,
+#djxShopBackdrop .djx-tab-content#djx-weapon-content.active,
+#yjlShopBackdrop .single-shop-content,
+#pszShopBackdrop .single-shop-content {
+  min-height: 0;
+  max-height: none;
+  overflow: hidden;
+}
+
+#djxShopBackdrop .shop-sell-layout,
+#yjlShopBackdrop .shop-sell-layout,
+#pszShopBackdrop .shop-sell-layout { height: 100%; min-height: 0; }
+
+#djxShopBackdrop .shop-buy-pane,
+#yjlShopBackdrop .shop-buy-pane,
+#pszShopBackdrop .shop-buy-pane {
+  min-height: 0;
+  padding: 8px 12px;
+  background: #fffef8;
+  border-bottom: 1px solid #6878a8;
+}
+
+#djxShopBackdrop .shop-section-label,
+#yjlShopBackdrop .shop-section-label,
+#pszShopBackdrop .shop-section-label {
+  margin: 4px 0 6px;
+  color: #303048;
+  font-size: 12px;
+}
+
+#djxShopBackdrop .shop-item,
+#yjlShopBackdrop .shop-item,
+#pszShopBackdrop .shop-item {
+  min-height: 50px;
+  gap: 8px;
+  margin-bottom: 4px;
+  padding: 4px 8px;
+  background: #fffef8;
+  border: 1px solid #c9c6bd;
+  border-radius: 2px;
+}
+#djxShopBackdrop .shop-item-info,
+#yjlShopBackdrop .shop-item-info,
+#pszShopBackdrop .shop-item-info { gap: 8px; }
+#djxShopBackdrop .shop-item-icon,
+#yjlShopBackdrop .shop-item-icon,
+#pszShopBackdrop .shop-item-icon {
+  width: 32px;
+  height: 32px;
+  background: #f6f3e9;
+  border: 1px solid #d6d3cb;
+  border-radius: 2px;
+}
+#djxShopBackdrop .shop-item-icon .ui-icon-img,
+#yjlShopBackdrop .shop-item-icon .ui-icon-img,
+#pszShopBackdrop .shop-item-icon .ui-icon-img { width: 20px; height: 20px; }
+#djxShopBackdrop .shop-item-name,
+#yjlShopBackdrop .shop-item-name,
+#pszShopBackdrop .shop-item-name { color: #303048; font-size: 13px; }
+#djxShopBackdrop .shop-item-price,
+#yjlShopBackdrop .shop-item-price,
+#pszShopBackdrop .shop-item-price { color: #805915; font-size: 12px; }
+#djxShopBackdrop .shop-item-price .ui-icon-img,
+#yjlShopBackdrop .shop-item-price .ui-icon-img,
+#pszShopBackdrop .shop-item-price .ui-icon-img { width: 12px; height: 12px; }
+#djxShopBackdrop .btn-buy,
+#yjlShopBackdrop .btn-buy,
+#pszShopBackdrop .btn-buy {
+  min-width: 56px;
+  min-height: 44px;
+  padding: 6px 8px;
+  color: #fff;
+  background: #365ca5;
+  border: 1px solid #303048;
+  border-radius: 2px;
+  font-size: 12px;
+}
+#djxShopBackdrop .btn-buy:disabled,
+#yjlShopBackdrop .btn-buy:disabled,
+#pszShopBackdrop .btn-buy:disabled { opacity: 0.5; }
+
+#djxShopBackdrop .shop-sell-pane,
+#yjlShopBackdrop .shop-sell-pane,
+#pszShopBackdrop .shop-sell-pane {
+  min-height: 0;
+  padding: 0 12px 8px;
+  background: #f6f3e9;
+}
+#djxShopBackdrop .shop-sell-pane > .wh-pane-head,
+#yjlShopBackdrop .shop-sell-pane > .wh-pane-head,
+#pszShopBackdrop .shop-sell-pane > .wh-pane-head {
+  margin: 0 -12px;
+  padding: 6px 12px;
+  color: #656575;
+  background: #fffef8;
+  border-bottom: 1px solid #d6d3cb;
+  font-size: 12px;
+}
+#djxShopBackdrop .wh-pane-head .wh-title,
+#yjlShopBackdrop .wh-pane-head .wh-title,
+#pszShopBackdrop .wh-pane-head .wh-title { color: #303048; font-size: 14px; }
+#djxShopBackdrop .wh-pane-head .wh-gold,
+#yjlShopBackdrop .wh-pane-head .wh-gold,
+#pszShopBackdrop .wh-pane-head .wh-gold { color: #805915; font-size: 12px; }
+#djxShopBackdrop .wh-pane-head .wh-sort,
+#yjlShopBackdrop .wh-pane-head .wh-sort,
+#pszShopBackdrop .wh-pane-head .wh-sort {
+  min-height: 44px;
+  padding: 4px 10px;
+  color: #365ca5;
+  background: #fffef8;
+  border: 1px solid #6878a8;
+  border-radius: 2px;
+  font-size: 12px;
+}
+#djxShopBackdrop .shop-sell-scroll,
+#yjlShopBackdrop .shop-sell-scroll,
+#pszShopBackdrop .shop-sell-scroll { padding: 4px 0; }
+#djxShopBackdrop .shop-sell-pane .bag-grid,
+#yjlShopBackdrop .shop-sell-pane .bag-grid,
+#pszShopBackdrop .shop-sell-pane .bag-grid { gap: 4px; }
+#djxShopBackdrop .shop-sell-pane .bag-tile,
+#yjlShopBackdrop .shop-sell-pane .bag-tile,
+#pszShopBackdrop .shop-sell-pane .bag-tile {
+  min-height: 56px;
+  padding: 4px 2px;
+  background: #fffef8;
+  border: 1px solid #c9c6bd;
+  border-radius: 2px;
+  box-shadow: none;
+}
+#djxShopBackdrop .shop-sell-pane .bag-tile .bt-icon,
+#yjlShopBackdrop .shop-sell-pane .bag-tile .bt-icon,
+#pszShopBackdrop .shop-sell-pane .bag-tile .bt-icon { font-size: 20px; }
+#djxShopBackdrop .shop-sell-pane .bag-tile .bt-icon .ui-icon-img,
+#yjlShopBackdrop .shop-sell-pane .bag-tile .bt-icon .ui-icon-img,
+#pszShopBackdrop .shop-sell-pane .bag-tile .bt-icon .ui-icon-img { width: 20px; height: 20px; }
+#djxShopBackdrop .shop-sell-pane .bag-tile .bt-name,
+#yjlShopBackdrop .shop-sell-pane .bag-tile .bt-name,
+#pszShopBackdrop .shop-sell-pane .bag-tile .bt-name { margin-top: 2px; font-size: 10px; }
+
+@media (max-width: 360px) {
+  #djxShopBackdrop .sheet-header.with-back { flex-wrap: wrap; }
+  #djxShopBackdrop .sheet-header.with-back .shop-tabs {
+    flex-basis: calc(100% - 44px);
+    margin-left: 44px;
+    justify-content: flex-start;
+  }
+  #djxShopBackdrop .shop-tab { flex: 1 1 auto; padding-inline: 3px; font-size: 10px; }
+  #djxShopBackdrop .shop-sell-pane > .wh-pane-head,
+  #yjlShopBackdrop .shop-sell-pane > .wh-pane-head,
+  #pszShopBackdrop .shop-sell-pane > .wh-pane-head { gap: 4px; padding-inline: 8px; }
 }

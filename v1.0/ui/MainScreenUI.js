@@ -615,7 +615,7 @@ export function buildMainScreenUI(container) {
               <span class="shop-tab" id="tab-enhance" onclick="window._switchDjxTab('enhance')">装备强化</span>
             </div>
           </div>
-          <div class="djx-shop-gold">💰 金币: <b id="djxShopGold">0</b></div>
+          <div class="djx-shop-gold">${pixelIcon('gold')} 金币: <b id="djxShopGold">0</b></div>
           <div id="djx-weapon-content" class="djx-tab-content"></div>
           <div id="djx-synth-content" class="djx-tab-content" style="display:none"></div>
           <div id="djx-enhance-content" class="djx-tab-content" style="display:none"></div>
