@@ -438,8 +438,12 @@ class UIManagerClass {
     ).length;
     const leader = document.getElementById('home-leader-card');
     const leaderMeta = document.getElementById('home-leader-meta');
+    const questAlert = document.getElementById('home-quest-alert');
+    const questCount = document.getElementById('home-quest-count');
     if (leader) leader.classList.toggle('has-notice', canAccept + canSubmit > 0);
     if (leaderMeta) leaderMeta.textContent = `任务 · 可接 ${canAccept} 个 / 可交 ${canSubmit} 个`;
+    if (questAlert) questAlert.hidden = canSubmit === 0;
+    if (questCount) questCount.textContent = `可交任务 ${canSubmit}`;
     document.querySelectorAll('.menu-btn').forEach(button => {
       if (button.textContent.includes('任务')) button.classList.toggle('has-notice', canAccept + canSubmit > 0);
     });

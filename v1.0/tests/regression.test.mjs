@@ -44,7 +44,7 @@ import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=relea
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
-const MAIN_SCREEN_VERSION = 'release-20260924-home-1';
+const HOME_VERSION = 'release-20260926-town-home-1';
 
 class MemoryStorage {
   constructor() {
@@ -283,6 +283,7 @@ test('角色入口门禁阻止关闭必需弹窗并废弃过期进入请求', ()
 test('主页卡片可键盘操作，状态信息和原有跳转保持完整', () => {
   const source = readFileSync(join(ROOT, 'ui', 'MainScreenUI.js'), 'utf8');
   const style = readFileSync(join(ROOT, 'css', 'home.css'), 'utf8');
+  const uiManager = readFileSync(join(ROOT, 'ui', 'UIManager.js'), 'utf8');
   const index = readFileSync(join(ROOT, 'index.html'), 'utf8');
   const homeMarkup = source.slice(source.indexOf('id="page-home"'), source.indexOf('end page-home'));
 
@@ -291,11 +292,60 @@ test('主页卡片可键盘操作，状态信息和原有跳转保持完整', ()
   assert.equal((homeMarkup.match(/<button type="button" class="npc-card\b/g) || []).length, 5);
   assert.match(homeMarkup, /window\._openMapSheet\(\)/);
   assert.match(homeMarkup, /window\._openNPC\('leader'\)/);
+  assert.match(homeMarkup, /town-scene/);
+  assert.match(homeMarkup, /前往地图/);
+  assert.match(homeMarkup, /id="home-quest-alert"[^>]*hidden/);
+  assert.equal((homeMarkup.match(/npc-portrait-[a-z]+/g) || []).length, 5);
+  assert.match(uiManager, /questAlert\.hidden = canSubmit === 0/);
+  assert.match(style, /town-gate-v1\.png/);
+  assert.match(style, /npc-portraits-v1\.png/);
+  assert.ok(statSync(join(ROOT, 'assets', 'home', 'town-gate-v1.png')).size > 0);
+  assert.ok(statSync(join(ROOT, 'assets', 'home', 'npc-portraits-v1.png')).size > 0);
   assert.match(homeMarkup, /window\._startOfflineAutoplay\(\)/);
   assert.doesNotMatch(homeMarkup, /id="home-(?:hp|mp|exp)-pct"/, '主页血量条不显示重复百分比');
   assert.match(homeMarkup, /data-panel="home" aria-current="page"/);
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
-  assert.match(index, /css\/home\.css\?v=release-20260924-home-3/);
+  assert.match(index, /css\/home\.css\?v=release-20260926-town-home-1/);
+});
+
+test('城镇任务提示只在确有可提交任务时显示', async () => {
+  const previousWindow = globalThis.window;
+  const previousDocument = globalThis.document;
+  const alert = { hidden: true };
+  const count = { textContent: '' };
+  const leader = { classList: { toggle() {} } };
+  const leaderMeta = { textContent: '' };
+  const elements = {
+    'home-quest-alert': alert,
+    'home-quest-count': count,
+    'home-leader-card': leader,
+    'home-leader-meta': leaderMeta,
+  };
+  globalThis.window = { _questTemplates: [] };
+  globalThis.document = {
+    getElementById: id => elements[id] || null,
+    querySelectorAll: () => [],
+    addEventListener() {},
+  };
+  try {
+    const { UIManager } = await import('../ui/UIManager.js?v=release-20260926-town-home-1');
+    const player = {
+      quests: {
+        accepted: [{ objectives: [{ stage: 1 }], completed_stages: [1], current_stage: 1 }],
+        completed: [],
+      },
+    };
+    UIManager._refreshQuestNotice(player);
+    assert.equal(alert.hidden, false);
+    assert.equal(count.textContent, '可交任务 1');
+    player.quests.accepted = [];
+    UIManager._refreshQuestNotice(player);
+    assert.equal(alert.hidden, true);
+    assert.equal(count.textContent, '可交任务 0');
+  } finally {
+    globalThis.window = previousWindow;
+    globalThis.document = previousDocument;
+  }
 });
 
 test('内部 ES 模块统一发布标识，物品分类单例可跨系统共享', async () => {
@@ -305,8 +355,8 @@ test('内部 ES 模块统一发布标识，物品分类单例可跨系统共享'
       if (line.includes('@type')) continue;
       const matches = line.matchAll(/(?:from\s+|^\s*import\s+|import\s*\(\s*)['"]([^'"]+\.js)(?:\?v=([^'"]+))?['"]/g);
       for (const match of matches) {
-        const expectedVersion = file === join(ROOT, 'main.js') && match[1] === './ui/MainScreenUI.js'
-          ? MAIN_SCREEN_VERSION
+        const expectedVersion = ['MainScreenUI.js', 'UIManager.js'].some(name => match[1].endsWith(`/ui/${name}`) || match[1] === `./${name}`)
+          ? HOME_VERSION
           : MODULE_VERSION;
         assert.equal(match[2], expectedVersion, `${file}: ${match[1]} 发布标识不一致`);
       }

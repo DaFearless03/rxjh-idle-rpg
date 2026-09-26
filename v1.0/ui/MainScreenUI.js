@@ -65,34 +65,37 @@ export function buildMainScreenUI(container) {
 
           <!-- 城镇横幅 -->
           <div class="town-banner" id="town-banner">
-            <div class="town-icon">${pixelIcon('town')}</div>
+            <div class="town-scene" aria-hidden="true"></div>
             <div class="town-info">
               <div class="town-name" id="town-name">泫渤派</div>
-              <div class="town-desc" id="town-desc">自动恢复生命和内力</div>
             </div>
-            <div class="restore-badge" id="restore-badge">恢复中</div>
+            <div class="town-footer">
+              <div class="town-desc" id="town-desc">自动恢复生命和内力</div>
+              <div class="restore-badge" id="restore-badge">恢复中</div>
+            </div>
           </div>
 
-          <!-- 快速行动 -->
-          <div class="panel">
-            <div class="panel-title">快速行动</div>
-            <div class="quick-action-row town-actions">
-              <button type="button" class="action-card clickable" id="ac-map" onclick="window._openMapSheet()">
-                <span class="ac-icon">${pixelIcon('map')}</span>
-                <span class="ac-body">
-                  <span class="ac-label">地图</span>
-                  <span class="ac-sub">选择区域</span>
-                </span>
-              </button>
-            </div>
+          <div class="quick-action-row town-actions">
+            <button type="button" class="action-card clickable" id="ac-map" onclick="window._openMapSheet()">
+              <span class="ac-body">
+                <span class="ac-label">前往地图</span>
+                <span class="ac-sub">选择区域，开始历练</span>
+              </span>
+            </button>
           </div>
+
+          <button type="button" class="home-quest-alert" id="home-quest-alert" onclick="window._openNPC('leader')" hidden>
+            <span class="quest-alert-icon">${pixelIcon('nav-quest')}</span>
+            <span class="quest-alert-copy"><strong id="home-quest-count">可交任务 1</strong><small>返回泫渤派门主处提交</small></span>
+            <span class="quest-alert-action">前往交谈</span>
+          </button>
 
           <!-- NPC 网格 -->
           <div class="panel">
-            <div class="panel-title">NPC</div>
+            <div class="panel-title town-npc-title">城镇人物</div>
             <div class="npc-grid">
               <button type="button" class="npc-card featured has-notice" id="home-leader-card" onclick="window._openNPC('leader')">
-                <span class="npc-avatar">${pixelIcon('nav-quest')}</span>
+                <span class="npc-avatar npc-portrait npc-portrait-leader" aria-hidden="true"></span>
                 <span class="npc-info">
                   <span class="npc-name">泫渤派门主</span>
                   <span class="npc-type" id="home-leader-meta">任务 · 可接 0 个 / 可交 0 个</span>
@@ -101,7 +104,7 @@ export function buildMainScreenUI(container) {
               </button>
 
               <button type="button" class="npc-card" onclick="window._openNPC('djx')">
-                <span class="npc-avatar">${pixelIcon('combat')}</span>
+                <span class="npc-avatar npc-portrait npc-portrait-djx" aria-hidden="true"></span>
                 <span class="npc-info">
                   <span class="npc-name">刀剑笑</span>
                   <span class="npc-type">武器 · 强化 · 合成</span>
@@ -109,7 +112,7 @@ export function buildMainScreenUI(container) {
               </button>
 
               <button type="button" class="npc-card" onclick="window._openNPC('yjl')">
-                <span class="npc-avatar">${pixelIcon('defense')}</span>
+                <span class="npc-avatar npc-portrait npc-portrait-yjl" aria-hidden="true"></span>
                 <span class="npc-info">
                   <span class="npc-name">银娇龙</span>
                   <span class="npc-type">防具 · 披风</span>
@@ -117,7 +120,7 @@ export function buildMainScreenUI(container) {
               </button>
 
               <button type="button" class="npc-card" onclick="window._openNPC('psz')">
-                <span class="npc-avatar">${pixelIcon('potion-hp')}</span>
+                <span class="npc-avatar npc-portrait npc-portrait-psz" aria-hidden="true"></span>
                 <span class="npc-info">
                   <span class="npc-name">平十指</span>
                   <span class="npc-type">药剂商</span>
@@ -125,7 +128,7 @@ export function buildMainScreenUI(container) {
               </button>
 
               <button type="button" class="npc-card" onclick="window._openNPC('wdb')">
-                <span class="npc-avatar">${pixelIcon('warehouse')}</span>
+                <span class="npc-avatar npc-portrait npc-portrait-wdb" aria-hidden="true"></span>
                 <span class="npc-info">
                   <span class="npc-name">韦大宝</span>
                   <span class="npc-type">仓库 · 50 格</span>
