@@ -3,8 +3,9 @@
  * @desc 角色页：严格复用 ui_demo_role 的信息 / 气功 / 武功结构。
  */
 
-import { renderQigongPanel } from './QigongUI.js?v=release-20260926-save-compat-1';
+import { renderQigongPanel } from './QigongUI.js?v=release-20260927-visual-fixes-1';
 import { meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260926-save-compat-1';
+import { pixelIcon } from './PixelIconUI.js?v=release-20260926-save-compat-1';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -69,6 +70,12 @@ function renderInfoPanel(player) {
 
   return `<div class="role-info">
     <div class="sec-panel">
+      <div class="panel-title"><span>📜 基础信息</span></div>
+      <div class="stat-line"><span class="sl-k">职业</span><span class="sl-v">${escapeHtml(getCareerName(player))}</span></div>
+      <div class="stat-line"><span class="sl-k">派别</span><span class="sl-v">${faction}</span></div>
+      <div class="stat-line"><span class="sl-k">转职次数</span><span class="sl-v">${transferCount} 转</span></div>
+    </div>
+    <div class="sec-panel">
       <div class="panel-title"><span>📊 等级 · 经验</span><span class="count">Lv${player.level || 1}</span></div>
       <div class="exp-line">
         <div class="gba-bar"><div class="gba-bar-fill fill-exp" style="width:${expPct}%"></div><span class="gba-bar-pct">${expPct}%</span></div>
@@ -82,12 +89,6 @@ function renderInfoPanel(player) {
     <div class="sec-panel">
       <div class="panel-title"><span>⚔ 面板属性</span></div>
       ${stats.map(([label, value]) => `<div class="stat-line"><span class="sl-k">${label}</span><span class="sl-v">${formatNumber(value)}</span></div>`).join('')}
-    </div>
-    <div class="sec-panel">
-      <div class="panel-title"><span>📜 基础信息</span></div>
-      <div class="stat-line"><span class="sl-k">职业</span><span class="sl-v">${escapeHtml(getCareerName(player))}</span></div>
-      <div class="stat-line"><span class="sl-k">派别</span><span class="sl-v">${faction}</span></div>
-      <div class="stat-line"><span class="sl-k">转职次数</span><span class="sl-v">${transferCount} 转</span></div>
     </div>
   </div>`;
 }
@@ -119,7 +120,8 @@ function renderMartialPanel(player) {
     const lockText = !meetsLevel ? `需要 Lv.${req.level}` : !meetsTransfer ? `需要 ${req.min_transfer} 转` : '';
     return `<div class="skill-card ${state}">
       <div class="skill-card-head">
-        <div><div class="skill-name">${escapeHtml(ma.name)}</div><div class="skill-desc">${ma.type === 'heal' ? '治疗武功' : ma.type === 'buff' ? '辅助武功' : ma.target === 'aoe' ? '群体伤害武功' : '单体伤害武功'}</div></div>
+        <span class="skill-art">${pixelIcon(ma.type === 'heal' || ma.type === 'buff' ? 'qigong' : 'combat')}</span>
+        <div class="skill-card-copy"><div class="skill-name">${escapeHtml(ma.name)}</div><div class="skill-desc">${ma.type === 'heal' ? '治疗武功' : ma.type === 'buff' ? '辅助武功' : ma.target === 'aoe' ? '群体伤害武功' : '单体伤害武功'}</div></div>
         <span class="badge ${state}">${badge}</span>
       </div>
       <div class="ma-meta">

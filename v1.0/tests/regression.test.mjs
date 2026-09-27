@@ -34,7 +34,7 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-2026092
 import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260926-save-compat-1';
 import { TeleportSystem } from '../systems/TeleportSystem.js?v=release-20260926-save-compat-1';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260926-save-compat-1';
-import { buildShopItems } from '../ui/ShopUI.js?v=release-20260926-town-shops-1';
+import { buildShopItems } from '../ui/ShopUI.js?v=release-20260927-visual-fixes-1';
 import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260926-save-compat-1';
 import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260926-save-compat-1';
 import { base64Decode, base64Encode, computeChecksum } from '../utils/crypto.js?v=release-20260926-save-compat-1';
@@ -45,8 +45,9 @@ const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
 const HOME_VERSION = 'release-20260926-town-shops-1';
+const VISUAL_VERSION = 'release-20260927-visual-fixes-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
-const PROTOTYPE_REFRESH_VERSION = 'release-20260927-all-pages-1';
+const PROTOTYPE_REFRESH_VERSION = VISUAL_VERSION;
 
 class MemoryStorage {
   constructor() {
@@ -310,7 +311,7 @@ test('主页卡片可键盘操作，状态信息和原有跳转保持完整', ()
   assert.match(style, /\.page-home \.header-avatar \{ width: 40px; height: 50px; flex-basis: 40px; \}/);
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
   assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
-  assert.match(index, /main\.js\?v=release-20260926-town-shops-1/);
+  assert.match(index, /main\.js\?v=release-20260927-visual-fixes-1/);
 });
 
 test('城镇商店与购买数量弹窗沿用主页样式并保留紧凑背包区', () => {
@@ -334,9 +335,9 @@ test('城镇商店与购买数量弹窗沿用主页样式并保留紧凑背包�
   assert.match(style, /#qtyBackdrop \.qty-confirm[\s\S]*background: #365ca5/);
   assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
-  assert.match(app, /MainScreenUI\.js\?v=release-20260926-town-shops-1/);
-  assert.match(app, /BottomBarUI\.js\?v=release-20260926-town-shops-1/);
-  assert.match(bottomBar, /ShopUI\.js\?v=release-20260926-town-shops-1/);
+  assert.match(app, /MainScreenUI\.js\?v=release-20260927-visual-fixes-1/);
+  assert.match(app, /BottomBarUI\.js\?v=release-20260927-visual-fixes-1/);
+  assert.match(bottomBar, /ShopUI\.js\?v=release-20260927-visual-fixes-1/);
 });
 
 test('主页地图选择列表采用像素弹层样式并保留区域选择行为', () => {
@@ -432,9 +433,9 @@ test('内部 ES 模块统一发布标识，物品分类单例可跨系统共享'
       if (line.includes('@type')) continue;
       const matches = line.matchAll(/(?:from\s+|^\s*import\s+|import\s*\(\s*)['"]([^'"]+\.js)(?:\?v=([^'"]+))?['"]/g);
       for (const match of matches) {
-        const expectedVersion = ['MainScreenUI.js', 'UIManager.js', 'BottomBarUI.js', 'ShopUI.js'].some(name => match[1].endsWith(`/ui/${name}`) || match[1] === `./${name}`)
-          ? HOME_VERSION
-          : MODULE_VERSION;
+        const expectedVersion = ['MainScreenUI.js', 'BottomBarUI.js', 'ShopUI.js', 'NPCDialogUI.js', 'MultiSaveUI.js', 'CharacterUI.js', 'QigongUI.js', 'EnhanceUI.js', 'SynthesisUI.js', 'InventoryUI.js', 'WarehouseUI.js'].some(name => match[1].endsWith(`/ui/${name}`) || match[1] === `./${name}`)
+          ? VISUAL_VERSION
+          : (match[1].endsWith('/ui/UIManager.js') || match[1] === './UIManager.js') ? HOME_VERSION : MODULE_VERSION;
         assert.equal(match[2], expectedVersion, `${file}: ${match[1]} 发布标识不一致`);
       }
     }
@@ -769,6 +770,31 @@ test('商店界面与自动补给统一应用 NPC 价格倍率', () => {
   }]);
   AutoPlaySystem.setPotionShopItems(npc.items, npc.price_multiplier);
   assert.equal(AutoPlaySystem._getPotionBuyPrice('hp_potion_grade1'), 15);
+});
+
+test('防具商品按装备槽位显示防具图标，装备出售不显示批量数量操作', () => {
+  const npc = { shop_type: 'chest', items: [{ item_key: 'blade_chest', name: '无名战袍', buy_price: 100 }] };
+  const equipment = [{ key: 'blade_chest', slot: 'chest', required_career: ['blade'] }];
+  assert.equal(buildShopItems([npc], equipment, 'chest')[0].icon, 'defense');
+
+  const bottomBar = readFileSync(join(ROOT, 'ui', 'BottomBarUI.js'), 'utf8');
+  const style = readFileSync(join(ROOT, 'css', 'prototype-refresh.css'), 'utf8');
+  assert.match(bottomBar, /classList\.toggle\('single-equipment-sale', mode === 'sell' && isEquipment\)/);
+  assert.match(style, /#qtyBackdrop\.single-equipment-sale \.qty-stepper,[\s\S]*#qtyBackdrop\.single-equipment-sale \.qty-quick \{ display: none; \}/);
+});
+
+test('视觉原型的角色步骤、设置分层与补给数量输入已接入', () => {
+  const screen = readFileSync(join(ROOT, 'ui', 'MainScreenUI.js'), 'utf8');
+  const entry = readFileSync(join(ROOT, 'ui', 'MultiSaveUI.js'), 'utf8');
+  const bottomBar = readFileSync(join(ROOT, 'ui', 'BottomBarUI.js'), 'utf8');
+  const style = readFileSync(join(ROOT, 'css', 'prototype-refresh.css'), 'utf8');
+  assert.match(entry, /career-avatar/);
+  assert.match(entry, /save-enter/);
+  assert.doesNotMatch(screen.slice(screen.indexOf('id="modal-multi-save"'), screen.indexOf('id="modal-create"')), /window\._closeModal\(\)/);
+  assert.match(screen, /id="settingsSystemShell" data-view="overview"/);
+  assert.match(bottomBar, /window\._settingsShowSection =/);
+  assert.match(bottomBar, /quantityRow\('少于', hpResupply/);
+  assert.match(style, /#modal-create \.create-name-backdrop \{ position: absolute; inset: 0; align-items: stretch; background: #f0e8d8; \}/);
 });
 
 test('金币达到安全整数上限时出售保持原子性', () => {

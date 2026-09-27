@@ -293,13 +293,20 @@ export function buildMainScreenUI(container) {
               </div>
               <div class="settings-tab-body">
                 <div class="settings-tab-pane active" id="settingsPaneSystem">
-                  <div class="settings-shell">
-                    <div class="set-card">
+                  <div class="settings-shell" id="settingsSystemShell" data-view="overview">
+                    <div class="settings-system-nav">
+                      <button onclick="window._settingsShowSection('export')"><span>📤 导出存档</span><small>备份全部角色或当前角色</small></button>
+                      <button onclick="window._settingsShowSection('import')"><span>📥 导入存档</span><small>从备份文本恢复进度</small></button>
+                      <button onclick="window._settingsShowSection('characters')"><span>👥 角色管理</span><small>返回角色列表</small></button>
+                      <button onclick="window._settingsShowSection('about')"><span>ℹ️ 关于游戏</span><small>版本与游戏说明</small></button>
+                    </div>
+                    <div class="set-card" data-system-section="export">
+                      <button class="settings-section-back" onclick="window._settingsShowSection('overview')">← 系统设置</button>
                       <div class="sc-head">
                         <span class="sc-ico">📤</span>
                         <div>
                           <div class="sc-name">导出存档</div>
-                          <div class="sc-desc">生成 base64 文本，可复制到其他设备。</div>
+                          <div class="sc-desc">生成备份文本，可复制到其他设备。</div>
                         </div>
                       </div>
                       <button class="sc-radio on" id="exportScopeAll" onclick="window._settingsSetExportScope('all')"><span class="rd-dot"></span><span class="rd-text">全部角色 + 全局存档<span class="rd-sub">包含全局配置和所有已创建角色</span></span></button>
@@ -307,21 +314,23 @@ export function buildMainScreenUI(container) {
                       <textarea class="sc-textarea" id="settingsExportText" readonly placeholder="点击导出后显示存档文本"></textarea>
                       <button class="sc-btn green" onclick="window._settingsExportSave()">导出并复制</button>
                       <button class="sc-btn ghost" onclick="window._settingsCopyExport()">复制文本</button>
-                      <div class="sc-note">导出为 base64 字符串（schema_version 1.0）。</div>
+                      <div class="sc-note">存档文本包含游戏进度，请妥善保管。</div>
                     </div>
-                    <div class="set-card">
+                    <div class="set-card" data-system-section="import">
+                      <button class="settings-section-back" onclick="window._settingsShowSection('overview')">← 系统设置</button>
                       <div class="sc-head">
                         <span class="sc-ico">📥</span>
                         <div>
                           <div class="sc-name">导入存档</div>
-                          <div class="sc-desc">粘贴此前导出的 base64 文本进行恢复。</div>
+                          <div class="sc-desc">粘贴此前导出的备份文本进行恢复。</div>
                         </div>
                       </div>
-                      <textarea class="sc-textarea import" id="settingsImportText" placeholder="粘贴 base64 存档文本"></textarea>
+                      <textarea class="sc-textarea import" id="settingsImportText" placeholder="粘贴备份存档文本"></textarea>
                       <button class="sc-btn blue" onclick="window._settingsImportSave()">导入存档</button>
                       <div class="sc-note"><b>注意：</b>全量导入会替换全部角色；单角色导入仅替换对应槽位。</div>
                     </div>
-                    <div class="set-card">
+                    <div class="set-card" data-system-section="characters">
+                      <button class="settings-section-back" onclick="window._settingsShowSection('overview')">← 系统设置</button>
                       <div class="sc-head">
                         <span class="sc-ico">👥</span>
                         <div>
@@ -331,14 +340,14 @@ export function buildMainScreenUI(container) {
                       </div>
                       <button class="sc-btn ghost" onclick="window._returnToSaveList()">← 返回角色列表</button>
                     </div>
-                    <div class="set-card">
+                    <div class="set-card" data-system-section="about">
+                      <button class="settings-section-back" onclick="window._settingsShowSection('overview')">← 系统设置</button>
                       <div class="sc-head">
                         <span class="sc-ico">ℹ️</span>
                         <div class="sc-name">关于</div>
                       </div>
                       <div class="sc-info-row"><span class="sc-info-k">游戏</span><span class="sc-info-v">文字类自动挂机 RPG</span></div>
                       <div class="sc-info-row"><span class="sc-info-k">版本</span><span class="sc-info-v">v1.0</span></div>
-                      <div class="sc-info-row"><span class="sc-info-k">存档结构</span><span class="sc-info-v">schema_version 1.0</span></div>
                       <div class="sc-disabled-note">v1.0 暂无音量 / 语言 / 主题设置。</div>
                     </div>
                   </div>
@@ -456,7 +465,7 @@ export function buildMainScreenUI(container) {
             <div class="qty-icon" id="qtyIcon">${pixelIcon('potion-hp')}</div>
             <div>
               <div class="qty-name" id="qtyName">小生命药剂</div>
-              <div class="qty-unit">单价: <b id="qtyUnitPrice">10</b> 金币 / 个</div>
+              <div class="qty-unit"><span id="qtyUnitLabel">单价</span>: <b id="qtyUnitPrice">10</b> 金币 / <span id="qtyUnitSuffix">个</span></div>
             </div>
           </div>
           <div class="qty-stepper">
@@ -666,7 +675,6 @@ export function buildMainScreenUI(container) {
         <div class="modal-box save-modal-box">
           <div class="modal-title">
             <span>👥 角色列表</span>
-            <button class="sheet-close" onclick="window._closeModal()">×</button>
           </div>
           <div class="modal-body" id="multi-save-content"></div>
         </div>

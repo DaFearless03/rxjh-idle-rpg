@@ -10,17 +10,17 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-2026092
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260926-save-compat-1';
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260926-save-compat-1';
 import { AutoPlaySystem } from '../systems/AutoPlaySystem.js?v=release-20260926-save-compat-1';
-import { mountCharacterPanel } from './CharacterUI.js?v=release-20260926-save-compat-1';
-import { mountInventoryPanel } from './InventoryUI.js?v=release-20260926-save-compat-1';
+import { mountCharacterPanel } from './CharacterUI.js?v=release-20260927-visual-fixes-1';
+import { getEquipmentSlotLabel, mountInventoryPanel } from './InventoryUI.js?v=release-20260927-visual-fixes-1';
 import { getEquipmentTemplate, renderEquipmentDetail } from './EquipUI.js?v=release-20260926-save-compat-1';
 import { mountQuestPanel } from './TaskUI.js?v=release-20260926-save-compat-1';
-import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260926-save-compat-1';
-import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260926-save-compat-1';
-import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260926-town-shops-1';
-import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260926-save-compat-1';
-import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260926-save-compat-1';
+import { mountWarehouseGrids } from './WarehouseUI.js?v=release-20260927-visual-fixes-1';
+import { openTownNPCDialog } from './NPCDialogUI.js?v=release-20260927-visual-fixes-1';
+import { renderArmorShop, renderPotionShop, renderWeaponShop } from './ShopUI.js?v=release-20260927-visual-fixes-1';
+import { renderEnhanceWorkbench } from './EnhanceUI.js?v=release-20260927-visual-fixes-1';
+import { renderSynthesisWorkbench } from './SynthesisUI.js?v=release-20260927-visual-fixes-1';
 import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260926-save-compat-1';
-import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260926-save-compat-1';
+import { showMultiSaveUI } from './MultiSaveUI.js?v=release-20260927-visual-fixes-1';
 import { eventBus } from '../core/EventBus.js?v=release-20260926-save-compat-1';
 import { isMartialArtUsable, meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260926-save-compat-1';
 import { pixelIcon, pixelIconMarkup } from './PixelIconUI.js?v=release-20260926-save-compat-1';
@@ -235,7 +235,13 @@ function updateDjxCraftButton(type) {
   const slots = window._djxSlots[type] || {};
   const confirmBtn = document.querySelector(`#djx-${type}-content .craft-confirm`);
   if (!confirmBtn) return;
-  confirmBtn.disabled = !(slots.equip && slots.stone);
+  const instance = window.game?.player?.inventory?.equipment_instances?.[slots.equip];
+  const atLimit = type === 'enhance'
+    ? Number(instance?.enhance_level || 0) >= 10
+    : !!instance && (instance.synthesis_slots || []).filter(Boolean).length >= Number(
+      document.querySelector(`#djx-${type}-content .bag-tile[data-key="${CSS.escape(slots.equip || '')}"]`)?.dataset.cap || 0
+    );
+  confirmBtn.disabled = !(slots.equip && slots.stone) || atLimit;
 }
 
 function getSynthesisStoneAttribute(key) {
@@ -247,6 +253,18 @@ function getSynthesisStoneAttribute(key) {
     skill_level_up: '技能等级', enhanceSuccessRateAdd: '合成成功率', goldDropBonusAdd: '金币爆率',
   };
   return labels[attr] && value ? `${labels[attr]}+${value}` : key;
+}
+
+function countCraftStones(player, category, selectedKey = '') {
+  if (selectedKey) return InventorySystem.count(player, selectedKey);
+  return (player?.inventory?.slots || []).reduce((total, slot) => {
+    if (slot?.instance_id || !slot?.item_key) return total;
+    const matches = category === 'enhance'
+      ? /^enhance_stone_/.test(slot.item_key)
+      : SynthesisSystem._getStoneCategory(slot.item_key) === category;
+    const count = Number(slot.count);
+    return matches && Number.isFinite(count) && count > 0 ? total + Math.floor(count) : total;
+  }, 0);
 }
 
 function updateSynthesisWorkbench() {
@@ -266,6 +284,8 @@ function updateSynthesisWorkbench() {
     grid.innerHTML = Array(4).fill('<div class="synth-slot empty inactive">＋</div>').join('');
     const costValue = result?.querySelector('.v.cost');
     if (costValue) costValue.textContent = '--';
+    const material = document.getElementById('djx-synth-material');
+    if (material) material.textContent = '选择装备后查看孔位与材料';
     reset?.classList.add('hidden');
     return;
   }
@@ -273,6 +293,12 @@ function updateSynthesisWorkbench() {
   equipTile.classList.add('used');
   const capacity = Number(equipTile.dataset.cap || 0);
   const filled = String(equipTile.dataset.filled || '').split('|').filter(Boolean);
+  const material = document.getElementById('djx-synth-material');
+  if (material) {
+    const held = countCraftStones(window.game?.player, equipTile.dataset.stoneCategory, slots.stone);
+    material.textContent = `孔位 ${filled.length}/${capacity} · 合成石需要 1 / 持有 ${held}`;
+    material.classList.toggle('insufficient', !!slots.stone && held < 1);
+  }
   grid.innerHTML = Array.from({ length: 4 }, (_, index) => {
     if (index >= capacity) return '<div class="synth-slot empty inactive">＋</div>';
     const stone = filled[index];
@@ -302,7 +328,7 @@ function updateEnhanceWorkbench() {
   const equipInstance = slots.equip
     ? window.game?.player?.inventory?.equipment_instances?.[slots.equip]
     : null;
-  const synthesisCount = equipInstance?.synthesis_slots?.length || 0;
+  const synthesisCount = equipInstance?.synthesis_slots?.filter(Boolean).length || 0;
   const stonesNeeded = synthesisCount >= 4 ? 3 : synthesisCount >= 1 ? 2 : 1;
   const stoneZone = content?.querySelector('.craft-dropzone[data-zone="enhance-stone"]');
   if (stoneZone?.classList.contains('filled')) {
@@ -320,6 +346,24 @@ function updateEnhanceWorkbench() {
       ? `${pixelIcon('gold')} ${Number(equipTile.dataset.cost || 0).toLocaleString()}`
       : '--';
   }
+  const material = document.getElementById('djx-enhance-material');
+  const preview = document.getElementById('djx-enhance-preview');
+  if (!equipInstance || !equipTile) {
+    if (material) material.textContent = '选择装备后查看所需材料';
+    if (preview) preview.textContent = '';
+    return;
+  }
+  const held = countCraftStones(window.game?.player, 'enhance', slots.stone);
+  if (material) {
+    material.textContent = `强化石需要 ${stonesNeeded} / 持有 ${held}`;
+    material.classList.toggle('insufficient', !!slots.stone && held < stonesNeeded);
+  }
+  const tpl = getEquipmentTemplate(window.game?.player, equipInstance);
+  const level = Math.max(0, Math.trunc(Number(equipInstance.enhance_level) || 0));
+  const bonus = tpl?.slot === 'weapon'
+    ? `攻击加成 ${level * 6}~${level * 8} → ${(level + 1) * 6}~${(level + 1) * 8}`
+    : `防御加成 ${level * 3} → ${(level + 1) * 3}`;
+  if (preview) preview.textContent = level >= 10 ? '已达强化上限 +10' : `+${level} → +${level + 1} · ${bonus}`;
 }
 
 window._djxSelectItem = (key, type) => {
@@ -421,8 +465,11 @@ window._openShopQuantity = (mode, itemKey, price, name, icon, maxCount = 999, in
   document.getElementById('qtyIcon').innerHTML = pixelIconMarkup(icon || 'warehouse', itemKey);
   document.getElementById('qtyName').textContent = name || itemKey;
   document.getElementById('qtyUnitPrice').textContent = Number(price || 0).toLocaleString();
+  document.getElementById('qtyUnitLabel').textContent = mode === 'sell' && isEquipment ? '本件售价' : '单价';
+  document.getElementById('qtyUnitSuffix').textContent = mode === 'sell' && isEquipment ? '件' : '个';
   document.getElementById('qtyInput').value = '1';
   document.getElementById('qtyInput').max = String(_shopQuantityState.max);
+  document.getElementById('qtyBackdrop')?.classList.toggle('single-equipment-sale', mode === 'sell' && isEquipment);
   document.getElementById('qtyConfirm').textContent = mode === 'sell' ? '确认出售' : '确认购买';
   _updateShopQuantityTotal();
   document.getElementById('qtyBackdrop')?.classList.add('open');
@@ -803,7 +850,7 @@ function _whOpenEquipmentDetail(tile, mode) {
   _whEquipTile = tile;
   document.getElementById('whEquipIcon').innerHTML = pixelIconMarkup(tile.dataset.icon || 'combat', tile.dataset.key, 'equipment');
   document.getElementById('whEquipName').textContent = `${template.name}${instance.enhance_level > 0 ? ` +${instance.enhance_level}` : ''}`;
-  document.getElementById('whEquipSub').textContent = `装备 · ${template.slot}`;
+  document.getElementById('whEquipSub').textContent = `装备 · ${getEquipmentSlotLabel(template.slot) || '其他部位'}`;
   document.getElementById('whEquipBody').innerHTML = renderEquipmentDetail(detailPlayer, instanceId);
   document.getElementById('whEquipAction').textContent = mode === 'deposit' ? '存入' : '取出';
   popup.classList.add('open');
@@ -977,6 +1024,14 @@ window._confirmOfflineReward = () => {
 
 let _settingsExportScope = 'all';
 let _settingsActiveTab = 'system';
+
+window._settingsShowSection = (section) => {
+  const shell = document.getElementById('settingsSystemShell');
+  if (!shell) return;
+  shell.dataset.view = ['export', 'import', 'characters', 'about'].includes(section) ? section : 'overview';
+  const scroll = document.querySelector('#page-settings > .main-scroll');
+  if (scroll) scroll.scrollTop = 0;
+};
 
 window._switchSettingsTab = (tab) => {
   _settingsActiveTab = tab === 'autoplay' ? 'autoplay' : 'system';
@@ -1232,6 +1287,11 @@ function renderAutoplayPanel(player) {
     '<input class="autoplay-range" type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + value + '" oninput="' + action + '"></div>' +
     '<span class="sl-v autoplay-range-value" id="' + id + '">' + value + suffix + '</span></div>';
 
+  const quantityRow = (label, value, min, max, action) =>
+    '<label class="stat-line autoplay-quantity-row"><span class="sl-k">' + label + '</span>' +
+    '<span class="autoplay-quantity-control"><input type="number" inputmode="numeric" min="' + min + '" max="' + max +
+    '" step="1" value="' + value + '" onchange="' + action + '" aria-label="' + label + '数量">瓶</span></label>';
+
   const autoSellGroup = (category, title, icon) => {
     const groupKey = category === 'vajra' ? 'vajra_stones' : 'cold_jade_stones';
     const definitions = window._stonesData?.[groupKey] || [];
@@ -1438,16 +1498,16 @@ function renderAutoplayPanel(player) {
         ${toggleBtn('hp', hpResupply.enabled, "window._toggleAutoResupply('hp')")}
       </div>
       ${potionSelect('hp', hpBuy.selected_potion, hpResupply.enabled, '_setAutoResupplyItem')}
-      ${sliderRow('触发', hpResupply.trigger_threshold ?? 10, 2, 50, 1, "window._setAutoResupplyTrigger('hp', this.value)", 'rs-hp-trigger-label')}
-      ${sliderRow('买至', hpBuy.target_quantity ?? 50, 5, 999, 1, "window._setAutoResupplyTarget('hp', this.value)", 'rs-hp-target-label')}
+      ${quantityRow('少于', hpResupply.trigger_threshold ?? 10, 2, 50, "window._setAutoResupplyTrigger('hp', this.value)")}
+      ${quantityRow('买至', hpBuy.target_quantity ?? 50, 5, 999, "window._setAutoResupplyTarget('hp', this.value)")}
 
       <!-- MP Resupply -->
       <div class="stat-line" style="margin-top:0.9rem"><span class="sl-k">内功补给</span>
         ${toggleBtn('mp', mpResupply.enabled, "window._toggleAutoResupply('mp')")}
       </div>
       ${potionSelect('mp', mpBuy.selected_potion, mpResupply.enabled, '_setAutoResupplyItem')}
-      ${sliderRow('触发', mpResupply.trigger_threshold ?? 10, 2, 50, 1, "window._setAutoResupplyTrigger('mp', this.value)", 'rs-mp-trigger-label')}
-      ${sliderRow('买至', mpBuy.target_quantity ?? 50, 5, 999, 1, "window._setAutoResupplyTarget('mp', this.value)", 'rs-mp-target-label')}
+      ${quantityRow('少于', mpResupply.trigger_threshold ?? 10, 2, 50, "window._setAutoResupplyTrigger('mp', this.value)")}
+      ${quantityRow('买至', mpBuy.target_quantity ?? 50, 5, 999, "window._setAutoResupplyTarget('mp', this.value)")}
     </div>
 
     <div class="sec-panel auto-store-panel">
@@ -2172,11 +2232,11 @@ window._setAutoResupplyItem = (kind, itemKey) => {
 };
 
 window._setAutoResupplyTrigger = (kind, value) => {
-  const v = Math.max(2, Math.min(50, Number(value) || 10));
+  const v = Math.max(2, Math.min(50, Math.trunc(Number(value)) || 10));
   updateAutoResupply(kind, (trigger) => { trigger.trigger_threshold = v; });
 };
 
 window._setAutoResupplyTarget = (kind, value) => {
-  const v = Math.max(5, Math.min(999, Number(value) || 50));
+  const v = Math.max(5, Math.min(999, Math.trunc(Number(value)) || 50));
   updateAutoResupply(kind, (trigger, buy) => { buy.target_quantity = v; });
 };

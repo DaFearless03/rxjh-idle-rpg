@@ -4,7 +4,7 @@
  */
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260926-save-compat-1';
-import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260926-save-compat-1';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260927-visual-fixes-1';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260926-save-compat-1';
 
 function getBagEquipmentChoices(player) {
@@ -40,6 +40,8 @@ export function renderEnhanceWorkbench(player) {
       </div>
       <div class="craft-result" id="djx-enhance-cost">
         <div class="cr-row"><span class="l">强化费用</span><span class="v cost">--</span></div>
+        <div class="cr-row craft-material-status" id="djx-enhance-material">选择装备后查看所需材料</div>
+        <div class="cr-row craft-bonus-preview" id="djx-enhance-preview"></div>
       </div>
       <div class="craft-actions">
         <button class="craft-confirm" disabled onclick="window._djxDoCraft('enhance')">强化</button>

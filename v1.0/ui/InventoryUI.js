@@ -101,7 +101,7 @@ function getSlotDisplay(slot, player) {
   };
 }
 
-function getEquipmentIcon(slot) {
+export function getEquipmentIcon(slot) {
   const map = {
     weapon: 'combat',
     chest: 'defense',
@@ -116,7 +116,7 @@ function getEquipmentIcon(slot) {
   return map[slot] || 'combat';
 }
 
-function getEquipmentSlotLabel(slot) {
+export function getEquipmentSlotLabel(slot) {
   const map = {
     weapon: '武器',
     chest: '胸甲',

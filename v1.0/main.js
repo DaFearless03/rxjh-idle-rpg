@@ -34,8 +34,8 @@ import { storage } from './utils/storage.js?v=release-20260926-save-compat-1';
 import { restoreRuntimePlayerFromSave, applyCareerRuntimeFields } from './utils/player_restore.js?v=release-20260926-save-compat-1';
 import { addCappedNonNegative } from './utils/numbers.js?v=release-20260926-save-compat-1';
 import { UIManager } from './ui/UIManager.js?v=release-20260926-town-shops-1';
-import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260926-town-shops-1';
-import { showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260926-save-compat-1';
+import { buildMainScreenUI } from './ui/MainScreenUI.js?v=release-20260927-visual-fixes-1';
+import { showNPCDialog } from './ui/NPCDialogUI.js?v=release-20260927-visual-fixes-1';
 import {
   hideOfflineRewardLoading,
   showMultiSaveUI,
@@ -43,8 +43,8 @@ import {
   showOfflineRewardLoading,
   showOfflineRewardUI,
   updateOfflineRewardProgress,
-} from './ui/MultiSaveUI.js?v=release-20260926-save-compat-1';
-import './ui/BottomBarUI.js?v=release-20260926-town-shops-1';
+} from './ui/MultiSaveUI.js?v=release-20260927-visual-fixes-1';
+import './ui/BottomBarUI.js?v=release-20260927-visual-fixes-1';
 
 // ========================
 // 数据加载

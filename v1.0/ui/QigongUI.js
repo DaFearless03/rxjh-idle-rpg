@@ -4,6 +4,7 @@
  */
 
 import { QigongSystem } from '../systems/QigongSystem.js?v=release-20260926-save-compat-1';
+import { pixelIcon } from './PixelIconUI.js?v=release-20260926-save-compat-1';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -30,7 +31,7 @@ function renderQigongCard(q, available) {
   // 锁定态
   if (!q.unlocked) {
     return '<div class="skill-card locked">' +
-      '<div class="sc-head"><span class="sc-name">' + escapeHtml(q.name) + '</span>' +
+      '<div class="sc-head"><span class="skill-art">' + pixelIcon('qigong') + '</span><span class="sc-name">' + escapeHtml(q.name) + '</span>' +
       '<span class="badge locked">未解锁</span></div>' +
       '<div class="sc-desc">' + escapeHtml(q.description || '') + '</div>' +
       '<div class="qg-lock-cond">🔒 ' + escapeHtml(q.lockText || '') + '</div>' +
@@ -39,6 +40,7 @@ function renderQigongCard(q, available) {
 
   const canAdd = available > 0 && !isMax;
   return '<div class="skill-card qg-card' + (isMax ? ' learned' : '') + '">' +
+    '<span class="skill-art">' + pixelIcon('qigong') + '</span>' +
     '<div class="qg-left">' +
     '<div class="sc-head"><span class="sc-name">' + escapeHtml(q.name) + '</span></div>' +
     '<div class="sc-desc">' + escapeHtml(q.description || '') + '</div>' +

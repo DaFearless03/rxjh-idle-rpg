@@ -58,7 +58,9 @@ export function openTownNPCDialog(npcKey) {
   const backdrop = document.getElementById('npcDialogBackdrop');
   if (!npc || !backdrop) return;
 
-  document.getElementById('npcDialogAvatar').innerHTML = pixelIcon(npc.avatar);
+  const avatar = document.getElementById('npcDialogAvatar');
+  avatar.className = `npc-dialog-avatar npc-portrait npc-portrait-${townKey}`;
+  avatar.innerHTML = '';
   document.getElementById('npcDialogName').textContent = npc.name;
   document.getElementById('npcDialogTag').textContent = npc.tag;
   document.getElementById('npcDialogLine').textContent = npc.line;

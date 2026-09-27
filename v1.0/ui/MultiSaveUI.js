@@ -9,18 +9,11 @@ import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=re
 import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260926-save-compat-1';
 import { UIManager } from './UIManager.js?v=release-20260926-town-shops-1';
 
-const CAREER_EMOJI = {
-  warrior_blade: '⚔️',
-  warrior_sword: '🗡️',
-  warrior_spear: '🔱',
-  healer: '💊',
-};
-
 const CAREER_INFO = {
-  warrior_blade: { name: '刀客', emoji: '⚔️', desc: '高血高防，适合稳扎稳打。' },
-  warrior_sword: { name: '剑客', emoji: '🗡️', desc: '均衡输出，命中与爆发兼顾。' },
-  warrior_spear: { name: '枪客', emoji: '🔱', desc: '长兵远距，攻击上限更亮眼。' },
-  healer: { name: '医师', emoji: '💊', desc: '治疗辅助，续航能力优秀。' },
+  warrior_blade: { name: '刀客', desc: '高血高防，适合稳扎稳打。' },
+  warrior_sword: { name: '剑客', desc: '均衡输出，命中与爆发兼顾。' },
+  warrior_spear: { name: '枪客', desc: '长兵远距，攻击上限更亮眼。' },
+  healer: { name: '医师', desc: '治疗辅助，续航能力优秀。' },
 };
 
 function escapeHtml(value) {
@@ -61,10 +54,12 @@ function formatItemSummary(items) {
 function getCareerMeta(careerKey, careersData) {
   const fromData = careersData?.find(c => c.key === careerKey);
   const local = CAREER_INFO[careerKey] || {};
+  const family = ['blade', 'sword', 'spear', 'staff'].find(key => String(careerKey).includes(key))
+    || (careerKey === 'healer' ? 'staff' : 'blade');
   return {
     name: fromData?.name || local.name || careerKey,
-    emoji: local.emoji || CAREER_EMOJI[careerKey] || '⚔️',
     desc: local.desc || '',
+    avatar: `icons/avatar_${family}.png`,
   };
 }
 
@@ -94,7 +89,7 @@ export function showMultiSaveUI(globalSave, characters, careersData, { replaceTo
         career: meta.name,
         level: char.player?.level || 1,
         zone,
-        emoji: meta.emoji,
+        avatar: meta.avatar,
         isLastUsed: lastUsed === i,
       });
     } else if (displayState.type === 'empty') {
@@ -122,18 +117,18 @@ export function showMultiSaveUI(globalSave, characters, careersData, { replaceTo
       ${allSlots.map(slot => {
         if (slot.type === 'character') {
           return `
-          <div class="save-card${slot.isLastUsed ? ' last-used' : ''}"
-               onclick="window._ui_switchCharacter(${slot.slotIndex})">
-            <div class="save-career-icon">${slot.emoji}</div>
+          <div class="save-card${slot.isLastUsed ? ' last-used' : ''}">
+            <div class="save-career-icon"><img src="${slot.avatar}" alt="" draggable="false"></div>
             <div class="save-info">
               <div class="save-name">${escapeHtml(slot.name)}</div>
               <div class="save-meta">Lv${slot.level} · ${escapeHtml(slot.career)}</div>
               <div class="save-zone">📍 ${escapeHtml(slot.zone)}</div>
               ${slot.isLastUsed ? '<span class="last-tag">上次游玩</span>' : ''}
             </div>
-            <span class="save-slot-num">${slot.slotIndex}号位</span>
+            <div class="save-card-actions"><span class="save-slot-num">${slot.slotIndex}号位</span>
+            <button class="save-enter" onclick="window._ui_switchCharacter(${slot.slotIndex})">进入游戏</button>
             <button class="del-btn" onclick="event.stopPropagation();window._ui_deleteCharacter(${slot.slotIndex})"
-              title="删除角色">删除</button>
+              title="删除角色">删除</button></div>
           </div>`;
         }
         if (slot.type === 'empty') {
@@ -214,6 +209,7 @@ export function showMultiSaveUI(globalSave, characters, careersData, { replaceTo
       await window.game?.confirmDeleteCharacter(slotIndex, { refreshList: true });
     };
     UIManager.pushModal(modal);
+    document.getElementById('modal-multi-save').inert = true;
   };
 
   window._ui_createCharacter = (slotIndex) => {
@@ -265,9 +261,9 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex, { replaceTo
           return `
           <div class="career-card" id="career-${k}" onclick="window._selectCareer('${k}')">
             <span class="cc-check">✓</span>
-            <div class="emoji">${meta.emoji}</div>
-            <div class="cname">${escapeHtml(meta.name)}</div>
-            <div class="cdesc">${escapeHtml(meta.desc)}</div>
+            <img class="career-avatar" src="${meta.avatar}" alt="" draggable="false">
+            <div class="career-copy"><div class="cname">${escapeHtml(meta.name)}</div>
+            <div class="cdesc">${escapeHtml(meta.desc)}</div></div>
           </div>
         `; }).join('')}
       </div>
@@ -275,10 +271,9 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex, { replaceTo
     </div>
     <div id="create-step-2" class="create-name-backdrop">
       <div class="create-name-sheet">
-        <div class="sheet-handle"></div>
-        <div class="sheet-header"><span class="sheet-title">为角色起名</span><button class="sheet-close" onclick="window._backToStep1()">×</button></div>
+        <div class="sheet-header"><button class="sheet-close" onclick="window._backToStep1()">← 选职业</button><span class="sheet-title">为角色起名</span></div>
         <div class="name-sheet-card">
-          <div class="name-preview" id="create-career-preview">请选择职业</div>
+          <div class="name-preview"><img id="create-career-avatar" src="" alt="" draggable="false"><span id="create-career-preview">请选择职业</span></div>
           <input class="input mb-4" id="create-name-input" placeholder="输入角色名" maxlength="10" />
           <div class="name-counter"><span id="create-name-count">0</span> / 10</div>
           <div id="create-name-error" class="name-hint">支持中文 / 英文 / 数字 / 下划线</div>
@@ -321,7 +316,9 @@ export function showCharacterCreationUI(globalSave, targetSlotIndex, { replaceTo
     document.getElementById('create-pill-name')?.classList.add('active');
     document.getElementById('create-step-2').classList.add('open');
     const preview = document.getElementById('create-career-preview');
-    if (preview) preview.textContent = `${meta.emoji} ${meta.name}`;
+    if (preview) preview.textContent = meta.name;
+    const avatar = document.getElementById('create-career-avatar');
+    if (avatar) avatar.src = meta.avatar;
     const input = document.getElementById('create-name-input');
     if (input) {
       input.value = '';

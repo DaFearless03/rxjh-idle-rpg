@@ -2,7 +2,7 @@
  * @file ui/ShopUI.js
  * @desc 城镇商店列表渲染：武器、防具、药店。
  */
-import { getBagSlotsInOrder } from './InventoryUI.js?v=release-20260926-save-compat-1';
+import { getBagSlotsInOrder, getEquipmentIcon } from './InventoryUI.js?v=release-20260927-visual-fixes-1';
 import { ShopSystem } from '../systems/ShopSystem.js?v=release-20260926-save-compat-1';
 import { pixelIcon, resolvePixelIcon } from './PixelIconUI.js?v=release-20260926-save-compat-1';
 
@@ -26,7 +26,8 @@ export function buildShopItems(npcsData, equipmentsData, shopType) {
       : [template?.required_career].filter(Boolean);
     const icon = item.item_key.startsWith('hp_') ? '🍶'
       : item.item_key.startsWith('mp_') ? '🌿'
-        : CAREER_ICON[careers[0]] || '📦';
+        : template?.slot ? getEquipmentIcon(template.slot)
+          : CAREER_ICON[careers[0]] || '📦';
     return [{
       ...item,
       buy_price: buyPrice,
@@ -104,10 +105,9 @@ function renderGold(player) {
 }
 
 function renderItems(items, options = {}) {
-  const iconMap = { chest: 'defense', gloves: 'defense', boots: 'defense' };
   return items.map(item => {
     const locked = options.locked ? ' locked' : '';
-    const icon = resolvePixelIcon(item.icon || iconMap[item.slot], item.item_key, item.slot ? 'equipment' : '');
+    const icon = resolvePixelIcon(item.icon, item.item_key, item.slot ? 'equipment' : '');
     return `<div class="shop-item">
       <div class="shop-item-info">
         <div class="shop-item-icon">${pixelIcon(icon)}</div>
@@ -141,7 +141,10 @@ function renderSellInventory(player) {
     const instance = slot.instance_id ? player?.inventory?.equipment_instances?.[slot.instance_id] : null;
     const enhance = Number(instance?.enhance_level || 0);
     const name = meta.name || itemKey;
-    const icon = resolvePixelIcon(meta.icon, itemKey, itemClass || (slot.instance_id ? 'equipment' : ''));
+    const equipmentSlot = itemClass === 'equipment'
+      ? (window._equipTemplates || []).find(template => template.key === itemKey)?.slot
+      : null;
+    const icon = resolvePixelIcon(equipmentSlot ? getEquipmentIcon(equipmentSlot) : meta.icon, itemKey, itemClass || (slot.instance_id ? 'equipment' : ''));
     const sub = itemClass === 'stones' ? getStoneAttributeLabel(itemKey) : '';
     const badge = itemClass === 'quest_items'
       ? `<div class="bt-badge cross quest">任务</div>${slot.count > 1 ? `<div class="bt-badge">×${slot.count}</div>` : ''}`
