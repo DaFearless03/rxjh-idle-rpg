@@ -45,7 +45,7 @@ const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
 const HOME_VERSION = 'release-20260926-town-shops-1';
-const HOME_CSS_VERSION = 'release-20260927-shop-quantity-1';
+const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
 
 class MemoryStorage {
   constructor() {
@@ -336,6 +336,24 @@ test('城镇商店与购买数量弹窗沿用主页样式并保留紧凑背包�
   assert.match(app, /MainScreenUI\.js\?v=release-20260926-town-shops-1/);
   assert.match(app, /BottomBarUI\.js\?v=release-20260926-town-shops-1/);
   assert.match(bottomBar, /ShopUI\.js\?v=release-20260926-town-shops-1/);
+});
+
+test('主页地图选择列表采用像素弹层样式并保留区域选择行为', () => {
+  const mainScreen = readFileSync(join(ROOT, 'ui', 'MainScreenUI.js'), 'utf8');
+  const bottomBar = readFileSync(join(ROOT, 'ui', 'BottomBarUI.js'), 'utf8');
+  const style = readFileSync(join(ROOT, 'css', 'home.css'), 'utf8');
+  const index = readFileSync(join(ROOT, 'index.html'), 'utf8');
+
+  assert.match(mainScreen, /id="mapSheet"[\s\S]*id="map-sheet-list"/);
+  assert.match(bottomBar, /function renderMapSheetList\(currentSubZoneKey\)/);
+  assert.match(bottomBar, /window\._mapSheetSelect\('\$\{sz\.key\}'/);
+  assert.match(bottomBar, /window\.game\?\.teleport\(key\)/);
+  assert.match(style, /#mapSheet \.bottom-sheet[\s\S]*height: 88%;[\s\S]*max-height: 88%/);
+  assert.match(style, /#mapSheet \.map-sub-item[\s\S]*min-height: 44px/);
+  assert.match(style, /#mapSheet \.map-sub-item\.current[\s\S]*background: #edf2fc/);
+  assert.match(style, /#mapSheet \.sheet-close[\s\S]*min-width: 44px[\s\S]*min-height: 44px/);
+  assert.match(style, /@media \(max-width: 360px\)[\s\S]*#mapSheet \.sheet-list/);
+  assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
 });
 
 test('城镇任务提示只在确有可提交任务时显示', async () => {
