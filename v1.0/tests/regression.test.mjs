@@ -46,6 +46,7 @@ const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
 const HOME_VERSION = 'release-20260926-town-shops-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
+const PROTOTYPE_REFRESH_VERSION = 'release-20260927-all-pages-1';
 
 class MemoryStorage {
   constructor() {
@@ -354,6 +355,34 @@ test('主页地图选择列表采用像素弹层样式并保留区域选择行�
   assert.match(style, /#mapSheet \.sheet-close[\s\S]*min-width: 44px[\s\S]*min-height: 44px/);
   assert.match(style, /@media \(max-width: 360px\)[\s\S]*#mapSheet \.sheet-list/);
   assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
+});
+
+test('其他正式页面接入统一视觉规范且保留图标规格', () => {
+  const index = readFileSync(join(ROOT, 'index.html'), 'utf8');
+  const style = readFileSync(join(ROOT, 'css', 'prototype-refresh.css'), 'utf8');
+  const markup = readFileSync(join(ROOT, 'ui', 'MainScreenUI.js'), 'utf8');
+  const characterMarkup = readFileSync(join(ROOT, 'ui', 'CharacterUI.js'), 'utf8');
+  const homeStyleIndex = index.indexOf(`css/home.css?v=${HOME_CSS_VERSION}`);
+  const refreshStyleIndex = index.indexOf(`css/prototype-refresh.css?v=${PROTOTYPE_REFRESH_VERSION}`);
+  const gmStyleIndex = index.indexOf('css/gm.css?');
+
+  assert.ok(homeStyleIndex >= 0 && refreshStyleIndex > homeStyleIndex);
+  assert.ok(gmStyleIndex < 0 || refreshStyleIndex > gmStyleIndex);
+  for (const page of ['character', 'inventory', 'autoplay', 'quest', 'settings', 'combat']) {
+    assert.match(style, new RegExp(`#page-${page}\\b`));
+  }
+  assert.match(style, /#page-character \.stat-label \.ui-icon-img,[\s\S]*?\{ display: none; \}/);
+  assert.match(style, /#page-character \.stat-row \.gba-bar-pct,[\s\S]*?\{ display: none; \}/);
+  assert.match(style, /#page-combat \.monster-grid \{ display: grid; grid-template-columns: repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(style, /#page-inventory \.bag-tile \.bt-icon \.ui-icon-img,[\s\S]*?\{ width: 20px; height: 20px; \}/);
+  assert.match(style, /#page-character \.menu-btn \.icon\.icon-img,[\s\S]*?\{ width: 32px; height: 32px; flex: 0 0 32px;/);
+  assert.match(style, /#modal-multi-save \.slot-warning[\s\S]*?border: 1px solid #6878a8/);
+  assert.doesNotMatch(style, /\.page-home\s*\{/);
+  assert.doesNotMatch(style, /#gm-panel/);
+  assert.match(characterMarkup, /\['qigong', '气功'\]/);
+  assert.match(characterMarkup, /window\._switchCharTab\('\$\{key\}'\)/);
+  assert.match(markup, /id="settingsPaneAutoplay"/);
+  assert.match(markup, /window\._openMapSheet\(\)/);
 });
 
 test('城镇任务提示只在确有可提交任务时显示', async () => {
