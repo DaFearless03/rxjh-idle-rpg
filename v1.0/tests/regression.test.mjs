@@ -49,7 +49,7 @@ const MODULE_VERSION = 'release-20260926-save-compat-1';
 const VISUAL_VERSION = 'release-20260928-role-info-1';
 const ROLE_PARITY_VERSION = 'release-20260928-role-parity-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
-const PROTOTYPE_REFRESH_VERSION = 'release-20260928-role-parity-2';
+const PROTOTYPE_REFRESH_VERSION = 'release-20260928-role-layout-1';
 
 class MemoryStorage {
   constructor() {
@@ -420,7 +420,7 @@ test('角色信息页按原型显示紧凑基础信息与双列战斗属性', ()
     });
 
     assert.match(markup, /class="sec-panel role-basic-panel"/);
-    assert.match(markup, /class="role-inline-facts"/);
+    assert.match(markup, /class="role-info-facts"[\s\S]*?职业[\s\S]*?派别[\s\S]*?转职次数[\s\S]*?历练点/);
     assert.match(markup, /class="role-base-grid"[\s\S]*?力[\s\S]*?心[\s\S]*?体[\s\S]*?身/);
     assert.match(markup, /class="role-combat-grid"[\s\S]*?生命上限[\s\S]*?内力上限[\s\S]*?攻击力[\s\S]*?120–160[\s\S]*?暴击率[\s\S]*?15%/);
     assert.doesNotMatch(markup, /称号|声望|决定攻击力高低|📜|📊|🎓|⚔/);
@@ -870,6 +870,20 @@ test('角色信息页的主区域使用原型的蓝色阶梯边框', () => {
   assert.match(style, /#page-character > \.char-header,[\s\S]*#page-character \.role-info > \.sec-panel,[\s\S]*role-frame\.svg/);
   assert.match(frame, /shape-rendering="crispEdges"/);
   assert.match(frame, /stroke="#1d3e70"/);
+});
+
+test('角色信息页独立控制原型留白且内容卡片不裁切', () => {
+  const style = readFileSync(join(ROOT, 'css', 'prototype-refresh.css'), 'utf8');
+  const roleLayout = style.slice(style.indexOf('/* The role prototype'));
+  assert.match(roleLayout, /--role-frame-gutter: clamp\(12px, 3\.82vw, 15px\)/);
+  assert.match(roleLayout, /--role-content-gutter: clamp\(16px, 5\.1vw, 20px\)/);
+  assert.match(roleLayout, /\.char-header \{ margin: 8px var\(--role-frame-gutter\) 3px/);
+  assert.match(roleLayout, /\.role-tab-body:has\(\.role-info\) \{ padding: 6px var\(--role-content-gutter\) 7px/);
+  assert.match(roleLayout, /\.role-info \{\s*min-height: 100%;\s*display: flex;\s*flex-direction: column;\s*gap: var\(--role-card-gap\);/);
+  assert.match(roleLayout, /\.role-basic-panel \{ height: auto; \}/);
+  assert.match(roleLayout, /\.role-quote \{\s*min-height: 90px;\s*flex: 1 0 90px;/);
+  assert.match(roleLayout, /--role-safe-area-bottom: env\(safe-area-inset-bottom, 0px\)/);
+  assert.match(roleLayout, /margin: 0 var\(--role-frame-gutter\) calc\(8px \+ var\(--role-safe-area-bottom\)\)/);
 });
 
 test('金币达到安全整数上限时出售保持原子性', () => {
