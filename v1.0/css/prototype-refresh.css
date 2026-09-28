@@ -695,6 +695,55 @@
 #page-inventory .ed-btn-equip,
 #page-inventory .ed-btn-unequip { border-color: #303048; background: #365ca5; color: #fff; }
 #page-inventory .ed-btn-discard { border-color: #a23432; background: #a23432; color: #fff; }
+#page-inventory .box-modal-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #6878a8;
+  background: #f6f3e9;
+  color: #303048;
+  font-size: 16px;
+  font-weight: bold;
+}
+#page-inventory .box-modal-heading button {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  color: #303048;
+  font: inherit;
+  font-size: 24px;
+  cursor: pointer;
+}
+#page-inventory .box-detail,
+#page-inventory .box-result-content { padding: 14px 12px; color: #303048; font-size: 13px; line-height: 1.5; }
+#page-inventory .box-detail p { min-height: 42px; }
+#page-inventory .box-hold { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #a4afc3; }
+#page-inventory .box-hold strong { margin-left: 10px; }
+#page-inventory .inventory-item-modal.box-mode .ed-footer [data-action="open-box"] { order: -1; }
+#page-inventory .inventory-item-modal .qty-quick { margin-top: 8px; }
+#page-inventory .inventory-box-result-modal .item-box { max-height: min(76%, 600px); }
+#page-inventory .box-result-intro { margin: 0 0 12px; }
+#page-inventory .box-result-list { display: grid; gap: 0; }
+#page-inventory .box-result-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid #d6d3cb;
+  border-radius: 3px;
+  background: #fffef8;
+}
+#page-inventory .box-result-row + .box-result-row { border-top: 0; }
+#page-inventory .box-result-row .ui-icon-img { width: 20px; height: 20px; flex: 0 0 20px; }
+#page-inventory .box-result-row span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+#page-inventory .box-result-row strong { white-space: nowrap; }
+#page-inventory .box-result-row small { display: block; color: #a23432; font-size: 11px; }
+#page-inventory .box-result-missed { background: #f8eee9; }
+#page-inventory .box-result-empty { padding: 12px 8px; color: #656575; }
 
 #page-settings .set-card { display: grid; align-content: start; gap: 8px; padding: 12px; }
 #page-settings .sc-head { gap: 8px; align-items: flex-start; margin-bottom: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }

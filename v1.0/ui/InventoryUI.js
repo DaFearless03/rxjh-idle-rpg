@@ -231,6 +231,7 @@ function renderBagGrid(player) {
 function renderInventoryModals() {
   return `<div class="item-backdrop inventory-item-modal" data-modal="item">
     <div class="item-box">
+      <div class="box-modal-heading" data-field="box-heading">宝盒详情<button type="button" data-action="close" aria-label="关闭宝盒详情">×</button></div>
       <div class="ed-hdr">
         <div class="ed-ico-frame"><span data-field="icon">${pixelIcon('warehouse')}</span></div>
         <div class="ed-title-wrap">
@@ -239,6 +240,7 @@ function renderInventoryModals() {
         </div>
       </div>
       <div class="ed-main-bar" data-field="main-bar"></div>
+      <div class="box-detail" data-field="box-detail"><p data-field="box-description"></p><div class="box-hold">持有数量 <strong data-field="box-count"></strong></div></div>
       <div class="ed-content" data-field="content">
         <div class="ed-panel" data-field="qty-wrap">
           <div class="ed-panel-hdr">操作数量</div>
@@ -261,6 +263,13 @@ function renderInventoryModals() {
         <button class="ed-btn ed-btn-equip" data-action="open-box">开盒</button>
         <button class="ed-btn ed-btn-discard" data-action="discard-item">丢弃</button>
       </div>
+    </div>
+  </div>
+  <div class="item-backdrop inventory-box-result-modal" data-modal="box-result">
+    <div class="item-box" role="dialog" aria-modal="true" aria-labelledby="box-result-title">
+      <div class="box-modal-heading" id="box-result-title">开盒完成<button type="button" data-action="close" aria-label="关闭开盒结果">×</button></div>
+      <div class="box-result-content" data-field="box-result"></div>
+      <div class="ed-footer"><button class="ed-btn ed-btn-equip" data-action="close">关闭</button></div>
     </div>
   </div>
   <div class="item-backdrop inventory-equip-modal" data-modal="equip">
@@ -424,6 +433,7 @@ function openItemPopup(container, player, bagIndex, setTarget) {
   const max = Math.max(1, Number(slot.count || 1));
   const isBox = display.itemClass === 'boxes';
   const isQuest = display.itemClass === 'quest_items';
+  modal.classList.toggle('box-mode', isBox);
   modal.dataset.bagIndex = String(bagIndex);
   modal.dataset.itemKey = slot.item_key || slot.key || '';
   modal.dataset.itemClass = display.itemClass || '';
@@ -437,6 +447,13 @@ function openItemPopup(container, player, bagIndex, setTarget) {
   modal.querySelector('[data-field="icon"]').innerHTML = pixelIcon(resolvePixelIcon(display.icon, display.key, display.itemClass));
   modal.querySelector('[data-field="name"]').textContent = display.name;
   modal.querySelector('[data-field="tags"]').innerHTML = `<span class="ed-tag ${getItemClassTag(display.itemClass)}">${getItemClassLabel(display.itemClass)}</span>`;
+  modal.querySelector('[data-field="box-heading"]').style.display = isBox ? '' : 'none';
+  const boxDetail = modal.querySelector('[data-field="box-detail"]');
+  boxDetail.style.display = isBox ? '' : 'none';
+  if (isBox) {
+    modal.querySelector('[data-field="box-description"]').textContent = display.desc || BoxSystem.getBox(display.key)?.description || '开启后可获得物品。';
+    modal.querySelector('[data-field="box-count"]').textContent = String(max);
+  }
   const mainBar = modal.querySelector('[data-field="main-bar"]');
   if (display.itemClass === 'stones' && display.sub) mainBar.innerHTML = renderItemMainBar(display.sub);
   else if (display.itemClass === 'consumables') mainBar.innerHTML = `<span class="ed-ml">效果</span><span class="ed-mv item-effect">${escapeHtml(display.desc || '使用后恢复角色状态')}</span>`;
@@ -444,12 +461,15 @@ function openItemPopup(container, player, bagIndex, setTarget) {
   else mainBar.innerHTML = '';
   mainBar.style.display = isBox ? 'none' : '';
   modal.querySelector('[data-field="content"]').style.display = isQuest ? 'none' : '';
-  modal.querySelector('[data-field="qty-wrap"]').style.display = !isQuest && max > 1 ? '' : 'none';
+  modal.querySelector('[data-field="qty-wrap"]').style.display = !isQuest && (isBox || max > 1) ? '' : 'none';
+  modal.querySelector('.qty-quick').style.display = isBox ? 'none' : '';
+  modal.querySelector('[data-field="qty-wrap"] .ed-panel-hdr').textContent = isBox ? '开启数量' : '操作数量';
   const warn = modal.querySelector('[data-field="warn"]');
-  warn.textContent = isBox ? '📦 开盒后物品直接进背包' : '⚠️ 丢弃后不可恢复';
-  warn.classList.toggle('neutral', isBox);
+  warn.style.display = isBox ? 'none' : '';
+  warn.textContent = '⚠️ 丢弃后不可恢复';
   modal.querySelector('[data-action="open-box"]').style.display = isBox ? '' : 'none';
   const discard = modal.querySelector('[data-action="discard-item"]');
+  discard.style.display = isBox ? 'none' : '';
   discard.disabled = isQuest;
   discard.className = `ed-btn ${isQuest ? 'ed-btn-disabled' : 'ed-btn-discard'}`;
   discard.textContent = isQuest ? '不可丢弃' : '丢弃';
@@ -527,7 +547,8 @@ function handleModalAction(container, player, action, popupTarget, setTarget) {
     setTarget(null);
     finishEquipmentAction(container, player, {
       success: result?.success,
-      message: result?.success ? formatBoxResult(result) : result?.message,
+      message: result?.message,
+      boxResult: result?.success ? result : null,
     });
     return;
   }
@@ -698,9 +719,13 @@ function renderEquipmentTags(player, tpl) {
   return tags.join('');
 }
 
-function formatBoxResult(result) {
-  const rewards = (result?.obtained || []).map(item => `${item.name || item.item_key}×${item.count}`).join('、');
-  return rewards ? `开启「${result.box_name}」×${result.opened} → ${rewards}` : result?.message || '开盒完成';
+export function renderBoxResultContent(result) {
+  const obtained = Array.isArray(result?.obtained) ? result.obtained : [];
+  const discarded = Array.isArray(result?.discarded) ? result.discarded : [];
+  const rewardRows = obtained.map(item => `<div class="box-result-row">${pixelIcon(resolvePixelIcon('', item.item_key, item.item_class))}<span>获得 ${escapeHtml(item.name || item.item_key)}</span><strong>× ${Number(item.count) || 1}</strong></div>`);
+  const discardRows = discarded.map(item => `<div class="box-result-row box-result-missed">${pixelIcon(resolvePixelIcon('', item.item_key, item.item_class || InventorySystem._getItemClass(item.item_key)))}<span>${escapeHtml(item.name || item.item_key)}<small>${item.reason === 'inventory_full' ? '背包已满，未获得' : '物品配置缺失，未获得'}</small></span><strong>× ${Number(item.count) || 1}</strong></div>`);
+  return `<p class="box-result-intro">你打开了「${escapeHtml(result?.box_name || '宝盒')}」× ${Number(result?.opened) || 1}${rewardRows.length ? '，获得以下物品：' : '。'}</p>
+    <div class="box-result-list">${rewardRows.length ? rewardRows.join('') : '<div class="box-result-empty">没有获得物品</div>'}${discardRows.join('')}</div>`;
 }
 
 function createAbortSignal(container) {
@@ -834,7 +859,13 @@ function finishEquipmentAction(container, player, result) {
   container.innerHTML = renderInventoryPanel(player);
   bindInventoryInteractions(container, player);
   animateStatChanges(container, previousStats, player);
-  showToast(container, result.message);
+  if (result.boxResult) {
+    const modal = container.querySelector('.inventory-box-result-modal');
+    modal.querySelector('[data-field="box-result"]').innerHTML = renderBoxResultContent(result.boxResult);
+    modal.classList.add('open');
+  } else {
+    showToast(container, result.message);
+  }
 }
 
 function captureCombatStats(player) {

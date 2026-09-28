@@ -34,7 +34,8 @@ import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-2026092
 import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260926-save-compat-1';
 import { TeleportSystem } from '../systems/TeleportSystem.js?v=release-20260926-save-compat-1';
 import { WarehouseSystem } from '../systems/WarehouseSystem.js?v=release-20260926-save-compat-1';
-import { buildShopItems } from '../ui/ShopUI.js?v=release-20260927-visual-fixes-1';
+import { buildShopItems } from '../ui/ShopUI.js?v=release-20260928-box-ui-1';
+import { renderBoxResultContent } from '../ui/InventoryUI.js?v=release-20260928-box-ui-1';
 import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260926-save-compat-1';
 import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260926-save-compat-1';
 import { base64Decode, base64Encode, computeChecksum } from '../utils/crypto.js?v=release-20260926-save-compat-1';
@@ -45,7 +46,7 @@ const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
 const HOME_VERSION = 'release-20260926-town-shops-1';
-const VISUAL_VERSION = 'release-20260927-visual-fixes-1';
+const VISUAL_VERSION = 'release-20260928-box-ui-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
 const PROTOTYPE_REFRESH_VERSION = VISUAL_VERSION;
 
@@ -311,7 +312,7 @@ test('主页卡片可键盘操作，状态信息和原有跳转保持完整', ()
   assert.match(style, /\.page-home \.header-avatar \{ width: 40px; height: 50px; flex-basis: 40px; \}/);
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
   assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
-  assert.match(index, /main\.js\?v=release-20260927-visual-fixes-1/);
+  assert.match(index, /main\.js\?v=release-20260928-box-ui-1/);
 });
 
 test('城镇商店与购买数量弹窗沿用主页样式并保留紧凑背包区', () => {
@@ -335,9 +336,9 @@ test('城镇商店与购买数量弹窗沿用主页样式并保留紧凑背包�
   assert.match(style, /#qtyBackdrop \.qty-confirm[\s\S]*background: #365ca5/);
   assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
-  assert.match(app, /MainScreenUI\.js\?v=release-20260927-visual-fixes-1/);
-  assert.match(app, /BottomBarUI\.js\?v=release-20260927-visual-fixes-1/);
-  assert.match(bottomBar, /ShopUI\.js\?v=release-20260927-visual-fixes-1/);
+  assert.match(app, /MainScreenUI\.js\?v=release-20260928-box-ui-1/);
+  assert.match(app, /BottomBarUI\.js\?v=release-20260928-box-ui-1/);
+  assert.match(bottomBar, /ShopUI\.js\?v=release-20260928-box-ui-1/);
 });
 
 test('主页地图选择列表采用像素弹层样式并保留区域选择行为', () => {
@@ -424,6 +425,24 @@ test('城镇任务提示只在确有可提交任务时显示', async () => {
     globalThis.window = previousWindow;
     globalThis.document = previousDocument;
   }
+});
+
+test('宝盒详情和开盒结果按原型独立展示实际奖励与未入袋物品', () => {
+  const markup = readFileSync(join(ROOT, 'ui', 'InventoryUI.js'), 'utf8');
+  assert.match(markup, /宝盒详情/);
+  assert.match(markup, /开盒完成/);
+  assert.match(markup, /data-field="box-description"/);
+  assert.match(markup, /data-field="box-count"/);
+  const result = renderBoxResultContent({
+    box_name: '香木盒子', opened: 2,
+    obtained: [{ item_key: 'hp_potion_grade1', name: '金创药（小）', count: 1, item_class: 'consumables' }],
+    discarded: [{ item_key: 'ring_base_001', name: '<银戒指>', count: 1, reason: 'inventory_full' }],
+  });
+  assert.match(result, /香木盒子/);
+  assert.match(result, /获得 金创药（小）/);
+  assert.match(result, /背包已满，未获得/);
+  assert.match(result, /&lt;银戒指&gt;/);
+  assert.doesNotMatch(result, /<银戒指>/);
 });
 
 test('内部 ES 模块统一发布标识，物品分类单例可跨系统共享', async () => {

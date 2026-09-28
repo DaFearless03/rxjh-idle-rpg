@@ -5,7 +5,7 @@
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260926-save-compat-1';
 import { SynthesisSystem } from '../systems/SynthesisSystem.js?v=release-20260926-save-compat-1';
-import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260927-visual-fixes-1';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260928-box-ui-1';
 
 function escapeHtml(value) {
   return String(value ?? '')
