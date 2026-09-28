@@ -38,7 +38,8 @@ import { buildShopItems } from '../ui/ShopUI.js?v=release-20260928-box-ui-1';
 import { renderBoxResultContent } from '../ui/InventoryUI.js?v=release-20260928-box-ui-1';
 import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260926-save-compat-1';
 import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260926-save-compat-1';
-import { renderCharacterPanel } from '../ui/CharacterUI.js?v=release-20260928-role-parity-1';
+import { renderCharacterPanel } from '../ui/CharacterUI.js?v=release-20260928-qigong-icons-1';
+import { renderQigongPanel } from '../ui/QigongUI.js?v=release-20260928-qigong-icons-1';
 import { base64Decode, base64Encode, computeChecksum } from '../utils/crypto.js?v=release-20260926-save-compat-1';
 import { applyDeathExpLoss, assignQigongPoint, grantExp, onLevelUp } from '../utils/formulas.js?v=release-20260926-save-compat-1';
 import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260926-save-compat-1';
@@ -48,8 +49,9 @@ const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
 const VISUAL_VERSION = 'release-20260928-role-info-1';
 const ROLE_PARITY_VERSION = 'release-20260928-role-parity-1';
+const QIGONG_ICONS_VERSION = 'release-20260928-qigong-icons-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
-const PROTOTYPE_REFRESH_VERSION = 'release-20260928-role-layout-1';
+const PROTOTYPE_REFRESH_VERSION = QIGONG_ICONS_VERSION;
 
 class MemoryStorage {
   constructor() {
@@ -313,7 +315,7 @@ test('主页卡片可键盘操作，状态信息和原有跳转保持完整', ()
   assert.match(style, /\.page-home \.header-avatar \{ width: 40px; height: 50px; flex-basis: 40px; \}/);
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
   assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
-  assert.match(index, /main\.js\?v=release-20260928-role-parity-1/);
+  assert.match(index, new RegExp(`main\\.js\\?v=${QIGONG_ICONS_VERSION}`));
 });
 
 test('城镇商店与购买数量弹窗沿用主页样式并保留紧凑背包区', () => {
@@ -338,7 +340,7 @@ test('城镇商店与购买数量弹窗沿用主页样式并保留紧凑背包�
   assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
   assert.match(app, /MainScreenUI\.js\?v=release-20260928-role-parity-1/);
-  assert.match(app, /BottomBarUI\.js\?v=release-20260928-role-parity-1/);
+  assert.match(app, new RegExp(`BottomBarUI\\.js\\?v=${QIGONG_ICONS_VERSION}`));
   assert.match(bottomBar, /ShopUI\.js\?v=release-20260928-role-info-1/);
 });
 
@@ -430,6 +432,22 @@ test('角色信息页按原型显示紧凑基础信息与双列战斗属性', ()
   }
 });
 
+test('气功页按原型展示不同秘籍图案且图标保持 20px', () => {
+  QigongSystem.setTemplates(loadJson('qigong.json').qigongs);
+  const markup = renderQigongPanel({
+    career: 'healer', career_family: 'staff', level: 1,
+    qigong: { available_points: 1, invested: {} },
+  });
+  const style = readFileSync(join(ROOT, 'css', 'prototype-refresh.css'), 'utf8');
+
+  assert.match(markup, /data-qg-icon="book-blue"/);
+  assert.match(markup, /data-qg-icon="book-green"/);
+  assert.match(markup, /data-qg-icon="book-red"/);
+  assert.match(markup, /data-qg-icon="book-locked"/);
+  assert.doesNotMatch(markup, /icons\/qigong\.png/);
+  assert.match(style, /#page-character \.qg-book-icon \{[^}]*width: 20px; height: 20px;/);
+});
+
 test('城镇任务提示只在确有可提交任务时显示', async () => {
   const previousWindow = globalThis.window;
   const previousDocument = globalThis.document;
@@ -497,7 +515,11 @@ test('内部 ES 模块统一发布标识，物品分类单例可跨系统共享'
       for (const match of matches) {
         const isRoleParityModule = ['MainScreenUI.js', 'BottomBarUI.js', 'CharacterUI.js', 'NPCDialogUI.js', 'MultiSaveUI.js']
           .some(name => match[1].endsWith(`/ui/${name}`) || match[1] === `./${name}`);
-        const expectedVersion = isRoleParityModule
+        const isQigongVisualModule = ['BottomBarUI.js', 'CharacterUI.js', 'QigongUI.js']
+          .some(name => match[1].endsWith(`/ui/${name}`) || match[1] === `./${name}`);
+        const expectedVersion = isQigongVisualModule
+          ? QIGONG_ICONS_VERSION
+          : isRoleParityModule
           ? ROLE_PARITY_VERSION
           : ['ShopUI.js', 'QigongUI.js', 'EnhanceUI.js', 'SynthesisUI.js', 'InventoryUI.js', 'WarehouseUI.js']
             .some(name => match[1].endsWith(`/ui/${name}`) || match[1] === `./${name}`)

@@ -1613,6 +1613,7 @@
 
 #page-character .skill-art { flex: 0 0 20px; width: 20px; height: 20px; display: grid; place-items: center; }
 #page-character .skill-art .ui-icon-img { width: 20px; height: 20px; object-fit: contain; image-rendering: pixelated; }
+#page-character .qg-book-icon { display: block; width: 20px; height: 20px; shape-rendering: crispEdges; }
 #page-character .qg-card { grid-template-columns: 20px minmax(0,1fr) auto; gap: 8px; }
 #page-character .skill-card-head { display: flex; align-items: flex-start; }
 #page-character .skill-card-copy { flex: 1 1 auto; min-width: 0; }
