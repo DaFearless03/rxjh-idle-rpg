@@ -368,21 +368,38 @@ class UIManagerClass {
       panel.classList.add('active');
     }
     // 同步 bottom-bar active 状态
-    document.querySelectorAll('.bottom-btn, .menu-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('btn-' + id) || document.querySelector(`.menu-btn[data-panel="${id}"]`);
-    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.bottom-btn, .menu-btn').forEach(b => {
+      b.classList.remove('active');
+      b.removeAttribute('aria-current');
+    });
+    const btn = panel?.querySelector(`.menu-btn[data-panel="${id}"]`)
+      || document.getElementById('btn-' + id)
+      || document.querySelector(`.menu-btn[data-panel="${id}"]`);
+    if (btn) {
+      btn.classList.add('active');
+      btn.setAttribute('aria-current', 'page');
+    }
     if (panelId === 'home' || panelId === 'main') {
       const homeBtn = document.querySelector('.menu-btn[data-panel="home"]') || document.getElementById('btn-home');
-      if (homeBtn) homeBtn.classList.add('active');
+      if (homeBtn) {
+        homeBtn.classList.add('active');
+        homeBtn.setAttribute('aria-current', 'page');
+      }
     }
     return true;
   }
 
   closePanel() {
     document.querySelectorAll('.panel, .page-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.bottom-btn, .menu-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.bottom-btn, .menu-btn').forEach(b => {
+      b.classList.remove('active');
+      b.removeAttribute('aria-current');
+    });
     const homeBtn = document.querySelector('.menu-btn[data-panel="home"]') || document.getElementById('btn-home');
-    if (homeBtn) homeBtn.classList.add('active');
+    if (homeBtn) {
+      homeBtn.classList.add('active');
+      homeBtn.setAttribute('aria-current', 'page');
+    }
     const homePanel = document.getElementById('page-home');
     if (homePanel) homePanel.classList.add('active');
   }

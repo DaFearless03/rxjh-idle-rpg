@@ -215,7 +215,7 @@ export function buildMainScreenUI(container) {
         </div>
         <div class="bottom-menu">
           <button class="menu-btn" onclick="window._openPanel('inventory')">${BOTTOM_NAV_ICONS.inventory}背包</button>
-          <button class="menu-btn active">${BOTTOM_NAV_ICONS.character}角色</button>
+          <button class="menu-btn active" data-panel="character" aria-current="page">${BOTTOM_NAV_ICONS.character}角色</button>
           <button class="menu-btn" onclick="window._openPanel('home')">${BOTTOM_NAV_ICONS.home}主页</button>
           <button class="menu-btn" onclick="window._openPanel('quest')">${BOTTOM_NAV_ICONS.quest}任务</button>
           <button class="menu-btn" onclick="window._openPanel('settings')">${BOTTOM_NAV_ICONS.settings}设置</button>

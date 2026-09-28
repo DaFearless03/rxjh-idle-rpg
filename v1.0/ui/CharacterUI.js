@@ -34,7 +34,7 @@ function getTransferCount(player) {
 
 function renderTabBar(activeTab) {
   const tabs = [
-    ['info', '角色信息'],
+    ['info', '信息'],
     ['qigong', '气功'],
     ['martial', '武功'],
   ];
@@ -76,10 +76,8 @@ function renderInfoPanel(player) {
       <div class="role-info-facts">
         <div class="stat-line"><span class="sl-k">职业</span><span class="sl-v">${escapeHtml(getCareerName(player))}</span></div>
         <div class="stat-line"><span class="sl-k">派别</span><span class="sl-v">${faction}</span></div>
-      </div>
-      <div class="role-inline-facts">
-        <div><span>转职次数</span><b>${transferCount} 转</b></div>
-        <div><span>历练点</span><b>${formatNumber(player.resources?.training)}</b></div>
+        <div class="stat-line"><span class="sl-k">转职次数</span><span class="sl-v">${transferCount} 转</span></div>
+        <div class="stat-line"><span class="sl-k">历练点</span><span class="sl-v">${formatNumber(player.resources?.training)}</span></div>
       </div>
       <div class="role-exp-block">
         <div class="role-exp-head"><span>等级 · 经验</span><b>Lv.${player.level || 1} · ${formatNumber(player.exp)} / ${formatNumber(expToNext)}</b></div>
@@ -98,6 +96,7 @@ function renderInfoPanel(player) {
         ${stats.map(([label, value]) => `<div class="role-combat-cell"><span>${label}</span><b>${typeof value === 'string' ? escapeHtml(value) : formatNumber(value)}</b></div>`).join('')}
       </div>
     </div>
+    <div class="role-quote">江湖路远，少年仍在成长。</div>
   </div>`;
 }
 
