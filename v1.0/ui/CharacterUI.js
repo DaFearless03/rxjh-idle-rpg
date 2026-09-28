@@ -3,7 +3,7 @@
  * @desc 角色页：严格复用 ui_demo_role 的信息 / 气功 / 武功结构。
  */
 
-import { renderQigongPanel } from './QigongUI.js?v=release-20260928-box-ui-1';
+import { renderQigongPanel } from './QigongUI.js?v=release-20260928-role-info-1';
 import { meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260926-save-compat-1';
 import { pixelIcon } from './PixelIconUI.js?v=release-20260926-save-compat-1';
 
@@ -47,21 +47,23 @@ function renderInfoPanel(player) {
   const expToNext = window.expToNext?.[player.level] || 0;
   const expPct = expToNext > 0 ? Math.min(100, Math.round((player.exp || 0) / expToNext * 100)) : 0;
   const attrs = [
-    ['力', player.str || 0, '决定攻击力高低'],
-    ['心', player.int || 0, '决定内功（MP）高低'],
-    ['体', player.sta || 0, '决定生命值和防御力'],
-    ['身', player.dex || 0, '决定命中率和闪避率'],
+    ['力', player.str || 0],
+    ['心', player.int || 0],
+    ['体', player.sta || 0],
+    ['身', player.dex || 0],
   ];
+  const atkMin = player.atkMin || player.atk_min || 0;
+  const atkMax = player.atkMax || player.atk_max || 0;
   const stats = [
-    ['生命', player.maxHp || 0],
-    ['内功', player.maxMp || 0],
-    ['最小攻击力', player.atkMin || player.atk_min || 0],
-    ['最大攻击力', player.atkMax || player.atk_max || 0],
+    ['生命上限', formatNumber(player.maxHp)],
+    ['内力上限', formatNumber(player.maxMp)],
+    ['攻击力', `${formatNumber(atkMin)}–${formatNumber(atkMax)}`],
     ['防御力', player.def || 0],
+    ['命中率', player.hit || 0],
+    ['闪避率', player.missing || 0],
+    ['暴击率', `${Math.round(Number(player.critR || 0) * 100)}%`],
     ['武功攻击力', player.matk || 0],
     ['武功防御力', player.mdef || 0],
-    ['命中', player.hit || 0],
-    ['闪避', player.missing || 0],
   ];
   if (player.weaponSkillBonus) stats.push(['武功攻击加成', player.weaponSkillBonus]);
   if (player.weaponExtraDamage) stats.push(['追加伤害', player.weaponExtraDamage]);
@@ -69,26 +71,32 @@ function renderInfoPanel(player) {
   const transferCount = getTransferCount(player);
 
   return `<div class="role-info">
-    <div class="sec-panel">
-      <div class="panel-title"><span>📜 基础信息</span></div>
-      <div class="stat-line"><span class="sl-k">职业</span><span class="sl-v">${escapeHtml(getCareerName(player))}</span></div>
-      <div class="stat-line"><span class="sl-k">派别</span><span class="sl-v">${faction}</span></div>
-      <div class="stat-line"><span class="sl-k">转职次数</span><span class="sl-v">${transferCount} 转</span></div>
-    </div>
-    <div class="sec-panel">
-      <div class="panel-title"><span>📊 等级 · 经验</span><span class="count">Lv${player.level || 1}</span></div>
-      <div class="exp-line">
-        <div class="gba-bar"><div class="gba-bar-fill fill-exp" style="width:${expPct}%"></div><span class="gba-bar-pct">${expPct}%</span></div>
-        <div class="exp-num">经验 ${formatNumber(player.exp)} / ${formatNumber(expToNext)}</div>
+    <div class="sec-panel role-basic-panel">
+      <div class="panel-title">基础信息</div>
+      <div class="role-info-facts">
+        <div class="stat-line"><span class="sl-k">职业</span><span class="sl-v">${escapeHtml(getCareerName(player))}</span></div>
+        <div class="stat-line"><span class="sl-k">派别</span><span class="sl-v">${faction}</span></div>
       </div>
-      <div class="stat-line"><span class="sl-k">🎓 历练点</span><span class="sl-v train">${formatNumber(player.resources?.training)}</span></div>
-    </div>
-    <div class="attr-grid">
-      ${attrs.map(([label, value, desc]) => `<div class="attr-cell"><div class="ac-name">${label}</div><div class="ac-val">${value}</div><div class="ac-desc">${desc}</div></div>`).join('')}
+      <div class="role-inline-facts">
+        <div><span>转职次数</span><b>${transferCount} 转</b></div>
+        <div><span>历练点</span><b>${formatNumber(player.resources?.training)}</b></div>
+      </div>
+      <div class="role-exp-block">
+        <div class="role-exp-head"><span>等级 · 经验</span><b>Lv.${player.level || 1} · ${formatNumber(player.exp)} / ${formatNumber(expToNext)}</b></div>
+        <div class="gba-bar"><div class="gba-bar-fill fill-exp" style="width:${expPct}%"></div></div>
+      </div>
+      <div class="role-base-attrs">
+        <div class="role-base-head">基础属性</div>
+        <div class="role-base-grid">
+          ${attrs.map(([label, value]) => `<div class="role-base-cell"><span>${label}</span><b>${formatNumber(value)}</b></div>`).join('')}
+        </div>
+      </div>
     </div>
     <div class="sec-panel">
-      <div class="panel-title"><span>⚔ 面板属性</span></div>
-      ${stats.map(([label, value]) => `<div class="stat-line"><span class="sl-k">${label}</span><span class="sl-v">${formatNumber(value)}</span></div>`).join('')}
+      <div class="panel-title">战斗属性</div>
+      <div class="role-combat-grid">
+        ${stats.map(([label, value]) => `<div class="role-combat-cell"><span>${label}</span><b>${typeof value === 'string' ? escapeHtml(value) : formatNumber(value)}</b></div>`).join('')}
+      </div>
     </div>
   </div>`;
 }

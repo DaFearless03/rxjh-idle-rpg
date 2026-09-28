@@ -357,6 +357,70 @@
 #page-character .sl-k { color: #656575; }
 #page-character .sl-v { color: #303048; font-weight: 700; font-variant-numeric: tabular-nums; }
 #page-character .sl-v.train { color: #365ca5; }
+#page-character .role-basic-panel { display: block; }
+#page-character .role-info-facts .stat-line { min-height: 29px; padding: 4px 0; }
+#page-character .role-inline-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-height: 30px;
+  border-bottom: 1px solid #eeece5;
+  font-size: 11px;
+}
+#page-character .role-inline-facts > div { display: flex; justify-content: space-between; align-items: center; gap: 5px; min-width: 0; }
+#page-character .role-inline-facts > div:first-child { padding-right: 8px; border-right: 1px solid #d6d3cb; }
+#page-character .role-inline-facts > div:last-child { padding-left: 8px; }
+#page-character .role-inline-facts span { color: #656575; }
+#page-character .role-inline-facts b { color: #303048; font-variant-numeric: tabular-nums; }
+#page-character .role-exp-block {
+  padding: 7px 0;
+  border-bottom: 1px solid #eeece5;
+}
+#page-character .role-exp-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  color: #656575;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+#page-character .role-exp-head { margin-bottom: 5px; color: #303048; font-weight: 700; }
+#page-character .role-exp-head b { font-size: 11px; }
+#page-character .role-exp-block .gba-bar { height: 7px; margin: 0; }
+#page-character .role-base-attrs { padding-top: 7px; }
+#page-character .role-base-head { margin-bottom: 4px; color: #656575; font-size: 11px; font-weight: 700; }
+#page-character .role-base-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+#page-character .role-base-cell {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px 4px;
+  border: 1px solid #d6d3cb;
+  border-radius: 2px;
+  background: #f6f3e9;
+  font-size: 11px;
+}
+#page-character .role-base-cell span { color: #365ca5; font-weight: 700; }
+#page-character .role-base-cell b { color: #303048; font-variant-numeric: tabular-nums; }
+#page-character .role-combat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#page-character .role-combat-cell {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 30px;
+  padding: 4px 7px;
+  border-bottom: 1px solid #d6d3cb;
+  font-size: 11px;
+}
+#page-character .role-combat-cell:nth-child(odd):not(:last-child) { border-right: 1px solid #d6d3cb; padding-right: 10px; }
+#page-character .role-combat-cell:nth-child(even) { padding-left: 10px; }
+#page-character .role-combat-cell:nth-last-child(-n + 2) { border-bottom: 0; }
+#page-character .role-combat-cell span { color: #656575; }
+#page-character .role-combat-cell b { color: #303048; font-variant-numeric: tabular-nums; text-align: right; }
 
 #page-character .skill-card {
   min-width: 0;

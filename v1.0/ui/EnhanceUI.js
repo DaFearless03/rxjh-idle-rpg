@@ -4,7 +4,7 @@
  */
 
 import { getEquipmentTemplate } from './EquipUI.js?v=release-20260926-save-compat-1';
-import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260928-box-ui-1';
+import { normalizeLegacyEquipmentSlots, renderCraftBagPanel } from './InventoryUI.js?v=release-20260928-role-info-1';
 import { EnhanceSystem } from '../systems/EnhanceSystem.js?v=release-20260926-save-compat-1';
 
 function getBagEquipmentChoices(player) {

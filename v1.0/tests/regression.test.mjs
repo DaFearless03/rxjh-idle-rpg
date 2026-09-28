@@ -38,6 +38,7 @@ import { buildShopItems } from '../ui/ShopUI.js?v=release-20260928-box-ui-1';
 import { renderBoxResultContent } from '../ui/InventoryUI.js?v=release-20260928-box-ui-1';
 import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260926-save-compat-1';
 import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260926-save-compat-1';
+import { renderCharacterPanel } from '../ui/CharacterUI.js?v=release-20260928-role-info-1';
 import { base64Decode, base64Encode, computeChecksum } from '../utils/crypto.js?v=release-20260926-save-compat-1';
 import { applyDeathExpLoss, assignQigongPoint, grantExp, onLevelUp } from '../utils/formulas.js?v=release-20260926-save-compat-1';
 import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260926-save-compat-1';
@@ -46,7 +47,7 @@ const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
 const HOME_VERSION = 'release-20260926-town-shops-1';
-const VISUAL_VERSION = 'release-20260928-box-ui-1';
+const VISUAL_VERSION = 'release-20260928-role-info-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
 const PROTOTYPE_REFRESH_VERSION = VISUAL_VERSION;
 
@@ -312,7 +313,7 @@ test('主页卡片可键盘操作，状态信息和原有跳转保持完整', ()
   assert.match(style, /\.page-home \.header-avatar \{ width: 40px; height: 50px; flex-basis: 40px; \}/);
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
   assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
-  assert.match(index, /main\.js\?v=release-20260928-box-ui-1/);
+  assert.match(index, /main\.js\?v=release-20260928-role-info-1/);
 });
 
 test('城镇商店与购买数量弹窗沿用主页样式并保留紧凑背包区', () => {
@@ -336,9 +337,9 @@ test('城镇商店与购买数量弹窗沿用主页样式并保留紧凑背包�
   assert.match(style, /#qtyBackdrop \.qty-confirm[\s\S]*background: #365ca5/);
   assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
-  assert.match(app, /MainScreenUI\.js\?v=release-20260928-box-ui-1/);
-  assert.match(app, /BottomBarUI\.js\?v=release-20260928-box-ui-1/);
-  assert.match(bottomBar, /ShopUI\.js\?v=release-20260928-box-ui-1/);
+  assert.match(app, /MainScreenUI\.js\?v=release-20260928-role-info-1/);
+  assert.match(app, /BottomBarUI\.js\?v=release-20260928-role-info-1/);
+  assert.match(bottomBar, /ShopUI\.js\?v=release-20260928-role-info-1/);
 });
 
 test('主页地图选择列表采用像素弹层样式并保留区域选择行为', () => {
@@ -385,6 +386,48 @@ test('其他正式页面接入统一视觉规范且保留图标规格', () => {
   assert.match(characterMarkup, /window\._switchCharTab\('\$\{key\}'\)/);
   assert.match(markup, /id="settingsPaneAutoplay"/);
   assert.match(markup, /window\._openMapSheet\(\)/);
+});
+
+test('角色信息页按原型显示紧凑基础信息与双列战斗属性', () => {
+  const hadWindow = Object.hasOwn(globalThis, 'window');
+  const previousWindow = globalThis.window;
+  globalThis.window = {
+    _careersData: [{ key: 'doctor', name: '医师' }],
+    expToNext: { 18: 3000 },
+  };
+  try {
+    const markup = renderCharacterPanel({
+      career: 'doctor',
+      career_history: [],
+      faction: 'positive',
+      level: 18,
+      exp: 1250,
+      resources: { training: 8 },
+      str: 20,
+      int: 15,
+      sta: 18,
+      dex: 16,
+      maxHp: 1000,
+      maxMp: 300,
+      atkMin: 120,
+      atkMax: 160,
+      def: 85,
+      hit: 92,
+      missing: 78,
+      critR: 0.15,
+      matk: 36,
+      mdef: 20,
+    });
+
+    assert.match(markup, /class="sec-panel role-basic-panel"/);
+    assert.match(markup, /class="role-inline-facts"/);
+    assert.match(markup, /class="role-base-grid"[\s\S]*?力[\s\S]*?心[\s\S]*?体[\s\S]*?身/);
+    assert.match(markup, /class="role-combat-grid"[\s\S]*?生命上限[\s\S]*?内力上限[\s\S]*?攻击力[\s\S]*?120–160[\s\S]*?暴击率[\s\S]*?15%/);
+    assert.doesNotMatch(markup, /称号|声望|决定攻击力高低|📜|📊|🎓|⚔/);
+  } finally {
+    if (hadWindow) globalThis.window = previousWindow;
+    else delete globalThis.window;
+  }
 });
 
 test('城镇任务提示只在确有可提交任务时显示', async () => {
