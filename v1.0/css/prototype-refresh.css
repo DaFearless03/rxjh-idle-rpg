@@ -1670,3 +1670,23 @@
 #whEquipPopup .ed-panel-hdr { margin-bottom: 4px; color: #303048; font-size: 13px; }
 #whEquipPopup .ed-req-row,
 #whEquipPopup .ed-s-detail { min-height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; border-bottom: 1px solid #eeece5; color: #303048; font-size: 12px; }
+
+/* The role prototype uses the same blue stepped frame around its main sections. */
+#page-character > .char-header,
+#page-character .role-tab-bar,
+#page-character .role-info > .sec-panel,
+#page-character > .bottom-menu {
+  border: 8px solid transparent;
+  border-image: url('../assets/ui/role-frame.svg') 8 / 8px stretch;
+  border-radius: 0;
+  box-shadow: none;
+}
+#page-character > .char-header { margin: 8px 8px 0; padding: 3px 5px; }
+#page-character .role-tab-bar { margin: 0 8px; padding: 3px 4px; }
+#page-character .role-info > .sec-panel { padding: 5px; }
+#page-character > .bottom-menu { margin: 0 8px 8px; padding: 0; }
+#page-character .role-info .panel-title {
+  margin: -1px -1px 7px;
+  padding: 3px 6px 7px;
+  border-bottom-color: #8ea8c5;
+}

@@ -49,7 +49,7 @@ const MODULE_VERSION = 'release-20260926-save-compat-1';
 const HOME_VERSION = 'release-20260926-town-shops-1';
 const VISUAL_VERSION = 'release-20260928-role-info-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
-const PROTOTYPE_REFRESH_VERSION = VISUAL_VERSION;
+const PROTOTYPE_REFRESH_VERSION = 'release-20260928-role-border-1';
 
 class MemoryStorage {
   constructor() {
@@ -857,6 +857,14 @@ test('视觉原型的角色步骤、设置分层与补给数量输入已接入',
   assert.match(bottomBar, /window\._settingsShowSection =/);
   assert.match(bottomBar, /quantityRow\('少于', hpResupply/);
   assert.match(style, /#modal-create \.create-name-backdrop \{ position: absolute; inset: 0; align-items: stretch; background: #f0e8d8; \}/);
+});
+
+test('角色信息页的主区域使用原型的蓝色阶梯边框', () => {
+  const style = readFileSync(join(ROOT, 'css', 'prototype-refresh.css'), 'utf8');
+  const frame = readFileSync(join(ROOT, 'assets', 'ui', 'role-frame.svg'), 'utf8');
+  assert.match(style, /#page-character > \.char-header,[\s\S]*#page-character \.role-info > \.sec-panel,[\s\S]*role-frame\.svg/);
+  assert.match(frame, /shape-rendering="crispEdges"/);
+  assert.match(frame, /stroke="#1d3e70"/);
 });
 
 test('金币达到安全整数上限时出售保持原子性', () => {
