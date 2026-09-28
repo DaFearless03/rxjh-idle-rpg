@@ -1613,8 +1613,18 @@
 
 #page-character .skill-art { flex: 0 0 20px; width: 20px; height: 20px; display: grid; place-items: center; }
 #page-character .skill-art .ui-icon-img { width: 20px; height: 20px; object-fit: contain; image-rendering: pixelated; }
-#page-character .qg-book-icon { display: block; width: 20px; height: 20px; shape-rendering: crispEdges; }
-#page-character .qg-card { grid-template-columns: 20px minmax(0,1fr) auto; gap: 8px; }
+#page-character .qg-card { grid-template-columns: 52px minmax(0,1fr) auto; gap: 12px; }
+#page-character .qg-card.locked { grid-template-columns: 52px minmax(0,1fr); }
+#page-character .qg-card .qg-skill-art {
+  box-sizing: border-box;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  border: 1px solid #9a98a1;
+  background: #f6f3e9;
+  box-shadow: inset 0 0 0 1px #fffef8;
+}
+#page-character .qg-book-icon { display: block; width: 44px; height: 44px; shape-rendering: crispEdges; }
 #page-character .skill-card-head { display: flex; align-items: flex-start; }
 #page-character .skill-card-copy { flex: 1 1 auto; min-width: 0; }
 #page-character .skill-card-head .badge { margin-left: auto; white-space: nowrap; }

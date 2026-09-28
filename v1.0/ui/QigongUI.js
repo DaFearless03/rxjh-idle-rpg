@@ -14,19 +14,21 @@ const QIGONG_BOOK_PALETTES = [
 
 function renderQigongBookIcon(q, index) {
   const palette = q.unlocked ? QIGONG_BOOK_PALETTES[index % QIGONG_BOOK_PALETTES.length] : {
-    name: 'locked', cover: '#77777a', shadow: '#4c4c51', accent: '#e4e0d3',
+    name: 'locked', cover: '#77777a', shadow: '#4c4c51',
   };
   const lock = q.unlocked ? '' : '<path d="M27 25v-3a5 5 0 0 1 10 0v3" fill="none" stroke="#e4e0d3" stroke-width="3"/><rect x="25" y="25" width="14" height="11" fill="#e4e0d3"/><rect x="31" y="28" width="2" height="4" fill="#4c4c51"/>';
 
-  return `<svg class="qg-book-icon" data-qg-icon="book-${palette.name}" viewBox="0 0 64 64" width="20" height="20" aria-hidden="true" focusable="false" shape-rendering="crispEdges">
-    <path d="M11 14 18 9l35 11v28l-7 6-35-11z" fill="${palette.shadow}"/>
-    <path d="M14 12 20 9l31 10v27l-6 5-31-10z" fill="#e9e4d6"/>
-    <path d="M11 10 18 7l31 10v28l-7 4-31-10z" fill="${palette.cover}"/>
-    <path d="M11 10 18 7v28l-7 4z" fill="${palette.shadow}"/>
-    <path d="M21 16 42 23v16l-21-7z" fill="${palette.shadow}"/>
-    <path d="M23 17 40 23v13l-17-6z" fill="${palette.cover}"/>
-    ${q.unlocked ? `<path d="M29 21 33 22l4 5-4 2-4-5z" fill="${palette.accent}"/><path d="M32 22v4" stroke="${palette.accent}" stroke-width="2"/>` : lock}
-    <path d="M13 39 43 49v-4L13 35z" fill="#f4efdf"/>
+  return `<svg class="qg-book-icon" data-qg-icon="book-${palette.name}" viewBox="0 0 64 64" width="44" height="44" aria-hidden="true" focusable="false" shape-rendering="crispEdges">
+    <path d="M9 14 17 8 55 19v31l-8 6L9 44z" fill="${palette.shadow}"/>
+    <path d="M14 12 19 10l31 9v27l-4 3-32-10z" fill="#ece7d9"/>
+    <path d="M9 10 17 6l33 10v28l-7 5L9 39z" fill="${palette.cover}"/>
+    <path d="M9 10 17 6v28l-8 5z" fill="${palette.shadow}"/>
+    <path d="M19 15 43 22v19l-24-7z" fill="${palette.shadow}"/>
+    <path d="M21 16 41 22v16l-20-6z" fill="${palette.cover}"/>
+    <path d="M23 19 39 24v11l-16-5z" fill="none" stroke="#d9c783" stroke-width="2"/>
+    ${q.unlocked ? `<path d="M29 23h4v3h3v4h-3v3h-4v-3h-3v-4h3z" fill="#e4ca78"/><path d="M30 24h2v8h-2z" fill="#fff0bf"/>` : lock}
+    <path d="M11 40 45 50v-4L11 36z" fill="#f7f2e5"/>
+    <path d="M14 40 45 49v-2l-31-9zM14 44l26 8v-2l-26-8z" fill="#c9c4b6"/>
   </svg>`;
 }
 
@@ -54,17 +56,18 @@ function renderQigongCard(q, available, index) {
 
   // 锁定态
   if (!q.unlocked) {
-    return '<div class="skill-card locked">' +
-      '<div class="sc-head"><span class="skill-art">' + renderQigongBookIcon(q, index) + '</span><span class="sc-name">' + escapeHtml(q.name) + '</span>' +
+    return '<div class="skill-card qg-card locked">' +
+      '<span class="skill-art qg-skill-art">' + renderQigongBookIcon(q, index) + '</span>' +
+      '<div class="qg-left"><div class="sc-head"><span class="sc-name">' + escapeHtml(q.name) + '</span>' +
       '<span class="badge locked">未解锁</span></div>' +
       '<div class="sc-desc">' + escapeHtml(q.description || '') + '</div>' +
-      '<div class="qg-lock-cond">🔒 ' + escapeHtml(q.lockText || '') + '</div>' +
+      '<div class="qg-lock-cond">' + escapeHtml(q.lockText || '') + '</div></div>' +
       '</div>';
   }
 
   const canAdd = available > 0 && !isMax;
   return '<div class="skill-card qg-card' + (isMax ? ' learned' : '') + '">' +
-    '<span class="skill-art">' + renderQigongBookIcon(q, index) + '</span>' +
+    '<span class="skill-art qg-skill-art">' + renderQigongBookIcon(q, index) + '</span>' +
     '<div class="qg-left">' +
     '<div class="sc-head"><span class="sc-name">' + escapeHtml(q.name) + '</span></div>' +
     '<div class="sc-desc">' + escapeHtml(q.description || '') + '</div>' +
