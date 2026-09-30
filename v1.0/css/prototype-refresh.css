@@ -1752,21 +1752,49 @@
   box-shadow: inset 0 0 0 2px #fffef8;
 }
 #page-character .role-combat-cell:nth-child(odd):last-child {
-  grid-column: 1 / -1;
-  border-right: 0;
+  border-right: 1px solid #c0c7cf;
   padding-right: 7px;
 }
 #page-character .role-quote {
-  min-height: 90px;
-  flex: 1 0 90px;
+  min-height: 36px;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
-  padding: 12px 20px;
-  border: 1px solid #aaa9a4;
-  background: #f6f3e9;
+  padding: 8px 12px;
+  border: 0;
+  background: transparent;
   color: #365ca5;
   font-size: 13px;
 }
+
+/* Overlay figures share the full track width; exact values remain keyboard-accessible. */
+#page-character > .char-header { border-image-source: url('../assets/ui/martial-frame.svg'); }
+#page-character .stat-bars-compact { min-width: 0; flex: 1; }
+#page-character .char-header .stat-row { display: grid; grid-template-columns: 48px minmax(0,1fr); gap: 6px; }
+#page-character .char-header .char-stat-track { position: relative; width: 100%; height: 16px; min-width: 0; margin: 0; padding: 0; overflow: hidden; border: 1px solid #244478; border-radius: 0; background: #aeb8c6; font: inherit; cursor: pointer; }
+#page-character .char-stat-track .gba-bar-fill { height: 100%; }
+#page-character .char-stat-track .fill-hp.warn { background: #4c9856; }
+#page-character .char-header .char-stat-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; width: auto; margin: 0; padding: 0; color: #fff; font-size: 11px; font-weight: 700; line-height: 1; white-space: nowrap; font-variant-numeric: tabular-nums; text-shadow: -1px -1px 0 #152e5a, 1px -1px 0 #152e5a, -1px 1px 0 #152e5a, 1px 1px 0 #152e5a; }
+#page-character .char-stat-track:focus-visible { outline: 2px solid #365ca5; outline-offset: 2px; }
+#page-character .role-info > .sec-panel { border-image-source: url('../assets/ui/martial-frame.svg'); padding: 6px; }
+#page-character .role-info .panel-title { color: #152e5a; background: transparent; font-size: 16px; }
+#page-character .role-info-facts .stat-line { min-height: 30px; padding: 5px 8px; border-bottom-color: #c0c7cf; }
+#page-character .role-info .sl-k { color: #244478; }
+#page-character .role-info .sl-v { min-width: 0; text-align: right; overflow-wrap: anywhere; color: #152e5a; }
+#page-character .role-exp-block { padding: 10px 8px; border-bottom: 1px solid #9bacc1; }
+#page-character .role-exp-head { flex-wrap: wrap; font-size: 13px; color: #152e5a; }
+#page-character .role-exp-head b { margin-left: auto; font-size: 12px; overflow-wrap: anywhere; }
+#page-character .role-exp-block .gba-bar { height: 12px; border: 1px solid #244478; border-radius: 0; background: #aeb8c6; }
+#page-character .role-base-attrs { padding: 10px 8px 4px; }
+#page-character .role-base-head { padding-bottom: 6px; color: #152e5a; font-size: 14px; border-bottom: 1px solid #9bacc1; }
+#page-character .role-base-grid { gap: 0; padding: 5px 0; }
+#page-character .role-base-cell { flex-direction: column; align-items: center; gap: 2px; padding: 4px; border: 0; border-right: 1px solid #c0c7cf; border-radius: 0; background: transparent; font-size: 14px; }
+#page-character .role-base-cell:last-child { border-right: 0; }
+#page-character .role-base-cell b { overflow-wrap: anywhere; max-width: 100%; }
+#page-character .role-combat-cell { flex-wrap: wrap; min-height: 30px; gap: 3px 6px; padding: 5px 6px; font-size: 12px; border-bottom-color: #c0c7cf; }
+#page-character .role-combat-cell span { color: #244478; }
+#page-character .role-combat-cell b { margin-left: auto; max-width: 100%; overflow-wrap: anywhere; color: #152e5a; }
+#page-character .role-equipment-note { padding: 7px 6px 3px; border-top: 1px solid #c0c7cf; color: #656575; font-size: 12px; }
 #page-character > .bottom-menu {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0;

@@ -3,7 +3,7 @@
  * @desc 角色页：严格复用 ui_demo_role 的信息 / 气功 / 武功结构。
  */
 
-import { renderQigongPanel } from './QigongUI.js?v=release-20260930-martial-prototype-1';
+import { renderQigongPanel } from './QigongUI.js?v=release-20260930-role-overlay-1';
 import { meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260926-save-compat-1';
 import { pixelIcon } from './PixelIconUI.js?v=release-20260926-save-compat-1';
 
@@ -95,6 +95,7 @@ function renderInfoPanel(player) {
       <div class="role-combat-grid">
         ${stats.map(([label, value]) => `<div class="role-combat-cell"><span>${label}</span><b>${typeof value === 'string' ? escapeHtml(value) : formatNumber(value)}</b></div>`).join('')}
       </div>
+      ${player.weaponSkillBonus || player.weaponExtraDamage ? '<div class="role-equipment-note">装备加成项按实际属性显示</div>' : ''}
     </div>
     <div class="role-quote">江湖路远，少年仍在成长。</div>
   </div>`;

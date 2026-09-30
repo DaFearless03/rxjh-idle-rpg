@@ -21,6 +21,22 @@ function formatNumber(value) {
   return `${(number / 1000000000).toFixed(1)}B`;
 }
 
+export function formatCharacterStatus(current, max) {
+  const safe = value => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
+  current = safe(current);
+  max = safe(max);
+  const largest = Math.max(current, max);
+  const unit = largest >= 100000000 ? 100000000 : largest >= 10000 ? 10000 : 1;
+  const suffix = unit === 100000000 ? '亿' : unit === 10000 ? '万' : '';
+  const format = (value, upper) => {
+    // Opposite rounding bounds keep an almost-full value visibly below its limit.
+    const scaled = value / unit * 100;
+    const rounded = (upper ? Math.ceil(scaled) : Math.floor(scaled)) / 100;
+    return unit === 1 ? rounded.toLocaleString('en-US', { maximumFractionDigits: 2 }) : `${rounded}${suffix}`;
+  };
+  return `${format(current, current === max)} / ${format(max, true)}`;
+}
+
 function setText(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = value;
@@ -47,20 +63,38 @@ export function refreshPlayerStatusBar(player, options = {}) {
     currentLevelCap = window.currentLevelCap,
   } = options;
 
-  const hpPct = getPercent(player.hp, player.maxHp);
+  const percent = (current, max) => prefix === 'char' && max > 0 && Number.isFinite(current / max)
+    ? Math.max(0, Math.min(current < max ? 99.99 : 100, current / max * 100))
+    : getPercent(current, max);
+  const pair = (current, max) => prefix === 'char' ? formatCharacterStatus(current, max) : `${formatNumber(current)}/${formatNumber(max)}`;
+  const detail = (stat, label, current, max) => {
+    if (prefix !== 'char') return;
+    const track = document.getElementById(`char-${stat}-track`);
+    if (!track) return;
+    const exact = stat === 'exp' && currentLevelCap && player.level >= currentLevelCap
+      ? `经验值：已达等级上限（Lv.${player.level}）`
+      : `${label}：${Math.max(0, Number(current) || 0).toLocaleString('en-US')} / ${Math.max(0, Number(max) || 0).toLocaleString('en-US')}`;
+    track.title = exact;
+    track.dataset.exactValue = exact;
+    track.setAttribute('aria-label', `${exact}，点击查看精确数值`);
+  };
+  const hpPct = percent(player.hp, player.maxHp);
   const hpState = hpPct <= 18 ? ' danger' : hpPct <= 36 ? ' warn' : '';
-  setBar(prefix, 'hp', hpPct, `${formatNumber(player.hp)}/${formatNumber(player.maxHp)}`, hpState);
+  setBar(prefix, 'hp', hpPct, pair(player.hp, player.maxHp), hpState);
+  detail('hp', '生命值', player.hp, player.maxHp);
 
-  const mpPct = getPercent(player.mp, player.maxMp);
-  setBar(prefix, 'mp', mpPct, `${formatNumber(player.mp)}/${formatNumber(player.maxMp)}`);
+  const mpPct = percent(player.mp, player.maxMp);
+  setBar(prefix, 'mp', mpPct, pair(player.mp, player.maxMp));
+  detail('mp', '内功值', player.mp, player.maxMp);
 
   const expToNext = expToNextTable?.[player.level] || 0;
   if (currentLevelCap && player.level >= currentLevelCap) {
     setBar(prefix, 'exp', 100, '满级 MAX');
   } else {
-    const expPct = expToNext > 0 ? getPercent(player.exp, expToNext) : 0;
-    setBar(prefix, 'exp', expPct, `${formatNumber(player.exp)}/${formatNumber(expToNext)}`);
+    const expPct = expToNext > 0 ? percent(player.exp, expToNext) : 0;
+    setBar(prefix, 'exp', expPct, pair(player.exp, expToNext));
   }
+  detail('exp', '经验值', player.exp, expToNext);
 }
 
 export function refreshPlayerIdentity(player, options = {}) {

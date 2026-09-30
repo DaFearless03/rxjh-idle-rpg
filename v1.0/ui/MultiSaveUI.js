@@ -7,7 +7,7 @@ import { storage } from '../utils/storage.js?v=release-20260926-save-compat-1';
 import { SaveManager } from '../core/SaveManager.js?v=release-20260926-save-compat-1';
 import { getDeletionConfirmInfo } from '../flows/character_deletion_flow.js?v=release-20260926-save-compat-1';
 import { runCharacterCreationFlow, getBaseCareers } from '../flows/character_creation_flow.js?v=release-20260926-save-compat-1';
-import { UIManager } from './UIManager.js?v=release-20260928-role-parity-1';
+import { UIManager } from './UIManager.js?v=release-20260930-role-overlay-1';
 
 const CAREER_INFO = {
   warrior_blade: { name: '刀客', desc: '高血高防，适合稳扎稳打。' },

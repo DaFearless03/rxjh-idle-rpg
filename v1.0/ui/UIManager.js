@@ -5,7 +5,7 @@
 import { eventBus } from '../core/EventBus.js?v=release-20260926-save-compat-1';
 import { storage } from '../utils/storage.js?v=release-20260926-save-compat-1';
 import { refreshMonsterList } from './MonsterListUI.js?v=release-20260926-save-compat-1';
-import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260926-save-compat-1';
+import { refreshPlayerAvatar, refreshPlayerIdentity, refreshPlayerStatusBar } from './PlayerStatusBarUI.js?v=release-20260930-role-overlay-1';
 import { appendCombatLog, formatCombatLog, renderCombatLog } from './CombatLogUI.js?v=release-20260926-save-compat-1';
 import { appendRewardLog, formatRewardLog, renderRewardLog } from './RewardLogUI.js?v=release-20260926-save-compat-1';
 import { TaskSystem } from '../systems/TaskSystem.js?v=release-20260926-save-compat-1';

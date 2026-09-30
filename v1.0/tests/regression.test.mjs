@@ -38,8 +38,9 @@ import { buildShopItems } from '../ui/ShopUI.js?v=release-20260928-box-ui-1';
 import { renderBoxResultContent } from '../ui/InventoryUI.js?v=release-20260928-box-ui-1';
 import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260926-save-compat-1';
 import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260926-save-compat-1';
-import { renderCharacterPanel } from '../ui/CharacterUI.js?v=release-20260930-martial-prototype-1';
-import { renderQigongPanel } from '../ui/QigongUI.js?v=release-20260930-martial-prototype-1';
+import { renderCharacterPanel } from '../ui/CharacterUI.js?v=release-20260930-role-overlay-1';
+import { formatCharacterStatus, refreshPlayerStatusBar } from '../ui/PlayerStatusBarUI.js?v=release-20260930-role-overlay-1';
+import { renderQigongPanel } from '../ui/QigongUI.js?v=release-20260930-role-overlay-1';
 import { base64Decode, base64Encode, computeChecksum } from '../utils/crypto.js?v=release-20260926-save-compat-1';
 import { applyDeathExpLoss, assignQigongPoint, grantExp, onLevelUp } from '../utils/formulas.js?v=release-20260926-save-compat-1';
 import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260926-save-compat-1';
@@ -48,8 +49,8 @@ const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
 const VISUAL_VERSION = 'release-20260928-role-info-1';
-const ROLE_PARITY_VERSION = 'release-20260928-role-parity-1';
-const QIGONG_ICONS_VERSION = 'release-20260930-martial-prototype-1';
+const ROLE_PARITY_VERSION = 'release-20260930-role-overlay-1';
+const QIGONG_ICONS_VERSION = 'release-20260930-role-overlay-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
 const PROTOTYPE_REFRESH_VERSION = QIGONG_ICONS_VERSION;
 
@@ -339,7 +340,7 @@ test('城镇商店与购买数量弹窗沿用主页样式并保留紧凑背包�
   assert.match(style, /#qtyBackdrop \.qty-confirm[\s\S]*background: #365ca5/);
   assert.match(index, new RegExp(`css/home\\.css\\?v=${HOME_CSS_VERSION}`));
   assert.match(style, /\.page-home \.menu-btn \.icon\.icon-img \{ width: 32px; height: 32px; flex: 0 0 32px; \}/);
-  assert.match(app, /MainScreenUI\.js\?v=release-20260928-role-parity-1/);
+  assert.match(app, /MainScreenUI\.js\?v=release-20260930-role-overlay-1/);
   assert.match(app, new RegExp(`BottomBarUI\\.js\\?v=${QIGONG_ICONS_VERSION}`));
   assert.match(bottomBar, /ShopUI\.js\?v=release-20260928-role-info-1/);
 });
@@ -390,6 +391,46 @@ test('其他正式页面接入统一视觉规范且保留图标规格', () => {
   assert.match(markup, /window\._openMapSheet\(\)/);
 });
 
+test('角色顶部叠加数值覆盖万亿边界，精确值和填充不会被缩写污染', () => {
+  assert.equal(formatCharacterStatus(8250, 9800), '8,250 / 9,800');
+  assert.equal(formatCharacterStatus(12500, 38000), '1.25万 / 3.8万');
+  assert.equal(formatCharacterStatus(1250000, 3800000), '125万 / 380万');
+  assert.equal(formatCharacterStatus(125000000, 380000000), '1.25亿 / 3.8亿');
+  assert.equal(formatCharacterStatus(9800, 120000), '0.98万 / 12万');
+  assert.equal(formatCharacterStatus(99999999, 100000000), '0.99亿 / 1亿');
+  assert.equal(formatCharacterStatus(123456788, 123456789), '1.23亿 / 1.24亿');
+  assert.equal(formatCharacterStatus(123456789, 123456789), '1.24亿 / 1.24亿');
+  assert.equal(formatCharacterStatus(null, 0), '0 / 0');
+  assert.equal(formatCharacterStatus(50.9, 50.99), '50.9 / 50.99');
+  assert.equal(formatCharacterStatus(Infinity, NaN), '0 / 0');
+  const previousDocument = globalThis.document;
+  const nodes = new Map();
+  for (const stat of ['hp', 'mp', 'exp']) {
+    for (const part of ['fill', 'text', 'track']) nodes.set(`char-${stat}-${part}`, {
+      style: {}, dataset: {}, setAttribute(name, value) { this[name] = value; },
+    });
+  }
+  try {
+    globalThis.document = { getElementById: id => nodes.get(id) };
+    refreshPlayerStatusBar({ hp: 123456788, maxHp: 123456789, mp: 1250000, maxMp: 3800000, level: 1, exp: 12500 }, {
+      prefix: 'char', expToNextTable: { 1: 38000 }, currentLevelCap: 99,
+    });
+    assert.equal(nodes.get('char-hp-text').textContent, '1.23亿 / 1.24亿');
+    assert.equal(nodes.get('char-hp-fill').style.width, '99.99%');
+    assert.match(nodes.get('char-hp-track').dataset.exactValue, /123,456,788 \/ 123,456,789/);
+    assert.ok(Math.abs(parseFloat(nodes.get('char-mp-fill').style.width) - 125 / 380 * 100) < 0.00001);
+    refreshPlayerStatusBar({ hp: 0, maxHp: 0, mp: 0, maxMp: 0, level: 99, exp: 0 }, { prefix: 'char', currentLevelCap: 99, expToNextTable: {} });
+    assert.equal(nodes.get('char-hp-fill').style.width, '0%');
+    assert.equal(nodes.get('char-exp-text').textContent, '满级 MAX');
+    assert.match(nodes.get('char-exp-track').dataset.exactValue, /已达等级上限/);
+    const screen = readFileSync(join(ROOT, 'ui/MainScreenUI.js'), 'utf8');
+    assert.match(screen, /id="char-hp-track"[\s\S]*?id="char-hp-text"[\s\S]*?<\/button>/);
+  } finally {
+    if (previousDocument === undefined) delete globalThis.document;
+    else globalThis.document = previousDocument;
+  }
+});
+
 test('角色信息页按原型显示紧凑基础信息与双列战斗属性', () => {
   const hadWindow = Object.hasOwn(globalThis, 'window');
   const previousWindow = globalThis.window;
@@ -419,6 +460,8 @@ test('角色信息页按原型显示紧凑基础信息与双列战斗属性', ()
       critR: 0.15,
       matk: 36,
       mdef: 20,
+      weaponSkillBonus: 12,
+      weaponExtraDamage: 8,
     });
 
     assert.match(markup, /class="sec-panel role-basic-panel"/);
@@ -426,6 +469,10 @@ test('角色信息页按原型显示紧凑基础信息与双列战斗属性', ()
     assert.match(markup, /class="role-base-grid"[\s\S]*?力[\s\S]*?心[\s\S]*?体[\s\S]*?身/);
     assert.match(markup, /class="role-combat-grid"[\s\S]*?生命上限[\s\S]*?内力上限[\s\S]*?攻击力[\s\S]*?120–160[\s\S]*?暴击率[\s\S]*?15%/);
     assert.doesNotMatch(markup, /称号|声望|决定攻击力高低|📜|📊|🎓|⚔/);
+    assert.match(markup, /武功攻击加成[\s\S]*?12[\s\S]*?追加伤害[\s\S]*?8/);
+    assert.match(markup, /装备加成项按实际属性显示/);
+    const withoutBonuses = renderCharacterPanel({career:'doctor',level:1});
+    assert.doesNotMatch(withoutBonuses, /武功攻击加成|追加伤害|装备加成项/);
   } finally {
     if (hadWindow) globalThis.window = previousWindow;
     else delete globalThis.window;
@@ -565,7 +612,7 @@ test('城镇任务提示只在确有可提交任务时显示', async () => {
     addEventListener() {},
   };
   try {
-    const { UIManager } = await import('../ui/UIManager.js?v=release-20260928-role-parity-1');
+    const { UIManager } = await import('../ui/UIManager.js?v=release-20260930-role-overlay-1');
     const player = {
       quests: {
         accepted: [{ objectives: [{ stage: 1 }], completed_stages: [1], current_stage: 1 }],
@@ -610,7 +657,7 @@ test('内部 ES 模块统一发布标识，物品分类单例可跨系统共享'
       if (line.includes('@type')) continue;
       const matches = line.matchAll(/(?:from\s+|^\s*import\s+|import\s*\(\s*)['"]([^'"]+\.js)(?:\?v=([^'"]+))?['"]/g);
       for (const match of matches) {
-        const isRoleParityModule = ['MainScreenUI.js', 'BottomBarUI.js', 'CharacterUI.js', 'NPCDialogUI.js', 'MultiSaveUI.js']
+        const isRoleParityModule = ['MainScreenUI.js', 'BottomBarUI.js', 'CharacterUI.js', 'NPCDialogUI.js', 'MultiSaveUI.js', 'PlayerStatusBarUI.js']
           .some(name => match[1].endsWith(`/ui/${name}`) || match[1] === `./${name}`);
         const isQigongVisualModule = ['BottomBarUI.js', 'CharacterUI.js', 'QigongUI.js']
           .some(name => match[1].endsWith(`/ui/${name}`) || match[1] === `./${name}`);
@@ -1000,7 +1047,7 @@ test('角色信息页独立控制原型留白且内容卡片不裁切', () => {
   assert.match(roleLayout, /\.role-tab-body:has\(\.role-info\) \{ padding: 6px var\(--role-content-gutter\) 7px/);
   assert.match(roleLayout, /\.role-info \{\s*min-height: 100%;\s*display: flex;\s*flex-direction: column;\s*gap: var\(--role-card-gap\);/);
   assert.match(roleLayout, /\.role-basic-panel \{ height: auto; \}/);
-  assert.match(roleLayout, /\.role-quote \{\s*min-height: 90px;\s*flex: 1 0 90px;/);
+  assert.match(roleLayout, /\.role-quote \{\s*min-height: 36px;\s*flex: 0 0 auto;/);
   assert.match(roleLayout, /--role-safe-area-bottom: env\(safe-area-inset-bottom, 0px\)/);
   assert.match(roleLayout, /margin: 0 var\(--role-frame-gutter\) calc\(8px \+ var\(--role-safe-area-bottom\)\)/);
 });

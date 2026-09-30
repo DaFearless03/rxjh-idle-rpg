@@ -204,9 +204,9 @@ export function buildMainScreenUI(container) {
           <div class="stat-bars-area">
             <div class="header-avatar" id="char-avatar" aria-hidden="true"></div>
             <div class="stat-bars-compact">
-              <div class="stat-row"><span class="stat-label hp">${pixelIcon('hp')}生命值</span><div class="gba-bar"><div class="gba-bar-fill fill-hp" id="char-hp-fill"></div><span class="gba-bar-pct" id="char-hp-pct">100%</span></div><span class="stat-num" id="char-hp-text">0/0</span></div>
-              <div class="stat-row"><span class="stat-label mp">${pixelIcon('mp')}内功值</span><div class="gba-bar"><div class="gba-bar-fill fill-mp" id="char-mp-fill"></div><span class="gba-bar-pct" id="char-mp-pct">100%</span></div><span class="stat-num" id="char-mp-text">0/0</span></div>
-              <div class="stat-row"><span class="stat-label exp">经验值</span><div class="gba-bar"><div class="gba-bar-fill fill-exp" id="char-exp-fill"></div><span class="gba-bar-pct" id="char-exp-pct">0%</span></div><span class="stat-num" id="char-exp-text">0/0</span></div>
+              <div class="stat-row"><span class="stat-label hp">生命值</span><button type="button" class="gba-bar char-stat-track" id="char-hp-track" onclick="window._uiManager.toast(this.dataset.exactValue)" aria-label="生命值，点击查看精确数值"><div class="gba-bar-fill fill-hp" id="char-hp-fill"></div><span class="stat-num char-stat-overlay" id="char-hp-text">0 / 0</span></button></div>
+              <div class="stat-row"><span class="stat-label mp">内功值</span><button type="button" class="gba-bar char-stat-track" id="char-mp-track" onclick="window._uiManager.toast(this.dataset.exactValue)" aria-label="内功值，点击查看精确数值"><div class="gba-bar-fill fill-mp" id="char-mp-fill"></div><span class="stat-num char-stat-overlay" id="char-mp-text">0 / 0</span></button></div>
+              <div class="stat-row"><span class="stat-label exp">经验值</span><button type="button" class="gba-bar char-stat-track" id="char-exp-track" onclick="window._uiManager.toast(this.dataset.exactValue)" aria-label="经验值，点击查看精确数值"><div class="gba-bar-fill fill-exp" id="char-exp-fill"></div><span class="stat-num char-stat-overlay" id="char-exp-text">0 / 0</span></button></div>
             </div>
           </div>
         </div>
