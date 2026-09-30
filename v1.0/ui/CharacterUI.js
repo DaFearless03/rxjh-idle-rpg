@@ -3,7 +3,7 @@
  * @desc 角色页：严格复用 ui_demo_role 的信息 / 气功 / 武功结构。
  */
 
-import { renderQigongPanel } from './QigongUI.js?v=release-20260930-qigong-parity-1';
+import { renderQigongPanel } from './QigongUI.js?v=release-20260930-skill-icons-1';
 import { meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260926-save-compat-1';
 import { pixelIcon } from './PixelIconUI.js?v=release-20260926-save-compat-1';
 
@@ -127,7 +127,7 @@ function renderMartialPanel(player) {
     const lockText = !meetsLevel ? `需要 Lv.${req.level}` : !meetsTransfer ? `需要 ${req.min_transfer} 转` : '';
     return `<div class="skill-card ${state}">
       <div class="skill-card-head">
-        <span class="skill-art">${pixelIcon(ma.type === 'heal' || ma.type === 'buff' ? 'qigong' : 'combat')}</span>
+        <span class="skill-art">${pixelIcon('skills/martial/' + ma.key, 'martial-icon')}</span>
         <div class="skill-card-copy"><div class="skill-name">${escapeHtml(ma.name)}</div><div class="skill-desc">${ma.type === 'heal' ? '治疗武功' : ma.type === 'buff' ? '辅助武功' : ma.target === 'aoe' ? '群体伤害武功' : '单体伤害武功'}</div></div>
         <span class="badge ${state}">${badge}</span>
       </div>

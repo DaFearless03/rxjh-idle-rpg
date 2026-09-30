@@ -1624,7 +1624,9 @@
   background: #f6f3e9;
   box-shadow: inset 0 0 0 1px #fffef8;
 }
-#page-character .qg-book-icon { display: block; width: 46px; height: 46px; shape-rendering: crispEdges; }
+#page-character .qg-skill-art .qg-book-icon { display: block; width: 46px; height: 46px; object-fit: contain; image-rendering: pixelated; }
+#page-character .qg-card.locked .qg-book-icon,
+#page-character .martial-grid .skill-card.locked .martial-icon { filter: grayscale(1); }
 #page-character .skill-card-head { display: flex; align-items: flex-start; }
 #page-character .skill-card-copy { flex: 1 1 auto; min-width: 0; }
 #page-character .skill-card-head .badge { margin-left: auto; white-space: nowrap; }

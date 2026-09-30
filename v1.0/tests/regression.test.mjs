@@ -38,8 +38,8 @@ import { buildShopItems } from '../ui/ShopUI.js?v=release-20260928-box-ui-1';
 import { renderBoxResultContent } from '../ui/InventoryUI.js?v=release-20260928-box-ui-1';
 import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260926-save-compat-1';
 import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260926-save-compat-1';
-import { renderCharacterPanel } from '../ui/CharacterUI.js?v=release-20260928-qigong-icons-1';
-import { renderQigongPanel } from '../ui/QigongUI.js?v=release-20260928-qigong-icons-1';
+import { renderCharacterPanel } from '../ui/CharacterUI.js?v=release-20260930-skill-icons-1';
+import { renderQigongPanel } from '../ui/QigongUI.js?v=release-20260930-skill-icons-1';
 import { base64Decode, base64Encode, computeChecksum } from '../utils/crypto.js?v=release-20260926-save-compat-1';
 import { applyDeathExpLoss, assignQigongPoint, grantExp, onLevelUp } from '../utils/formulas.js?v=release-20260926-save-compat-1';
 import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260926-save-compat-1';
@@ -49,7 +49,7 @@ const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
 const VISUAL_VERSION = 'release-20260928-role-info-1';
 const ROLE_PARITY_VERSION = 'release-20260928-role-parity-1';
-const QIGONG_ICONS_VERSION = 'release-20260930-qigong-parity-1';
+const QIGONG_ICONS_VERSION = 'release-20260930-skill-icons-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
 const PROTOTYPE_REFRESH_VERSION = QIGONG_ICONS_VERSION;
 
@@ -440,11 +440,9 @@ test('气功页按原型展示紧凑书册卡、点数栏与锁定态', () => {
   });
   const style = readFileSync(join(ROOT, 'css', 'prototype-refresh.css'), 'utf8');
 
-  assert.match(markup, /data-qg-icon="book-blue"/);
-  assert.match(markup, /data-qg-icon="book-green"/);
-  assert.match(markup, /data-qg-icon="book-red"/);
-  assert.match(markup, /data-qg-icon="book-locked"/);
-  assert.match(markup, /class="skill-art qg-skill-art"[\s\S]*?width="46" height="46"/);
+  assert.match(markup, /icons\/skills\/qigong\/staff_qigong_mp_reduce\.png/);
+  assert.match(markup, /icons\/skills\/qigong\/staff_qigong_maxhp\.png/);
+  assert.match(markup, /icons\/skills\/qigong\/staff_qigong_maxmp\.png/);
   assert.match(markup, /skill-card qg-card locked/);
   assert.match(markup, /剩余气功点 <b>1<\/b>/);
   assert.ok(markup.indexOf('qg-reset-btn') < markup.indexOf('skill-grid'));
@@ -454,8 +452,53 @@ test('气功页按原型展示紧凑书册卡、点数栏与锁定态', () => {
   assert.doesNotMatch(markup, /qg-mini-bar|qg-pts-row|＋投点/);
   assert.doesNotMatch(markup, /icons\/qigong\.png/);
   assert.match(style, /#page-character \.qg-card \.qg-skill-art[\s\S]*?width: 52px;[\s\S]*?height: 52px;[\s\S]*?border: 1px solid/);
-  assert.match(style, /#page-character \.qg-book-icon \{[^}]*width: 46px; height: 46px;/);
   assert.match(style, /#page-character \.role-tab-body:has\(\.qigong-page\)[\s\S]*?border-image: url\('\.\.\/assets\/ui\/role-frame\.svg'\)/);
+});
+
+test('89 个技能图标完整覆盖配置，气功排序与锁定状态不会错配图片', () => {
+  const qigongs = loadJson('qigong.json').qigongs;
+  const martials = loadJson('martial_arts.json').martial_arts;
+  const manifest = JSON.parse(readFileSync(join(ROOT, 'icons/skills/manifest.json'), 'utf8'));
+  const entries = new Map(manifest.map(entry => [entry.key, entry]));
+  assert.equal(entries.size, qigongs.length + martials.length);
+  const previousWindow = globalThis.window;
+  const previousTemplates = QigongSystem._qigongTemplates;
+  const rendered = new Set();
+  try {
+    globalThis.window = { _martialArtsData: martials };
+    QigongSystem.setTemplates([...qigongs].reverse());
+    for (const family of ['blade', 'sword', 'spear', 'staff']) {
+      for (const faction of ['positive', 'negative']) {
+        for (const level of [1, 99]) {
+          const player = {
+            career_family: family, career: `warrior_${family}_transfer_3`, level, faction,
+            qigong: { available_points: 1, invested: {} }, resources: { training: 1000000 },
+          };
+          for (const tab of ['qigong', 'martial']) {
+            const markup = renderCharacterPanel(player, tab);
+            for (const match of markup.matchAll(/src="icons\/skills\/([^"?]+)\.png/g)) {
+              const [kind, key] = match[1].split('/');
+              assert.equal(entries.get(key)?.kind, kind, key);
+              rendered.add(key);
+            }
+          }
+        }
+      }
+    }
+    assert.deepEqual([...rendered].sort(), [...entries.keys()].sort());
+    for (const skill of [...qigongs, ...martials]) {
+      const entry = entries.get(skill.key);
+      assert.equal(entry.name, skill.name);
+      const png = readFileSync(join(ROOT, 'icons/skills', entry.file));
+      assert.equal(png.subarray(1, 4).toString(), 'PNG', skill.key);
+      assert.equal(png.readUInt32BE(16), entry.size, skill.key);
+      assert.equal(png.readUInt32BE(20), entry.size, skill.key);
+    }
+  } finally {
+    QigongSystem.setTemplates(previousTemplates);
+    if (previousWindow === undefined) delete globalThis.window;
+    else globalThis.window = previousWindow;
+  }
 });
 
 test('城镇任务提示只在确有可提交任务时显示', async () => {
