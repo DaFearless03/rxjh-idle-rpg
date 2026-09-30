@@ -44,7 +44,7 @@ import {
   showOfflineRewardUI,
   updateOfflineRewardProgress,
 } from './ui/MultiSaveUI.js?v=release-20260928-role-parity-1';
-import './ui/BottomBarUI.js?v=release-20260930-skill-icons-1';
+import './ui/BottomBarUI.js?v=release-20260930-martial-prototype-1';
 
 // ========================
 // 数据加载

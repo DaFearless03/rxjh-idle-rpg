@@ -38,8 +38,8 @@ import { buildShopItems } from '../ui/ShopUI.js?v=release-20260928-box-ui-1';
 import { renderBoxResultContent } from '../ui/InventoryUI.js?v=release-20260928-box-ui-1';
 import { CharacterEntryGate } from '../ui/CharacterEntryGate.js?v=release-20260926-save-compat-1';
 import { renderQuestPanel } from '../ui/TaskUI.js?v=release-20260926-save-compat-1';
-import { renderCharacterPanel } from '../ui/CharacterUI.js?v=release-20260930-skill-icons-1';
-import { renderQigongPanel } from '../ui/QigongUI.js?v=release-20260930-skill-icons-1';
+import { renderCharacterPanel } from '../ui/CharacterUI.js?v=release-20260930-martial-prototype-1';
+import { renderQigongPanel } from '../ui/QigongUI.js?v=release-20260930-martial-prototype-1';
 import { base64Decode, base64Encode, computeChecksum } from '../utils/crypto.js?v=release-20260926-save-compat-1';
 import { applyDeathExpLoss, assignQigongPoint, grantExp, onLevelUp } from '../utils/formulas.js?v=release-20260926-save-compat-1';
 import { restoreRuntimePlayerFromSave } from '../utils/player_restore.js?v=release-20260926-save-compat-1';
@@ -49,7 +49,7 @@ const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
 const VISUAL_VERSION = 'release-20260928-role-info-1';
 const ROLE_PARITY_VERSION = 'release-20260928-role-parity-1';
-const QIGONG_ICONS_VERSION = 'release-20260930-skill-icons-1';
+const QIGONG_ICONS_VERSION = 'release-20260930-martial-prototype-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
 const PROTOTYPE_REFRESH_VERSION = QIGONG_ICONS_VERSION;
 
@@ -453,6 +453,50 @@ test('气功页按原型展示紧凑书册卡、点数栏与锁定态', () => {
   assert.doesNotMatch(markup, /icons\/qigong\.png/);
   assert.match(style, /#page-character \.qg-card \.qg-skill-art[\s\S]*?width: 52px;[\s\S]*?height: 52px;[\s\S]*?border: 1px solid/);
   assert.match(style, /#page-character \.role-tab-body:has\(\.qigong-page\)[\s\S]*?border-image: url\('\.\.\/assets\/ui\/role-frame\.svg'\)/);
+});
+
+test('武功原型保留数值和操作，展示完整未满足条件与五种学习状态', () => {
+  const previousWindow = globalThis.window;
+  try {
+    globalThis.window = { _martialArtsData: loadJson('martial_arts.json').martial_arts };
+    const player = {
+      career_family: 'staff', career: 'staff_transfer_1', level: 20, faction: 'neutral',
+      resources: { training: 1000 }, learned_martial_arts: ['staff_fury_shadowpalm', 'staff_fury_heal'],
+    };
+    const markup = renderCharacterPanel(player, 'martial');
+    const cards = markup.match(/<div class="skill-card [\s\S]*?(?=<div class="skill-card |$)/g);
+    assert.match(markup, /当前历练 <b>1,000<\/b>/);
+    assert.match(markup, /转职 <b>1转<\/b>/);
+    assert.match(cards[0], /✓ 已掌握/);
+    assert.doesNotMatch(cards[0], /_castMartialArt|_requestLearnMartial/);
+    assert.match(cards[1], /_castMartialArt\('staff_fury_heal'\)/);
+    assert.doesNotMatch(cards[1], /✓ 已掌握/);
+    assert.match(cards[2], /badge learnable/);
+    assert.match(cards[2], /_requestLearnMartial\('staff_fury_restore'\)" >学习武功/);
+    assert.match(cards[3], /需要 Lv\.35 · 2转/);
+    assert.match(cards[3], /历练 <b>10,000<\/b>/);
+    assert.match(cards[3], /disabled>学习武功/);
+    assert.match(cards[4], /badge poor/);
+    assert.match(cards[4], /历练不足/);
+    assert.match(cards[4], /disabled>学习武功/);
+    for (const card of cards) {
+      for (const label of ['威力', '内功', '历练', '冷却']) assert.ok(card.includes(label), label);
+    }
+    const incompatible = renderCharacterPanel({ ...player, career: 'staff', level: 1 }, 'martial');
+    assert.match(incompatible, /条件不足/);
+    assert.match(incompatible, /当前不可使用/);
+    assert.doesNotMatch(incompatible, /_castMartialArt\('staff_fury_shadowpalm'\)/);
+    globalThis.window._martialArtsData = [];
+    assert.match(renderCharacterPanel(player, 'martial'), /当前历练[\s\S]*暂无职业武功/);
+    const style = readFileSync(join(ROOT, 'css/prototype-refresh.css'), 'utf8');
+    assert.match(style, /\.martial-grid \.skill-card \{[\s\S]*?border-image: url\('\.\.\/assets\/ui\/martial-frame\.svg'\)/);
+    assert.match(style, /\.skill-art \.ui-icon-img \{ width: 20px; height: 20px;/);
+    assert.match(style, /\.martial-grid \.ma-learn \{ min-height: 44px;/);
+    assert.ok(statSync(join(ROOT, 'assets/ui/martial-frame.svg')).size > 0);
+  } finally {
+    if (previousWindow === undefined) delete globalThis.window;
+    else globalThis.window = previousWindow;
+  }
 });
 
 test('89 个技能图标完整覆盖配置，气功排序与锁定状态不会错配图片', () => {

@@ -3,7 +3,7 @@
  * @desc 角色页：严格复用 ui_demo_role 的信息 / 气功 / 武功结构。
  */
 
-import { renderQigongPanel } from './QigongUI.js?v=release-20260930-skill-icons-1';
+import { renderQigongPanel } from './QigongUI.js?v=release-20260930-martial-prototype-1';
 import { meetsMartialArtRequirements } from '../utils/martial_arts.js?v=release-20260926-save-compat-1';
 import { pixelIcon } from './PixelIconUI.js?v=release-20260926-save-compat-1';
 
@@ -109,9 +109,10 @@ function renderMartialPanel(player) {
     return (!family || family === player.career_family)
       && (!faction || faction === player.faction);
   });
-  if (!martialArts.length) return '<div class="q-empty"><div class="qe-ico">📜</div><div class="qe-title">暂无职业武功</div></div>';
+  const summary = `<div class="martial-summary"><span>当前历练 <b>${formatNumber(player.resources?.training)}</b></span><span>转职 <b>${transferCount}转</b></span></div>`;
+  if (!martialArts.length) return `<div class="martial-page">${summary}<div class="q-empty"><div class="qe-ico">📜</div><div class="qe-title">暂无职业武功</div></div></div>`;
 
-  return `<div class="skill-grid martial-grid">${martialArts.map(ma => {
+  return `<div class="martial-page">${summary}<div class="skill-grid martial-grid">${martialArts.map(ma => {
     const req = ma.requirement || {};
     const isLearned = learned.has(ma.key);
     const meetsLevel = (player.level || 1) >= (req.level || 1);
@@ -124,7 +125,12 @@ function renderMartialPanel(player) {
     const badge = isLearned
       ? (meetsRequirements ? '已学习' : '条件不足')
       : canLearn ? '可学习' : meetsRequirements ? '历练不足' : '未解锁';
-    const lockText = !meetsLevel ? `需要 Lv.${req.level}` : !meetsTransfer ? `需要 ${req.min_transfer} 转` : '';
+    const missingConditions = [];
+    if (!meetsLevel) missingConditions.push(`Lv.${req.level}`);
+    if (!meetsTransfer) missingConditions.push(`${req.min_transfer}转`);
+    const lockText = missingConditions.length ? `需要 ${missingConditions.join(' · ')}` : '';
+    const canCast = isLearned && meetsRequirements && (ma.type === 'heal' || ma.type === 'buff');
+    const hint = isLearned && meetsRequirements && !canCast ? '✓ 已掌握' : lockText || (state === 'poor' ? '历练不足' : '');
     return `<div class="skill-card ${state}">
       <div class="skill-card-head">
         <span class="skill-art">${pixelIcon('skills/martial/' + ma.key, 'martial-icon')}</span>
@@ -137,14 +143,13 @@ function renderMartialPanel(player) {
         <span class="mm">历练 <b>${formatNumber(cost)}</b></span>
         <span class="mm">冷却 <b>${(ma.coolDown || 0) / 1000}s</b></span>
       </div>
-      ${lockText ? `<div class="ma-lock-cond">${lockText}</div>` : ''}
-      <div class="ma-foot">${isLearned
-        ? (meetsRequirements && (ma.type === 'heal' || ma.type === 'buff')
+      <div class="ma-foot"><div class="ma-status-note ${state}">${escapeHtml(hint)}</div><div class="ma-action">${isLearned
+        ? (canCast
           ? `<button class="btn-3d green ma-learn" onclick="window._castMartialArt('${ma.key}')">施放武功</button>`
-          : `<div class="ma-learned-note">${meetsRequirements ? '✓ 已掌握' : '当前不可使用'}</div>`)
-        : `<button class="btn-3d green ma-learn" onclick="window._requestLearnMartial('${ma.key}')" ${canLearn ? '' : 'disabled'}>学习武功</button>`}</div>
+          : (meetsRequirements ? '' : '<div class="ma-learned-note">当前不可使用</div>'))
+        : `<button class="btn-3d green ma-learn" onclick="window._requestLearnMartial('${ma.key}')" ${canLearn ? '' : 'disabled'}>学习武功</button>`}</div></div>
     </div>`;
-  }).join('')}</div>`;
+  }).join('')}</div></div>`;
 }
 
 export function renderCharacterPanel(player, activeTab = 'info') {
