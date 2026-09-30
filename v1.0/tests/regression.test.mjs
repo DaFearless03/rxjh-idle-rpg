@@ -52,7 +52,7 @@ const VISUAL_VERSION = 'release-20260928-role-info-1';
 const ROLE_PARITY_VERSION = 'release-20260930-role-overlay-1';
 const QIGONG_ICONS_VERSION = 'release-20260930-role-overlay-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
-const PROTOTYPE_REFRESH_VERSION = QIGONG_ICONS_VERSION;
+const PROTOTYPE_REFRESH_VERSION = 'release-20260930-role-unified-1';
 
 class MemoryStorage {
   constructor() {
@@ -536,9 +536,9 @@ test('武功原型保留数值和操作，展示完整未满足条件与五种�
     globalThis.window._martialArtsData = [];
     assert.match(renderCharacterPanel(player, 'martial'), /当前历练[\s\S]*暂无职业武功/);
     const style = readFileSync(join(ROOT, 'css/prototype-refresh.css'), 'utf8');
-    assert.match(style, /\.martial-grid \.skill-card \{[\s\S]*?border-image: url\('\.\.\/assets\/ui\/martial-frame\.svg'\)/);
+    assert.match(style, /\.martial-grid \.skill-card \{[\s\S]*?border: 1px solid #96a6b9/);
     assert.match(style, /\.skill-art \.ui-icon-img \{ width: 20px; height: 20px;/);
-    assert.match(style, /\.martial-grid \.ma-learn \{ min-height: 44px;/);
+    assert.match(style, /\.martial-grid \.ma-learn \{ min-height: 34px;/);
     assert.ok(statSync(join(ROOT, 'assets/ui/martial-frame.svg')).size > 0);
   } finally {
     if (previousWindow === undefined) delete globalThis.window;
@@ -1033,18 +1033,30 @@ test('视觉原型的角色步骤、设置分层与补给数量输入已接入',
 test('角色信息页的主区域使用原型的蓝色阶梯边框', () => {
   const style = readFileSync(join(ROOT, 'css', 'prototype-refresh.css'), 'utf8');
   const frame = readFileSync(join(ROOT, 'assets', 'ui', 'role-frame.svg'), 'utf8');
-  assert.match(style, /#page-character > \.char-header,[\s\S]*#page-character \.role-info > \.sec-panel,[\s\S]*role-frame\.svg/);
+  assert.match(style, /#page-character > \.char-header,[\s\S]*role-frame\.svg/);
+  assert.match(style, /#page-character \.role-tab-body:has\(\.role-info\),[\s\S]*role-frame\.svg/);
   assert.match(frame, /shape-rendering="crispEdges"/);
   assert.match(frame, /stroke="#1d3e70"/);
+});
+
+test('三个角色标签以气功为基准共用外围框、卡片间距及操作样式', () => {
+  const style = readFileSync(join(ROOT, 'css/prototype-refresh.css'), 'utf8');
+  assert.match(style, /\.role-tab-body:has\(\.role-info\),\s*#page-character \.role-tab-body:has\(\.martial-page\),\s*#page-character \.role-tab-body:has\(\.qigong-page\) \{\s*scrollbar-gutter: stable;[\s\S]*?padding: 2px;/);
+  assert.match(style, /--role-card-gap: 6px;/);
+  assert.match(style, /\.role-info > \.sec-panel \{ border: 1px solid #96a6b9;/);
+  assert.match(style, /\.martial-grid \.skill-card\.locked \{ background: #f0efeb;/);
+  assert.match(style, /\.martial-grid \.skill-name \{[^}]*font-size: 14px;/);
+  assert.match(style, /\.martial-grid \.ma-learn \{ min-height: 34px;[^}]*box-shadow: inset 0 0 0 2px #f7f5eb/);
+  assert.match(style, /\.martial-grid \.ma-learn:disabled \{ background: #cecece; color: #777;/);
+  assert.doesNotMatch(style, /martial-frame\.svg/);
 });
 
 test('角色信息页独立控制原型留白且内容卡片不裁切', () => {
   const style = readFileSync(join(ROOT, 'css', 'prototype-refresh.css'), 'utf8');
   const roleLayout = style.slice(style.indexOf('/* The role prototype'));
   assert.match(roleLayout, /--role-frame-gutter: clamp\(12px, 3\.82vw, 15px\)/);
-  assert.match(roleLayout, /--role-content-gutter: clamp\(16px, 5\.1vw, 20px\)/);
   assert.match(roleLayout, /\.char-header \{ margin: 8px var\(--role-frame-gutter\) 3px/);
-  assert.match(roleLayout, /\.role-tab-body:has\(\.role-info\) \{ padding: 6px var\(--role-content-gutter\) 7px/);
+  assert.match(roleLayout, /\.role-tab-body:has\(\.role-info\),[\s\S]*margin: 0 var\(--role-frame-gutter\)/);
   assert.match(roleLayout, /\.role-info \{\s*min-height: 100%;\s*display: flex;\s*flex-direction: column;\s*gap: var\(--role-card-gap\);/);
   assert.match(roleLayout, /\.role-basic-panel \{ height: auto; \}/);
   assert.match(roleLayout, /\.role-quote \{\s*min-height: 36px;\s*flex: 0 0 auto;/);
