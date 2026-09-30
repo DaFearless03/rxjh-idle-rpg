@@ -1673,34 +1673,43 @@
 #page-character .martial-summary > span + span { border-left: 1px solid #9bacc1; padding-left: 16px; }
 #page-character .martial-summary b { color: #236c3f; font-size: 17px; font-variant-numeric: tabular-nums; }
 #page-character .martial-grid { gap: var(--role-card-gap); }
-#page-character .martial-grid .skill-card { display: grid; grid-template-columns: 52px minmax(0,1fr) auto; gap: 4px 10px; padding: 2px 3px; border: 6px solid transparent; border-image: url('../assets/ui/martial-frame.svg') 8 / 6px stretch; box-shadow: none; opacity: 1; }
+#page-character .martial-grid .skill-card { display: grid; grid-template-columns: 52px minmax(0,1fr) 88px; align-content: start; gap: 5px 8px; padding: 4px; border: 4px solid transparent; border-image: url('../assets/ui/role-frame.svg') 8 / 4px stretch; box-shadow: none; opacity: 1; }
 #page-character .martial-grid .skill-card.locked { background: #fffef8; }
 #page-character .martial-grid .skill-card-head { display: contents; }
 #page-character .martial-grid .skill-card-copy { grid-column: 2; grid-row: 1; }
-#page-character .martial-grid .skill-card-head .badge { grid-column: 3; grid-row: 1; align-self: start; }
-#page-character .martial-grid .skill-art { grid-column: 1; grid-row: 1 / 3; width: 52px; height: 52px; box-sizing: border-box; border: 1px solid #8d9bae; background: #f4f1e8; box-shadow: inset 0 0 0 1px #fffef8; }
+#page-character .martial-grid .skill-card-head .badge { grid-column: 3; grid-row: 1; align-self: start; justify-self: end; }
+#page-character .martial-grid .skill-art { grid-column: 1; grid-row: 1 / 3; align-self: start; width: 52px; height: 52px; box-sizing: border-box; border: 1px solid #8d9bae; background: #f4f1e8; box-shadow: inset 0 0 0 1px #fffef8; }
 #page-character .martial-grid .skill-art .martial-icon { width: 46px; height: 46px; }
 #page-character .martial-grid .skill-name { color: #142d58; font-size: 14px; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
-#page-character .martial-grid .skill-desc { color: #283e64; font-size: 12px; line-height: 1.35; }
+#page-character .martial-grid .skill-desc { margin-top: 2px; color: #283e64; font-size: 12px; line-height: 1.35; }
 #page-character .martial-grid .badge { border: 0; border-radius: 0; padding: 3px 7px; font-size: 11px; line-height: 1.4; }
 #page-character .martial-grid .badge.learned { background: #d6e9d8; color: #236c3f; }
 #page-character .martial-grid .badge.learnable { background: #dce8f6; color: #244478; }
 #page-character .martial-grid .badge.locked { background: #cecece; color: #777; }
 #page-character .martial-grid .badge.poor { background: #f0e5c9; color: #805915; }
-#page-character .martial-grid .ma-meta { grid-column: 2 / -1; grid-row: 2; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 3px 10px; margin: 0; }
-#page-character .martial-grid .ma-meta .mm { display: flex; align-items: baseline; gap: 8px; min-width: 0; color: #283e64; font-size: 12px; }
-#page-character .martial-grid .ma-meta .mm:nth-child(even) { border-left: 1px solid #c0c7cf; padding-left: 12px; }
+#page-character .martial-grid .ma-meta { grid-column: 2; grid-row: 2; grid-template-columns: repeat(2,minmax(0,1fr)); align-content: start; gap: 3px 8px; margin: 0; }
+#page-character .martial-grid .ma-meta .mm { display: flex; align-items: baseline; gap: 5px; min-width: 0; color: #283e64; font-size: 12px; line-height: 1.35; }
+#page-character .martial-grid .ma-meta .mm:nth-child(even) { border-left: 1px solid #c0c7cf; padding-left: 7px; }
 #page-character .martial-grid .ma-meta b { color: #142d58; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 #page-character .martial-grid .ma-meta .mm:first-child b { color: #a23432; }
-#page-character .martial-grid .ma-foot { grid-column: 1 / -1; grid-row: 3; display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 34px; margin: 0; }
-#page-character .martial-grid .ma-status-note { min-width: 0; color: #a23432; font-size: 11px; font-weight: 700; overflow-wrap: anywhere; }
+#page-character .martial-grid .ma-foot { display: contents; }
+#page-character .martial-grid .ma-status-note { grid-column: 1 / -1; grid-row: 3; min-width: 0; color: #a23432; font-size: 11px; line-height: 1.35; font-weight: 700; overflow-wrap: anywhere; }
+#page-character .martial-grid .ma-status-note:empty,
+#page-character .martial-grid .ma-action:empty { display: none; }
+#page-character .martial-grid .skill-card:has(.ma-action:empty) .ma-meta { grid-column: 2 / -1; }
 #page-character .martial-grid .ma-status-note.learned { color: #236c3f; }
 #page-character .martial-grid .ma-status-note.poor { color: #805915; }
-#page-character .martial-grid .ma-action { flex: 0 0 auto; }
+#page-character .martial-grid .ma-action { grid-column: 3; grid-row: 2; align-self: end; justify-self: end; }
 #page-character .martial-grid .ma-learn { min-height: 34px; min-width: 88px; padding: 4px 8px; border: 1px solid #234276; border-radius: 0; box-shadow: inset 0 0 0 2px #f7f5eb, 1px 1px 0 #234276; font-size: 12px; font-weight: 700; }
-#page-character .martial-grid .ma-learn:not(:disabled) { border: 4px solid transparent; border-image: url('../assets/ui/martial-frame.svg') 8 / 4px stretch; background: #365ca5; color: #fff; box-shadow: inset 0 0 0 1px #f7f5eb; }
+#page-character .martial-grid .ma-learn:not(:disabled) { border: 3px solid transparent; border-image: url('../assets/ui/role-frame.svg') 8 / 3px stretch; background: #365ca5; color: #fff; box-shadow: inset 0 0 0 1px #f7f5eb; }
 #page-character .martial-grid .ma-learn:disabled { background: #cecece; color: #777; border-color: #9c9c9c; box-shadow: inset 0 0 0 2px #e8e8e8, 1px 1px 0 #9c9c9c; }
 #page-character .martial-grid .ma-learned-note { color: #646470; font-size: 12px; }
+@media (max-width: 360px) {
+  #page-character .martial-grid .skill-card { grid-template-columns: 52px minmax(0,1fr) auto; }
+  #page-character .martial-grid .ma-meta { grid-column: 2 / -1; }
+  #page-character .martial-grid .ma-action { grid-column: 2 / -1; grid-row: 3; }
+  #page-character .martial-grid .skill-card:has(.ma-action:not(:empty)) .ma-status-note { grid-row: 4; }
+}
 #npcDialogBackdrop.npc-dialog-backdrop:has(.mz-tabs) { align-items: flex-end; padding: 0; }
 #npcDialogBackdrop:has(.mz-tabs) .npc-dialog { width: 100%; height: 88%; max-height: 88%; margin-top: auto; padding: 12px; border-bottom: 0; border-radius: 4px 4px 0 0; }
 #npcDialogBackdrop:has(.mz-tabs) .mz-pane { max-height: calc(88dvh - 190px); }

@@ -52,7 +52,7 @@ const VISUAL_VERSION = 'release-20260928-role-info-1';
 const ROLE_PARITY_VERSION = 'release-20260930-role-overlay-1';
 const QIGONG_ICONS_VERSION = 'release-20260930-role-overlay-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
-const PROTOTYPE_REFRESH_VERSION = 'release-20260930-martial-framed-1';
+const PROTOTYPE_REFRESH_VERSION = 'release-20261001-martial-compact-1';
 
 class MemoryStorage {
   constructor() {
@@ -536,9 +536,12 @@ test('武功原型保留数值和操作，展示完整未满足条件与五种�
     globalThis.window._martialArtsData = [];
     assert.match(renderCharacterPanel(player, 'martial'), /当前历练[\s\S]*暂无职业武功/);
     const style = readFileSync(join(ROOT, 'css/prototype-refresh.css'), 'utf8');
-    assert.match(style, /\.martial-grid \.skill-card \{[^}]*grid-template-columns: 52px minmax\(0,1fr\) auto;[^}]*martial-frame\.svg/);
+    assert.match(style, /\.martial-grid \.skill-card \{[^}]*grid-template-columns: 52px minmax\(0,1fr\) 88px;[^}]*role-frame\.svg/);
     assert.match(style, /\.martial-grid \.skill-art \.martial-icon \{ width: 46px; height: 46px;/);
-    assert.match(style, /\.martial-grid \.ma-meta \{ grid-column: 2 \/ -1; grid-row: 2;/);
+    assert.match(style, /\.martial-grid \.ma-meta \{ grid-column: 2; grid-row: 2;/);
+    assert.match(style, /\.martial-grid \.ma-foot \{ display: contents;/);
+    assert.match(style, /\.ma-action:empty \{ display: none;/);
+    assert.match(style, /\.skill-card:has\(\.ma-action:empty\) \.ma-meta \{ grid-column: 2 \/ -1;/);
     assert.match(style, /\.martial-grid \.skill-card-head \{ display: contents;/);
     assert.match(style, /\.martial-grid \.ma-learn \{ min-height: 34px;/);
     assert.ok(statSync(join(ROOT, 'assets/ui/martial-frame.svg')).size > 0);
