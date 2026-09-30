@@ -52,7 +52,7 @@ const VISUAL_VERSION = 'release-20260928-role-info-1';
 const ROLE_PARITY_VERSION = 'release-20260930-role-overlay-1';
 const QIGONG_ICONS_VERSION = 'release-20260930-role-overlay-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
-const PROTOTYPE_REFRESH_VERSION = 'release-20260930-role-unified-1';
+const PROTOTYPE_REFRESH_VERSION = 'release-20260930-martial-framed-1';
 
 class MemoryStorage {
   constructor() {
@@ -536,8 +536,10 @@ test('武功原型保留数值和操作，展示完整未满足条件与五种�
     globalThis.window._martialArtsData = [];
     assert.match(renderCharacterPanel(player, 'martial'), /当前历练[\s\S]*暂无职业武功/);
     const style = readFileSync(join(ROOT, 'css/prototype-refresh.css'), 'utf8');
-    assert.match(style, /\.martial-grid \.skill-card \{[\s\S]*?border: 1px solid #96a6b9/);
-    assert.match(style, /\.skill-art \.ui-icon-img \{ width: 20px; height: 20px;/);
+    assert.match(style, /\.martial-grid \.skill-card \{[^}]*grid-template-columns: 52px minmax\(0,1fr\) auto;[^}]*martial-frame\.svg/);
+    assert.match(style, /\.martial-grid \.skill-art \.martial-icon \{ width: 46px; height: 46px;/);
+    assert.match(style, /\.martial-grid \.ma-meta \{ grid-column: 2 \/ -1; grid-row: 2;/);
+    assert.match(style, /\.martial-grid \.skill-card-head \{ display: contents;/);
     assert.match(style, /\.martial-grid \.ma-learn \{ min-height: 34px;/);
     assert.ok(statSync(join(ROOT, 'assets/ui/martial-frame.svg')).size > 0);
   } finally {
@@ -580,6 +582,8 @@ test('89 个技能图标完整覆盖配置，气功排序与锁定状态不会�
     for (const skill of [...qigongs, ...martials]) {
       const entry = entries.get(skill.key);
       assert.equal(entry.name, skill.name);
+      assert.equal(entry.size, 92, skill.key);
+      assert.equal(entry.displaySize, 46, skill.key);
       const png = readFileSync(join(ROOT, 'icons/skills', entry.file));
       assert.equal(png.subarray(1, 4).toString(), 'PNG', skill.key);
       assert.equal(png.readUInt32BE(16), entry.size, skill.key);
@@ -1044,11 +1048,11 @@ test('三个角色标签以气功为基准共用外围框、卡片间距及操�
   assert.match(style, /\.role-tab-body:has\(\.role-info\),\s*#page-character \.role-tab-body:has\(\.martial-page\),\s*#page-character \.role-tab-body:has\(\.qigong-page\) \{\s*scrollbar-gutter: stable;[\s\S]*?padding: 2px;/);
   assert.match(style, /--role-card-gap: 6px;/);
   assert.match(style, /\.role-info > \.sec-panel \{ border: 1px solid #96a6b9;/);
-  assert.match(style, /\.martial-grid \.skill-card\.locked \{ background: #f0efeb;/);
+  assert.match(style, /\.martial-grid \.skill-card\.locked \{ background: #fffef8;/);
   assert.match(style, /\.martial-grid \.skill-name \{[^}]*font-size: 14px;/);
   assert.match(style, /\.martial-grid \.ma-learn \{ min-height: 34px;[^}]*box-shadow: inset 0 0 0 2px #f7f5eb/);
   assert.match(style, /\.martial-grid \.ma-learn:disabled \{ background: #cecece; color: #777;/);
-  assert.doesNotMatch(style, /martial-frame\.svg/);
+  assert.match(style, /\.martial-grid \.skill-art \{[^}]*width: 52px; height: 52px;/);
 });
 
 test('角色信息页独立控制原型留白且内容卡片不裁切', () => {
