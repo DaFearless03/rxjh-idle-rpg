@@ -52,7 +52,7 @@ const VISUAL_VERSION = 'release-20260928-role-info-1';
 const ROLE_PARITY_VERSION = 'release-20260930-role-overlay-1';
 const QIGONG_ICONS_VERSION = 'release-20260930-role-overlay-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
-const PROTOTYPE_REFRESH_VERSION = 'release-20261001-martial-compact-1';
+const PROTOTYPE_REFRESH_VERSION = 'release-20261001-mobile-gutters-1';
 
 class MemoryStorage {
   constructor() {
@@ -1048,7 +1048,7 @@ test('角色信息页的主区域使用原型的蓝色阶梯边框', () => {
 
 test('三个角色标签以气功为基准共用外围框、卡片间距及操作样式', () => {
   const style = readFileSync(join(ROOT, 'css/prototype-refresh.css'), 'utf8');
-  assert.match(style, /\.role-tab-body:has\(\.role-info\),\s*#page-character \.role-tab-body:has\(\.martial-page\),\s*#page-character \.role-tab-body:has\(\.qigong-page\) \{\s*scrollbar-gutter: stable;[\s\S]*?padding: 2px;/);
+  assert.match(style, /\.role-tab-body:has\(\.role-info\),\s*#page-character \.role-tab-body:has\(\.martial-page\),\s*#page-character \.role-tab-body:has\(\.qigong-page\) \{\s*scrollbar-gutter: stable;[\s\S]*?padding: 0;/);
   assert.match(style, /--role-card-gap: 6px;/);
   assert.match(style, /\.role-info > \.sec-panel \{ border: 1px solid #96a6b9;/);
   assert.match(style, /\.martial-grid \.skill-card\.locked \{ background: #fffef8;/);
@@ -1061,7 +1061,7 @@ test('三个角色标签以气功为基准共用外围框、卡片间距及操�
 test('角色信息页独立控制原型留白且内容卡片不裁切', () => {
   const style = readFileSync(join(ROOT, 'css', 'prototype-refresh.css'), 'utf8');
   const roleLayout = style.slice(style.indexOf('/* The role prototype'));
-  assert.match(roleLayout, /--role-frame-gutter: clamp\(12px, 3\.82vw, 15px\)/);
+  assert.match(roleLayout, /--role-frame-gutter: clamp\(8px, 2\.54vw, 10px\)/);
   assert.match(roleLayout, /\.char-header \{ margin: 8px var\(--role-frame-gutter\) 3px/);
   assert.match(roleLayout, /\.role-tab-body:has\(\.role-info\),[\s\S]*margin: 0 var\(--role-frame-gutter\)/);
   assert.match(roleLayout, /\.role-info \{\s*min-height: 100%;\s*display: flex;\s*flex-direction: column;\s*gap: var\(--role-card-gap\);/);
@@ -1069,6 +1069,12 @@ test('角色信息页独立控制原型留白且内容卡片不裁切', () => {
   assert.match(roleLayout, /\.role-quote \{\s*min-height: 36px;\s*flex: 0 0 auto;/);
   assert.match(roleLayout, /--role-safe-area-bottom: env\(safe-area-inset-bottom, 0px\)/);
   assert.match(roleLayout, /margin: 0 var\(--role-frame-gutter\) calc\(8px \+ var\(--role-safe-area-bottom\)\)/);
+});
+
+test('手机根容器与页面使用同一宽度，避免大于393px时向右溢出', () => {
+  const style = readFileSync(join(ROOT, 'css', 'prototype-refresh.css'), 'utf8');
+  assert.match(style, /@media \(max-width: 480px\) \{\s*#ui-root \{ width: 100%; \}\s*\.phone-frame \{ width: 100%; \}/);
+  assert.match(style, /#ui-root \{ width: min\(393px, 100vw\); \}/);
 });
 
 test('金币达到安全整数上限时出售保持原子性', () => {

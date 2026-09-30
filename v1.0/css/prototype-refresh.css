@@ -2,6 +2,10 @@
    Page markup and handlers stay owned by the existing UI modules. */
 
 #ui-root { width: min(393px, 100vw); }
+@media (max-width: 480px) {
+  #ui-root { width: 100%; }
+  .phone-frame { width: 100%; }
+}
 @media (max-width: 900px) and (max-height: 500px) {
   #ui-root { width: 100vw; }
 }
@@ -1720,7 +1724,7 @@
 
 /* The role prototype uses the same blue stepped frame around its main sections. */
 #page-character {
-  --role-frame-gutter: clamp(12px, 3.82vw, 15px);
+  --role-frame-gutter: clamp(8px, 2.54vw, 10px);
   --role-card-gap: 6px;
   --role-safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -1834,7 +1838,7 @@
 #page-character .role-tab-body:has(.qigong-page) {
   scrollbar-gutter: stable;
   margin: 0 var(--role-frame-gutter);
-  padding: 2px;
+  padding: 0;
   border: 8px solid transparent;
   border-image: url('../assets/ui/role-frame.svg') 8 / 8px stretch;
   background: #fffef8;
