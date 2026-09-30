@@ -49,7 +49,7 @@ const DATA_DIR = join(ROOT, 'data');
 const MODULE_VERSION = 'release-20260926-save-compat-1';
 const VISUAL_VERSION = 'release-20260928-role-info-1';
 const ROLE_PARITY_VERSION = 'release-20260928-role-parity-1';
-const QIGONG_ICONS_VERSION = 'release-20260928-qigong-icons-2';
+const QIGONG_ICONS_VERSION = 'release-20260930-qigong-parity-1';
 const HOME_CSS_VERSION = 'release-20260927-map-selector-1';
 const PROTOTYPE_REFRESH_VERSION = QIGONG_ICONS_VERSION;
 
@@ -432,7 +432,7 @@ test('角色信息页按原型显示紧凑基础信息与双列战斗属性', ()
   }
 });
 
-test('气功页按原型展示方形秘籍图框、彩色书册和锁定态', () => {
+test('气功页按原型展示紧凑书册卡、点数栏与锁定态', () => {
   QigongSystem.setTemplates(loadJson('qigong.json').qigongs);
   const markup = renderQigongPanel({
     career: 'healer', career_family: 'staff', level: 1,
@@ -444,14 +444,18 @@ test('气功页按原型展示方形秘籍图框、彩色书册和锁定态', ()
   assert.match(markup, /data-qg-icon="book-green"/);
   assert.match(markup, /data-qg-icon="book-red"/);
   assert.match(markup, /data-qg-icon="book-locked"/);
-  assert.match(markup, /class="skill-art qg-skill-art"[\s\S]*?width="44" height="44"/);
+  assert.match(markup, /class="skill-art qg-skill-art"[\s\S]*?width="46" height="46"/);
   assert.match(markup, /skill-card qg-card locked/);
+  assert.match(markup, /剩余气功点 <b>1<\/b>/);
+  assert.ok(markup.indexOf('qg-reset-btn') < markup.indexOf('skill-grid'));
+  assert.match(markup, /class="qg-lv">Lv\.0\/20<\/span>/);
+  assert.match(markup, /class="qg-add qg-locked-btn" disabled>未解锁<\/button>/);
+  assert.match(markup, /＋加点<\/button>/);
+  assert.doesNotMatch(markup, /qg-mini-bar|qg-pts-row|＋投点/);
   assert.doesNotMatch(markup, /icons\/qigong\.png/);
   assert.match(style, /#page-character \.qg-card \.qg-skill-art[\s\S]*?width: 52px;[\s\S]*?height: 52px;[\s\S]*?border: 1px solid/);
-  assert.match(style, /#page-character \.qg-book-icon \{[^}]*width: 44px; height: 44px;/);
-  assert.match(style, /#page-character \.qg-card \{ grid-template-columns: 52px minmax\(0,1fr\) auto; gap: 12px;/);
-  assert.match(style, /#page-character \.qg-card\.locked \{ grid-template-columns: 52px minmax\(0,1fr\); \}/);
-  assert.match(style, /#page-character \.qg-add,[\s\S]*?min-height: 44px/);
+  assert.match(style, /#page-character \.qg-book-icon \{[^}]*width: 46px; height: 46px;/);
+  assert.match(style, /#page-character \.role-tab-body:has\(\.qigong-page\)[\s\S]*?border-image: url\('\.\.\/assets\/ui\/role-frame\.svg'\)/);
 });
 
 test('城镇任务提示只在确有可提交任务时显示', async () => {

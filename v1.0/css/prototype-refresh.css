@@ -1624,7 +1624,7 @@
   background: #f6f3e9;
   box-shadow: inset 0 0 0 1px #fffef8;
 }
-#page-character .qg-book-icon { display: block; width: 44px; height: 44px; shape-rendering: crispEdges; }
+#page-character .qg-book-icon { display: block; width: 46px; height: 46px; shape-rendering: crispEdges; }
 #page-character .skill-card-head { display: flex; align-items: flex-start; }
 #page-character .skill-card-copy { flex: 1 1 auto; min-width: 0; }
 #page-character .skill-card-head .badge { margin-left: auto; white-space: nowrap; }
@@ -1755,4 +1755,121 @@
   width: 20px;
   height: 20px;
   flex-basis: 20px;
+}
+
+/* Qigong uses the same stepped frame and compact book rows as the role prototype. */
+#page-character .role-tab-body:has(.qigong-page) {
+  margin: 0 var(--role-frame-gutter);
+  padding: 2px;
+  border: 8px solid transparent;
+  border-image: url('../assets/ui/role-frame.svg') 8 / 8px stretch;
+  background: #fffef8;
+}
+#page-character .qigong-page { gap: 6px; }
+#page-character .qigong-page .skill-grid { gap: 6px; }
+#page-character .qigong-page .qg-bar-top {
+  min-height: 44px;
+  padding: 2px 3px 7px;
+  border: 0;
+  border-bottom: 1px solid #9bacc1;
+  border-radius: 0;
+  background: transparent;
+  color: #152e5a;
+  font-size: 14px;
+  font-weight: 700;
+}
+#page-character .qg-points-label { display: inline-flex; align-items: center; gap: 9px; }
+#page-character .qigong-page .qg-bar-top b { color: #236c3f; font-size: 17px; }
+#page-character .qigong-page .qg-reset-btn {
+  width: auto;
+  min-width: 94px;
+  min-height: 34px;
+  margin: 0;
+  padding: 5px 8px;
+  border: 1px solid #244478;
+  border-radius: 0;
+  background: #6d86b4;
+  color: #fff;
+  box-shadow: inset 0 0 0 2px #f7f5eb, 1px 1px 0 #244478;
+  font-size: 12px;
+  font-weight: 700;
+}
+#page-character .qigong-page .qg-card,
+#page-character .qigong-page .qg-card.locked {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 76px;
+  align-items: center;
+  gap: 9px;
+  min-height: 78px;
+  padding: 7px;
+  border: 1px solid #96a6b9;
+  border-radius: 0;
+  background: #fffef8;
+  box-shadow: inset 0 0 0 1px #ece8de;
+  opacity: 1;
+}
+#page-character .qigong-page .qg-card.locked { background: #f0efeb; }
+#page-character .qigong-page .qg-card .qg-skill-art {
+  border-color: #8d9bae;
+  background: #f4f1e8;
+}
+#page-character .qigong-page .qg-card .sc-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px;
+}
+#page-character .qigong-page .sc-name {
+  color: #142d58;
+  font-size: 14px;
+  font-weight: 700;
+}
+#page-character .qigong-page .qg-lv {
+  min-width: 0;
+  color: #142d58;
+  font-size: 11px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+#page-character .qigong-page .sc-desc {
+  margin-top: 6px;
+  color: #283e64;
+  font-size: 12px;
+  line-height: 1.35;
+}
+#page-character .qigong-page .qg-lock-cond {
+  margin: 0;
+  color: #a23432;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: right;
+}
+#page-character .qigong-page .qg-add {
+  min-height: 34px;
+  padding: 4px 3px;
+  border: 1px solid #234276;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 2px #f7f5eb, 1px 1px 0 #234276;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+#page-character .qigong-page .qg-locked-btn {
+  border-color: #9c9c9c;
+  background: #cecece;
+  color: #777;
+  box-shadow: inset 0 0 0 2px #e8e8e8, 1px 1px 0 #9c9c9c;
+}
+@media (max-width: 360px) {
+  #page-character .qigong-page .qg-card,
+  #page-character .qigong-page .qg-card.locked {
+    grid-template-columns: 46px minmax(0, 1fr) 68px;
+    gap: 6px;
+    padding: 6px;
+  }
+  #page-character .qigong-page .qg-card .qg-skill-art { width: 46px; height: 46px; }
+  #page-character .qigong-page .qg-card .qg-book-icon { width: 38px; height: 38px; }
+  #page-character .qigong-page .qg-card.locked .sc-head { display: block; }
+  #page-character .qigong-page .qg-card.locked .qg-lock-cond { display: block; margin-top: 2px; text-align: left; }
 }
